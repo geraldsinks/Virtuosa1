@@ -4116,8 +4116,9 @@ app.get('/api/messages/unread-count', authenticateToken, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT,'0.0.0.0' () => {
-    console.log(`Server is running on port ${PORT}`);
+
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Virtuosa backend is listening on port ${PORT}`);
 });
 
 // Socket.io connection handling
