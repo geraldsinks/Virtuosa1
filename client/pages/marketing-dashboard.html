@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Admin Dashboard - Virtuosa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .sidebar-item-active {
+            background-color: rgba(255, 215, 0, 0.1);
+            border-left: 4px solid #FFD700;
+            color: #FFD700;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .bg-gold {
+            background-color: #C19A6B;
+        }
+
+        .text-gold {
+            color: #C19A6B;
+        }
+
+        .border-gold {
+            border-color: #C19A6B;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-navy text-white flex-shrink-0 flex flex-col">
+        <div class="p-6 border-b border-gray-800">
+            <h1 class="text-2xl font-bold text-gold">Virtuosa</h1>
+            <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">Marketing Admin</p>
+        </div>
+        <nav class="flex-grow py-4 overflow-y-auto">
+            <button onclick="switchTab('overview')"
+                class="sidebar-item w-full flex items-center px-6 py-3 text-sm font-medium hover:bg-gray-800 transition-colors sidebar-item-active"
+                data-tab="overview">
+                <i class="fas fa-home mr-3"></i> Overview
+            </button>
+            <button onclick="switchTab('promotions')"
+                class="sidebar-item w-full flex items-center px-6 py-3 text-sm font-medium hover:bg-gray-800 transition-colors"
+                data-tab="promotions">
+                <i class="fas fa-tags mr-3"></i> Promotions & Deals
+            </button>
+            <button onclick="switchTab('banners')"
+                class="sidebar-item w-full flex items-center px-6 py-3 text-sm font-medium hover:bg-gray-800 transition-colors"
+                data-tab="banners">
+                <i class="fas fa-image mr-3"></i> Banners & Hero
+            </button>
+            <button onclick="switchTab('content')"
+                class="sidebar-item w-full flex items-center px-6 py-3 text-sm font-medium hover:bg-gray-800 transition-colors"
+                data-tab="content">
+                <i class="fas fa-file-alt mr-3"></i> A+ Content
+            </button>
+            <button onclick="switchTab('calendar')"
+                class="sidebar-item w-full flex items-center px-6 py-3 text-sm font-medium hover:bg-gray-800 transition-colors"
+                data-tab="calendar">
+                <i class="fas fa-calendar-alt mr-3"></i> Content Calendar
+            </button>
+            <button onclick="switchTab('assets')"
+                class="sidebar-item w-full flex items-center px-6 py-3 text-sm font-medium hover:bg-gray-800 transition-colors"
+                data-tab="assets">
+                <i class="fas fa-folder-open mr-3"></i> Asset Library
+            </button>
+            <div class="mt-8 px-6 text-xs font-semibold text-gray-500 uppercase tracking-widest">Performance</div>
+            <button onclick="switchTab('analytics')"
+                class="sidebar-item w-full flex items-center px-6 py-3 text-sm font-medium hover:bg-gray-800 transition-colors"
+                data-tab="analytics">
+                <i class="fas fa-chart-line mr-3"></i> Insights
+            </button>
+        </nav>
+        <div class="p-4 border-t border-gray-800">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-xs font-bold text-white">
+                    MA</div>
+                <div>
+                    <p class="text-sm font-medium" id="admin-name">Marketing Admin</p>
+                    <p class="text-xs text-gray-400">Moderator</p>
+                </div>
+            </div>
+            <button onclick="logout()"
+                class="mt-4 w-full py-2 text-xs text-red-400 hover:text-red-300 transition-colors text-left pl-2">
+                <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col min-w-0 bg-gray-50 overflow-hidden">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 py-4 px-8 flex justify-between items-center z-10">
+            <div>
+                <h2 id="tab-title" class="text-xl font-bold text-gray-800">Marketing Overview</h2>
+                <p id="tab-subtitle" class="text-sm text-gray-500">Real-time performance and quick actions</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <input type="text" placeholder="Search campaigns..."
+                        class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+                <button
+                    class="bg-navy text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
+                    <i class="fas fa-plus mr-2"></i> Quick Launch
+                </button>
+            </div>
+        </header>
+
+        <!-- Scrollable Area -->
+        <div class="flex-grow overflow-y-auto p-8" id="content-area">
+
+            <!-- Overview Tab -->
+            <div id="tab-overview" class="tab-content active space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Active Promos</p>
+                                <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-active-promos">12</h3>
+                            </div>
+                            <div class="bg-blue-50 p-2 rounded-lg text-blue-600"><i class="fas fa-tags"></i></div>
+                        </div>
+                        <div class="mt-4 flex items-center text-xs text-green-600 font-medium">
+                            <i class="fas fa-arrow-up mr-1"></i> 2 new today
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Coupon Clips</p>
+                                <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-coupon-clips">1,248</h3>
+                            </div>
+                            <div class="bg-purple-50 p-2 rounded-lg text-purple-600"><i class="fas fa-ticket-alt"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-xs text-green-600 font-medium">
+                            <i class="fas fa-arrow-up mr-1"></i> 14% vs last week
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Banner CTR</p>
+                                <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-banner-ctr">3.4%</h3>
+                            </div>
+                            <div class="bg-orange-50 p-2 rounded-lg text-orange-600"><i
+                                    class="fas fa-mouse-pointer"></i></div>
+                        </div>
+                        <div class="mt-4 flex items-center text-xs text-red-600 font-medium">
+                            <i class="fas fa-arrow-down mr-1"></i> 0.2% decrease
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Sales Lift</p>
+                                <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-sales-lift">24.5%</h3>
+                            </div>
+                            <div class="bg-green-50 p-2 rounded-lg text-green-600"><i class="fas fa-chart-area"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-xs text-green-600 font-medium">
+                            <i class="fas fa-arrow-up mr-1"></i> 5.2% lift this period
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h4 class="font-bold text-gray-800 mb-4">Urgent Recommendations</h4>
+                        <div class="space-y-4" id="recommendations-container">
+                            <div class="flex items-start p-4 bg-yellow-50 rounded-lg border border-yellow-100">
+                                <div class="bg-yellow-100 p-2 rounded-full text-yellow-700 mr-3 mt-1"><i
+                                        class="fas fa-lightbulb"></i></div>
+                                <div class="flex-grow">
+                                    <h5 class="font-semibold text-yellow-800 text-sm">Lightning Deal Potential</h5>
+                                    <p class="text-xs text-yellow-700 mt-1">"Course Notes for CS101" is trending. Launch
+                                        a 2-hour Lightning Deal to capitalize on current velocity.</p>
+                                </div>
+                                <button class="text-xs font-bold text-yellow-800 hover:underline">LAUNCH WIZARD</button>
+                            </div>
+                            <div class="flex items-start p-4 bg-blue-50 rounded-lg border border-blue-100">
+                                <div class="bg-blue-100 p-2 rounded-full text-blue-700 mr-3 mt-1"><i
+                                        class="fas fa-sync"></i></div>
+                                <div class="flex-grow">
+                                    <h5 class="font-semibold text-blue-800 text-sm">Extend Top Performing Coupon</h5>
+                                    <p class="text-xs text-blue-700 mt-1">"WELCOME10" coupon is at 95% redemption
+                                        capacity. Extend for another 48 hours?</p>
+                                </div>
+                                <button class="text-xs font-bold text-blue-800 hover:underline">EXTEND</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-navy rounded-xl shadow-lg p-6 text-white">
+                        <h4 class="font-bold text-gold mb-4">Active System Status</h4>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium">Banner Rotation</span>
+                                <span
+                                    class="px-2 py-1 bg-green-500 text-white text-[10px] font-bold rounded-full">OPTIMIZED</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium">Promo Validation</span>
+                                <span
+                                    class="px-2 py-1 bg-green-500 text-white text-[10px] font-bold rounded-full">ACTIVE</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium">Cache Status</span>
+                                <span
+                                    class="px-2 py-1 bg-blue-500 text-white text-[10px] font-bold rounded-full">SYNCED</span>
+                            </div>
+                            <div class="pt-4 border-t border-gray-800 mt-4">
+                                <p class="text-xs text-gray-400 italic">"Marketing changes are synchronized across all
+                                    campus nodes in near real-time."</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Promotions Tab -->
+            <div id="tab-promotions" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <div class="flex space-x-2">
+                        <button
+                            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">All</button>
+                        <button
+                            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">Coupons</button>
+                        <button
+                            class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">Lightning
+                            deals</button>
+                    </div>
+                    <button onclick="openPromotionWizard()"
+                        class="bg-gold text-white px-6 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-opacity-90 transition-all">
+                        <i class="fas fa-plus mr-2"></i> Create Promotion
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-widest">
+                                    Promotion</th>
+                                <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-widest">Type
+                                </th>
+                                <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-widest">
+                                    Value</th>
+                                <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-widest">
+                                    Status</th>
+                                <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-widest">
+                                    Dates</th>
+                                <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-widest">
+                                    Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="promotions-list">
+                            <!-- JS populated -->
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center text-gray-500 italic">Fetching current
+                                    promotions...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Banners Tab -->
+            <div id="tab-banners" class="tab-content hidden space-y-6">
+                <!-- Banner Grid/Management -->
+            </div>
+
+            <!-- Content Enhancement (A+) Tab -->
+            <div id="tab-content" class="tab-content hidden space-y-6">
+                <!-- A+ Content Management -->
+            </div>
+
+            <!-- Asset Library Tab -->
+            <div id="tab-assets" class="tab-content hidden space-y-6">
+                <!-- Asset Grid -->
+            </div>
+
+            <!-- Insights Tab -->
+            <div id="tab-analytics" class="tab-content hidden space-y-6">
+                <!-- Performance Charts -->
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal: Promotion Wizard -->
+    <div id="promo-wizard-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">Launch New Promotion</h3>
+                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wider mt-1">Wizard: Step <span
+                            id="wizard-step-indicator">1</span> of 3</p>
+                </div>
+                <button onclick="closePromotionWizard()" class="text-gray-400 hover:text-gray-600 transition-colors"><i
+                        class="fas fa-times text-xl"></i></button>
+            </div>
+
+            <div class="p-8 overflow-y-auto" id="wizard-steps-container">
+                <!-- Step 1: Promotion Type -->
+                <div id="step-1" class="wizard-step space-y-6">
+                    <label class="block text-sm font-bold text-gray-700">Choose Promotion Type</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div onclick="selectPromoType('coupon')"
+                            class="promo-type-card p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-gold transition-all flex flex-col items-center text-center space-y-2 group"
+                            id="type-coupon">
+                            <i
+                                class="fas fa-ticket-alt text-3xl text-gray-400 group-hover:text-gold transition-colors"></i>
+                            <span class="font-bold text-sm text-gray-800">Clippable Coupon</span>
+                            <span class="text-[10px] text-gray-500">Customer "clips" for discount</span>
+                        </div>
+                        <div onclick="selectPromoType('lightning')"
+                            class="promo-type-card p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-gold transition-all flex flex-col items-center text-center space-y-2 group"
+                            id="type-lightning">
+                            <i class="fas fa-bolt text-3xl text-gray-400 group-hover:text-gold transition-colors"></i>
+                            <span class="font-bold text-sm text-gray-800">Lightning Deal</span>
+                            <span class="text-[10px] text-gray-500">Short duration, urgency countdown</span>
+                        </div>
+                        <div onclick="selectPromoType('percentage-off')"
+                            class="promo-type-card p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-gold transition-all flex flex-col items-center text-center space-y-2 group"
+                            id="type-percent">
+                            <i
+                                class="fas fa-percent text-3xl text-gray-400 group-hover:text-gold transition-colors"></i>
+                            <span class="font-bold text-sm text-gray-800">Percentage Off</span>
+                            <span class="text-[10px] text-gray-500">Auto-applied site-wide/category</span>
+                        </div>
+                        <div onclick="selectPromoType('BOGO')"
+                            class="promo-type-card p-4 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-gold transition-all flex flex-col items-center text-center space-y-2 group"
+                            id="type-bogo">
+                            <i
+                                class="fas fa-dice-two text-3xl text-gray-400 group-hover:text-gold transition-colors"></i>
+                            <span class="font-bold text-sm text-gray-800">BOGO Deal</span>
+                            <span class="text-[10px] text-gray-500">Buy One, Get One free/discounted</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 bg-gray-50 border-t border-gray-100 flex justify-between">
+                <button onclick="prevStep()" id="btn-prev"
+                    class="px-6 py-2 text-sm font-bold text-gray-500 hover:text-gray-700 transition-colors hidden">BACK</button>
+                <div class="ml-auto flex space-x-3">
+                    <button onclick="closePromotionWizard()"
+                        class="px-6 py-2 text-sm font-medium text-gray-400 hover:text-gray-600 transition-colors">CANCEL</button>
+                    <button onclick="nextStep()" id="btn-next"
+                        class="px-8 py-2 bg-navy text-white rounded-lg text-sm font-bold shadow-md hover:bg-opacity-95 transition-all">NEXT:
+                        DETAILS</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/marketing-dashboard.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Refresh Test - Virtuosa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Montserrat', sans-serif; }
+        .text-navy { color: #0A1128; }
+        .bg-navy { background-color: #0A1128; }
+        .text-gold { color: #FFD700; }
+        .bg-gold { background-color: #FFD700; }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-navy mb-6">🔐 Automatic Token Refresh Test</h1>
+        
+        <!-- Login Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">🔑 Authentication</h2>
+            <div id="auth-section">
+                <div id="login-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" id="email-input" placeholder="Enter your email" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               value="geraldsinkamba49@gmail.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input type="password" id="password-input" placeholder="Enter your password" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               value="password123">
+                    </div>
+                    <button onclick="login()" class="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 font-medium">
+                        🔑 Login
+                    </button>
+                </div>
+                
+                <div id="user-info" class="hidden">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-600 font-medium">✅ Logged in as: <span id="user-email"></span></p>
+                            <p class="text-sm text-gray-600">User ID: <span id="user-id"></span></p>
+                        </div>
+                        <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                            🚪 Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Token Status</h2>
+            <div id="token-status" class="space-y-2">
+                <p class="text-gray-600">Loading token information...</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test Actions</h2>
+            <div class="space-y-4">
+                <button onclick="testTokenRefresh()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    🔄 Test Token Refresh
+                </button>
+                <button onclick="testAuthenticatedAPI()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                    🔒 Test Authenticated API Call
+                </button>
+                <button onclick="simulateTokenExpiry()" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+                    ⏰ Simulate Token Expiry
+                </button>
+                <button onclick="testTokenManager()" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+                    🛠️ Test Token Manager
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">Console Output</h2>
+            <div id="console-output" class="bg-gray-900 text-green-400 p-4 rounded font-mono text-sm h-64 overflow-y-auto">
+                <p>Console output will appear here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/token-manager.js"></script>
+    <script src="../js/auth-helper.js"></script>
+    
+    <script>
+        // Immediate test when scripts load
+        console.log('🔍 Immediate script check:');
+        console.log('- window.TokenManager available:', typeof window.TokenManager);
+        console.log('- window.tokenManager available:', typeof window.tokenManager);
+        
+        // Test token manager immediately if available
+        if (window.tokenManager) {
+            console.log('✅ Token manager available immediately');
+            console.log('🔧 Token manager token present:', !!window.tokenManager.token);
+        } else if (window.TokenManager) {
+            console.log('🔧 Token manager class available, creating instance...');
+            window.tokenManager = new window.TokenManager();
+        } else {
+            console.log('❌ Token manager not available at script load time');
+        }
+        
+        // Login and Logout functions
+        async function login() {
+            console.log('🔑 Attempting login...');
+            
+            const email = document.getElementById('email-input').value;
+            const password = document.getElementById('password-input').value;
+            
+            if (!email || !password) {
+                console.error('❌ Email and password are required');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Store authentication data
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('userId', data.user.id);
+                    localStorage.setItem('userEmail', data.user.email);
+                    localStorage.setItem('userFullName', data.user.fullName);
+                    
+                    console.log('✅ Login successful:', data.user);
+                    
+                    // Update UI
+                    document.getElementById('login-form').classList.add('hidden');
+                    document.getElementById('user-info').classList.remove('hidden');
+                    document.getElementById('user-email').textContent = data.user.email;
+                    document.getElementById('user-id').textContent = data.user.id;
+                    
+                    // Reload token manager
+                    if (window.tokenManager) {
+                        window.tokenManager.destroy();
+                    }
+                    
+                    // Trigger token manager reload
+                    window.location.reload();
+                    
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('❌ Login failed:', errorData.message || 'Unknown error');
+                    alert('Login failed: ' + (errorData.message || 'Unknown error'));
+                }
+                
+            } catch (error) {
+                console.error('❌ Login error:', error);
+                alert('Login error: ' + error.message);
+            }
+        }
+
+        function logout() {
+            console.log('🚪 Logging out...');
+            
+            // Clear localStorage
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userFullName');
+            
+            // Destroy token manager
+            if (window.tokenManager) {
+                window.tokenManager.destroy();
+            }
+            
+            // Update UI
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('user-info').classList.add('hidden');
+            
+            // Clear forms
+            document.getElementById('email-input').value = '';
+            document.getElementById('password-input').value = '';
+            
+            console.log('✅ Logged out successfully');
+            updateTokenStatus();
+        }
+
+        // Check if user is already logged in
+        function checkAuthStatus() {
+            const token = localStorage.getItem('token');
+            const userEmail = localStorage.getItem('userEmail');
+            const userId = localStorage.getItem('userId');
+            
+            if (token && userEmail && userId) {
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('user-info').classList.remove('hidden');
+                document.getElementById('user-email').textContent = userEmail;
+                document.getElementById('user-id').textContent = userId;
+                return true;
+            }
+            
+            return false;
+        }
+
+        // Wait for scripts to load
+        function waitForTokenManager() {
+            return new Promise((resolve) => {
+                const checkTokenManager = () => {
+                    if (window.tokenManager) {
+                        console.log('✅ Token manager found on window');
+                        resolve();
+                    } else if (window.TokenManager) {
+                        console.log('🔧 Token manager class found, initializing...');
+                        window.tokenManager = new window.TokenManager();
+                        resolve();
+                    } else {
+                        console.log('⏳ Waiting for token manager...');
+                        setTimeout(checkTokenManager, 100);
+                    }
+                };
+                checkTokenManager();
+            });
+        }
+
+        function waitForAuthHelper() {
+            return new Promise((resolve) => {
+                const checkAuthHelper = () => {
+                    if (window.authHelper) {
+                        console.log('✅ Auth helper found on window');
+                        resolve();
+                    } else {
+                        console.log('⏳ Waiting for auth helper...');
+                        setTimeout(checkAuthHelper, 100);
+                    }
+                };
+                checkAuthHelper();
+            });
+        }
+        // Enhanced console logging
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addToConsole(message, type = 'log') {
+            const output = document.getElementById('console-output');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'text-red-400' : type === 'warn' ? 'text-yellow-400' : 'text-green-400';
+            
+            output.innerHTML += `<div class="${color}">[${timestamp}] ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToConsole(args.join(' '), 'warn');
+        };
+
+        // Update token status display
+        function updateTokenStatus() {
+            const token = localStorage.getItem('token');
+            const statusDiv = document.getElementById('token-status');
+            
+            if (!token) {
+                statusDiv.innerHTML = '<p class="text-red-600">❌ No token found. Please login first.</p>';
+                return;
+            }
+            
+            try {
+                const parts = token.split('.');
+                const base64Url = parts[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                const decoded = JSON.parse(jsonPayload);
+                
+                const expirationTime = new Date(decoded.exp * 1000);
+                const timeUntilExpiration = decoded.exp * 1000 - Date.now();
+                const hoursRemaining = Math.floor(timeUntilExpiration / (1000 * 60 * 60));
+                const minutesRemaining = Math.floor((timeUntilExpiration % (1000 * 60 * 60)) / (1000 * 60));
+                
+                statusDiv.innerHTML = `
+                    <div class="space-y-2">
+                        <p class="text-green-600">✅ Token found and valid</p>
+                        <p><strong>User ID:</strong> ${decoded.userId}</p>
+                        <p><strong>Email:</strong> ${decoded.email}</p>
+                        <p><strong>Role:</strong> ${decoded.role}</p>
+                        <p><strong>Expires:</strong> ${expirationTime.toLocaleString()}</p>
+                        <p><strong>Time Remaining:</strong> ${hoursRemaining}h ${minutesRemaining}m</p>
+                        <p class="text-sm text-gray-600">Token will auto-refresh 5 minutes before expiration</p>
+                    </div>
+                `;
+            } catch (error) {
+                statusDiv.innerHTML = `<p class="text-red-600">❌ Error parsing token: ${error.message}</p>`;
+            }
+        }
+
+        // Test functions
+        async function testTokenRefresh() {
+            console.log('🔄 Testing manual token refresh...');
+            
+            await waitForTokenManager();
+            
+            if (window.tokenManager) {
+                try {
+                    const result = await window.tokenManager.refreshToken();
+                    console.log('✅ Token refresh successful:', result);
+                    updateTokenStatus();
+                } catch (error) {
+                    console.error('❌ Token refresh failed:', error);
+                }
+            } else {
+                console.error('❌ Token manager still not available after waiting');
+            }
+        }
+
+        async function testAuthenticatedAPI() {
+            console.log('🔒 Testing authenticated API call...');
+            
+            await waitForAuthHelper();
+            
+            if (window.authHelper) {
+                try {
+                    const response = await window.authHelper.authenticatedFetch('/api/admin/users/stats');
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('✅ Authenticated API call successful:', data);
+                    } else {
+                        console.error('❌ API call failed:', response.status, response.statusText);
+                    }
+                } catch (error) {
+                    console.error('❌ API call error:', error);
+                }
+            } else {
+                console.error('❌ Auth helper still not available after waiting');
+            }
+        }
+
+        async function simulateTokenExpiry() {
+            console.log('⏰ Simulating token expiry...');
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error('❌ No token to expire');
+                return;
+            }
+            
+            // Create an expired token (set exp to 1 hour ago)
+            try {
+                const parts = token.split('.');
+                const base64Url = parts[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                const decoded = JSON.parse(jsonPayload);
+                
+                // Set expiration to 1 hour ago
+                decoded.exp = Math.floor((Date.now() - 60 * 60 * 1000) / 1000);
+                
+                const newPayload = btoa(JSON.stringify(decoded)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+                const expiredToken = `${parts[0]}.${newPayload}.${parts[2]}`;
+                
+                localStorage.setItem('token', expiredToken);
+                console.log('⏰ Token expiry simulated. Token now expires 1 hour ago.');
+                updateTokenStatus();
+                
+                // Wait for token manager and test if it handles this
+                await waitForTokenManager();
+                setTimeout(() => {
+                    console.log('🔄 Token manager should detect expiry and refresh...');
+                    if (window.tokenManager) {
+                        window.tokenManager.refreshToken();
+                    } else {
+                        console.log('❌ Token manager not available for auto-refresh');
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                console.error('❌ Failed to simulate token expiry:', error);
+            }
+        }
+
+        async function testTokenManager() {
+            console.log('🛠️ Testing token manager functionality...');
+            
+            await waitForTokenManager();
+            
+            if (!window.tokenManager) {
+                console.error('❌ Token manager still not available after waiting');
+                return;
+            }
+            
+            console.log('📊 Token manager methods available:');
+            console.log('- parseToken:', typeof window.tokenManager.parseToken);
+            console.log('- getTimeUntilExpiration:', typeof window.tokenManager.getTimeUntilExpiration);
+            console.log('- refreshToken:', typeof window.tokenManager.refreshToken);
+            console.log('- getCurrentToken:', typeof window.tokenManager.getCurrentToken);
+            
+            // Test parsing
+            const tokenData = window.tokenManager.parseToken(localStorage.getItem('token'));
+            console.log('📋 Parsed token data:', tokenData);
+            
+            // Test time until expiration
+            const timeUntilExpiration = window.tokenManager.getTimeUntilExpiration();
+            console.log(`⏰ Time until expiration: ${Math.round(timeUntilExpiration / 1000)} seconds`);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Token refresh test page loaded');
+            
+            // Check auth status first
+            const isLoggedIn = checkAuthStatus();
+            console.log('🔐 Auth status:', isLoggedIn ? 'Logged in' : 'Not logged in');
+            
+            // Check if scripts loaded
+            console.log('📋 Script loading check:');
+            console.log('- window.TokenManager:', typeof window.TokenManager);
+            console.log('- window.tokenManager:', typeof window.tokenManager);
+            console.log('- window.authHelper:', typeof window.authHelper);
+            
+            // Wait for scripts to load
+            await waitForTokenManager();
+            await waitForAuthHelper();
+            
+            console.log('📋 Scripts loaded - Token Manager:', !!window.tokenManager, 'Auth Helper:', !!window.authHelper);
+            
+            updateTokenStatus();
+            
+            // Update status every 30 seconds
+            setInterval(updateTokenStatus, 30000);
+            
+            // Listen for token updates
+            window.addEventListener('tokenUpdated', (event) => {
+                console.log('🔄 Token updated event received:', event.detail);
+                updateTokenStatus();
+            });
+        });
+    </script>
+</body>
+</html>

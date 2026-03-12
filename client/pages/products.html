@@ -1,0 +1,1386 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Products</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-button-gold {
+            background-color: #C19A6B;
+        }
+
+        .hover-bg-button-gold:hover {
+            background-color: #A98B68;
+        }
+
+        .bg-dark-navy {
+            background-color: #060A18;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .product-card {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+    <header class="bg-navy text-white shadow-lg py-3 px-6 md:px-12 sticky top-0 z-50">
+        <div class="v-container v-header-row">
+            <div class="flex items-center v-header-logo">
+                <a href="/pages/index.html" class="text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+            <!-- Global marketplace search with autocomplete -->
+            <div class="flex-grow max-w-2xl md:mx-auto order-3 md:order-2 w-full md:w-auto v-header-search">
+                <div class="relative">
+                    <input id="global-search-input" type="text" placeholder="Search campus marketplace (e.g. \"HP laptop\", \"Men's hoodie\")..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400"
+                        autocomplete="off">
+                    <button id="global-search-button"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <!-- Autocomplete suggestions -->
+                    <div id="search-suggestions"
+                        class="absolute mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
+                        <!-- Suggestions injected via JS -->
+                    </div>
+                </div>
+            </div>
+            <div id="user-info-container" class="flex items-center space-x-4 order-2 md:order-3 v-header-actions">
+                <a href="/pages/login.html" id="login-link"
+                    class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
+                <span id="user-greeting" class="text-white font-medium"></span>
+                <button id="logout-button"
+                    class="bg-button-gold text-white font-semibold py-2 px-6 rounded-full shadow-lg hover-bg-button-gold transition-colors hidden">Log
+                    Out</button>
+                <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span
+                        class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    <!-- Horizontal category navigation -->
+    <nav class="bg-dark-navy text-gray-200 shadow-inner">
+        <div class="container mx-auto px-4 py-2 flex items-center justify-between gap-4 overflow-x-auto hide-scrollbar">
+            <div class="flex items-center gap-2 text-xs md:text-sm">
+                <span class="uppercase tracking-wide text-[10px] md:text-xs text-gray-400">Browse by category</span>
+            </div>
+        </div>
+        <div class="container mx-auto px-4 pb-3 overflow-x-auto hide-scrollbar">
+            <div id="category-nav"
+                class="flex items-center gap-3 md:gap-4 text-xs md:text-sm whitespace-nowrap">
+                <!-- Category pills injected via JS for consistency -->
+            </div>
+        </div>
+    </nav>
+    <main class="flex-grow py-6 md:py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                <h1 class="text-2xl md:text-3xl font-bold text-navy">Campus Marketplace</h1>
+                <div class="flex items-center gap-3">
+                    <!-- Mobile filter toggle -->
+                    <button id="mobile-filter-toggle"
+                        class="md:hidden inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white shadow text-xs font-medium text-gray-700 border border-gray-200">
+                        <i data-lucide="filter" class="w-4 h-4"></i>
+                        <span>Filters</span>
+                        <span id="mobile-filter-count-badge"
+                            class="hidden ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-gold text-[10px] font-bold text-navy"></span>
+                    </button>
+                    <!-- Sort dropdown -->
+                    <div class="relative">
+                        <select id="sort-select"
+                            class="pl-3 pr-8 py-2 rounded-full border border-gray-200 bg-white text-xs md:text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gold">
+                            <option value="relevance">Sort: Relevance</option>
+                            <option value="price-asc">Sort: Price (Low to High)</option>
+                            <option value="price-desc">Sort: Price (High to Low)</option>
+                            <option value="newest">Sort: Newest Arrivals</option>
+                        </select>
+                        <i data-lucide="chevron-down"
+                            class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                    </div>
+                    <!-- View toggle -->
+                    <div class="hidden md:inline-flex items-center rounded-full border border-gray-200 bg-white p-1 text-gray-600 text-xs">
+                        <button id="grid-view-button"
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-navy text-white shadow">
+                            <i data-lucide="grid-3x3" class="w-4 h-4"></i>
+                        </button>
+                        <button id="list-view-button"
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100">
+                            <i data-lucide="list" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active filters + results summary -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                <div id="active-filters-container" class="flex flex-wrap gap-2 text-xs">
+                    <!-- Active filter chips injected via JS -->
+                </div>
+                <div class="flex items-center gap-2 text-xs md:text-sm text-gray-600">
+                    <span id="results-count">Loading items...</span>
+                    <span id="filter-count-badge"
+                        class="hidden ml-1 inline-flex items-center justify-center w-6 h-6 rounded-full bg-navy text-[10px] font-bold text-gold"></span>
+                </div>
+            </div>
+
+            <div class="flex gap-6">
+                <!-- Desktop filter sidebar -->
+                <aside id="filter-sidebar"
+                    class="hidden md:block w-64 flex-shrink-0 bg-white rounded-2xl shadow-lg border border-gray-100 p-4 space-y-5 sticky top-28 h-[calc(100vh-8rem)] overflow-y-auto">
+                    <div class="flex items-center justify-between mb-1">
+                        <h2 class="text-sm font-semibold text-navy flex items-center gap-2">
+                            <i data-lucide="sliders-horizontal" class="w-4 h-4 text-gold"></i>
+                            Filters
+                        </h2>
+                        <button id="clear-all-filters"
+                            class="text-[11px] text-gray-500 hover:text-red-500 hover:underline">Clear all</button>
+                    </div>
+
+                    <!-- Price filter -->
+                    <section>
+                        <h3 class="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Price (ZMW)</h3>
+                        <div class="space-y-2">
+                            <div class="space-y-1 text-xs">
+                                <label class="flex items-center gap-2">
+                                    <input type="radio" name="price-bracket" value="all" class="text-gold" checked>
+                                    <span>Any price</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="radio" name="price-bracket" value="under-100" class="text-gold">
+                                    <span>Under K100</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="radio" name="price-bracket" value="100-500" class="text-gold">
+                                    <span>K100 - K500</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="radio" name="price-bracket" value="500-1000" class="text-gold">
+                                    <span>K500 - K1,000</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="radio" name="price-bracket" value="1000-plus" class="text-gold">
+                                    <span>K1,000+</span>
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Clothing-specific filters -->
+                    <section>
+                        <h3 class="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Clothing size</h3>
+                        <div class="flex flex-wrap gap-1">
+                            <button data-size="XS"
+                                class="size-chip px-2 py-1 rounded-full border border-gray-200 text-[11px] text-gray-700 hover:border-gold hover:text-navy">
+                                XS
+                            </button>
+                            <button data-size="S"
+                                class="size-chip px-2 py-1 rounded-full border border-gray-200 text-[11px] text-gray-700 hover:border-gold hover:text-navy">
+                                S
+                            </button>
+                            <button data-size="M"
+                                class="size-chip px-2 py-1 rounded-full border border-gray-200 text-[11px] text-gray-700 hover:border-gold hover:text-navy">
+                                M
+                            </button>
+                            <button data-size="L"
+                                class="size-chip px-2 py-1 rounded-full border border-gray-200 text-[11px] text-gray-700 hover:border-gold hover:text-navy">
+                                L
+                            </button>
+                            <button data-size="XL"
+                                class="size-chip px-2 py-1 rounded-full border border-gray-200 text-[11px] text-gray-700 hover:border-gold hover:text-navy">
+                                XL
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Color filter -->
+                    <section>
+                        <h3 class="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Color</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button data-color="Black"
+                                class="color-chip w-7 h-7 rounded-full border-2 border-transparent bg-black ring-offset-2 ring-transparent hover:ring-gold"
+                                title="Black"></button>
+                            <button data-color="White"
+                                class="color-chip w-7 h-7 rounded-full border border-gray-300 bg-white ring-offset-2 ring-transparent hover:ring-gold"
+                                title="White"></button>
+                            <button data-color="Blue"
+                                class="color-chip w-7 h-7 rounded-full border-2 border-transparent bg-blue-600 ring-offset-2 ring-transparent hover:ring-gold"
+                                title="Blue"></button>
+                            <button data-color="Red"
+                                class="color-chip w-7 h-7 rounded-full border-2 border-transparent bg-red-500 ring-offset-2 ring-transparent hover:ring-gold"
+                                title="Red"></button>
+                            <button data-color="Green"
+                                class="color-chip w-7 h-7 rounded-full border-2 border-transparent bg-green-500 ring-offset-2 ring-transparent hover:ring-gold"
+                                title="Green"></button>
+                        </div>
+                    </section>
+
+                    <!-- Brand filter (primarily for electronics) -->
+                    <section>
+                        <h3 class="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Brand</h3>
+                        <input id="brand-filter-input" type="text" placeholder="e.g. HP, Apple"
+                            class="w-full px-3 py-1.5 rounded-lg border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-gold" />
+                    </section>
+
+                    <!-- Condition filter -->
+                    <section>
+                        <h3 class="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Condition</h3>
+                        <div class="space-y-1 text-xs">
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="condition-checkbox" value="New">
+                                <span>New</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="condition-checkbox" value="Like New">
+                                <span>Like New</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="condition-checkbox" value="Used">
+                                <span>Used</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="condition-checkbox" value="Refurbished">
+                                <span>Refurbished</span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <!-- Campus verified filter -->
+                    <section>
+                        <h3 class="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Trust & safety</h3>
+                        <label class="flex items-center gap-2 text-xs">
+                            <input type="checkbox" id="campus-verified-only">
+                            <span>Campus verified sellers only</span>
+                        </label>
+                    </section>
+                </aside>
+
+                <!-- Mobile filters drawer -->
+                <div id="mobile-filter-drawer"
+                    class="fixed inset-x-0 bottom-0 bg-white shadow-2xl rounded-t-3xl p-4 pt-3 space-y-4 border-t border-gray-200 transform translate-y-full transition-transform duration-300 md:hidden z-40">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="sliders-horizontal" class="w-4 h-4 text-gold"></i>
+                            <h2 class="text-sm font-semibold text-navy">Filters</h2>
+                        </div>
+                        <div class="flex items-center gap-3 text-[11px]">
+                            <button id="mobile-clear-all-filters" class="text-gray-500 hover:text-red-500">Clear all</button>
+                            <button id="mobile-filter-close"
+                                class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
+                                <i data-lucide="x" class="w-3 h-3"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="h-64 overflow-y-auto space-y-4 text-xs">
+                        <!-- Mirror of desktop filters (simplified) -->
+                        <div>
+                            <h3 class="font-semibold text-gray-700 mb-1 uppercase tracking-wide text-[11px]">Price (ZMW)</h3>
+                            <div class="space-y-1">
+                                <label class="flex items-center gap-2">
+                                    <input type="radio" name="mobile-price-bracket" value="all" checked>
+                                    <span>Any price</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="radio" name="mobile-price-bracket" value="under-100">
+                                    <span>Under K100</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="radio" name="mobile-price-bracket" value="100-500">
+                                    <span>K100 - K500</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="radio" name="mobile-price-bracket" value="500-1000">
+                                    <span>K500 - K1,000</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="radio" name="mobile-price-bracket" value="1000-plus">
+                                    <span>K1,000+</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-700 mb-1 uppercase tracking-wide text-[11px]">Condition</h3>
+                            <div class="space-y-1">
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox" class="mobile-condition-checkbox" value="New">
+                                    <span>New</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox" class="mobile-condition-checkbox" value="Like New">
+                                    <span>Like New</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox" class="mobile-condition-checkbox" value="Used">
+                                    <span>Used</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox" class="mobile-condition-checkbox" value="Refurbished">
+                                    <span>Refurbished</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-700 mb-1 uppercase tracking-wide text-[11px]">Trust & safety</h3>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" id="mobile-campus-verified-only">
+                                <span>Campus verified sellers only</span>
+                            </label>
+                        </div>
+                    </div>
+                    <button id="mobile-apply-filters"
+                        class="w-full mt-2 py-2 rounded-full bg-navy text-white text-sm font-semibold shadow">
+                        Apply filters
+                    </button>
+                </div>
+
+                <!-- Products area -->
+                <section class="flex-1">
+                    <!-- Mobile view toggle -->
+                    <div class="flex items-center justify-between mb-3 md:hidden">
+                        <div class="inline-flex items-center rounded-full border border-gray-200 bg-white p-1 text-gray-600 text-xs">
+                            <button id="mobile-grid-view-button"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-navy text-white shadow">
+                                <i data-lucide="grid-3x3" class="w-4 h-4"></i>
+                            </button>
+                            <button id="mobile-list-view-button"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100">
+                                <i data-lucide="list" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Grid view -->
+                    <div id="product-grid"
+                        class="v-grid-products gap-4 md:gap-6">
+                        <!-- Products will be dynamically inserted here -->
+                    </div>
+
+                    <!-- List view -->
+                    <div id="product-list" class="hidden space-y-3">
+                        <!-- List view cards injected via JS -->
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+    <footer class="bg-navy text-gray-400 p-4 text-center shadow-inner mt-auto">
+        &copy; 2025 Virtuosa. All rights reserved.
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.isIndexScriptRunning) return;
+            window.isIndexScriptRunning = true;
+
+            const loginLink = document.getElementById('login-link');
+            const userGreeting = document.getElementById('user-greeting');
+            const logoutButton = document.getElementById('logout-button');
+            const productGrid = document.getElementById('product-grid');
+            const productList = document.getElementById('product-list');
+            const resultsCount = document.getElementById('results-count');
+            const filterBadge = document.getElementById('filter-count-badge');
+            const mobileFilterBadge = document.getElementById('mobile-filter-count-badge');
+            const activeFiltersContainer = document.getElementById('active-filters-container');
+            const sortSelect = document.getElementById('sort-select');
+            const gridViewButton = document.getElementById('grid-view-button');
+            const listViewButton = document.getElementById('list-view-button');
+            const mobileGridViewButton = document.getElementById('mobile-grid-view-button');
+            const mobileListViewButton = document.getElementById('mobile-list-view-button');
+            const priceRadios = document.querySelectorAll('input[name="price-bracket"]');
+            const mobilePriceRadios = document.querySelectorAll('input[name="mobile-price-bracket"]');
+            const sizeChips = document.querySelectorAll('.size-chip');
+            const colorChips = document.querySelectorAll('.color-chip');
+            const brandFilterInput = document.getElementById('brand-filter-input');
+            const conditionCheckboxes = document.querySelectorAll('.condition-checkbox');
+            const mobileConditionCheckboxes = document.querySelectorAll('.mobile-condition-checkbox');
+            const campusVerifiedCheckbox = document.getElementById('campus-verified-only');
+            const mobileCampusVerifiedCheckbox = document.getElementById('mobile-campus-verified-only');
+            const clearAllFiltersButton = document.getElementById('clear-all-filters');
+            const mobileClearAllFiltersButton = document.getElementById('mobile-clear-all-filters');
+            const mobileFilterToggle = document.getElementById('mobile-filter-toggle');
+            const mobileFilterDrawer = document.getElementById('mobile-filter-drawer');
+            const mobileFilterClose = document.getElementById('mobile-filter-close');
+            const mobileApplyFilters = document.getElementById('mobile-apply-filters');
+            const categoryNav = document.getElementById('category-nav');
+            const globalSearchInput = document.getElementById('global-search-input');
+            const globalSearchButton = document.getElementById('global-search-button');
+            const searchSuggestions = document.getElementById('search-suggestions');
+
+            const CATEGORY_CONFIG = [
+                { key: "Men's Clothing", label: "Men's Clothing", icon: 'shirt' },
+                { key: "Women's Clothing", label: "Women's Clothing", icon: 'shopping-bag' },
+                { key: 'Electronics', label: 'Electronics', icon: 'cpu' },
+                { key: 'Computers & Software', label: 'Computers & Software', icon: 'laptop' },
+                { key: 'Food & Beverages', label: 'Food & Beverages', icon: 'cup-soda' },
+                { key: 'Watches & Jewellery', label: 'Watches & Jewellery', icon: 'watch' },
+                { key: 'Accessories', label: 'Accessories', icon: 'sparkles' },
+                { key: 'Best Sellers', label: 'Best Sellers', icon: 'star' },
+                { key: 'Hot Deals', label: 'Hot Deals', icon: 'flame' },
+                { key: 'Home & Living', label: 'Home & Living', icon: 'sofa' },
+                { key: 'Sports & Outdoors', label: 'Sports & Outdoors', icon: 'dumbbell' },
+                { key: 'Services', label: 'Services', icon: 'briefcase' },
+                { key: 'Personal Care & Beauty', label: 'Personal Care & Beauty', icon: 'sparkles' },
+                { key: 'Other', label: 'All Items', icon: 'grid-3x3' }
+            ];
+
+            let allProducts = [];
+            let filteredProducts = [];
+            let currentCategory = null;
+            let filters = {
+                searchQuery: '',
+                priceBracket: 'all',
+                sizes: new Set(),
+                colors: new Set(),
+                brand: '',
+                conditions: new Set(),
+                campusVerifiedOnly: false,
+                sortBy: 'relevance',
+                viewMode: 'grid'
+            };
+
+            function updateUserUI() {
+                const userFullName = localStorage.getItem('userFullName');
+                if (userFullName) {
+                    loginLink.classList.add('hidden');
+                    userGreeting.textContent = `Hello, ${userFullName}`;
+                    userGreeting.classList.remove('hidden');
+                    logoutButton.classList.remove('hidden');
+                } else {
+                    loginLink.classList.remove('hidden');
+                    userGreeting.classList.add('hidden');
+                    logoutButton.classList.add('hidden');
+                }
+            }
+
+            function formatZMW(value) {
+                const num = Number(value) || 0;
+                return `ZMW ${num.toLocaleString()}`;
+            }
+
+            function isCampusVerified(product) {
+                return !!(product?.seller?.sellerVerified || product?.seller?.isStudentVerified || product?.sellerVerified);
+            }
+
+            function isHotDeal(product) {
+                const tags = (product.tags || []).map(t => (t || '').toLowerCase());
+                return product.isHotDeal || tags.includes('hot deal') || tags.includes('hot deals');
+            }
+
+            function isBestSeller(product) {
+                const tags = (product.tags || []).map(t => (t || '').toLowerCase());
+                return product.isBestSeller || tags.includes('best seller') || tags.includes('best sellers');
+            }
+
+            function buildCategoryNav(initialCategory) {
+                if (!categoryNav) return;
+                categoryNav.innerHTML = CATEGORY_CONFIG.map(cat => {
+                    const isActive = (initialCategory && initialCategory === cat.key) || (!initialCategory && cat.key === 'Other');
+                    return `
+                        <button 
+                            class="category-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] md:text-xs transition-colors ${isActive ? 'bg-gold text-navy border-gold shadow-sm' : 'bg-gray-900/40 text-gray-200 border-gray-700 hover:border-gold'}"
+                            data-category="${cat.key}"
+                        >
+                            <i data-lucide="${cat.icon}" class="w-3.5 h-3.5"></i>
+                            <span>${cat.label}</span>
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            function getPriceBracket(price) {
+                if (price == null) return 'all';
+                if (price < 100) return 'under-100';
+                if (price >= 100 && price <= 500) return '100-500';
+                if (price > 500 && price <= 1000) return '500-1000';
+                return '1000-plus';
+            }
+
+            function productMatchesFilters(product) {
+                // Category
+                if (currentCategory && currentCategory !== 'Other') {
+                    if ((product.category || '') !== currentCategory) return false;
+                }
+
+                // Search query
+                if (filters.searchQuery) {
+                    const q = filters.searchQuery.toLowerCase();
+                    const haystack = [
+                        product.name,
+                        product.description,
+                        product.category,
+                        product.subcategory,
+                        product.brand,
+                        product.courseName,
+                        product.courseCode
+                    ].filter(Boolean).join(' ').toLowerCase();
+                    if (!haystack.includes(q)) return false;
+                }
+
+                // Price
+                if (filters.priceBracket !== 'all') {
+                    if (getPriceBracket(product.price) !== filters.priceBracket) return false;
+                }
+
+                // Sizes (simple substring match on size field if exists)
+                if (filters.sizes.size > 0) {
+                    const sizeField = (product.size || product.sizes || '').toString().toUpperCase();
+                    let sizeMatch = false;
+                    filters.sizes.forEach(size => {
+                        if (sizeField.includes(size)) sizeMatch = true;
+                    });
+                    if (!sizeMatch) return false;
+                }
+
+                // Colors
+                if (filters.colors.size > 0) {
+                    const colorField = (product.color || product.colors || '').toString().toLowerCase();
+                    let colorMatch = false;
+                    filters.colors.forEach(color => {
+                        if (colorField.includes(color.toLowerCase())) colorMatch = true;
+                    });
+                    if (!colorMatch) return false;
+                }
+
+                // Brand
+                if (filters.brand) {
+                    const brand = (product.brand || '').toLowerCase();
+                    if (!brand.includes(filters.brand.toLowerCase())) return false;
+                }
+
+                // Condition
+                if (filters.conditions.size > 0) {
+                    const condition = (product.condition || '').toLowerCase();
+                    if (!Array.from(filters.conditions).some(c => condition === c.toLowerCase())) {
+                        return false;
+                    }
+                }
+
+                // Campus verified
+                if (filters.campusVerifiedOnly && !isCampusVerified(product)) {
+                    return false;
+                }
+
+                return true;
+            }
+
+            function sortProducts(products) {
+                const items = [...products];
+                switch (filters.sortBy) {
+                    case 'price-asc':
+                        return items.sort((a, b) => (a.price || 0) - (b.price || 0));
+                    case 'price-desc':
+                        return items.sort((a, b) => (b.price || 0) - (a.price || 0));
+                    case 'newest':
+                        return items.sort((a, b) => {
+                            const aDate = new Date(a.createdAt || 0).getTime();
+                            const bDate = new Date(b.createdAt || 0).getTime();
+                            return bDate - aDate;
+                        });
+                    case 'relevance':
+                    default:
+                        // Basic relevance: campus verified, hot deals, best sellers first
+                        return items.sort((a, b) => {
+                            const aScore =
+                                (isCampusVerified(a) ? 3 : 0) +
+                                (isHotDeal(a) ? 2 : 0) +
+                                (isBestSeller(a) ? 1 : 0);
+                            const bScore =
+                                (isCampusVerified(b) ? 3 : 0) +
+                                (isHotDeal(b) ? 2 : 0) +
+                                (isBestSeller(b) ? 1 : 0);
+                            return bScore - aScore;
+                        });
+                }
+            }
+
+            function renderBadges(product) {
+                const badges = [];
+                if (isCampusVerified(product)) {
+                    badges.push(`<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
+                        <i data-lucide="shield-check" class="w-3 h-3"></i>
+                        Campus verified
+                    </span>`);
+                }
+                if (isHotDeal(product)) {
+                    badges.push(`<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-50 text-[10px] font-semibold text-red-600 border border-red-200">
+                        <i data-lucide="flame" class="w-3 h-3"></i>
+                        Hot Deal
+                    </span>`);
+                }
+                if (isBestSeller(product)) {
+                    badges.push(`<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-[10px] font-semibold text-amber-700 border border-amber-200">
+                        <i data-lucide="star" class="w-3 h-3"></i>
+                        Best Seller
+                    </span>`);
+                }
+                return badges.join('');
+            }
+
+            function renderGrid(products) {
+                if (!productGrid) return;
+                if (products.length === 0) {
+                    productGrid.innerHTML = '<p class="text-center text-gray-600 col-span-full py-10">No items match your filters. Try adjusting them to see more campus deals.</p>';
+                    return;
+                }
+
+                        productGrid.innerHTML = products.map(product => {
+                    const image = product.images && product.images[0]
+                        ? product.images[0]
+                        : 'https://placehold.co/600x400?text=No+Image';
+                    const badgesHtml = renderBadges(product);
+                    const discount = product.originalPrice && product.originalPrice > product.price
+                        ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+                        : null;
+
+                    return `
+                        <div class="product-card v-card-square bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-full border border-gray-100 hover:border-gold/70 transition">
+                            <a href="/pages/product-detail.html?id=${product._id}" class="block flex-grow relative">
+                                <img src="${image}" alt="${product.name}" class="w-full h-44 md:h-48 object-cover">
+                                ${discount ? `
+                                    <span class="absolute top-2 left-2 inline-flex items-center px-2 py-0.5 rounded-full bg-red-500 text-[10px] font-bold text-white shadow">
+                                        -${discount}%
+                                    </span>
+                                ` : ''}
+                                <div class="p-3 md:p-4 pb-2 space-y-1.5">
+                                    <h3 class="text-sm md:text-base font-semibold text-navy hover:text-gold transition-colors line-clamp-1">${product.name}</h3>
+                                    <p class="text-[11px] md:text-xs text-gray-600 line-clamp-2">${product.description || ''}</p>
+                                    <div class="flex items-center justify-between mt-1.5">
+                                        <div>
+                                            <p class="text-sm md:text-lg font-bold text-gold">${formatZMW(product.price)}</p>
+                                            ${product.originalPrice && product.originalPrice > product.price ? `
+                                                <p class="text-[11px] text-gray-400 line-through">${formatZMW(product.originalPrice)}</p>
+                                            ` : ''}
+                                        </div>
+                                        <div class="text-right text-[10px] text-gray-500">
+                                            ${product.condition ? `<p>${product.condition}</p>` : ''}
+                                            ${product.category ? `<p>${product.category}</p>` : ''}
+                                        </div>
+                                    </div>
+                                    ${badgesHtml ? `<div class="flex flex-wrap gap-1 mt-1.5">${badgesHtml}</div>` : ''}
+                                </div>
+                            </a>
+                            <div class="px-3 md:px-4 pb-2 flex items-center justify-between text-[10px] md:text-[11px] text-gray-600 gap-2">
+                                <a href="/pages/seller-shop.html?${product.seller?.storeSlug ? `shop=${product.seller.storeSlug}` : `sellerId=${product.seller?._id || product.seller}`}" 
+                                   class="text-[10px] text-navy font-bold hover:text-gold transition-colors flex items-center gap-1 uppercase tracking-wider">
+                                    <i data-lucide="store" class="w-3 h-3"></i>
+                                    Visit ${product.seller?.storeName || 'Shop'}
+                                </a>
+                                <span class="flex items-center gap-1">
+                                    <i data-lucide="map-pin" class="w-3 h-3"></i>
+                                    <span>${product.location || 'On campus'}</span>
+                                </span>
+                            </div>
+                            <div class="px-3 md:px-4 pb-3">
+                                <button class="js-add-to-cart w-full bg-button-gold text-white font-semibold py-2 px-4 rounded-full hover-bg-button-gold transition-colors shadow-sm"
+                                        data-item-id="${product._id}"
+                                        data-item-name="${product.name}"
+                                        data-item-price="${product.price}"
+                                        data-item-image="${product.images?.[0] || ''}"
+                                        data-item-category="${product.category || ''}">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function renderList(products) {
+                if (!productList) return;
+                if (products.length === 0) {
+                    productList.innerHTML = '<p class="text-center text-gray-600 py-10">No items match your filters. Try adjusting them to see more campus deals.</p>';
+                    return;
+                }
+
+                productList.innerHTML = products.map(product => {
+                    const image = product.images && product.images[0]
+                        ? product.images[0]
+                        : 'https://placehold.co/600x400?text=No+Image';
+                    const badgesHtml = renderBadges(product);
+                    const discount = product.originalPrice && product.originalPrice > product.price
+                        ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+                        : null;
+
+                    return `
+                        <div class="product-card bg-white rounded-xl shadow-md border border-gray-100 hover:border-gold/70 transition p-3 md:p-4 flex gap-3 md:gap-4">
+                            <a href="/pages/product-detail.html?id=${product._id}" class="flex-shrink-0 w-28 h-28 md:w-32 md:h-32 rounded-lg overflow-hidden relative">
+                                <img src="${image}" alt="${product.name}" class="w-full h-full object-cover">
+                                ${discount ? `
+                                    <span class="absolute top-1.5 left-1.5 inline-flex items-center px-2 py-0.5 rounded-full bg-red-500 text-[10px] font-bold text-white shadow">
+                                        -${discount}%
+                                    </span>
+                                ` : ''}
+                            </a>
+                            <div class="flex-1 flex flex-col gap-1">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div>
+                                        <a href="/pages/product-detail.html?id=${product._id}">
+                                            <h3 class="text-sm md:text-base font-semibold text-navy hover:text-gold transition-colors">
+                                                ${product.name}
+                                            </h3>
+                                        </a>
+                                        <p class="text-[11px] md:text-xs text-gray-600 line-clamp-3 mt-0.5">${product.description || ''}</p>
+                                        ${badgesHtml ? `<div class="flex flex-wrap gap-1 mt-1">${badgesHtml}</div>` : ''}
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm md:text-lg font-bold text-gold">${formatZMW(product.price)}</p>
+                                        ${product.originalPrice && product.originalPrice > product.price ? `
+                                            <p class="text-[11px] text-gray-400 line-through">${formatZMW(product.originalPrice)}</p>
+                                        ` : ''}
+                                        ${product.condition ? `<p class="text-[11px] text-gray-500 mt-1">${product.condition}</p>` : ''}
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-1.5 text-[10px] md:text-[11px] text-gray-600">
+                                    <div class="flex items-center gap-2">
+                                        <a href="/pages/seller-shop.html?${product.seller?.storeSlug ? `shop=${product.seller.storeSlug}` : `sellerId=${product.seller?._id || product.seller}`}" 
+                                           class="text-[10px] text-navy font-bold hover:text-gold transition-colors flex items-center gap-1 uppercase tracking-wider">
+                                            <i data-lucide="store" class="w-3 h-3"></i>
+                                            Visit ${product.seller?.storeName || 'Shop'}
+                                        </a>
+                                        <span class="flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="w-3 h-3"></i>
+                                            <span>${product.location || 'On campus'}</span>
+                                        </span>
+                                    </div>
+                                    <button class="js-add-to-cart bg-button-gold text-white font-semibold py-1.5 px-4 rounded-full hover-bg-button-gold transition-colors shadow-sm"
+                                            data-item-id="${product._id}"
+                                            data-item-name="${product.name}"
+                                            data-item-price="${product.price}"
+                                            data-item-image="${product.images?.[0] || ''}"
+                                            data-item-category="${product.category || ''}">
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function updateResultsSummary() {
+                if (!resultsCount) return;
+                const total = allProducts.length;
+                const shown = filteredProducts.length;
+                const label = currentCategory && currentCategory !== 'Other'
+                    ? ` in ${currentCategory}`
+                    : '';
+                resultsCount.textContent = `${shown} of ${total} items found${label}`;
+            }
+
+            function updateFilterBadges() {
+                let count = 0;
+                const chips = [];
+
+                if (filters.searchQuery) {
+                    count++;
+                    chips.push({ type: 'search', label: `Search: "${filters.searchQuery}"` });
+                }
+                if (filters.priceBracket !== 'all') {
+                    count++;
+                    const labelMap = {
+                        'under-100': 'Under K100',
+                        '100-500': 'K100 - K500',
+                        '500-1000': 'K500 - K1,000',
+                        '1000-plus': 'K1,000+'
+                    };
+                    chips.push({ type: 'price', label: labelMap[filters.priceBracket] });
+                }
+                if (filters.sizes.size > 0) {
+                    count += filters.sizes.size;
+                    filters.sizes.forEach(size => chips.push({ type: 'size', value: size, label: `Size ${size}` }));
+                }
+                if (filters.colors.size > 0) {
+                    count += filters.colors.size;
+                    filters.colors.forEach(color => chips.push({ type: 'color', value: color, label: color }));
+                }
+                if (filters.brand) {
+                    count++;
+                    chips.push({ type: 'brand', label: `Brand: ${filters.brand}` });
+                }
+                if (filters.conditions.size > 0) {
+                    count += filters.conditions.size;
+                    filters.conditions.forEach(cond => chips.push({ type: 'condition', value: cond, label: cond }));
+                }
+                if (filters.campusVerifiedOnly) {
+                    count++;
+                    chips.push({ type: 'campus', label: 'Campus verified only' });
+                }
+
+                if (filterBadge) {
+                    if (count > 0) {
+                        filterBadge.classList.remove('hidden');
+                        filterBadge.textContent = count;
+                    } else {
+                        filterBadge.classList.add('hidden');
+                    }
+                }
+                if (mobileFilterBadge) {
+                    if (count > 0) {
+                        mobileFilterBadge.classList.remove('hidden');
+                        mobileFilterBadge.textContent = count;
+                    } else {
+                        mobileFilterBadge.classList.add('hidden');
+                    }
+                }
+
+                if (activeFiltersContainer) {
+                    if (chips.length === 0) {
+                        activeFiltersContainer.innerHTML = '<span class="text-xs text-gray-500">No filters applied. Showing all campus items.</span>';
+                        return;
+                    }
+                    activeFiltersContainer.innerHTML = chips.map(chip => `
+                        <button 
+                            class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-100 text-[11px] text-gray-700 border border-gray-200 hover:border-red-400 hover:text-red-600 transition-colors"
+                            data-filter-type="${chip.type}"
+                            ${chip.value ? `data-filter-value="${chip.value}"` : ''}
+                        >
+                            <span>${chip.label}</span>
+                            <i data-lucide="x" class="w-3 h-3"></i>
+                        </button>
+                    `).join('');
+                }
+            }
+
+            function applyFiltersAndRender() {
+                filteredProducts = sortProducts(allProducts.filter(productMatchesFilters));
+
+                if (filters.viewMode === 'grid') {
+                    productGrid.classList.remove('hidden');
+                    productList.classList.add('hidden');
+                    renderGrid(filteredProducts);
+                } else {
+                    productGrid.classList.add('hidden');
+                    productList.classList.remove('hidden');
+                    renderList(filteredProducts);
+                }
+
+                updateResultsSummary();
+                updateFilterBadges();
+
+                if (window.lucide) window.lucide.createIcons();
+            }
+
+            async function fetchProducts() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const categoryFromUrl = urlParams.get('category');
+                const searchFromUrl = urlParams.get('q');
+
+                currentCategory = categoryFromUrl || null;
+
+                if (searchFromUrl) {
+                    filters.searchQuery = searchFromUrl;
+                    if (globalSearchInput) {
+                        globalSearchInput.value = searchFromUrl;
+                    }
+                }
+
+                buildCategoryNav(currentCategory);
+
+                const url = categoryFromUrl ? `/api/products?category=${encodeURIComponent(categoryFromUrl)}` : '/api/products';
+                try {
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        allProducts = data.products || [];
+                        filteredProducts = [...allProducts];
+
+                        if (allProducts.length === 0) {
+                            productGrid.innerHTML = '<p class="text-center text-gray-600 col-span-full py-10">No products available yet. Check back soon for new campus listings.</p>';
+                            updateResultsSummary();
+                            return;
+                        }
+
+                        applyFiltersAndRender();
+                        setupCategoryNavHandlers();
+                        setupSearchSuggestions();
+                    } else {
+                        console.error('Failed to fetch products:', await response.json());
+                        productGrid.innerHTML = '<p class="text-center text-gray-600 py-10">No products available.</p>';
+                        resultsCount.textContent = '0 of 0 items found';
+                    }
+                } catch (error) {
+                    console.error('Error fetching products:', error);
+                    productGrid.innerHTML = '<p class="text-center text-gray-600 py-10">Error loading products.</p>';
+                    resultsCount.textContent = '0 of 0 items found';
+                }
+            }
+
+            function setViewMode(mode) {
+                filters.viewMode = mode;
+
+                [gridViewButton, mobileGridViewButton].forEach(btn => {
+                    if (!btn) return;
+                    if (mode === 'grid') {
+                        btn.classList.add('bg-navy', 'text-white', 'shadow');
+                    } else {
+                        btn.classList.remove('bg-navy', 'text-white', 'shadow');
+                    }
+                });
+                [listViewButton, mobileListViewButton].forEach(btn => {
+                    if (!btn) return;
+                    if (mode === 'list') {
+                        btn.classList.add('bg-navy', 'text-white', 'shadow');
+                    } else {
+                        btn.classList.remove('bg-navy', 'text-white', 'shadow');
+                    }
+                });
+
+                applyFiltersAndRender();
+            }
+
+            function attachFilterHandlers() {
+                if (sortSelect) {
+                    sortSelect.addEventListener('change', () => {
+                        filters.sortBy = sortSelect.value;
+                        applyFiltersAndRender();
+                    });
+                }
+
+                [gridViewButton, mobileGridViewButton].forEach(btn => {
+                    if (!btn) return;
+                    btn.addEventListener('click', () => setViewMode('grid'));
+                });
+                [listViewButton, mobileListViewButton].forEach(btn => {
+                    if (!btn) return;
+                    btn.addEventListener('click', () => setViewMode('list'));
+                });
+
+                priceRadios.forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        filters.priceBracket = radio.value;
+                        // sync mobile
+                        const mobileRadio = document.querySelector(`input[name="mobile-price-bracket"][value="${radio.value}"]`);
+                        if (mobileRadio) mobileRadio.checked = true;
+                        applyFiltersAndRender();
+                    });
+                });
+                mobilePriceRadios.forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        filters.priceBracket = radio.value;
+                        const desktopRadio = document.querySelector(`input[name="price-bracket"][value="${radio.value}"]`);
+                        if (desktopRadio) desktopRadio.checked = true;
+                    });
+                });
+
+                sizeChips.forEach(chip => {
+                    chip.addEventListener('click', () => {
+                        const size = chip.getAttribute('data-size');
+                        if (filters.sizes.has(size)) {
+                            filters.sizes.delete(size);
+                            chip.classList.remove('bg-navy', 'text-white', 'border-navy');
+                        } else {
+                            filters.sizes.add(size);
+                            chip.classList.add('bg-navy', 'text-white', 'border-navy');
+                        }
+                        applyFiltersAndRender();
+                    });
+                });
+
+                colorChips.forEach(chip => {
+                    chip.addEventListener('click', () => {
+                        const color = chip.getAttribute('data-color');
+                        if (filters.colors.has(color)) {
+                            filters.colors.delete(color);
+                            chip.classList.remove('ring-gold');
+                        } else {
+                            filters.colors.add(color);
+                            chip.classList.add('ring-gold');
+                        }
+                        applyFiltersAndRender();
+                    });
+                });
+
+                if (brandFilterInput) {
+                    let brandDebounce;
+                    brandFilterInput.addEventListener('input', () => {
+                        clearTimeout(brandDebounce);
+                        brandDebounce = setTimeout(() => {
+                            filters.brand = brandFilterInput.value.trim();
+                            applyFiltersAndRender();
+                        }, 250);
+                    });
+                }
+
+                conditionCheckboxes.forEach(cb => {
+                    cb.addEventListener('change', () => {
+                        const value = cb.value;
+                        if (cb.checked) {
+                            filters.conditions.add(value);
+                        } else {
+                            filters.conditions.delete(value);
+                        }
+                        // sync mobile
+                        const mobileCb = document.querySelector(`.mobile-condition-checkbox[value="${value}"]`);
+                        if (mobileCb) mobileCb.checked = cb.checked;
+                        applyFiltersAndRender();
+                    });
+                });
+                mobileConditionCheckboxes.forEach(cb => {
+                    cb.addEventListener('change', () => {
+                        const value = cb.value;
+                        const desktopCb = document.querySelector(`.condition-checkbox[value="${value}"]`);
+                        if (desktopCb) desktopCb.checked = cb.checked;
+                        if (cb.checked) {
+                            filters.conditions.add(value);
+                        } else {
+                            filters.conditions.delete(value);
+                        }
+                    });
+                });
+
+                if (campusVerifiedCheckbox) {
+                    campusVerifiedCheckbox.addEventListener('change', () => {
+                        filters.campusVerifiedOnly = campusVerifiedCheckbox.checked;
+                        if (mobileCampusVerifiedCheckbox) {
+                            mobileCampusVerifiedCheckbox.checked = campusVerifiedCheckbox.checked;
+                        }
+                        applyFiltersAndRender();
+                    });
+                }
+                if (mobileCampusVerifiedCheckbox) {
+                    mobileCampusVerifiedCheckbox.addEventListener('change', () => {
+                        filters.campusVerifiedOnly = mobileCampusVerifiedCheckbox.checked;
+                        if (campusVerifiedCheckbox) {
+                            campusVerifiedCheckbox.checked = mobileCampusVerifiedCheckbox.checked;
+                        }
+                    });
+                }
+
+                function clearAll() {
+                    filters.searchQuery = '';
+                    filters.priceBracket = 'all';
+                    filters.sizes.clear();
+                    filters.colors.clear();
+                    filters.brand = '';
+                    filters.conditions.clear();
+                    filters.campusVerifiedOnly = false;
+
+                    if (globalSearchInput) globalSearchInput.value = '';
+                    priceRadios.forEach(r => { if (r.value === 'all') r.checked = true; else r.checked = false; });
+                    mobilePriceRadios.forEach(r => { if (r.value === 'all') r.checked = true; else r.checked = false; });
+                    sizeChips.forEach(chip => chip.classList.remove('bg-navy', 'text-white', 'border-navy'));
+                    colorChips.forEach(chip => chip.classList.remove('ring-gold'));
+                    if (brandFilterInput) brandFilterInput.value = '';
+                    conditionCheckboxes.forEach(cb => cb.checked = false);
+                    mobileConditionCheckboxes.forEach(cb => cb.checked = false);
+                    if (campusVerifiedCheckbox) campusVerifiedCheckbox.checked = false;
+                    if (mobileCampusVerifiedCheckbox) mobileCampusVerifiedCheckbox.checked = false;
+
+                    applyFiltersAndRender();
+                }
+
+                if (clearAllFiltersButton) {
+                    clearAllFiltersButton.addEventListener('click', clearAll);
+                }
+                if (mobileClearAllFiltersButton) {
+                    mobileClearAllFiltersButton.addEventListener('click', clearAll);
+                }
+
+                if (mobileFilterToggle && mobileFilterDrawer && mobileFilterClose && mobileApplyFilters) {
+                    mobileFilterToggle.addEventListener('click', () => {
+                        mobileFilterDrawer.classList.remove('translate-y-full');
+                    });
+                    mobileFilterClose.addEventListener('click', () => {
+                        mobileFilterDrawer.classList.add('translate-y-full');
+                    });
+                    mobileApplyFilters.addEventListener('click', () => {
+                        applyFiltersAndRender();
+                        mobileFilterDrawer.classList.add('translate-y-full');
+                    });
+                }
+
+                if (activeFiltersContainer) {
+                    activeFiltersContainer.addEventListener('click', (event) => {
+                        const button = event.target.closest('button[data-filter-type]');
+                        if (!button) return;
+                        const type = button.getAttribute('data-filter-type');
+                        const value = button.getAttribute('data-filter-value');
+
+                        if (type === 'search') filters.searchQuery = '';
+                        if (type === 'price') filters.priceBracket = 'all';
+                        if (type === 'size' && value) filters.sizes.delete(value);
+                        if (type === 'color' && value) filters.colors.delete(value);
+                        if (type === 'brand') filters.brand = '';
+                        if (type === 'condition' && value) filters.conditions.delete(value);
+                        if (type === 'campus') filters.campusVerifiedOnly = false;
+
+                        // Reset corresponding UI elements
+                        if (type === 'search' && globalSearchInput) globalSearchInput.value = '';
+                        if (type === 'price') {
+                            priceRadios.forEach(r => { if (r.value === 'all') r.checked = true; else r.checked = false; });
+                            mobilePriceRadios.forEach(r => { if (r.value === 'all') r.checked = true; else r.checked = false; });
+                        }
+                        if (type === 'size' && value) {
+                            sizeChips.forEach(chip => {
+                                if (chip.getAttribute('data-size') === value) {
+                                    chip.classList.remove('bg-navy', 'text-white', 'border-navy');
+                                }
+                            });
+                        }
+                        if (type === 'color' && value) {
+                            colorChips.forEach(chip => {
+                                if (chip.getAttribute('data-color') === value) {
+                                    chip.classList.remove('ring-gold');
+                                }
+                            });
+                        }
+                        if (type === 'brand') {
+                            if (brandFilterInput) brandFilterInput.value = '';
+                        }
+                        if (type === 'condition' && value) {
+                            conditionCheckboxes.forEach(cb => {
+                                if (cb.value === value) cb.checked = false;
+                            });
+                            mobileConditionCheckboxes.forEach(cb => {
+                                if (cb.value === value) cb.checked = false;
+                            });
+                        }
+                        if (type === 'campus') {
+                            if (campusVerifiedCheckbox) campusVerifiedCheckbox.checked = false;
+                            if (mobileCampusVerifiedCheckbox) mobileCampusVerifiedCheckbox.checked = false;
+                        }
+
+                        applyFiltersAndRender();
+                    });
+                }
+            }
+
+            function setupCategoryNavHandlers() {
+                if (!categoryNav) return;
+                categoryNav.addEventListener('click', (event) => {
+                    const pill = event.target.closest('.category-pill');
+                    if (!pill) return;
+
+                    const selectedCategory = pill.getAttribute('data-category');
+                    currentCategory = selectedCategory === 'Other' ? null : selectedCategory;
+
+                    // Update active styles
+                    categoryNav.querySelectorAll('.category-pill').forEach(btn => {
+                        if (btn === pill) {
+                            btn.classList.add('bg-gold', 'text-navy', 'border-gold', 'shadow-sm');
+                            btn.classList.remove('bg-gray-900/40', 'text-gray-200', 'border-gray-700');
+                        } else {
+                            btn.classList.remove('bg-gold', 'text-navy', 'border-gold', 'shadow-sm');
+                            btn.classList.add('bg-gray-900/40', 'text-gray-200', 'border-gray-700');
+                        }
+                    });
+
+                    applyFiltersAndRender();
+                });
+            }
+
+            function setupSearchSuggestions() {
+                if (!globalSearchInput || !searchSuggestions) return;
+
+                function renderSuggestions(query) {
+                    if (!query) {
+                        searchSuggestions.innerHTML = '';
+                        searchSuggestions.classList.add('hidden');
+                        return;
+                    }
+
+                    const q = query.toLowerCase();
+                    const suggestions = [];
+
+                    const byName = [];
+                    const byCategory = [];
+
+                    allProducts.forEach(product => {
+                        const name = (product.name || '').toLowerCase();
+                        const cat = (product.category || '').toLowerCase();
+                        const brand = (product.brand || '').toLowerCase();
+
+                        if (name.includes(q)) {
+                            byName.push({
+                                type: 'Product',
+                                label: product.name,
+                                secondary: product.category || '',
+                                productId: product._id
+                            });
+                        } else if (brand && brand.includes(q)) {
+                            suggestions.push({
+                                type: 'Brand',
+                                label: product.brand,
+                                secondary: 'Brand match'
+                            });
+                        } else if (cat && cat.includes(q)) {
+                            byCategory.push({
+                                type: 'Category',
+                                label: product.category,
+                                secondary: 'Category match'
+                            });
+                        }
+                    });
+
+                    const merged = [
+                        ...byName.slice(0, 5),
+                        ...byCategory.slice(0, 3),
+                        ...suggestions.slice(0, 3)
+                    ];
+
+                    const unique = [];
+                    const seen = new Set();
+                    merged.forEach(item => {
+                        const key = `${item.type}-${item.label}`;
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            unique.push(item);
+                        }
+                    });
+
+                    if (unique.length === 0) {
+                        searchSuggestions.innerHTML = `
+                            <div class="px-4 py-3 text-xs text-gray-400">
+                                No suggestions. Press Enter to search campus-wide.
+                            </div>
+                        `;
+                        searchSuggestions.classList.remove('hidden');
+                        return;
+                    }
+
+                    searchSuggestions.innerHTML = unique.map(item => `
+                        <button 
+                            class="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-gray-800 text-xs text-gray-100"
+                            data-suggestion-type="${item.type}"
+                            data-suggestion-label="${item.label}"
+                            ${item.productId ? `data-product-id="${item.productId}"` : ''}
+                        >
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-800 text-[10px] text-gray-300 uppercase">
+                                    ${item.type === 'Product' ? 'P' : item.type === 'Brand' ? 'B' : 'C'}
+                                </span>
+                                <div>
+                                    <p class="text-[11px] font-medium line-clamp-1">${item.label}</p>
+                                    ${item.secondary ? `<p class="text-[10px] text-gray-400 line-clamp-1">${item.secondary}</p>` : ''}
+                                </div>
+                            </div>
+                        </button>
+                    `).join('');
+
+                    searchSuggestions.classList.remove('hidden');
+                }
+
+                let debounceTimer;
+                globalSearchInput.addEventListener('input', () => {
+                    const value = globalSearchInput.value.trim();
+                    filters.searchQuery = value;
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        renderSuggestions(value);
+                        applyFiltersAndRender();
+                    }, 150);
+                });
+
+                globalSearchInput.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        filters.searchQuery = globalSearchInput.value.trim();
+                        searchSuggestions.classList.add('hidden');
+                        applyFiltersAndRender();
+                    } else if (event.key === 'Escape') {
+                        searchSuggestions.classList.add('hidden');
+                    }
+                });
+
+                if (globalSearchButton) {
+                    globalSearchButton.addEventListener('click', () => {
+                        filters.searchQuery = globalSearchInput.value.trim();
+                        searchSuggestions.classList.add('hidden');
+                        applyFiltersAndRender();
+                    });
+                }
+
+                searchSuggestions.addEventListener('click', (event) => {
+                    const btn = event.target.closest('button[data-suggestion-type]');
+                    if (!btn) return;
+                    const label = btn.getAttribute('data-suggestion-label');
+                    const type = btn.getAttribute('data-suggestion-type');
+
+                    globalSearchInput.value = label;
+                    filters.searchQuery = label;
+                    searchSuggestions.classList.add('hidden');
+
+                    if (type === 'Product') {
+                        // Focus this product by moving it up in sort relevance
+                        filters.sortBy = 'relevance';
+                        sortSelect.value = 'relevance';
+                    }
+
+                    applyFiltersAndRender();
+                });
+
+                document.addEventListener('click', (event) => {
+                    if (!searchSuggestions.contains(event.target) && event.target !== globalSearchInput) {
+                        searchSuggestions.classList.add('hidden');
+                    }
+                });
+            }
+
+            updateUserUI();
+            attachFilterHandlers();
+            setViewMode('grid');
+            fetchProducts();
+
+            logoutButton.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/api/auth/logout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    if (response.ok) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('userEmail');
+                        localStorage.removeItem('userFullName');
+                        updateUserUI();
+                    } else {
+                        console.error('Logout failed:', await response.json());
+                    }
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+            });
+        });
+    </script>
+    <script src="../js/cart.js"></script>
+</body>
+
+</html>

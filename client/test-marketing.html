@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Marketing API Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Public Ad Sliders</h2>
+        <button onclick="testAdSliders()">Test Ad Sliders API</button>
+        <div id="ad-sliders-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Public Category Cards</h2>
+        <button onclick="testCategoryCards()">Test Category Cards API</button>
+        <div id="category-cards-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Admin Ad Sliders (requires admin login)</h2>
+        <button onclick="testAdminAdSliders()">Test Admin Ad Sliders API</button>
+        <div id="admin-ad-sliders-result"></div>
+    </div>
+
+    <script>
+        async function testAdSliders() {
+            const resultDiv = document.getElementById('ad-sliders-result');
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            try {
+                const response = await fetch('/api/public/marketing/ad-sliders');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Success - Found ${data.length} ad sliders</h3>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Error - ${response.status}</h3>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Network Error</h3>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+        
+        async function testCategoryCards() {
+            const resultDiv = document.getElementById('category-cards-result');
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            try {
+                const response = await fetch('/api/public/marketing/category-cards');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Success - Found ${data.length} category cards</h3>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Error - ${response.status}</h3>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Network Error</h3>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+        
+        async function testAdminAdSliders() {
+            const resultDiv = document.getElementById('admin-ad-sliders-result');
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ No admin token found</h3>
+                        <p>Please login as admin first</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/marketing/ad-sliders', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Admin Success - Found ${data.length} ad sliders</h3>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Admin Error - ${response.status}</h3>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Network Error</h3>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

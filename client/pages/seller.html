@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Become a Seller</title>
+    <meta name="description"
+        content="Apply to become a seller on Virtuosa — the trusted Zambian campus marketplace. Sell textbooks, electronics, food, and more to fellow students.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-gold {
+            background-color: #FFD700;
+        }
+
+        .bg-button-gold {
+            background-color: #C19A6B;
+        }
+
+        .hover-bg-button-gold:hover {
+            background-color: #A98B68;
+        }
+
+        .bg-dark-navy {
+            background-color: #060A18;
+        }
+
+        /* Multi-step progress bar */
+        .step-progress {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .step-progress::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #E5E7EB;
+            transform: translateY(-50%);
+            z-index: 0;
+        }
+
+        .step-progress-fill {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #FFD700, #C19A6B);
+            transform: translateY(-50%);
+            z-index: 1;
+            transition: width 0.5s ease;
+        }
+
+        .step-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            z-index: 2;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            border: 3px solid #E5E7EB;
+            background: white;
+            color: #9CA3AF;
+        }
+
+        .step-dot.active {
+            border-color: #FFD700;
+            background: #FFD700;
+            color: #0A1128;
+            transform: scale(1.15);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+        }
+
+        .step-dot.completed {
+            border-color: #22C55E;
+            background: #22C55E;
+            color: white;
+        }
+
+        .step-dot:hover {
+            transform: scale(1.1);
+        }
+
+        /* Form sections */
+        .form-section {
+            display: none;
+            animation: fadeSlideIn 0.4s ease;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom checkbox/radio cards */
+        .seller-type-card {
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .seller-type-card:hover {
+            border-color: #C19A6B;
+            background: #FFFBF0;
+        }
+
+        .seller-type-card.selected {
+            border-color: #FFD700;
+            background: linear-gradient(135deg, #FFFBF0 0%, #FFF8E7 100%);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+        }
+
+        .seller-type-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: #FFD700;
+            color: #0A1128;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* Checkbox grid cards */
+        .check-card {
+            border: 2px solid #E5E7EB;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .check-card:hover {
+            border-color: #C19A6B;
+        }
+
+        .check-card.selected {
+            border-color: #FFD700;
+            background: #FFFDF5;
+        }
+
+        .check-card input[type="checkbox"] {
+            display: none;
+        }
+
+        /* Custom input styling */
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            transition: all 0.25s ease;
+            background: white;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+        }
+
+        .form-input.error {
+            border-color: #EF4444;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #0A1128;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-label .required {
+            color: #EF4444;
+            margin-left: 2px;
+        }
+
+        .form-hint {
+            font-size: 0.75rem;
+            color: #6B7280;
+            margin-top: 0.25rem;
+        }
+
+        .form-error {
+            font-size: 0.75rem;
+            color: #EF4444;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        /* Hero gradient card */
+        .hero-card {
+            background: linear-gradient(135deg, #0A1128 0%, #1a2444 50%, #0A1128 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        /* Agreement checkboxes */
+        .agreement-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .agreement-item:hover {
+            background: #F9FAFB;
+        }
+
+        .agreement-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            accent-color: #FFD700;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        /* Draft saved indicator */
+        .draft-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            background: #0A1128;
+            color: #FFD700;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 40;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .draft-indicator.show {
+            opacity: 1;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            z-index: 100;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .toast.success {
+            background: #22C55E;
+            color: white;
+        }
+
+        .toast.error {
+            background: #EF4444;
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Status cards */
+        .status-card {
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .status-card.pending {
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            border: 1px solid #C7D2FE;
+        }
+
+        .status-card.rejected {
+            background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+            border: 1px solid #FECACA;
+        }
+
+        /* Section header */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .step-dot {
+                width: 28px;
+                height: 28px;
+                font-size: 0.65rem;
+            }
+
+            .seller-type-card {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 antialiased flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-navy text-white shadow-lg py-3 px-6 md:px-12 sticky top-0 z-50">
+        <div class="container mx-auto flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center">
+                <a href="/pages/index.html" class="text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+            <div class="flex-grow max-w-lg md:mx-auto order-3 md:order-2 w-full md:w-auto">
+                <div class="relative">
+                    <input type="text" placeholder="Search for books, notes, and more..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400">
+                    <button
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="user-info-container" class="flex items-center space-x-4 order-2 md:order-3">
+                <a href="/pages/login.html" id="login-link"
+                    class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
+                <div id="user-menu" class="relative hidden">
+                    <button id="menu-toggle-user" onclick="window.toggleUserMenu()"
+                        class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
+                        <span id="user-greeting"></span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div id="user-dropdown"
+                        class="absolute right-0 top-8 w-48 bg-navy rounded-lg shadow-xl z-50 py-2 hidden">
+                        <a href="/pages/profile.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">My
+                            Profile</a>
+                        <a href="/pages/dashboard.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">Dashboard</a>
+                        <a href="/pages/notifications.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">Notifications</a>
+                        <a href="/pages/transactions.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">My
+                            Transactions</a>
+                        <a href="/pages/reviews.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">My
+                            Reviews</a>
+                        <div id="seller-links" class="hidden">
+                            <a href="/pages/create-product.html"
+                                class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">Create
+                                Listing</a>
+                        </div>
+                        <div id="admin-link" class="hidden">
+                            <a href="/pages/admin-dashboard.html"
+                                class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">Admin
+                                Panel</a>
+                        </div>
+                        <div class="border-t border-gray-700 my-1"></div>
+                        <button onclick="window.logout()" id="logout-button"
+                            class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">Log
+                            Out</button>
+                    </div>
+                </div>
+                <a href="/pages/notifications.html" class="relative text-white hover:text-gold transition-colors mr-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    <span id="notification-badge-count"
+                        class="hidden absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+                <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span
+                        class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow py-6 md:py-10">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto">
+
+                <!-- Hero Card -->
+                <div class="hero-card rounded-2xl shadow-xl p-6 md:p-10 mb-8 text-white relative z-10">
+                    <h1 class="text-2xl md:text-4xl font-extrabold mb-3">
+                        <span class="text-gold">Start Selling</span> on Virtuosa
+                    </h1>
+                    <p class="text-gray-300 text-sm md:text-base max-w-xl leading-relaxed">
+                        Join the trusted Zambian campus marketplace. Sell your items, grow your hustle, and connect with
+                        thousands of students across Zambian universities. 🇿🇲
+                    </p>
+                    <div class="flex flex-wrap gap-4 mt-5">
+                        <div class="flex items-center gap-2 text-xs md:text-sm">
+                            <span class="text-gold">📦</span> Easy Listing
+                        </div>
+                        <div class="flex items-center gap-2 text-xs md:text-sm">
+                            <span class="text-gold">💰</span> Earn on Campus
+                        </div>
+                        <div class="flex items-center gap-2 text-xs md:text-sm">
+                            <span class="text-gold">🛡️</span> Trusted & Safe
+                        </div>
+                        <div class="flex items-center gap-2 text-xs md:text-sm">
+                            <span class="text-gold">📱</span> Mobile Money
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Application Status (shown when user already applied) -->
+                <div id="application-status-container" class="hidden mb-8"></div>
+
+                <!-- Application Form Container -->
+                <div id="application-form-container" class="bg-white rounded-2xl shadow-lg overflow-hidden">
+
+                    <!-- Progress Steps -->
+                    <div class="px-4 md:px-8 pt-8 pb-2">
+                        <div class="step-progress" id="step-progress">
+                            <div class="step-progress-fill" id="step-progress-fill" style="width: 0%"></div>
+                            <div class="step-dot active" data-step="1" onclick="goToStep(1)" title="Seller Type">1</div>
+                            <div class="step-dot" data-step="2" onclick="goToStep(2)" title="Personal Info">2</div>
+                            <div class="step-dot" data-step="3" onclick="goToStep(3)" title="Campus Location">3</div>
+                            <div class="step-dot" data-step="4" onclick="goToStep(4)" title="What You Sell">4</div>
+                            <div class="step-dot" data-step="5" onclick="goToStep(5)" title="Inventory Source">5</div>
+                            <div class="step-dot" data-step="6" onclick="goToStep(6)" title="Payment">6</div>
+                            <div class="step-dot" data-step="7" onclick="goToStep(7)" title="Delivery">7</div>
+                            <div class="step-dot" data-step="8" onclick="goToStep(8)" title="Verification">8</div>
+                            <div class="step-dot" data-step="9" onclick="goToStep(9)" title="Agreements">9</div>
+                            <div class="step-dot" data-step="10" onclick="goToStep(10)" title="Additional Info">10</div>
+                        </div>
+                        <p class="text-center text-sm text-gray-500 mb-2" id="step-label">Step 1 of 10 — Seller Type</p>
+                    </div>
+
+                    <form id="seller-application-form" class="px-4 md:px-8 pb-8">
+
+                        <!-- Section 1: Seller Type -->
+                        <div class="form-section active" id="section-1">
+                            <div class="section-header">
+                                <div class="section-icon bg-yellow-100 text-yellow-700"><i class="fas fa-user-tag"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-900">What type of seller are you?</h2>
+                                    <p class="text-sm text-gray-500">Select the category that best describes you</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="seller-type-card" data-type="Student" onclick="selectSellerType(this)">
+                                    <div class="text-2xl mb-2">🎓</div>
+                                    <h3 class="font-bold text-gray-900">Student Seller</h3>
+                                    <p class="text-sm text-gray-500 mt-1">Full-time student selling items or services on
+                                        campus</p>
+                                </div>
+                                <div class="seller-type-card" data-type="CampusBusiness"
+                                    onclick="selectSellerType(this)">
+                                    <div class="text-2xl mb-2">🏪</div>
+                                    <h3 class="font-bold text-gray-900">Campus Business</h3>
+                                    <p class="text-sm text-gray-500 mt-1">Canteen, bookstore, stationery shop on campus
+                                    </p>
+                                </div>
+                                <div class="seller-type-card" data-type="ExternalVendor"
+                                    onclick="selectSellerType(this)">
+                                    <div class="text-2xl mb-2">🏬</div>
+                                    <h3 class="font-bold text-gray-900">External Vendor</h3>
+                                    <p class="text-sm text-gray-500 mt-1">Sells goods/services to campus communities</p>
+                                </div>
+                                <div class="seller-type-card" data-type="Cooperative" onclick="selectSellerType(this)">
+                                    <div class="text-2xl mb-2">🤝</div>
+                                    <h3 class="font-bold text-gray-900">Cooperative</h3>
+                                    <p class="text-sm text-gray-500 mt-1">Student group selling together</p>
+                                </div>
+                            </div>
+                            <input type="hidden" name="sellerType" id="sellerType" required>
+                            <p class="form-error" id="sellerType-error">Please select a seller type</p>
+                        </div>
+
+                        <!-- Section 2: Personal Information -->
+                        <div class="form-section" id="section-2">
+                            <div class="section-header">
+                                <div class="section-icon bg-blue-100 text-blue-700"><i class="fas fa-id-card"></i></div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-900">Personal Information</h2>
+                                    <p class="text-sm text-gray-500">Tell us about yourself</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="form-label">Full Name <span class="required">*</span></label>
+                                    <input type="text" name="fullName" class="form-input"
+                                        placeholder="e.g. Mwila Chanda" required>
+                                </div>
+
+                                <div id="student-id-field">
+                                    <label class="form-label">Student/Staff ID Number</label>
+                                    <input type="text" name="studentId" class="form-input"
+                                        placeholder="e.g. 2024123456">
+                                    <p class="form-hint">Enter your university ID number if applicable</p>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">University / College <span
+                                            class="required">*</span></label>
+                                    <select name="university" class="form-input" required>
+                                        <option value="">Select your university</option>
+                                        <option value="University of Zambia (UNZA)">University of Zambia (UNZA)</option>
+                                        <option value="Copperbelt University (CBU)">Copperbelt University (CBU)</option>
+                                        <option value="Mulungushi University">Mulungushi University</option>
+                                        <option value="ZCAS University">ZCAS University</option>
+                                        <option value="Cavendish University Zambia">Cavendish University Zambia</option>
+                                        <option value="University of Lusaka (UNILUS)">University of Lusaka (UNILUS)
+                                        </option>
+                                        <option value="Levy Mwanawasa Medical University">Levy Mwanawasa Medical
+                                            University</option>
+                                        <option value="Mukuba University">Mukuba University</option>
+                                        <option value="Kwame Nkrumah University">Kwame Nkrumah University</option>
+                                        <option value="Chalimbana University">Chalimbana University</option>
+                                        <option value="Robert Sobukwe University (formerly Rusangu)">Robert Sobukwe
+                                            University</option>
+                                        <option value="Texila American University Zambia">Texila American University
+                                            Zambia</option>
+                                        <option value="DMI – St. Eugene University">DMI – St. Eugene University</option>
+                                        <option value="Zambia Open University (ZOU)">Zambia Open University (ZOU)
+                                        </option>
+                                        <option value="Information and Communications University (ICU)">ICU Zambia
+                                        </option>
+                                        <option value="Northrise University">Northrise University</option>
+                                        <option value="Lusaka Apex Medical University">Lusaka Apex Medical University
+                                        </option>
+                                        <option value="NIPA - National Institute of Public Administration">NIPA</option>
+                                        <option value="Evelyn Hone College">Evelyn Hone College</option>
+                                        <option value="other">Other (specify below)</option>
+                                    </select>
+                                </div>
+                                <div id="other-university-field" class="hidden">
+                                    <label class="form-label">Specify University/College</label>
+                                    <input type="text" name="otherUniversity" class="form-input"
+                                        placeholder="Enter your institution name">
+                                </div>
+
+                                <div id="nrc-field">
+                                    <label class="form-label">NRC Number <span id="nrc-required"
+                                            class="required hidden">*</span></label>
+                                    <input type="text" name="nrcNumber" class="form-input"
+                                        placeholder="e.g. 123456/78/1">
+                                    <p class="form-hint" id="nrc-hint">Optional for students, required for external
+                                        vendors</p>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Phone Number <span class="required">*</span></label>
+                                    <div class="relative">
+                                        <span
+                                            class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">🇿🇲</span>
+                                        <input type="tel" name="phoneNumber" class="form-input pl-10"
+                                            placeholder="+260 97X XXX XXX" required>
+                                    </div>
+                                    <p class="form-hint">Zambian format: +260 followed by 9 digits</p>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Email Address <span class="required">*</span></label>
+                                    <input type="email" name="email" class="form-input"
+                                        placeholder="your.email@example.com" required>
+                                </div>
+
+                                <div id="year-of-study-field">
+                                    <label class="form-label">Current Year of Study</label>
+                                    <select name="yearOfStudy" class="form-input">
+                                        <option value="">Select year</option>
+                                        <option value="1st Year">1st Year</option>
+                                        <option value="2nd Year">2nd Year</option>
+                                        <option value="3rd Year">3rd Year</option>
+                                        <option value="4th Year">4th Year</option>
+                                        <option value="5th Year">5th Year</option>
+                                        <option value="6th Year">6th Year</option>
+                                        <option value="7th Year">7th Year</option>
+                                        <option value="Finalist">Finalist</option>
+                                        <option value="Postgraduate">Postgraduate</option>
+                                    </select>
+                                </div>
+
+                                <div id="program-field">
+                                    <label class="form-label">Program / Course of Study</label>
+                                    <input type="text" name="program" class="form-input"
+                                        placeholder="e.g. Bachelor of Computer Science">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 3: Campus Location Details -->
+                        <div class="form-section" id="section-3">
+                            <div class="section-header">
+                                <div class="section-icon bg-green-100 text-green-700"><i
+                                        class="fas fa-map-marker-alt"></i></div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-900">Campus Location Details</h2>
+                                    <p class="text-sm text-gray-500">Where do you operate from?</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="form-label">Which campus/location do you operate from? <span
+                                            class="required">*</span></label>
+                                    <input type="text" name="campus" class="form-input"
+                                        placeholder="e.g. Great East Road Campus, Riverside Campus, Kitwe Campus"
+                                        required>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Do you have physical access to students?</label>
+                                    <div class="flex gap-4 mt-2">
+                                        <label class="check-card flex-1 justify-center"
+                                            onclick="toggleRadio(this, 'physicalAccess', 'yes')">
+                                            <input type="radio" name="physicalAccess" value="yes">
+                                            <span class="font-medium text-sm">✅ Yes</span>
+                                        </label>
+                                        <label class="check-card flex-1 justify-center"
+                                            onclick="toggleRadio(this, 'physicalAccess', 'no')">
+                                            <input type="radio" name="physicalAccess" value="no">
+                                            <span class="font-medium text-sm">❌ No</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div id="pickup-location-field">
+                                    <label class="form-label">Where can students pick up items?</label>
+                                    <input type="text" name="pickupLocation" class="form-input"
+                                        placeholder="e.g. Hall of residence, department office, campus pickup point">
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Can you deliver within campus?</label>
+                                    <div class="flex gap-4 mt-2">
+                                        <label class="check-card flex-1 justify-center"
+                                            onclick="toggleRadio(this, 'canDeliver', 'yes')">
+                                            <input type="radio" name="canDeliver" value="yes">
+                                            <span class="font-medium text-sm">✅ Yes</span>
+                                        </label>
+                                        <label class="check-card flex-1 justify-center"
+                                            onclick="toggleRadio(this, 'canDeliver', 'no')">
+                                            <input type="radio" name="canDeliver" value="no">
+                                            <span class="font-medium text-sm">❌ No</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div id="delivery-radius-field" class="hidden">
+                                    <label class="form-label">Delivery radius (in km)</label>
+                                    <input type="number" name="deliveryRadius" class="form-input" placeholder="e.g. 5"
+                                        min="1" max="50">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 4: Business/Selling Information -->
+                        <div class="form-section" id="section-4">
+                            <div class="section-header">
+                                <div class="section-icon bg-purple-100 text-purple-700"><i class="fas fa-store"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-900">What do you plan to sell?</h2>
+                                    <p class="text-sm text-gray-500">Check all that apply</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="categories-grid">
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="categories" value="Textbooks & Academic Materials">
+                                        <span class="text-lg">📚</span>
+                                        <span class="text-sm font-medium">Textbooks & Academic Materials</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="categories" value="Notes & Past Papers">
+                                        <span class="text-lg">📝</span>
+                                        <span class="text-sm font-medium">Notes & Past Papers</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="categories" value="Electronics & Gadgets">
+                                        <span class="text-lg">📱</span>
+                                        <span class="text-sm font-medium">Electronics & Gadgets</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="categories" value="Clothing & Fashion">
+                                        <span class="text-lg">👕</span>
+                                        <span class="text-sm font-medium">Clothing & Fashion (new/salaula)</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="categories" value="Food & Beverages">
+                                        <span class="text-lg">🍛</span>
+                                        <span class="text-sm font-medium">Food & Beverages</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="categories" value="Stationery & School Supplies">
+                                        <span class="text-lg">✏️</span>
+                                        <span class="text-sm font-medium">Stationery & School Supplies</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="categories" value="Room Essentials & Decor">
+                                        <span class="text-lg">🏠</span>
+                                        <span class="text-sm font-medium">Room Essentials & Decor</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="categories" value="Services">
+                                        <span class="text-lg">💼</span>
+                                        <span class="text-sm font-medium">Services (tutoring, printing, etc.)</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="categories" value="Art & Crafts">
+                                        <span class="text-lg">🎨</span>
+                                        <span class="text-sm font-medium">Art & Crafts (Zambian handmade)</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="categories" value="Other">
+                                        <span class="text-lg">📦</span>
+                                        <span class="text-sm font-medium">Other</span>
+                                    </label>
+                                </div>
+
+                                <div id="other-category-field" class="hidden">
+                                    <label class="form-label">Specify other category</label>
+                                    <input type="text" name="otherCategory" class="form-input"
+                                        placeholder="What else do you sell?">
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Is this your first time selling?</label>
+                                    <select name="sellingExperience" class="form-input">
+                                        <option value="">Select</option>
+                                        <option value="first_time">Yes, first time</option>
+                                        <option value="sold_casually">I've sold casually before</option>
+                                        <option value="existing_business">I have an existing business</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Where do you currently sell?</label>
+                                    <input type="text" name="currentSaleChannels" class="form-input"
+                                        placeholder="e.g. WhatsApp, Instagram, physical shop, hostel room">
+                                    <p class="form-hint">Leave blank if this is your first time</p>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Store Name</label>
+                                    <input type="text" name="storeName" class="form-input"
+                                        placeholder="e.g. Mwila's Campus Store">
+                                    <p class="form-hint">Choose a unique name for your shop on Virtuosa</p>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Store Description</label>
+                                    <textarea name="storeDescription" class="form-input" rows="3"
+                                        placeholder="Tell buyers what your store is about..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 5: Inventory & Product Source -->
+                        <div class="form-section" id="section-5">
+                            <div class="section-header">
+                                <div class="section-icon bg-orange-100 text-orange-700"><i
+                                        class="fas fa-boxes-stacked"></i></div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-900">Inventory & Product Source</h2>
+                                    <p class="text-sm text-gray-500">Where will your products come from?</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 gap-3" id="sources-grid">
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="sources" value="Personal items I no longer need">
+                                        <span class="text-lg">🔄</span>
+                                        <span class="text-sm font-medium">Personal items I no longer need</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="sources" value="I make/create them myself">
+                                        <span class="text-lg">🛠️</span>
+                                        <span class="text-sm font-medium">I make/create them myself</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="sources" value="Buy from local markets to resell">
+                                        <span class="text-lg">🏪</span>
+                                        <span class="text-sm font-medium">Buy from local markets/shops to resell (e.g.,
+                                            Town Centre, Kamwala, Soweto)</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="sources" value="Cross-border trading">
+                                        <span class="text-lg">🌍</span>
+                                        <span class="text-sm font-medium">I bring from outside Zambia (cross-border
+                                            trading)</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="sources" value="Agent for a brand/company">
+                                        <span class="text-lg">🏷️</span>
+                                        <span class="text-sm font-medium">I'm an agent for a brand/company</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="sources" value="Other">
+                                        <span class="text-lg">📦</span>
+                                        <span class="text-sm font-medium">Other</span>
+                                    </label>
+                                </div>
+
+                                <div id="other-source-field" class="hidden">
+                                    <label class="form-label">Specify other source</label>
+                                    <input type="text" name="otherSource" class="form-input"
+                                        placeholder="Where else do you get products?">
+                                </div>
+
+                                <div>
+                                    <label class="form-label">How many items do you plan to list?</label>
+                                    <select name="plannedItemCount" class="form-input">
+                                        <option value="">Select range</option>
+                                        <option value="1-10">1–10 items</option>
+                                        <option value="11-30">11–30 items</option>
+                                        <option value="31-50">31–50 items</option>
+                                        <option value="50+">50+ items</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 6: Pricing & Payment Preferences -->
+                        <div class="form-section" id="section-6">
+                            <div class="section-header">
+                                <div class="section-icon bg-emerald-100 text-emerald-700"><i class="fas fa-wallet"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-900">Pricing & Payment Preferences</h2>
+                                    <p class="text-sm text-gray-500">How would you like to receive payments?</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="payment-grid">
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="paymentMethods" value="Airtel Money">
+                                        <span class="text-lg">📲</span>
+                                        <span class="text-sm font-medium">Airtel Money</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="paymentMethods" value="MTN Money">
+                                        <span class="text-lg">📲</span>
+                                        <span class="text-sm font-medium">MTN Money</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="paymentMethods" value="Bank Transfer">
+                                        <span class="text-lg">🏦</span>
+                                        <span class="text-sm font-medium">Bank Transfer</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="paymentMethods" value="Cash on Delivery">
+                                        <span class="text-lg">💵</span>
+                                        <span class="text-sm font-medium">Cash on Delivery/Pickup</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="paymentMethods" value="Platform Wallet">
+                                        <span class="text-lg">👛</span>
+                                        <span class="text-sm font-medium">Platform Wallet</span>
+                                    </label>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Do you understand that the platform will charge a small
+                                        commission per sale?</label>
+                                    <select name="understandsCommission" class="form-input">
+                                        <option value="">Select</option>
+                                        <option value="yes">Yes, I understand</option>
+                                        <option value="no">No</option>
+                                        <option value="need_explanation">I need more explanation</option>
+                                    </select>
+                                    <p class="form-hint">Virtuosa charges a small commission to keep the platform
+                                        running and safe</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 7: Delivery & Pickup Arrangements -->
+                        <div class="form-section" id="section-7">
+                            <div class="section-header">
+                                <div class="section-icon bg-indigo-100 text-indigo-700"><i class="fas fa-truck"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-900">Delivery & Pickup Arrangements</h2>
+                                    <p class="text-sm text-gray-500">How will buyers receive items from you?</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 gap-3" id="delivery-grid">
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="deliveryMethods" value="Meet on campus">
+                                        <span class="text-lg">🤝</span>
+                                        <span class="text-sm font-medium">Meet on campus (specify location below)</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="deliveryMethods" value="Pickup from room/hostel">
+                                        <span class="text-lg">🏠</span>
+                                        <span class="text-sm font-medium">Pickup from my room/hostel</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="deliveryMethods" value="Deliver within campus">
+                                        <span class="text-lg">🚶</span>
+                                        <span class="text-sm font-medium">I can deliver within campus (small fee may
+                                            apply)</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="deliveryMethods" value="Deliver off-campus">
+                                        <span class="text-lg">🚗</span>
+                                        <span class="text-sm font-medium">I can deliver off-campus</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="deliveryMethods" value="Buyer arranges pickup">
+                                        <span class="text-lg">📍</span>
+                                        <span class="text-sm font-medium">Buyer arranges their own pickup</span>
+                                    </label>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Preferred meetup location on campus</label>
+                                    <input type="text" name="meetupLocation" class="form-input"
+                                        placeholder="e.g. near library, MLS building, main gate">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 8: Verification & Trust -->
+                        <div class="form-section" id="section-8">
+                            <div class="section-header">
+                                <div class="section-icon bg-teal-100 text-teal-700"><i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-900">Verification & Trust</h2>
+                                    <p class="text-sm text-gray-500">Optional but helps build trust with buyers</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <p class="text-sm text-gray-600">Can you provide any of the following for verification?
+                                </p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="verification-grid">
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="verificationDocs" value="Student ID Card">
+                                        <span class="text-lg">🪪</span>
+                                        <span class="text-sm font-medium">Student ID Card</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="verificationDocs" value="Business Registration">
+                                        <span class="text-lg">📋</span>
+                                        <span class="text-sm font-medium">Business Registration</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="verificationDocs"
+                                            value="Student/Warden Recommendation">
+                                        <span class="text-lg">📜</span>
+                                        <span class="text-sm font-medium">Student/Warden Recommendation</span>
+                                    </label>
+                                    <label class="check-card" onclick="toggleCheckCard(this)">
+                                        <input type="checkbox" name="verificationDocs"
+                                            value="PAC/Student Union Introduction">
+                                        <span class="text-lg">🏛️</span>
+                                        <span class="text-sm font-medium">PAC/Student Union Introduction</span>
+                                    </label>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Would you be willing to attend a brief orientation on how
+                                        to sell safely on campus?</label>
+                                    <div class="flex gap-4 mt-2">
+                                        <label class="check-card flex-1 justify-center"
+                                            onclick="toggleRadio(this, 'willingToOrient', 'yes')">
+                                            <input type="radio" name="willingToOrient" value="yes">
+                                            <span class="font-medium text-sm">✅ Yes</span>
+                                        </label>
+                                        <label class="check-card flex-1 justify-center"
+                                            onclick="toggleRadio(this, 'willingToOrient', 'no')">
+                                            <input type="radio" name="willingToOrient" value="no">
+                                            <span class="font-medium text-sm">❌ No</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 9: Agreements & Commitments -->
+                        <div class="form-section" id="section-9">
+                            <div class="section-header">
+                                <div class="section-icon bg-red-100 text-red-700"><i class="fas fa-file-contract"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-900">Agreements & Commitments</h2>
+                                    <p class="text-sm text-gray-500">Please read and agree to the following</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2 bg-gray-50 rounded-xl p-4">
+                                <div class="agreement-item">
+                                    <input type="checkbox" name="enrolledConfirm" id="agree-enrolled">
+                                    <label for="agree-enrolled" class="text-sm text-gray-700 cursor-pointer">I confirm I
+                                        am currently enrolled at a Zambian university or affiliated institution</label>
+                                </div>
+                                <div class="agreement-item">
+                                    <input type="checkbox" name="noProhibitedItems" id="agree-prohibited" required>
+                                    <label for="agree-prohibited" class="text-sm text-gray-700 cursor-pointer">I agree
+                                        <strong>not</strong> to sell prohibited items (alcohol, weapons, counterfeit
+                                        goods, exam papers) <span class="text-red-500">*</span></label>
+                                </div>
+                                <div class="agreement-item">
+                                    <input type="checkbox" name="noScamming" id="agree-scamming" required>
+                                    <label for="agree-scamming" class="text-sm text-gray-700 cursor-pointer">I
+                                        understand that scamming or failing to deliver will result in <strong>permanent
+                                            ban</strong> <span class="text-red-500">*</span></label>
+                                </div>
+                                <div class="agreement-item">
+                                    <input type="checkbox" name="respectCommitment" id="agree-respect" required>
+                                    <label for="agree-respect" class="text-sm text-gray-700 cursor-pointer">I agree to
+                                        treat fellow students with <strong>respect and fairness</strong> <span
+                                            class="text-red-500">*</span></label>
+                                </div>
+                                <div class="agreement-item">
+                                    <input type="checkbox" name="accurateDescriptions" id="agree-accurate" required>
+                                    <label for="agree-accurate" class="text-sm text-gray-700 cursor-pointer">I will
+                                        provide <strong>accurate descriptions</strong> of my items <span
+                                            class="text-red-500">*</span></label>
+                                </div>
+                            </div>
+                            <p class="form-error mt-2" id="agreements-error">You must agree to all required commitments
+                                (marked with *)</p>
+                        </div>
+
+                        <!-- Section 10: Additional Context (Optional) -->
+                        <div class="form-section" id="section-10">
+                            <div class="section-header">
+                                <div class="section-icon bg-cyan-100 text-cyan-700"><i class="fas fa-comment-dots"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-900">Additional Context</h2>
+                                    <p class="text-sm text-gray-500">Optional — help us improve the platform</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="form-label">What challenges do you face when buying/selling on campus
+                                        currently?</label>
+                                    <textarea name="challenges" class="form-input" rows="3"
+                                        placeholder="e.g. Trust issues, no reliable platform, hard to find buyers..."></textarea>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">What would make you trust this platform?</label>
+                                    <textarea name="trustFactors" class="form-input" rows="3"
+                                        placeholder="e.g. Verified sellers, escrow payments, student-only access..."></textarea>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Do you know other students who would also want to sell?
+                                        (Referral)</label>
+                                    <input type="text" name="referralName" class="form-input"
+                                        placeholder="Enter their name or phone number">
+                                </div>
+                            </div>
+
+                            <!-- Submit Summary -->
+                            <div
+                                class="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl border border-yellow-200">
+                                <div class="flex items-start gap-3">
+                                    <span class="text-2xl">🚀</span>
+                                    <div>
+                                        <h4 class="font-bold text-gray-900">Ready to submit?</h4>
+                                        <p class="text-sm text-gray-600 mt-1">
+                                            After submitting, our team will review your application within 24–48 hours.
+                                            You'll receive a notification once your application has been reviewed.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-100">
+                            <button type="button" id="btn-prev" onclick="prevStep()"
+                                class="hidden px-6 py-3 rounded-xl font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-all flex items-center gap-2">
+                                <i class="fas fa-arrow-left text-sm"></i> Previous
+                            </button>
+                            <div class="flex-1"></div>
+                            <button type="button" id="btn-next" onclick="nextStep()"
+                                class="px-8 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-xl flex items-center gap-2">
+                                Next <i class="fas fa-arrow-right text-sm"></i>
+                            </button>
+                            <button type="submit" id="btn-submit"
+                                class="hidden px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl flex items-center gap-2">
+                                <i class="fas fa-paper-plane text-sm"></i> Submit Application
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Back to Main link -->
+                <div class="text-center mt-6">
+                    <a href="/pages/index.html"
+                        class="text-gray-500 hover:text-gray-800 transition-colors text-sm font-medium">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to Main Page
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Draft saved indicator -->
+    <div class="draft-indicator" id="draft-indicator">
+        <i class="fas fa-save mr-1"></i> Draft saved
+    </div>
+
+    <footer class="bg-navy text-gray-400 p-6 text-center shadow-inner mt-auto">
+        <p>&copy; 2025 Virtuosa. All rights reserved.</p>
+        <p class="text-xs mt-1 text-gray-500">A trusted Zambian campus marketplace 🇿🇲</p>
+    </footer>
+
+    <script src="../js/header.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/seller-application.js"></script>
+</body>
+
+</html>

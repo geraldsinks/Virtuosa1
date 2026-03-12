@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Listing - Virtuosa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-gold {
+            background-color: #FFD700;
+        }
+
+        .bg-button-gold {
+            background-color: #C19A6B;
+        }
+
+        .hover-bg-button-gold:hover {
+            background-color: #A98B68;
+        }
+
+        .bg-dark-navy {
+            background-color: #060A18;
+        }
+
+        .focus-gold:focus {
+            outline: none;
+            ring: 2px;
+            ring-color: #FFD700;
+            border-color: #FFD700;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.35);
+            border-color: #C19A6B;
+        }
+
+        .step-active {
+            background: linear-gradient(135deg, #C19A6B 0%, #FFD700 100%);
+            color: #0A1128;
+        }
+
+        .step-inactive {
+            background-color: #e5e7eb;
+            color: #6B7280;
+        }
+
+        .step-done {
+            background-color: #166534;
+            color: #ffffff;
+        }
+
+        .drag-area {
+            border: 2px dashed #C19A6B;
+            transition: all 0.3s;
+        }
+
+        .drag-area:hover {
+            border-color: #FFD700;
+            background-color: rgba(255, 215, 0, 0.04);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased">
+    <!-- Header (matches site-wide style) -->
+    <header class="bg-navy text-white shadow-lg py-3 px-6 md:px-12 sticky top-0 z-50">
+        <div class="container mx-auto flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center">
+                <a href="/pages/index.html" class="text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+            <div class="flex-grow max-w-lg md:mx-auto order-3 md:order-2 w-full md:w-auto">
+                <div class="relative">
+                    <input type="text" placeholder="Search for books, notes, and more..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400">
+                    <button
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="user-info-container" class="flex items-center space-x-4 order-2 md:order-3">
+                <a href="/pages/login.html" id="login-link"
+                    class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
+                <div id="user-menu" class="relative hidden">
+                    <button onclick="window.toggleUserMenu()"
+                        class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
+                        <span id="user-greeting"></span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="user-dropdown"
+                        class="absolute right-0 top-8 w-48 bg-navy rounded-lg shadow-xl z-50 py-2 hidden">
+                        <a href="/pages/profile.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i
+                                class="fas fa-user mr-2"></i>My Profile</a>
+                        <a href="/pages/dashboard.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i
+                                class="fas fa-tachometer-alt mr-2"></i>Dashboard</a>
+                        <a href="/pages/seller-dashboard.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i
+                                class="fas fa-store mr-2"></i>Seller Dashboard</a>
+                        <div class="border-t border-gray-700 my-1"></div>
+                        <button onclick="window.logout()"
+                            class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i
+                                class="fas fa-sign-out-alt mr-2"></i>Log Out</button>
+                    </div>
+                </div>
+                <button id="logout-button"
+                    class="bg-button-gold text-white font-semibold py-2 px-6 rounded-full shadow-lg hover-bg-button-gold transition-colors hidden">Log
+                    Out</button>
+                <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span
+                        class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 max-w-3xl">
+        <!-- Page Header -->
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-navy">Create New Listing</h1>
+                <p class="text-gray-500 mt-1 text-sm">List your item on the Virtuosa campus marketplace</p>
+            </div>
+            <a href="/pages/seller-dashboard.html"
+                class="text-sm text-gold font-semibold hover:underline flex items-center gap-1">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Step Progress -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <div class="flex items-center">
+                <!-- Step 1 -->
+                <div class="flex items-center flex-1">
+                    <div id="step1-indicator"
+                        class="step-active w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                        1</div>
+                    <div class="ml-3 hidden sm:block">
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Step 1</p>
+                        <p class="text-sm font-bold text-navy">Basic Info</p>
+                    </div>
+                </div>
+                <div id="line-1" class="h-1 flex-1 mx-2 rounded bg-gray-200"></div>
+                <!-- Step 2 -->
+                <div class="flex items-center flex-1">
+                    <div id="step2-indicator"
+                        class="step-inactive w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                        2</div>
+                    <div class="ml-3 hidden sm:block">
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Step 2</p>
+                        <p class="text-sm font-bold text-gray-500">Details</p>
+                    </div>
+                </div>
+                <div id="line-2" class="h-1 flex-1 mx-2 rounded bg-gray-200"></div>
+                <!-- Step 3 -->
+                <div class="flex items-center">
+                    <div id="step3-indicator"
+                        class="step-inactive w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                        3</div>
+                    <div class="ml-3 hidden sm:block">
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Step 3</p>
+                        <p class="text-sm font-bold text-gray-500">Photos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form id="productForm" onsubmit="createProduct(event)" class="space-y-6">
+
+            <!-- STEP 1: Basic Info -->
+            <div id="step1Content" class="step-content bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <div class="flex items-center mb-6 pb-4 border-b border-gray-100">
+                    <div class="bg-gold bg-opacity-10 p-2 rounded-lg mr-3">
+                        <i data-lucide="file-text" class="w-5 h-5 text-gold"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-navy">Basic Information</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Product Name <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="productName" required
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm transition-all"
+                            placeholder="e.g., Introduction to Psychology Textbook">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Category <span
+                                class="text-red-500">*</span></label>
+                        <select id="category" required onchange="updateSubcategories()"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm bg-white transition-all">
+                            <option value="">Select category</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Computers & Software">Computers & Software</option>
+                            <option value="Men's Clothing">Men's Clothing</option>
+                            <option value="Women's Clothing">Women's Clothing</option>
+                            <option value="Shoes">Shoes</option>
+                            <option value="Accessories">Accessories</option>
+                            <option value="Personal Care & Beauty">Personal Care & Beauty</option>
+                            <option value="Textbooks">Textbooks</option>
+                            <option value="Food & Beverages">Food & Beverages</option>
+                            <option value="Sports & Outdoors">Sports & Outdoors</option>
+                            <option value="Home & Living">Home & Living</option>
+                            <option value="Services">Services</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Subcategory</label>
+                        <select id="subcategory"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm bg-white transition-all">
+                            <option value="">Select subcategory</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Condition <span
+                                class="text-red-500">*</span></label>
+                        <select id="condition" required
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm bg-white transition-all">
+                            <option value="">Select condition</option>
+                            <option value="New">New</option>
+                            <option value="Like New">Like New</option>
+                            <option value="Good">Good</option>
+                            <option value="Fair">Fair</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Price (ZMW) <span
+                                class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <span
+                                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">ZMW</span>
+                            <input type="number" id="price" required min="0" step="0.01"
+                                class="w-full border border-gray-300 rounded-xl pl-14 pr-4 py-3 text-sm transition-all"
+                                placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Original Price (ZMW) <span
+                                class="text-xs text-gray-400 font-normal">— Optional</span></label>
+                        <div class="relative">
+                            <span
+                                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">ZMW</span>
+                            <input type="number" id="originalPrice" min="0" step="0.01"
+                                class="w-full border border-gray-300 rounded-xl pl-14 pr-4 py-3 text-sm transition-all"
+                                placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Description <span
+                                class="text-red-500">*</span></label>
+                        <textarea id="description" required rows="4"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm resize-none transition-all"
+                            placeholder="Describe your item — include edition, any wear, included accessories, etc."></textarea>
+                    </div>
+                </div>
+
+                <div class="flex justify-end mt-8">
+                    <button type="button" onclick="nextStep()"
+                        class="bg-navy text-gold font-bold px-8 py-3 rounded-xl hover:bg-opacity-90 transition-all flex items-center gap-2 shadow-lg">
+                        Next Step <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Additional Details -->
+            <div id="step2Content" class="step-content hidden bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <div class="flex items-center mb-6 pb-4 border-b border-gray-100">
+                    <div class="bg-blue-50 p-2 rounded-lg mr-3">
+                        <i data-lucide="info" class="w-5 h-5 text-blue-500"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-navy">Additional Details</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Course Code <span
+                                class="text-xs text-gray-400 font-normal">— Optional</span></label>
+                        <input type="text" id="courseCode"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm transition-all"
+                            placeholder="e.g., PSY101">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Course Name <span
+                                class="text-xs text-gray-400 font-normal">— Optional</span></label>
+                        <input type="text" id="courseName"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm transition-all"
+                            placeholder="e.g., Introduction to Psychology">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Author / Brand <span
+                                class="text-xs text-gray-400 font-normal">— Optional</span></label>
+                        <input type="text" id="author"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm transition-all"
+                            placeholder="Author name or brand">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">ISBN / Model <span
+                                class="text-xs text-gray-400 font-normal">— Optional</span></label>
+                        <input type="text" id="isbn"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm transition-all"
+                            placeholder="ISBN or model number">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Campus Location</label>
+                        <div class="relative">
+                            <i data-lucide="map-pin"
+                                class="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+                            <input type="text" id="location"
+                                class="w-full border border-gray-300 rounded-xl pl-10 pr-4 py-3 text-sm transition-all"
+                                placeholder="e.g., UNZA Great East Road Campus">
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Delivery Options</label>
+                        <div class="flex flex-wrap gap-3">
+                            <label
+                                class="flex items-center gap-2 cursor-pointer bg-gray-50 hover:bg-yellow-50 px-4 py-3 rounded-xl border border-gray-200 hover:border-gold transition-all">
+                                <input type="checkbox" id="pickupAvailable" class="w-4 h-4 accent-yellow-500">
+                                <div>
+                                    <span class="text-sm font-semibold text-navy block">Pickup Available</span>
+                                    <span class="text-xs text-gray-500">Buyer collects from you</span>
+                                </div>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 cursor-pointer bg-gray-50 hover:bg-yellow-50 px-4 py-3 rounded-xl border border-gray-200 hover:border-gold transition-all">
+                                <input type="checkbox" id="deliveryAvailable" class="w-4 h-4 accent-yellow-500">
+                                <div>
+                                    <span class="text-sm font-semibold text-navy block">Delivery Available</span>
+                                    <span class="text-xs text-gray-500">You deliver to the buyer</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-8">
+                    <button type="button" onclick="previousStep()"
+                        class="border border-gray-300 text-gray-700 font-bold px-6 py-3 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+                    </button>
+                    <button type="button" onclick="nextStep()"
+                        class="bg-navy text-gold font-bold px-8 py-3 rounded-xl hover:bg-opacity-90 transition-all flex items-center gap-2 shadow-lg">
+                        Next Step <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Photos -->
+            <div id="step3Content" class="step-content hidden bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <div class="flex items-center mb-6 pb-4 border-b border-gray-100">
+                    <div class="bg-purple-50 p-2 rounded-lg mr-3">
+                        <i data-lucide="image" class="w-5 h-5 text-purple-500"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-navy">Product Photos</h3>
+                </div>
+
+                <p class="text-sm text-gray-500 mb-5">Add clear photos of your item. Up to <strong>5 images</strong>.
+                    Good photos lead to faster sales!</p>
+
+                <div id="imagePreview" class="grid grid-cols-3 md:grid-cols-5 gap-3 mb-5"></div>
+
+                <div class="drag-area rounded-2xl p-10 text-center cursor-pointer">
+                    <input type="file" id="imageInput" accept="image/*" multiple onchange="handleImageUpload()"
+                        class="hidden">
+                    <label for="imageInput" class="cursor-pointer flex flex-col items-center">
+                        <div class="bg-gold bg-opacity-10 p-4 rounded-full mb-4">
+                            <i data-lucide="upload-cloud" class="w-8 h-8 text-gold"></i>
+                        </div>
+                        <p class="text-navy font-semibold">Click to upload images</p>
+                        <p class="text-gray-400 text-xs mt-1">PNG, JPG, GIF — up to 10MB each</p>
+                    </label>
+                </div>
+
+                <div class="flex justify-between mt-8">
+                    <button type="button" onclick="previousStep()"
+                        class="border border-gray-300 text-gray-700 font-bold px-6 py-3 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+                    </button>
+                    <button type="submit"
+                        class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-navy font-bold px-8 py-3 rounded-xl hover:opacity-90 transition-all flex items-center gap-2 shadow-lg">
+                        <i data-lucide="check-circle" class="w-5 h-5"></i> Create Listing
+                    </button>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="successModal"
+        class="fixed inset-0 bg-black bg-opacity-60 hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4 text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+                <i data-lucide="check-circle" class="w-9 h-9 text-green-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-navy mb-2">Listing Created!</h3>
+            <p class="text-gray-500 text-sm mb-6">Your product is now live on the Virtuosa marketplace.</p>
+            <div class="flex flex-col gap-3">
+                <button onclick="viewProduct()"
+                    class="w-full bg-navy text-gold font-bold py-3 rounded-xl hover:bg-opacity-90 transition-all">
+                    View My Listing
+                </button>
+                <button onclick="createAnother()"
+                    class="w-full border border-gray-200 text-gray-600 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-all">
+                    Create Another
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-12">
+        <div class="container mx-auto text-center">
+            &copy; 2025 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="../js/header.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/create-product.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) window.lucide.createIcons();
+            // The step UI logic is now handled in create-product.js
+            if (typeof updateStepDisplay === 'function') {
+                updateStepDisplay();
+            }
+        });
+    </script>
+</body>
+
+</html>

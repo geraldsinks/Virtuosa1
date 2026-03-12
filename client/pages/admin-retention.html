@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Retention Management - Virtuosa Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        .gradient-gold {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+        }
+        .text-gold {
+            color: #FFD700;
+        }
+        .border-gold {
+            border-color: #FFD700;
+        }
+        .bg-gold {
+            background-color: #FFD700;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .input-focus {
+            transition: all 0.3s ease;
+        }
+        .input-focus:focus {
+            border-color: #FFD700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-gold/10 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-lg border-b border-gray-200">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <a href="/pages/admin-dashboard.html" class="text-gray-600 hover:text-gold transition-colors">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </a>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-gold rounded-full flex items-center justify-center">
+                            <i data-lucide="archive" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800">Data Retention Management</h1>
+                            <p class="text-sm text-gray-600">Manage message retention policies and cleanup</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="refresh-stats" class="btn-secondary px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        <span>Refresh</span>
+                    </button>
+                    <button id="run-cleanup" class="btn-primary px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <span>Run Cleanup</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="glass-effect rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i data-lucide="message-square" class="w-6 h-6 text-blue-600"></i>
+                    </div>
+                    <span class="text-sm text-gray-500">Total</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800" id="total-messages">Loading...</div>
+                <div class="text-sm text-gray-600">Total Messages</div>
+            </div>
+
+            <div class="glass-effect rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <i data-lucide="alert-triangle" class="w-6 h-6 text-orange-600"></i>
+                    </div>
+                    <span class="text-sm text-gray-500">Expired</span>
+                </div>
+                <div class="text-2xl font-bold text-orange-600" id="expired-messages">Loading...</div>
+                <div class="text-sm text-gray-600">Expired Messages</div>
+            </div>
+
+            <div class="glass-effect rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i data-lucide="package" class="w-6 h-6 text-green-600"></i>
+                    </div>
+                    <span class="text-sm text-gray-500">Archived</span>
+                </div>
+                <div class="text-2xl font-bold text-green-600" id="archived-messages">Loading...</div>
+                <div class="text-sm text-gray-600">Archived Messages</div>
+            </div>
+
+            <div class="glass-effect rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i data-lucide="clock" class="w-6 h-6 text-purple-600"></i>
+                    </div>
+                    <span class="text-sm text-gray-500">Expiring Soon</span>
+                </div>
+                <div class="text-2xl font-bold text-purple-600" id="expiring-soon">Loading...</div>
+                <div class="text-sm text-gray-600">Next 7 Days</div>
+            </div>
+        </div>
+
+        <!-- Retention Configuration -->
+        <div class="glass-effect rounded-xl p-6 shadow-lg mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                    <i data-lucide="settings" class="w-5 h-5 mr-2"></i>
+                    Retention Configuration
+                </h2>
+                <button id="add-config" class="btn-primary px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Add Configuration</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Default Configuration -->
+                <div class="border border-gray-200 rounded-xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-800">Default Policy</h3>
+                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Active</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Standard Messages</span>
+                            <span class="font-medium" id="config-standard">30 days</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Extended Messages</span>
+                            <span class="font-medium" id="config-extended">365 days</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Mass Messages</span>
+                            <span class="font-medium" id="config-mass">365 days</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Auto-Archive</span>
+                            <span class="font-medium" id="config-archive">Enabled</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Cleanup Frequency</span>
+                            <span class="font-medium" id="config-frequency">Daily</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                        <button id="edit-default-config" class="text-sm text-gold hover:text-gold/80 font-medium">
+                            Edit Configuration →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Storage Statistics -->
+                <div class="border border-gray-200 rounded-xl p-6">
+                    <h3 class="font-semibold text-gray-800 mb-4">Storage Statistics</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Estimated Total Storage</span>
+                            <span class="font-medium" id="storage-total">Loading...</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Archived Storage</span>
+                            <span class="font-medium" id="storage-archived">Loading...</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Storage Savings</span>
+                            <span class="font-medium text-green-600" id="storage-savings">Loading...</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Last Cleanup</span>
+                            <span class="font-medium" id="last-cleanup">Never</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Next Scheduled</span>
+                            <span class="font-medium" id="next-cleanup">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="storage-bar" class="bg-gradient-gold h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1" id="storage-percentage">0% utilized</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Policy Breakdown -->
+        <div class="glass-effect rounded-xl p-6 shadow-lg mb-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                <i data-lucide="pie-chart" class="w-5 h-5 mr-2"></i>
+                Message Policy Breakdown
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="text-center p-4 border border-gray-200 rounded-lg">
+                    <div class="text-2xl font-bold text-blue-600" id="policy-standard-count">0</div>
+                    <div class="text-sm text-gray-600">Standard</div>
+                </div>
+                <div class="text-center p-4 border border-gray-200 rounded-lg">
+                    <div class="text-2xl font-bold text-green-600" id="policy-extended-count">0</div>
+                    <div class="text-sm text-gray-600">Extended</div>
+                </div>
+                <div class="text-center p-4 border border-gray-200 rounded-lg">
+                    <div class="text-2xl font-bold text-purple-600" id="policy-permanent-count">0</div>
+                    <div class="text-sm text-gray-600">Permanent</div>
+                </div>
+                <div class="text-center p-4 border border-gray-200 rounded-lg">
+                    <div class="text-2xl font-bold text-gray-600" id="policy-custom-count">0</div>
+                    <div class="text-sm text-gray-600">Custom</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Archive Management -->
+        <div class="glass-effect rounded-xl p-6 shadow-lg">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                    <i data-lucide="archive" class="w-5 h-5 mr-2"></i>
+                    Message Archive
+                </h2>
+                <div class="flex items-center space-x-4">
+                    <select id="archive-filter" class="px-3 py-2 border border-gray-200 rounded-lg input-focus">
+                        <option value="">All Reasons</option>
+                        <option value="retention_expired">Retention Expired</option>
+                        <option value="manual_archive">Manual Archive</option>
+                        <option value="user_deleted">User Deleted</option>
+                    </select>
+                    <button id="refresh-archive" class="btn-secondary px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        <span>Refresh</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="archive-table" class="overflow-x-auto">
+                <div class="text-center py-8 text-gray-500">
+                    <i data-lucide="package" class="w-12 h-12 mx-auto mb-4 text-gray-400"></i>
+                    <p>Loading archive data...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Configuration Modal -->
+    <div id="config-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Edit Retention Configuration</h3>
+                <button id="close-config-modal" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <form id="config-form" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Standard Retention (days)</label>
+                        <input type="number" id="standard-retention" min="1" max="3650" class="w-full px-3 py-2 border border-gray-200 rounded-lg input-focus">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Extended Retention (days)</label>
+                        <input type="number" id="extended-retention" min="1" max="3650" class="w-full px-3 py-2 border border-gray-200 rounded-lg input-focus">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Mass Message Retention (days)</label>
+                        <input type="number" id="mass-retention" min="1" max="3650" class="w-full px-3 py-2 border border-gray-200 rounded-lg input-focus">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Cleanup Frequency</label>
+                        <select id="cleanup-frequency" class="w-full px-3 py-2 border border-gray-200 rounded-lg input-focus">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" id="auto-archive-enabled" class="mr-2">
+                    <label for="auto-archive-enabled" class="text-sm font-medium text-gray-700">
+                        Enable Auto-Archive before deletion
+                    </label>
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="cancel-config" class="btn-secondary px-6 py-2 rounded-lg font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary px-6 py-2 rounded-lg font-medium">
+                        Save Configuration
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/auth-helper.js"></script>
+    <script src="../js/admin-retention.js"></script>
+</body>
+</html>

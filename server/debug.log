@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-02-27T19:24:10.094Z",
+  "body": {
+    "name": "Mens Blazers",
+    "description": "Tailored men's blazer, designed for a sharp, modern fit",
+    "price": "500",
+    "originalPrice": "300",
+    "category": "Clothing",
+    "subcategory": "Men",
+    "condition": "New",
+    "courseCode": "",
+    "courseName": "",
+    "author": "",
+    "isbn": "",
+    "location": "UNZA Great East Road Campus",
+    "pickupAvailable": "true",
+    "deliveryAvailable": "true"
+  },
+  "files": [
+    "grok-image-4fbebf93-0602-4395-a2d2-19f9fdee1c68.png",
+    "grok-image-92220d4e-99fb-4ff2-8a73-ac5e0e07d83a.png"
+  ],
+  "headers": "multipart/form-data; boundary=----WebKitFormBoundaryzs3pgowjwG9lTUzj"
+}

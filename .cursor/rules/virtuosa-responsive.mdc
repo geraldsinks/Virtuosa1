@@ -1,0 +1,108 @@
+---
+alwaysApply: true
+---
+# Virtuosa Responsive Design System
+
+Use this rule whenever you touch Virtuosa’s UI (HTML, CSS, JS) so the app behaves like a highly responsive campus-focused Amazon-style marketplace.
+
+## Core Philosophy
+
+- **Preserve first, adapt second**: Maintain header → content → footer structure across all breakpoints; adapt spacing, visibility, and column count instead of radically changing layout.
+- No horizontal scrolling, no pinch‑zoom required, and no loss of core functionality on small devices.
+
+## Header (Critical Preservation Zone)
+
+- Header elements: logo, primary nav, search, user menu, cart.
+- **Single-row only**: never stack header items vertically; always keep them in one flex row.
+- Use `flex` with `flex-wrap: nowrap` and controlled shrinking:
+  - Logo min width ≈ 80px.
+  - Search input min width ≈ 120px.
+  - Prefer shrinking paddings/margins and swapping text→icons before hiding anything critical.
+- On very small screens:
+  - Convert some labels to icons (e.g. cart, account), but keep search and cart visible.
+
+## Layout & Grid
+
+- Use a **mobile‑first, fluid grid**:
+  - ≥1200px: 4–6 columns.
+  - 768–1199px: 3–4 columns.
+  - 480–767px: 2 columns.
+  - 320–479px: 1 column.
+- At narrower widths, **drop columns**, don’t just shrink cards below usability thresholds.
+- Use a `.container` that:
+  - On mobile: full width, small horizontal padding.
+  - On tablet/desktop: centered, max‑width ~1200px, larger padding.
+
+## Card Components (“Square” Rule)
+
+For product cards, category tiles, marketing blocks and similar:
+
+- Treat cards as square or near‑square:
+  - `aspect-ratio: 1 / 1;`
+  - `width: 100%;`
+  - `max-width` ≈ 400px.
+  - `min-width` ≈ 140px to keep them tappable.
+- Inside the card:
+  - Image: `width: 100%`, height auto.
+  - Title truncation by device:
+    - Desktop: ~80 characters.
+    - Tablet: ~60 characters.
+    - Mobile: ~40 characters.
+  - Description:
+    - Desktop: show.
+    - Tablet: optional.
+    - Mobile: hide to save space.
+  - CTA:
+    - Desktop: text + icon, e.g. “Add to Cart”.
+    - Mobile: icon‑only (🛒) with an accessible label (`aria-label`).
+
+## Typography & Content Adaptation
+
+- Use `clamp()` for fluid typography, especially for titles and prices (e.g. `clamp(0.875rem, 2vw, 1.125rem)`).
+- Keep **body text ≥14px** everywhere for readability.
+- Content priority (from most to least important):
+  1. Image, title, price.
+  2. Rating stars.
+  3. Short description.
+  4. Long description.
+  5. Review counts and extras.
+- On small screens, hide lower‑priority items first; never hide image, title, or price.
+
+## Navigation Preservation
+
+- Desktop:
+  - Full labels for nav items.
+  - Primary actions (search, cart, sign‑in/profile) visible.
+- Tablet:
+  - Shorten labels where necessary (“Shopping Cart” → “Cart”).
+  - Secondary nav may collapse into a menu.
+- Mobile:
+  - Use a hamburger or drawer for secondary links.
+  - Keep search, cart, and menu icon visible and tappable.
+
+## Breakpoints & Behavior
+
+Prefer these conceptual breakpoints (they can map to Tailwind or custom CSS):
+
+- **Layout**:
+  - `smallMobile`: 320.
+  - `mobile`: 480.
+  - `tablet`: 768.
+  - `desktop`: 1024.
+  - `wide`: 1440.
+- **Behavioral guidance**:
+  - `320–479`: 1‑column, tight header, critical icons only, search may expand on tap.
+  - `480–767`: 2 columns, icons + short text, compact paddings.
+  - `768–1199`: 3–4 columns, more padding, more text visible.
+  - `1200+`: 4–6 columns, full text, comfortable spacing.
+
+## Implementation Priorities
+
+When updating or adding UI:
+
+1. Ensure the **header fits horizontally at 320px** without overflow.
+2. Use the **fluid grid** rules for product/category listings.
+3. Make new cards follow the **square card** and truncation rules.
+4. Use `clamp()` for key text (titles, prices) instead of fixed sizes.
+5. Verify touch targets are ~44×44px on mobile.
+6. Keep core actions (search, cart, account) always discoverable.

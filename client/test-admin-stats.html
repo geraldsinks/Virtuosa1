@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Stats Debug - Virtuosa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold mb-4">Admin Statistics Debug</h1>
+        
+        <div class="bg-white p-6 rounded shadow mb-4">
+            <h2 class="text-lg font-semibold mb-4">Authentication Status</h2>
+            <div id="auth-status">Checking...</div>
+        </div>
+
+        <div class="bg-white p-6 rounded shadow mb-4">
+            <h2 class="text-lg font-semibold mb-4">Debug Endpoint Test</h2>
+            <button onclick="testDebugEndpoint()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Test Debug Stats Endpoint
+            </button>
+            <div id="debug-result" class="mt-4"></div>
+        </div>
+
+        <div class="bg-white p-6 rounded shadow mb-4">
+            <h2 class="text-lg font-semibold mb-4">Original Endpoint Test</h2>
+            <button onclick="testOriginalEndpoint()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                Test Original Stats Endpoint
+            </button>
+            <div id="original-result" class="mt-4"></div>
+        </div>
+
+        <div class="bg-white p-6 rounded shadow">
+            <h2 class="text-lg font-semibold mb-4">Console Logs</h2>
+            <div id="console-logs" class="bg-gray-900 text-green-400 p-4 rounded font-mono text-sm max-h-64 overflow-y-auto">
+                <!-- Console logs will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Override console.log to display in page
+        const originalConsoleLog = console.log;
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            const logsDiv = document.getElementById('console-logs');
+            if (logsDiv) {
+                logsDiv.innerHTML += args.join(' ') + '<br>';
+                logsDiv.scrollTop = logsDiv.scrollHeight;
+            }
+        };
+
+        // Check authentication
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const authStatus = document.getElementById('auth-status');
+            
+            if (token) {
+                authStatus.innerHTML = `
+                    <div class="text-green-600">✅ Authenticated</div>
+                    <div class="text-sm text-gray-600">Token length: ${token.length}</div>
+                    <div class="text-sm text-gray-600">Token preview: ${token.substring(0, 50)}...</div>
+                `;
+            } else {
+                authStatus.innerHTML = `
+                    <div class="text-red-600">❌ Not authenticated</div>
+                    <div class="text-sm text-gray-600">Please log in first</div>
+                `;
+            }
+        }
+
+        async function testDebugEndpoint() {
+            const token = localStorage.getItem('token');
+            const resultDiv = document.getElementById('debug-result');
+            
+            if (!token) {
+                resultDiv.innerHTML = '<div class="text-red-600">❌ No token found. Please log in first.</div>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<div class="text-blue-600">🔄 Testing debug endpoint...</div>';
+
+            try {
+                const response = await fetch('/api/admin/debug/stats', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="text-green-600">✅ Debug endpoint working!</div>
+                        <div class="mt-4">
+                            <h3 class="font-semibold">Results:</h3>
+                            <pre class="bg-gray-100 p-2 rounded text-xs overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="text-red-600">❌ Debug endpoint failed: ${response.status}</div>
+                        <div class="text-sm text-gray-600">${data.message || 'Unknown error'}</div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="text-red-600">❌ Network error: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function testOriginalEndpoint() {
+            const token = localStorage.getItem('token');
+            const resultDiv = document.getElementById('original-result');
+            
+            if (!token) {
+                resultDiv.innerHTML = '<div class="text-red-600">❌ No token found. Please log in first.</div>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<div class="text-blue-600">🔄 Testing original endpoint...</div>';
+
+            try {
+                const response = await fetch('/api/admin/users/stats', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="text-green-600">✅ Original endpoint working!</div>
+                        <div class="mt-4">
+                            <h3 class="font-semibold">Results:</h3>
+                            <pre class="bg-gray-100 p-2 rounded text-xs overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="text-red-600">❌ Original endpoint failed: ${response.status}</div>
+                        <div class="text-sm text-gray-600">${data.message || 'Unknown error'}</div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="text-red-600">❌ Network error: ${error.message}</div>
+                `;
+            }
+        }
+
+        // Initialize
+        checkAuth();
+    </script>
+</body>
+</html>

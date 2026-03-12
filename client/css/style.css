@@ -1,0 +1,347 @@
+/* Custom styles for Virtuosa */
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Hide an element and remove it from the layout */
+.hidden {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Toast Notifications */
+#toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.toast {
+    pointer-events: auto;
+    min-width: 300px;
+    max-width: 400px;
+    background: white;
+    color: #0A1128;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-left: 6px solid #C19A6B;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast.success {
+    border-left-color: #10B981;
+}
+
+.toast.error {
+    border-left-color: #EF4444;
+}
+
+.toast.info {
+    border-left-color: #3B82F6;
+}
+
+.toast-message {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.toast-icon {
+    font-size: 1.25rem;
+}
+
+/* ============================== */
+/* Virtuosa Responsive Utilities  */
+/* ============================== */
+
+/* Containers */
+.v-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+@media (min-width: 768px) {
+    .v-container {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+}
+
+/* Header preservation zone */
+.v-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 0.75rem;
+}
+
+.v-header-logo {
+    min-width: 80px;
+    flex-shrink: 0;
+}
+
+.v-header-search {
+    min-width: 120px;
+    flex: 1 1 auto;
+}
+
+.v-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+/* Square / near-square cards */
+.v-card-square {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    max-width: 400px;
+    min-width: 140px;
+}
+
+.v-card-image {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Fluid typography */
+.v-title {
+    font-size: clamp(0.875rem, 2vw, 1.125rem);
+}
+
+.v-price {
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    font-weight: 700;
+}
+
+/* Hide long / low-priority content on small screens */
+@media (max-width: 767px) {
+    .v-hide-on-mobile {
+        display: none !important;
+    }
+}
+
+/* Grid helpers for product/category listings (mobile-first) */
+.v-grid-products {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+@media (min-width: 480px) {
+    .v-grid-products {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 768px) {
+    .v-grid-products {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1200px) {
+    .v-grid-products {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+/* Hide scrollbars in horizontal scrollers where we use pill navigations */
+.hide-scrollbar {
+    scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+/* ============================== */
+/* Virtuosa Mobile-First Foundation */
+/* (Amazon-style survival priorities) */
+/* ============================== */
+
+:root {
+    --v-touch: 44px;
+    --v-body-min: 14px;
+}
+
+html[data-v-bp="sm"],
+html[data-v-bp="mobile"],
+html[data-v-bp="tablet"],
+html[data-v-bp="desktop"],
+html[data-v-bp="wide"] {
+    /* hook for breakpoint-aware styling */
+}
+
+/* Touch targets */
+.v-touch {
+    min-width: var(--v-touch);
+    min-height: var(--v-touch);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Priority-based hiding helpers (CSS-only). */
+@media (max-width: 479px) {
+    .v-hide-sm {
+        display: none !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .v-hide-mobile {
+        display: none !important;
+    }
+}
+
+@media (max-width: 1023px) {
+    .v-hide-tablet {
+        display: none !important;
+    }
+}
+
+/* Line clamp utilities (Tailwind CDN often lacks the plugin). */
+.line-clamp-1,
+.line-clamp-2,
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-1 { -webkit-line-clamp: 1; line-clamp: 1; }
+.line-clamp-2 { -webkit-line-clamp: 2; line-clamp: 2; }
+.line-clamp-3 { -webkit-line-clamp: 3; line-clamp: 3; }
+
+/* Media rules: square-first like Amazon listings. */
+.v-media-square {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    background: #FFFFFF;
+    overflow: hidden;
+}
+
+.v-media-img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+/* Main product images should avoid cropping (Amazon-style). */
+.v-img-main {
+    object-fit: contain !important;
+    background: #FFFFFF;
+}
+
+/* CTA: allow icon-only collapse on smallest screens. */
+.v-cta {
+    min-height: var(--v-touch);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.v-cta__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.v-cta__label {
+    display: inline;
+}
+
+@media (max-width: 479px) {
+    .v-cta__label {
+        display: none;
+    }
+}
+
+/* Header: keep a single row; search is highest priority and should expand. */
+.v-header-row {
+    flex-wrap: nowrap;
+}
+
+.v-header-search {
+    flex: 1 1 auto;
+    min-width: 140px;
+}
+
+.v-header-logo a {
+    font-size: clamp(1.15rem, 5vw, 1.75rem);
+}
+
+.v-header-actions a,
+.v-header-actions button {
+    min-height: var(--v-touch);
+}
+
+@media (max-width: 479px) {
+    .v-header-row {
+        gap: 0.5rem;
+    }
+
+    .v-header-actions {
+        gap: 0.35rem;
+    }
+}
+
+/* Grid: mobile-first, drop columns instead of shrinking below tap targets. */
+.v-grid-products {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+@media (min-width: 480px) {
+    .v-grid-products { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 768px) {
+    .v-grid-products { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+    .v-grid-products { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1200px) {
+    .v-grid-products { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1440px) {
+    .v-grid-products { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}

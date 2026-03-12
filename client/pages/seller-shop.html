@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Shop - Virtuosa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-gold {
+            background-color: #FFD700;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <!-- Standard Navigation -->
+    <header class="bg-navy text-white shadow-lg py-3 px-6 md:px-12 sticky top-0 z-50">
+        <div class="container mx-auto flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center">
+                <a href="/pages/index.html" class="text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+            <div class="flex-grow max-w-lg md:mx-auto order-3 md:order-2 w-full md:w-auto">
+                <div class="relative">
+                    <input type="text" placeholder="Search for books, notes, and more..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400">
+                    <button
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="user-info-container" class="flex items-center space-x-4 order-2 md:order-3">
+                <a href="/pages/login.html" id="login-link"
+                    class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
+                <div id="user-menu" class="relative hidden">
+                    <button onclick="window.toggleUserMenu()"
+                        class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
+                        <span id="user-greeting"></span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="user-dropdown"
+                        class="absolute right-0 top-8 w-48 bg-navy rounded-lg shadow-xl z-50 py-2 hidden">
+                        <a href="/pages/profile.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-user mr-2"></i>My Profile
+                        </a>
+                        <a href="/pages/dashboard.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                        </a>
+                        <a href="/pages/notifications.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-bell mr-2"></i>Notifications
+                        </a>
+                        <a href="/pages/transactions.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-exchange-alt mr-2"></i>My Transactions
+                        </a>
+                        <a href="/pages/reviews.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-star mr-2"></i>My Reviews
+                        </a>
+                        <div id="seller-links" class="hidden">
+                            <a href="/pages/create-product.html"
+                                class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Create Listing
+                            </a>
+                            <a href="/pages/seller-dashboard.html"
+                                class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-store mr-2"></i>Seller Dashboard
+                            </a>
+                        </div>
+                        <div id="admin-link" class="hidden">
+                            <a href="/pages/admin-dashboard.html"
+                                class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-cog mr-2"></i>Admin Dashboard
+                            </a>
+                        </div>
+                        <div class="border-t border-gray-600 mt-2 pt-2">
+                            <button onclick="logout()"
+                                class="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Log Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-12 flex-grow">
+        <!-- Seller Info Header -->
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-12 border border-gray-100">
+            <div class="h-32 bg-gradient-to-r from-navy to-gray-800"></div>
+            <div class="px-8 pb-8 -mt-12">
+                <div class="flex flex-col md:flex-row items-center md:items-end gap-6">
+                    <div
+                        class="w-24 h-24 rounded-full border-4 border-white bg-gold bg-opacity-20 flex items-center justify-center font-bold text-3xl text-gold shadow-lg">
+                        <span id="seller-initial">?</span>
+                    </div>
+                    <div class="flex-grow text-center md:text-left">
+                        <h1 id="seller-name" class="text-3xl font-bold text-navy">Loading Seller...</h1>
+                        <div class="flex items-center justify-center md:justify-start gap-4 mt-2 text-gray-500">
+                            <span id="seller-rating" class="flex items-center gap-1 font-bold text-gold">
+                                <i data-lucide="star" class="w-4 h-4 fill-current"></i> 5.0
+                            </span>
+                            <span id="seller-products-count" class="text-sm">0 Items</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button id="message-seller-btn"
+                            class="bg-navy text-gold px-6 py-3 rounded-xl font-bold hover:bg-opacity-90 transition-all flex items-center gap-2 shadow-lg">
+                            <i data-lucide="message-square" class="w-5 h-5"></i> Message Seller
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <h2 class="text-2xl font-bold text-navy mb-8">All Listings</h2>
+        <div id="seller-products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Products will be loaded here -->
+            <p class="col-span-full py-20 text-center text-gray-400">Loading products...</p>
+        </div>
+    </main>
+
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-auto">
+        <div class="container mx-auto text-center">
+            &copy; 2025 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="../js/header.js"></script>
+    <script src="../js/cart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sellerId = urlParams.get('sellerId');
+            const shopSlug = urlParams.get('shop');
+            const identifier = shopSlug || sellerId;
+
+            if (!identifier) {
+                window.location.href = '/pages/products.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/seller/shop/${identifier}`);
+                if (!response.ok) {
+                    throw new Error('Shop not found');
+                }
+                const data = await response.json();
+                const seller = data.seller;
+                const products = data.products;
+
+                // Update Header
+                document.getElementById('seller-name').textContent = seller.storeName || seller.fullName;
+                document.title = `${seller.storeName || seller.fullName} - Virtuosa Shop`;
+                document.getElementById('seller-initial').textContent = (seller.storeName || seller.fullName).charAt(0);
+                document.getElementById('seller-products-count').textContent = `${products.length} Items`;
+                document.getElementById('seller-rating').innerHTML = `
+                    <i data-lucide="star" class="w-4 h-4 fill-current"></i> ${seller.rating.toFixed(1)}
+                    <span class="text-xs text-gray-400 font-normal ml-1">(${seller.totalReviews} reviews)</span>
+                `;
+
+                // Profile Picture fallback
+                if (seller.profilePicture) {
+                    const initialContainer = document.getElementById('seller-initial');
+                    initialContainer.innerHTML = `<img src="${seller.profilePicture}" class="w-full h-full rounded-full object-cover">`;
+                    initialContainer.classList.remove('bg-opacity-20');
+                }
+
+                // Add description if available
+                if (seller.storeDescription) {
+                    const headerInfo = document.getElementById('seller-name').parentElement;
+                    const descContainer = document.createElement('p');
+                    descContainer.className = 'text-gray-600 mt-2 max-w-2xl text-center md:text-left text-sm whitespace-pre-wrap';
+                    descContainer.textContent = seller.storeDescription;
+                    headerInfo.appendChild(descContainer);
+                }
+
+                document.getElementById('message-seller-btn').onclick = () => {
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        window.location.href = '/pages/login.html';
+                        return;
+                    }
+                    window.location.href = `/pages/messages.html?recipientId=${seller.id}`;
+                };
+
+                const container = document.getElementById('seller-products');
+                if (products.length > 0) {
+                    container.innerHTML = products.map(product => `
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all hover:-translate-y-1 group cursor-pointer" onclick="window.location.href='/pages/product-detail.html?id=${product._id}'">
+                            <div class="aspect-square overflow-hidden relative">
+                                <img src="${product.images?.[0] || 'https://placehold.co/400x400?text=No+Image'}" alt="${product.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute top-3 right-3 bg-white bg-opacity-90 backdrop-blur-sm px-2 py-1 rounded-lg text-[10px] font-bold text-navy shadow-sm">
+                                    ${product.condition}
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <p class="text-[10px] text-gold font-bold uppercase mb-1 tracking-wider">${product.category}</p>
+                                <h3 class="font-bold text-navy truncate mb-2 group-hover:text-gold transition-colors">${product.name}</h3>
+                                <div class="flex items-center justify-between">
+                                    <p class="text-navy font-bold">ZMW ${product.price.toLocaleString()}</p>
+                                    <button class="bg-navy text-white p-2 rounded-lg hover:bg-gold hover:text-navy transition-all">
+                                        <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `
+                        <div class="col-span-full py-20 text-center">
+                            <i data-lucide="package-search" class="w-16 h-16 text-gray-200 mx-auto mb-4"></i>
+                            <p class="text-gray-400">This seller has no active listings at the moment.</p>
+                        </div>
+                    `;
+                }
+
+                if (window.lucide) window.lucide.createIcons();
+            } catch (error) {
+                console.error('Error fetching shop:', error);
+                document.getElementById('seller-name').textContent = 'Shop Not Found';
+                document.getElementById('seller-products').innerHTML = `
+                    <div class="col-span-full py-20 text-center">
+                        <i data-lucide="alert-circle" class="w-16 h-16 text-red-200 mx-auto mb-4"></i>
+                        <p class="text-gray-400">The requested shop could not be found or has been disabled.</p>
+                        <a href="/pages/products.html" class="inline-block mt-4 text-gold font-bold hover:underline">Browse All Products</a>
+                    </div>
+                `;
+                if (window.lucide) window.lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+
+</html>

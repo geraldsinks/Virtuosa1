@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Virtuosa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<style>
+    body {
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .bg-navy {
+        background-color: #0A1128;
+    }
+
+    .text-gold {
+        color: #FFD700;
+    }
+
+    .bg-button-gold {
+        background-color: #C19A6B;
+    }
+
+    .hover-bg-button-gold:hover {
+        background-color: #A98B68;
+    }
+
+    .bg-dark-navy {
+        background-color: #060A18;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+</style>
+</head>
+
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <!-- Standard Navigation -->
+    <header class="bg-navy text-white shadow-lg py-3 px-6 md:px-12 sticky top-0 z-50">
+        <div class="container mx-auto flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center">
+                <a href="/pages/index.html" class="text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+            <div class="flex-grow max-w-lg md:mx-auto order-3 md:order-2 w-full md:w-auto">
+                <div class="relative">
+                    <input type="text" placeholder="Search for books, notes, and more..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400">
+                    <button
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="user-info-container" class="flex items-center space-x-4 order-2 md:order-3">
+                <a href="/pages/login.html" id="login-link"
+                    class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
+                <div id="user-menu" class="relative hidden">
+                    <button onclick="window.toggleUserMenu()"
+                        class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
+                        <span id="user-greeting"></span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="user-dropdown"
+                        class="absolute right-0 top-8 w-48 bg-navy rounded-lg shadow-xl z-50 py-2 hidden">
+                        <a href="/pages/profile.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-user mr-2"></i>My Profile
+                        </a>
+                        <a href="/pages/dashboard.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                        </a>
+                        <a href="/pages/notifications.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-bell mr-2"></i>Notifications
+                        </a>
+                        <a href="/pages/transactions.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-exchange-alt mr-2"></i>My Transactions
+                        </a>
+                        <a href="/pages/reviews.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-star mr-2"></i>My Reviews
+                        </a>
+                        <div id="seller-links" class="hidden">
+                            <a href="/pages/create-product.html"
+                                class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Create Listing
+                            </a>
+                        </div>
+                        <div id="admin-link" class="hidden">
+                            <a href="/pages/admin-dashboard.html"
+                                class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-cog mr-2"></i>Admin Panel
+                            </a>
+                        </div>
+                        <div class="border-t border-gray-700 my-1"></div>
+                        <button onclick="window.logout()"
+                            class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Log Out
+                        </button>
+                    </div>
+                </div>
+                <button id="logout-button"
+                    class="bg-button-gold text-white font-semibold py-2 px-6 rounded-full shadow-lg hover-bg-button-gold transition-colors hidden">Log
+                    Out</button>
+                <a href="/pages/notifications.html" class="relative text-white hover:text-gold transition-colors mr-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    <span id="notification-badge-count"
+                        class="hidden absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+                <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span
+                        class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p class="text-gray-600 mt-2">Monitor and manage the Virtuosa platform</p>
+        </div>
+
+        <!-- Period Selector -->
+        <div class="mb-6 flex items-center space-x-4">
+            <label class="text-gray-700 font-medium">Period:</label>
+            <select id="periodSelector" onchange="loadDashboardData()"
+                class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <option value="7">Last 7 days</option>
+                <option value="30" selected>Last 30 days</option>
+                <option value="90">Last 90 days</option>
+                <option value="365">Last year</option>
+            </select>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Users</p>
+                        <p id="totalUsers" class="text-2xl font-bold text-gray-900">-</p>
+                        <p id="verifiedStudents" class="text-sm text-green-600">-</p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Revenue</p>
+                        <p id="totalRevenue" class="text-2xl font-bold text-gray-900">-</p>
+                        <p id="revenueBreakdown" class="text-sm text-gray-600">-</p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-full">
+                        <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Transactions</p>
+                        <p id="totalTransactions" class="text-2xl font-bold text-gray-900">-</p>
+                        <p id="successRate" class="text-sm text-green-600">-</p>
+                    </div>
+                    <div class="bg-purple-100 p-3 rounded-full">
+                        <i class="fas fa-exchange-alt text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Active Disputes</p>
+                        <p id="totalDisputes" class="text-2xl font-bold text-gray-900">-</p>
+                        <p id="resolvedDisputes" class="text-sm text-blue-600">-</p>
+                    </div>
+                    <div class="bg-red-100 p-3 rounded-full">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: Secondary KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Avg. Order Value</p>
+                        <p id="avgTransactionValue" class="text-2xl font-bold text-gray-900">-</p>
+                        <p class="text-sm text-gray-500">per transaction</p>
+                    </div>
+                    <div class="bg-indigo-100 p-3 rounded-full">
+                        <i class="fas fa-chart-line text-indigo-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Active Products</p>
+                        <p id="activeProductsCount" class="text-2xl font-bold text-gray-900">-</p>
+                        <p class="text-sm text-gray-500">available for sale</p>
+                    </div>
+                    <div class="bg-yellow-100 p-3 rounded-full">
+                        <i class="fas fa-box text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">New Users (24h)</p>
+                        <p id="newUsers24hCount" class="text-2xl font-bold text-gray-900">-</p>
+                        <p class="text-sm text-blue-600">past 24 hours</p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-user-plus text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Pending Sellers</p>
+                        <p id="pendingAppsCount" class="text-2xl font-bold text-gray-900">-</p>
+                        <p class="text-sm text-orange-600">awaiting approval</p>
+                    </div>
+                    <div class="bg-orange-100 p-3 rounded-full">
+                        <i class="fas fa-user-clock text-orange-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Actions Section -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Admin Actions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <a href="/pages/marketing.html"
+                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                    <i data-lucide="megaphone" class="text-purple-600 w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Marketing Management</h4>
+                    <p class="text-sm text-gray-500">Manage ads, banners, and promotions</p>
+                </div>
+            </a>
+            <a href="/pages/admin-mass-messaging.html"
+                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-12 h-12 bg-gold bg-opacity-10 rounded-full flex items-center justify-center mr-4">
+                    <i data-lucide="send" class="text-gold w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Mass Messaging</h4>
+                    <p class="text-sm text-gray-500">Send promotional messages to users</p>
+                </div>
+            </a>
+            <a href="/pages/admin-disputes.html"
+                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                    <i data-lucide="alert-triangle" class="text-red-600 w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Manage Disputes</h4>
+                    <p class="text-sm text-gray-500">Handle transaction disputes</p>
+                </div>
+            </a>
+            <a href="/pages/admin-users.html"
+                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                    <i data-lucide="users" class="text-blue-600 w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">User Management</h4>
+                    <p class="text-sm text-gray-500">View and manage user accounts</p>
+                </div>
+            </a>
+            <a href="/pages/admin-seller-applications.html"
+                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-4">
+                    <i data-lucide="clipboard-list" class="text-orange-600 w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Seller Applications</h4>
+                    <p class="text-sm text-gray-500">Review and approve seller applications</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Revenue Trend</h3>
+            <canvas id="revenueChart"></canvas>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">User Statistics</h3>
+            <canvas id="userStatsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Sellers & Recent Transactions -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Sellers</h3>
+            <div id="topSellers" class="space-y-3">
+                <!-- Top sellers will be populated here -->
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Transactions</h3>
+            <div id="recentTransactions" class="space-y-3">
+                <!-- Recent transactions will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Tabs -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="border-b border-gray-200">
+            <nav class="flex space-x-8 px-6">
+                <button onclick="showTab('users')"
+                    class="tab-button py-4 border-b-2 border-blue-500 text-blue-600 font-medium">
+                    Users
+                </button>
+                <button onclick="showTab('transactions')"
+                    class="tab-button py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">
+                    Transactions
+                </button>
+                <button onclick="showTab('disputes')"
+                    class="tab-button py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">
+                    Disputes
+                </button>
+                <button onclick="showTab('applications')"
+                    class="tab-button py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">
+                    Applications
+                </button>
+                <button onclick="showTab('retention')"
+                    class="tab-button py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">
+                    <i class="fas fa-archive mr-2"></i>Data Retention
+                </button>
+            </nav>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="usersTab" class="tab-content p-6">
+            <div class="mb-4 flex flex-wrap gap-4">
+                <input type="text" id="userSearch" placeholder="Search users..."
+                    class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                <select id="userRoleFilter" class="border border-gray-300 rounded-lg px-4 py-2">
+                    <option value="">All Roles</option>
+                    <option value="seller">Sellers</option>
+                    <option value="buyer">Buyers</option>
+                </select>
+                <select id="userVerifiedFilter" class="border border-gray-300 rounded-lg px-4 py-2">
+                    <option value="">All Users</option>
+                    <option value="true">Verified</option>
+                    <option value="false">Not Verified</option>
+                </select>
+            </div>
+            <div id="usersList" class="overflow-x-auto">
+                <!-- Users will be populated here -->
+            </div>
+            <div id="usersPagination" class="mt-4 flex justify-center"></div>
+        </div>
+
+        <!-- Transactions Tab -->
+        <div id="transactionsTab" class="tab-content p-6 hidden">
+            <div class="mb-4 flex flex-wrap gap-4">
+                <select id="transactionStatusFilter" class="border border-gray-300 rounded-lg px-4 py-2">
+                    <option value="">All Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+                <select id="disputeStatusFilter" class="border border-gray-300 rounded-lg px-4 py-2">
+                    <option value="">All Dispute Status</option>
+                    <option value="None">No Dispute</option>
+                    <option value="Open">Open Dispute</option>
+                    <option value="Resolved">Resolved</option>
+                </select>
+            </div>
+            <div id="transactionsList" class="overflow-x-auto">
+                <!-- Transactions will be populated here -->
+            </div>
+            <div id="transactionsPagination" class="mt-4 flex justify-center"></div>
+        </div>
+
+        <!-- Disputes Tab -->
+        <div id="disputesTab" class="tab-content p-6 hidden">
+            <div id="disputesList" class="space-y-4">
+                <!-- Disputes will be populated here -->
+            </div>
+        </div>
+
+        <!-- Applications Tab -->
+        <div id="applicationsTab" class="tab-content p-6 hidden">
+            <div id="applicationsList" class="space-y-4">
+                <!-- Applications will be populated here -->
+            </div>
+        </div>
+
+        <!-- Data Retention Tab -->
+        <div id="retentionTab" class="tab-content p-6 hidden">
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Message Data Retention</h3>
+                    <a href="/pages/admin-retention.html"
+                        class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center space-x-2">
+                        <i class="fas fa-cog"></i>
+                        <span>Manage Retention</span>
+                    </a>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-blue-600 text-xl mr-3"></i>
+                            <div>
+                                <p class="text-sm text-gray-600">Total Messages</p>
+                                <p id="retention-total-messages" class="text-xl font-bold text-gray-900">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-orange-600 text-xl mr-3"></i>
+                            <div>
+                                <p class="text-sm text-gray-600">Expired</p>
+                                <p id="retention-expired-messages" class="text-xl font-bold text-orange-600">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-archive text-green-600 text-xl mr-3"></i>
+                            <div>
+                                <p class="text-sm text-gray-600">Archived</p>
+                                <p id="retention-archived-messages" class="text-xl font-bold text-green-600">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-clock text-purple-600 text-xl mr-3"></i>
+                            <div>
+                                <p class="text-sm text-gray-600">Expiring Soon</p>
+                                <p id="retention-expiring-soon" class="text-xl font-bold text-purple-600">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Retention Policy Info -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-medium text-gray-900 mb-3">Current Retention Policies</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Standard Messages</p>
+                            <p id="retention-standard-policy" class="font-medium">30 days</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Mass Messages</p>
+                            <p id="retention-mass-policy" class="font-medium">365 days</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Auto-Archive</p>
+                            <p id="retention-archive-status" class="font-medium">Enabled</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Last Cleanup</p>
+                            <p id="retention-last-cleanup" class="font-medium">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button onclick="loadRetentionStats()"
+                        class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 flex items-center space-x-2">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh Stats</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Dispute Resolution Modal -->
+    <div id="disputeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-lg bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Resolve Dispute</h3>
+                <div id="disputeDetails" class="mb-4">
+                    <!-- Dispute details will be populated here -->
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Resolution</label>
+                    <textarea id="resolutionText" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2"
+                        required></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Winner</label>
+                    <select id="winnerSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                        <option value="">Select winner</option>
+                        <option value="buyer">Buyer</option>
+                        <option value="seller">Seller</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeDisputeModal()"
+                        class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">
+                        Cancel
+                    </button>
+                    <button onclick="resolveDispute()"
+                        class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                        Resolve
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/header.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/admin-dashboard.js"></script>
+</body>
+
+</html>

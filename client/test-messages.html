@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Messages</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold mb-4">Messaging Test</h1>
+        
+        <div class="bg-white p-4 rounded shadow mb-4">
+            <h2 class="font-bold mb-2">Test Connection</h2>
+            <button onclick="testConnection()" class="bg-blue-500 text-white px-4 py-2 rounded">Test API Connection</button>
+            <div id="test-result" class="mt-2"></div>
+        </div>
+        
+        <div class="bg-white p-4 rounded shadow mb-4">
+            <h2 class="font-bold mb-2">Test Authentication</h2>
+            <input type="text" id="test-email" placeholder="Email" class="border p-2 rounded w-full mb-2">
+            <input type="password" id="test-password" placeholder="Password" class="border p-2 rounded w-full mb-2">
+            <button onclick="testLogin()" class="bg-green-500 text-white px-4 py-2 rounded">Test Login</button>
+            <div id="auth-result" class="mt-2"></div>
+        </div>
+        
+        <div class="bg-white p-4 rounded shadow">
+            <h2 class="font-bold mb-2">Test Messages</h2>
+            <button onclick="testMessages()" class="bg-purple-500 text-white px-4 py-2 rounded">Load Conversations</button>
+            <div id="messages-result" class="mt-2"></div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = null;
+        
+        async function testConnection() {
+            const result = document.getElementById('test-result');
+            try {
+                const response = await fetch('/api/auth/test');
+                result.innerHTML = `<span class="text-green-600">Server connected successfully!</span>`;
+            } catch (error) {
+                result.innerHTML = `<span class="text-red-600">Connection failed: ${error.message}</span>`;
+            }
+        }
+        
+        async function testLogin() {
+            const result = document.getElementById('auth-result');
+            const email = document.getElementById('test-email').value;
+            const password = document.getElementById('test-password').value;
+            
+            if (!email || !password) {
+                result.innerHTML = `<span class="text-red-600">Please enter email and password</span>`;
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    authToken = data.token;
+                    result.innerHTML = `<span class="text-green-600">Login successful! Token: ${authToken.substring(0, 20)}...</span>`;
+                } else {
+                    result.innerHTML = `<span class="text-red-600">Login failed: ${data.message}</span>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<span class="text-red-600">Login error: ${error.message}</span>`;
+            }
+        }
+        
+        async function testMessages() {
+            const result = document.getElementById('messages-result');
+            
+            if (!authToken) {
+                result.innerHTML = `<span class="text-red-600">Please login first</span>`;
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/messages/conversations', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                const conversations = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `
+                        <span class="text-green-600">Conversations loaded successfully!</span>
+                        <pre class="mt-2 bg-gray-100 p-2 rounded text-xs">${JSON.stringify(conversations, null, 2)}</pre>
+                    `;
+                } else {
+                    result.innerHTML = `<span class="text-red-600">Failed to load conversations: ${conversations.message || 'Unknown error'}</span>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<span class="text-red-600">Messages error: ${error.message}</span>`;
+            }
+        }
+    </script>
+</body>
+</html>

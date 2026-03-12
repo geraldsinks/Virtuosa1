@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Log In or Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #0A1128 0%, #060A18 100%);
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-gold {
+            background-color: #FFD700;
+        }
+
+        .bg-light-gold {
+            background-color: #E6C200;
+        }
+
+        .bg-dark-navy {
+            background-color: #060A18;
+        }
+
+        .bg-button-gold {
+            background-color: #C19A6B;
+        }
+
+        .form-container {
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border: 1px solid #dcdcdc;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-button {
+            transition: all 0.3s ease-in-out;
+            background: linear-gradient(90deg, #FFD700, #C19A6B);
+        }
+
+        .auth-button:hover {
+            background: linear-gradient(90deg, #C19A6B, #FFD700);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .auth-input {
+            border: 1px solid #d1d5db;
+            transition: border-color 0.3s;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body class="bg-navy antialiased flex flex-col min-h-screen items-center justify-center">
+    <main class="flex-grow flex flex-col items-center justify-center p-4 w-full">
+        <div class="text-center mb-8">
+            <a href="/pages/index.html" class="text-6xl font-bold text-gold">Virtuosa</a>
+        </div>
+        <div id="auth-container" class="flex flex-col items-center w-full"></div>
+    </main>
+    <footer class="bg-dark-navy text-gray-400 p-4 text-center shadow-inner mt-auto w-full">
+        <div class="container mx-auto">
+            &copy; 2025 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+    <script src="../js/cart.js"></script>
+    <script src="/js/auth.js"></script>
+</body>
+
+</html>

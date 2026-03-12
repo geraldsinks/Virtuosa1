@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Virtuosa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-gold {
+            background-color: #FFD700;
+        }
+
+        .chat-container {
+            height: calc(100vh - 80px);
+        }
+
+        .conversation-list {
+            border-right: 1px solid #e5e7eb;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-hidden {
+                display: none;
+            }
+
+            .mobile-full {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 flex flex-col h-screen overflow-hidden">
+    <header class="bg-navy text-white shadow-lg py-3 px-6 md:px-12 sticky top-0 z-50">
+        <div class="container mx-auto flex items-center justify-between">
+            <a href="/pages/index.html" class="text-2xl font-bold text-gold">Virtuosa</a>
+            <div class="flex items-center space-x-4">
+                <a href="/pages/dashboard.html"
+                    class="text-sm font-medium hover:text-gold transition-colors">Dashboard</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex overflow-hidden">
+        <div class="container mx-auto flex h-full bg-white shadow-xl">
+            <!-- Conversations Sidebar -->
+            <div id="sidebar" class="w-full md:w-1/3 flex flex-col border-r border-gray-100">
+                <div class="p-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-navy">Messages</h2>
+                    <i data-lucide="message-square" class="text-gold w-5 h-5"></i>
+                </div>
+                <div id="conversation-list" class="flex-grow overflow-y-auto">
+                    <!-- Conversations will be loaded here -->
+                    <div class="p-8 text-center text-gray-400">
+                        <p>No conversations yet.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Space -->
+            <div id="chat-area" class="hidden md:flex flex-col flex-grow bg-white">
+                <!-- Chat Header -->
+                <div id="chat-header"
+                    class="p-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
+                    <div class="flex items-center gap-3">
+                        <button onclick="showSidebar()" class="md:hidden p-2 hover:bg-gray-100 rounded-full">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        </button>
+                        <div id="recipient-avatar"
+                            class="w-10 h-10 rounded-full bg-gold bg-opacity-10 flex items-center justify-center font-bold text-gold">
+                            ?</div>
+                        <div>
+                            <h3 id="recipient-name" class="font-bold text-navy">Select a conversation</h3>
+                            <p id="recipient-status" class="text-xs text-green-500 font-medium">Online</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="p-2 hover:bg-gray-100 rounded-lg text-gray-400"><i data-lucide="phone"
+                                class="w-5 h-5"></i></button>
+                        <button class="p-2 hover:bg-gray-100 rounded-lg text-gray-400"><i data-lucide="more-vertical"
+                                class="w-5 h-5"></i></button>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div id="message-container" class="flex-grow overflow-y-auto p-4 space-y-4 bg-gray-50 bg-opacity-50">
+                    <div class="flex flex-col items-center justify-center h-full text-gray-400">
+                        <i data-lucide="send" class="w-12 h-12 mb-4 opacity-20"></i>
+                        <p>Your messages will appear here</p>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div id="input-area" class="p-4 bg-white border-t border-gray-100">
+                    <!-- Typing Indicator -->
+                    <div id="typing-indicator" class="hidden text-xs text-gray-500 mb-2 italic">
+                        Someone is typing...
+                    </div>
+                    
+                    <!-- Search Bar -->
+                    <div class="mb-3">
+                        <input type="text" id="search-input" placeholder="Search messages..." 
+                               class="w-full py-2 px-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold border-none text-sm">
+                    </div>
+                    
+                    <form id="message-form" class="flex items-center gap-2">
+                        <button type="button" id="file-button" class="p-2 hover:bg-gray-100 rounded-lg text-gray-400 relative">
+                            <i data-lucide="paperclip" class="w-6 h-6"></i>
+                            <input type="file" id="file-input" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*,application/pdf,.doc,.docx,.txt">
+                        </button>
+                        <button type="button" id="emoji-button" class="p-2 hover:bg-gray-100 rounded-lg text-gray-400">
+                            <i data-lucide="smile" class="w-6 h-6"></i>
+                        </button>
+                        <input type="text" id="message-input" placeholder="Type a message..."
+                            class="flex-grow py-3 px-4 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold border-none text-sm">
+                        <button type="submit"
+                            class="bg-navy text-gold p-3 rounded-xl hover:bg-opacity-90 transition-all shadow-md">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                        </button>
+                    </form>
+                    
+                    <!-- Emoji Picker (Hidden by default) -->
+                    <div id="emoji-picker" class="hidden relative bg-white border border-gray-200 rounded-lg shadow-lg p-3 grid grid-cols-8 gap-1 z-50">
+                        <button type="button" onclick="addReactionToInput('😀')" class="text-xl hover:bg-gray-100 rounded">😀</button>
+                        <button type="button" onclick="addReactionToInput('😂')" class="text-xl hover:bg-gray-100 rounded">😂</button>
+                        <button type="button" onclick="addReactionToInput('❤️')" class="text-xl hover:bg-gray-100 rounded">❤️</button>
+                        <button type="button" onclick="addReactionToInput('👍')" class="text-xl hover:bg-gray-100 rounded">👍</button>
+                        <button type="button" onclick="addReactionToInput('🎉')" class="text-xl hover:bg-gray-100 rounded">🎉</button>
+                        <button type="button" onclick="addReactionToInput('🔥')" class="text-xl hover:bg-gray-100 rounded">🔥</button>
+                        <button type="button" onclick="addReactionToInput('😍')" class="text-xl hover:bg-gray-100 rounded">😍</button>
+                        <button type="button" onclick="addReactionToInput('🤔')" class="text-xl hover:bg-gray-100 rounded">🤔</button>
+                        <button type="button" onclick="addReactionToInput('😎')" class="text-xl hover:bg-gray-100 rounded">😎</button>
+                        <button type="button" onclick="addReactionToInput('😢')" class="text-xl hover:bg-gray-100 rounded">😢</button>
+                        <button type="button" onclick="addReactionToInput('🙏')" class="text-xl hover:bg-gray-100 rounded">🙏</button>
+                        <button type="button" onclick="addReactionToInput('💪')" class="text-xl hover:bg-gray-100 rounded">💪</button>
+                        <button type="button" onclick="addReactionToInput('🚀')" class="text-xl hover:bg-gray-100 rounded">🚀</button>
+                        <button type="button" onclick="addReactionToInput('🌟')" class="text-xl hover:bg-gray-100 rounded">🌟</button>
+                        <button type="button" onclick="addReactionToInput('💯')" class="text-xl hover:bg-gray-100 rounded">💯</button>
+                        <button type="button" onclick="addReactionToInput('🎯')" class="text-xl hover:bg-gray-100 rounded">🎯</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/header.js"></script>
+    <script src="../js/auth-helper.js"></script>
+    <script src="../js/messages.js"></script>
+</body>
+
+</html>

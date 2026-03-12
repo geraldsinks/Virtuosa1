@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - My Orders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-button-gold {
+            background-color: #C19A6B;
+        }
+
+        .hover-bg-button-gold:hover {
+            background-color: #A98B68;
+        }
+
+        .bg-dark-navy {
+            background-color: #060A18;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+    <header class="bg-navy text-white shadow-lg py-3 px-6 md:px-12 sticky top-0 z-50">
+        <div class="container mx-auto flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center">
+                <a href="/pages/index.html" class="text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+            <div class="flex-grow max-w-lg md:mx-auto order-3 md:order-2 w-full md:w-auto">
+                <div class="relative">
+                    <input type="text" placeholder="Search for books, notes, and more..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400">
+                    <button
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="user-info-container" class="flex items-center space-x-4 order-2 md:order-3">
+                <a href="/pages/login.html" id="login-link"
+                    class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
+                <span id="user-greeting" class="text-white font-medium"></span>
+                <button id="logout-button"
+                    class="bg-button-gold text-white font-semibold py-2 px-6 rounded-full shadow-lg hover-bg-button-gold transition-colors hidden">Log
+                    Out</button>
+                <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span
+                        class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    <main class="flex-grow py-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="md:col-span-1">
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-navy mb-4">Menu</h3>
+                        <nav class="space-y-3">
+                            <a href="/pages/profile.html"
+                                class="block px-4 py-2 text-navy hover:bg-gray-100 rounded-lg transition-colors">My
+                                Profile</a>
+                            <a href="/pages/orders.html"
+                                class="block px-4 py-2 bg-gold text-white rounded-lg font-semibold">My Orders</a>
+                            <a href="/pages/settings.html"
+                                class="block px-4 py-2 text-navy hover:bg-gray-100 rounded-lg transition-colors">Settings</a>
+                            <a href="/pages/index.html"
+                                class="block px-4 py-2 text-navy hover:bg-gray-100 rounded-lg transition-colors">Back to
+                                Shopping</a>
+                        </nav>
+                    </div>
+                </div>
+                <div class="md:col-span-3">
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h1 class="text-3xl font-bold text-navy mb-6">My Orders</h1>
+                        <div id="orders-content" class="space-y-4">
+                            <p class="text-center text-gray-500 py-8">You haven't placed any orders yet. <a
+                                    href="/pages/products.html" class="text-gold font-semibold">Start shopping</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="bg-navy text-gray-400 p-4 text-center shadow-inner mt-auto">
+        &copy; 2025 Virtuosa. All rights reserved.
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginLink = document.getElementById('login-link');
+            const userGreeting = document.getElementById('user-greeting');
+            const logoutButton = document.getElementById('logout-button');
+
+            function updateUserUI() {
+                const userFullName = localStorage.getItem('userFullName');
+                if (userFullName) {
+                    loginLink.classList.add('hidden');
+                    userGreeting.textContent = `Hello, ${userFullName}`;
+                    userGreeting.classList.remove('hidden');
+                    logoutButton.classList.remove('hidden');
+                } else {
+                    loginLink.classList.remove('hidden');
+                    userGreeting.classList.add('hidden');
+                    logoutButton.classList.add('hidden');
+                    window.location.href = '/pages/login.html';
+                }
+            }
+
+            updateUserUI();
+
+            logoutButton.addEventListener('click', async () => {
+                try {
+                    await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userEmail');
+                    localStorage.removeItem('userFullName');
+                    window.location.href = '/pages/index.html';
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+            });
+        });
+    </script>
+    <script src="../js/header.js"></script>
+    <script src="../js/cart.js"></script>
+</body>
+
+</html>

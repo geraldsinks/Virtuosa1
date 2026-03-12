@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Mass Messaging - Virtuosa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .bg-navy {
+            background: linear-gradient(135deg, #0A1128 0%, #1a2332 100%);
+        }
+        .text-gold {
+            color: #FFD700;
+        }
+        .bg-gold {
+            background: linear-gradient(135deg, #FFD700 0%, #ffb347 100%);
+        }
+        .bg-gradient-navy {
+            background: linear-gradient(135deg, #0A1128 0%, #1a2332 100%);
+        }
+        .bg-gradient-gold {
+            background: linear-gradient(135deg, #FFD700 0%, #ffb347 100%);
+        }
+        .step-indicator {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .step-indicator.active {
+            background: linear-gradient(135deg, #FFD700 0%, #ffb347 100%);
+            color: #0A1128;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(255,215,0,0.3);
+        }
+        .step-indicator.completed {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .input-focus:focus {
+            box-shadow: 0 0 0 3px rgba(255,215,0,0.1);
+            border-color: #FFD700;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #FFD700 0%, #ffb347 100%);
+            color: #0A1128;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255,215,0,0.3);
+        }
+        .stats-card {
+            transition: all 0.3s ease;
+        }
+        .stats-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .animate-pulse-slow {
+            animation: pulse 3s ease-in-out infinite;
+        }
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-navy text-white shadow-2xl">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between py-6">
+                <div class="flex items-center space-x-4">
+                    <a href="/pages/admin-dashboard.html" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        <span class="text-lg font-medium">Dashboard</span>
+                    </a>
+                </div>
+                <div class="text-center">
+                    <h1 class="text-2xl sm:text-3xl font-bold bg-gradient-gold bg-clip-text text-transparent">
+                        Mass Messaging Center
+                    </h1>
+                    <p class="text-sm text-gray-300 mt-1">Reach your entire community</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="hidden sm:flex items-center space-x-2 text-sm text-gray-300">
+                        <i data-lucide="users" class="w-4 h-4"></i>
+                        <span id="header-user-count">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- User Statistics Dashboard -->
+        <div class="glass-effect rounded-2xl shadow-2xl p-6 sm:p-8 mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                        <i data-lucide="bar-chart-3" class="w-6 h-6 mr-3 text-navy"></i>
+                        Community Overview
+                    </h2>
+                    <p class="text-gray-600 mt-1">Real-time platform statistics and user insights</p>
+                </div>
+                <button onclick="refreshUserStats()" class="btn-primary px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
+                <div class="stats-card bg-gradient-to-br from-blue-50 to-blue-100 p-4 sm:p-6 rounded-xl border border-blue-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                        <div class="text-xs font-medium text-blue-600 bg-blue-200 px-2 py-1 rounded-full">Total</div>
+                    </div>
+                    <div class="text-2xl sm:text-3xl font-bold text-blue-800" id="total-users">
+                        <div class="animate-pulse-slow bg-blue-200 h-8 rounded w-16"></div>
+                    </div>
+                    <div class="text-sm text-blue-600 mt-1">Registered Users</div>
+                </div>
+
+                <div class="stats-card bg-gradient-to-br from-green-50 to-green-100 p-4 sm:p-6 rounded-xl border border-green-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <i data-lucide="shopping-cart" class="w-6 h-6 text-green-600"></i>
+                        <div class="text-xs font-medium text-green-600 bg-green-200 px-2 py-1 rounded-full">Active</div>
+                    </div>
+                    <div class="text-2xl sm:text-3xl font-bold text-green-800" id="total-buyers">
+                        <div class="animate-pulse-slow bg-green-200 h-8 rounded w-16"></div>
+                    </div>
+                    <div class="text-sm text-green-600 mt-1">Buyers</div>
+                </div>
+
+                <div class="stats-card bg-gradient-to-br from-purple-50 to-purple-100 p-4 sm:p-6 rounded-xl border border-purple-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <i data-lucide="store" class="w-6 h-6 text-purple-600"></i>
+                        <div class="text-xs font-medium text-purple-600 bg-purple-200 px-2 py-1 rounded-full">Sellers</div>
+                    </div>
+                    <div class="text-2xl sm:text-3xl font-bold text-purple-800" id="total-sellers">
+                        <div class="animate-pulse-slow bg-purple-200 h-8 rounded w-16"></div>
+                    </div>
+                    <div class="text-sm text-purple-600 mt-1">Sellers</div>
+                </div>
+
+                <div class="stats-card bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 sm:p-6 rounded-xl border border-emerald-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <i data-lucide="shield-check" class="w-6 h-6 text-emerald-600"></i>
+                        <div class="text-xs font-medium text-emerald-600 bg-emerald-200 px-2 py-1 rounded-full">Verified</div>
+                    </div>
+                    <div class="text-2xl sm:text-3xl font-bold text-emerald-800" id="verified-sellers">
+                        <div class="animate-pulse-slow bg-emerald-200 h-8 rounded w-16"></div>
+                    </div>
+                    <div class="text-sm text-emerald-600 mt-1">Verified Sellers</div>
+                </div>
+
+                <div class="stats-card bg-gradient-to-br from-amber-50 to-amber-100 p-4 sm:p-6 rounded-xl border border-amber-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <i data-lucide="crown" class="w-6 h-6 text-amber-600"></i>
+                        <div class="text-xs font-medium text-amber-600 bg-amber-200 px-2 py-1 rounded-full">Premium</div>
+                    </div>
+                    <div class="text-2xl sm:text-3xl font-bold text-amber-800" id="pro-sellers">
+                        <div class="animate-pulse-slow bg-amber-200 h-8 rounded w-16"></div>
+                    </div>
+                    <div class="text-sm text-amber-600 mt-1">Pro Sellers</div>
+                </div>
+
+                <div class="stats-card bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 sm:p-6 rounded-xl border border-indigo-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <i data-lucide="graduation-cap" class="w-6 h-6 text-indigo-600"></i>
+                        <div class="text-xs font-medium text-indigo-600 bg-indigo-200 px-2 py-1 rounded-full">Students</div>
+                    </div>
+                    <div class="text-2xl sm:text-3xl font-bold text-indigo-800" id="student-verified">
+                        <div class="animate-pulse-slow bg-indigo-200 h-8 rounded w-16"></div>
+                    </div>
+                    <div class="text-sm text-indigo-600 mt-1">Student Verified</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="glass-effect rounded-2xl shadow-2xl p-6 sm:p-8 mb-8">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Mass Messaging Wizard</h2>
+                <p class="text-gray-600">Follow these steps to create and send your message</p>
+            </div>
+
+            <!-- Step Indicators -->
+            <div class="flex items-center justify-center mb-8">
+                <div class="flex items-center space-x-4 sm:space-x-8">
+                    <div class="step-indicator active w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-lg shadow-lg" data-step="1">
+                        <i data-lucide="edit-3" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    </div>
+                    <div class="flex-1 h-1 bg-gray-300 rounded-full mx-2 sm:mx-4"></div>
+                    <div class="step-indicator w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-300 flex items-center justify-center font-bold text-lg shadow-lg" data-step="2">
+                        <i data-lucide="users" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    </div>
+                    <div class="flex-1 h-1 bg-gray-300 rounded-full mx-2 sm:mx-4"></div>
+                    <div class="step-indicator w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-300 flex items-center justify-center font-bold text-lg shadow-lg" data-step="3">
+                        <i data-lucide="send" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Labels -->
+            <div class="grid grid-cols-3 gap-4 text-center">
+                <div class="step-label">
+                    <div class="font-semibold text-gray-800 mb-1">Create Message</div>
+                    <div class="text-sm text-gray-600">Write and customize your message</div>
+                </div>
+                <div class="step-label">
+                    <div class="font-semibold text-gray-600 mb-1">Select Audience</div>
+                    <div class="text-sm text-gray-500">Choose who receives your message</div>
+                </div>
+                <div class="step-label">
+                    <div class="font-semibold text-gray-600 mb-1">Review & Send</div>
+                    <div class="text-sm text-gray-500">Preview and send your campaign</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 1: Create Message -->
+        <div id="step-1" class="step-content glass-effect rounded-2xl shadow-2xl p-6 sm:p-8">
+            <div class="flex items-center mb-6">
+                <i data-lucide="edit-3" class="w-6 h-6 text-navy mr-3"></i>
+                <h2 class="text-2xl font-bold text-gray-800">Create Your Message</h2>
+            </div>
+
+            <!-- Template Selection -->
+            <div class="mb-8">
+                <label class="block text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                    <i data-lucide="file-text" class="w-4 h-4 mr-2"></i>
+                    Message Template (Optional)
+                </label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <label class="template-option card-hover bg-white border-2 border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-gold">
+                        <input type="radio" name="template" value="" class="hidden">
+                        <div class="flex items-center mb-2">
+                            <i data-lucide="plus" class="w-5 h-5 text-gray-400 mr-2"></i>
+                            <span class="font-medium text-gray-700">Blank Message</span>
+                        </div>
+                        <p class="text-sm text-gray-500">Start with a clean slate</p>
+                    </label>
+                    <label class="template-option card-hover bg-white border-2 border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-gold">
+                        <input type="radio" name="template" value="new-features" class="hidden">
+                        <div class="flex items-center mb-2">
+                            <i data-lucide="sparkles" class="w-5 h-5 text-blue-500 mr-2"></i>
+                            <span class="font-medium text-gray-700">New Features</span>
+                        </div>
+                        <p class="text-sm text-gray-500">Announce new platform features</p>
+                    </label>
+                    <label class="template-option card-hover bg-white border-2 border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-gold">
+                        <input type="radio" name="template" value="promotion" class="hidden">
+                        <div class="flex items-center mb-2">
+                            <i data-lucide="tag" class="w-5 h-5 text-green-500 mr-2"></i>
+                            <span class="font-medium text-gray-700">Promotional</span>
+                        </div>
+                        <p class="text-sm text-gray-500">Special offers and promotions</p>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Message Title -->
+            <div class="mb-6">
+                <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                    <i data-lucide="type" class="w-4 h-4 mr-2"></i>
+                    Message Title <span class="text-red-500">*</span>
+                </label>
+                <input type="text" id="message-title" maxlength="100"
+                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl input-focus text-gray-900 placeholder-gray-500"
+                       placeholder="Enter a compelling title that grabs attention">
+                <div class="flex justify-between items-center mt-2">
+                    <p class="text-sm text-gray-500">Make it engaging and relevant</p>
+                    <span class="text-sm text-gray-400" id="title-char-count">0/100</span>
+                </div>
+            </div>
+
+            <!-- Message Content -->
+            <div class="mb-8">
+                <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                    <i data-lucide="message-square" class="w-4 h-4 mr-2"></i>
+                    Message Content <span class="text-red-500">*</span>
+                </label>
+                <textarea id="message-content" rows="8" maxlength="1000"
+                          class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl input-focus text-gray-900 placeholder-gray-500 resize-vertical"
+                          placeholder="Write your message here. Be clear, concise, and engaging."></textarea>
+                <div class="flex justify-between items-center mt-2">
+                    <p class="text-sm text-gray-500">Personalize your message to connect with your audience</p>
+                    <span class="text-sm text-gray-400" id="content-char-count">0/1000</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+                <div class="flex items-center space-x-3">
+                    <button id="save-draft" class="btn-secondary px-6 py-3 rounded-xl font-medium flex items-center space-x-2">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                        <span>Save Draft</span>
+                    </button>
+                    <button id="preview-message" class="btn-secondary px-6 py-3 rounded-xl font-medium flex items-center space-x-2">
+                        <i data-lucide="eye" class="w-4 h-4"></i>
+                        <span>Preview</span>
+                    </button>
+                </div>
+                <button id="next-step-1" class="btn-primary px-8 py-3 rounded-xl font-medium flex items-center space-x-2">
+                    <span>Next Step</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Select Audience -->
+        <div id="step-2" class="step-content glass-effect rounded-2xl shadow-2xl p-6 sm:p-8 hidden">
+            <div class="flex items-center mb-6">
+                <i data-lucide="users" class="w-6 h-6 text-navy mr-3"></i>
+                <h2 class="text-2xl font-bold text-gray-800">Select Your Audience</h2>
+            </div>
+
+            <!-- Search and Filter Bar -->
+            <div class="mb-8">
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                            <i data-lucide="search" class="w-5 h-5 mr-2"></i>
+                            Find & Filter Users
+                        </h3>
+                        <button id="toggle-filters" class="text-sm text-navy hover:text-gold font-medium flex items-center">
+                            <i data-lucide="filter" class="w-4 h-4 mr-1"></i>
+                            Advanced Filters
+                        </button>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="relative mb-4">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                        <input type="text" id="user-search" placeholder="Search by name, email, or user ID..."
+                               class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl input-focus">
+                    </div>
+
+                    <!-- Advanced Filters (Collapsible) -->
+                    <div id="advanced-filters" class="hidden space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Account Type -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Account Type</label>
+                                <select id="filter-account-type" class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg input-focus">
+                                    <option value="">All Types</option>
+                                    <option value="buyer">Buyers Only</option>
+                                    <option value="seller">Sellers Only</option>
+                                    <option value="both">Both Buyers & Sellers</option>
+                                </select>
+                            </div>
+
+                            <!-- Verification Status -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Verification Status</label>
+                                <select id="filter-verification" class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg input-focus">
+                                    <option value="">Any Status</option>
+                                    <option value="verified">Verified Only</option>
+                                    <option value="unverified">Unverified Only</option>
+                                    <option value="student">Student Verified</option>
+                                </select>
+                            </div>
+
+                            <!-- Subscription Level -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Subscription</label>
+                                <select id="filter-subscription" class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg input-focus">
+                                    <option value="">Any Level</option>
+                                    <option value="free">Free Users</option>
+                                    <option value="pro">Pro Sellers</option>
+                                    <option value="premium">Premium</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Date Range -->
+                        <div class="border-t pt-4">
+                            <label class="flex items-center mb-3">
+                                <input type="checkbox" id="enable-date-filter" class="mr-2">
+                                <span class="text-sm font-medium text-gray-700">Filter by Registration Date</span>
+                            </label>
+                            <div id="date-filter-options" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">From</label>
+                                    <input type="date" id="date-from" class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg input-focus">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">To</label>
+                                    <input type="date" id="date-to" class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg input-focus">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity Filters -->
+                        <div class="border-t pt-4">
+                            <label class="flex items-center mb-3">
+                                <input type="checkbox" id="enable-activity-filter" class="mr-2">
+                                <span class="text-sm font-medium text-gray-700">Filter by Activity</span>
+                            </label>
+                            <div id="activity-filter-options" class="hidden space-y-3">
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-2">Last Active</label>
+                                    <select id="last-active" class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg input-focus">
+                                        <option value="">Any Time</option>
+                                        <option value="7">Last 7 days</option>
+                                        <option value="30">Last 30 days</option>
+                                        <option value="90">Last 3 months</option>
+                                        <option value="365">Last year</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-2">Minimum Orders</label>
+                                    <input type="number" id="min-orders" placeholder="0" min="0"
+                                           class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg input-focus">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Actions -->
+                    <div class="flex items-center justify-between pt-4 border-t">
+                        <div class="text-sm text-gray-600">
+                            <span id="filter-result-count">0 users found</span>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button id="clear-filters" class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium">
+                                Clear All
+                            </button>
+                            <button id="apply-filters" class="btn-primary px-6 py-2 rounded-lg font-medium">
+                                Apply Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Target Type Selection -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i data-lucide="target" class="w-5 h-5 mr-2"></i>
+                    Target Audience
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <label class="audience-option card-hover bg-white border-2 border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-gold">
+                        <input type="radio" name="targetType" value="all" checked class="hidden">
+                        <div class="flex items-center justify-between mb-3">
+                            <i data-lucide="users" class="w-6 h-6 text-blue-500"></i>
+                            <div class="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Recommended</div>
+                        </div>
+                        <h4 class="font-semibold text-gray-800 mb-1">All Users</h4>
+                        <p class="text-sm text-gray-600">Send to your entire community</p>
+                        <div class="mt-2 text-xs text-gray-500" id="all-users-count">Loading...</div>
+                    </label>
+
+                    <label class="audience-option card-hover bg-white border-2 border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-gold">
+                        <input type="radio" name="targetType" value="buyers" class="hidden">
+                        <div class="flex items-center justify-between mb-3">
+                            <i data-lucide="shopping-cart" class="w-6 h-6 text-green-500"></i>
+                            <div class="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">Active</div>
+                        </div>
+                        <h4 class="font-semibold text-gray-800 mb-1">Buyers Only</h4>
+                        <p class="text-sm text-gray-600">Users who have made purchases</p>
+                        <div class="mt-2 text-xs text-gray-500" id="buyers-count">Loading...</div>
+                    </label>
+
+                    <label class="audience-option card-hover bg-white border-2 border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-gold">
+                        <input type="radio" name="targetType" value="sellers" class="hidden">
+                        <div class="flex items-center justify-between mb-3">
+                            <i data-lucide="store" class="w-6 h-6 text-purple-500"></i>
+                            <div class="text-xs font-medium text-purple-600 bg-purple-100 px-2 py-1 rounded-full">Verified</div>
+                        </div>
+                        <h4 class="font-semibold text-gray-800 mb-1">Sellers Only</h4>
+                        <p class="text-sm text-gray-600">Users who sell products</p>
+                        <div class="mt-2 text-xs text-gray-500" id="sellers-count">Loading...</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Selected Audience Summary -->
+            <div class="mb-8">
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Selected Audience</h3>
+                        <div class="flex items-center space-x-2 text-sm">
+                            <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
+                            <span id="selected-count" class="font-medium">0 users selected</span>
+                        </div>
+                    </div>
+
+                    <!-- Audience Preview -->
+                    <div id="audience-preview" class="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center">
+                        <i data-lucide="users" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
+                        <p class="text-gray-500">Select an audience type above to see a preview</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+                <button id="prev-step-2" class="btn-secondary px-6 py-3 rounded-xl font-medium flex items-center space-x-2">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span>Previous Step</span>
+                </button>
+                <button id="next-step-2" class="btn-primary px-8 py-3 rounded-xl font-medium flex items-center space-x-2">
+                    <span>Next Step</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Review & Send -->
+        <div id="step-3" class="step-content glass-effect rounded-2xl shadow-2xl p-6 sm:p-8 hidden">
+            <div class="flex items-center mb-6">
+                <i data-lucide="send" class="w-6 h-6 text-navy mr-3"></i>
+                <h2 class="text-2xl font-bold text-gray-800">Review & Send</h2>
+            </div>
+
+            <!-- Message Preview -->
+            <div class="mb-8">
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                            <i data-lucide="eye" class="w-5 h-5 mr-2"></i>
+                            Message Preview
+                        </h3>
+                        <button id="refresh-preview" class="text-sm text-navy hover:text-gold font-medium flex items-center">
+                            <i data-lucide="refresh-cw" class="w-4 h-4 mr-1"></i>
+                            Refresh
+                        </button>
+                    </div>
+
+                    <div id="message-preview" class="border-2 border-gray-200 rounded-xl p-6 bg-gradient-to-br from-gray-50 to-white">
+                        <!-- Message preview will be inserted here -->
+                        <div class="animate-pulse-slow">
+                            <div class="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+                            <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                            <div class="h-4 bg-gray-200 rounded w-5/6 mb-2"></div>
+                            <div class="h-4 bg-gray-200 rounded w-4/5"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campaign Summary -->
+            <div class="mb-8">
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i data-lucide="clipboard-list" class="w-5 h-5 mr-2"></i>
+                        Campaign Summary
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Message Details -->
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">Message Details</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Title:</span>
+                                    <span class="font-medium" id="summary-title">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Content Length:</span>
+                                    <span class="font-medium" id="summary-length">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Template Used:</span>
+                                    <span class="font-medium" id="summary-template">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Audience Details -->
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-3">Target Audience</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Target Type:</span>
+                                    <span class="font-medium" id="summary-target">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Total Recipients:</span>
+                                    <span class="font-medium text-navy" id="summary-count">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Filters Applied:</span>
+                                    <span class="font-medium" id="summary-filters">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Send Options -->
+            <div class="mb-8">
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i data-lucide="clock" class="w-5 h-5 mr-2"></i>
+                        Send Options
+                    </h3>
+
+                    <div class="space-y-4">
+                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-gold transition-all">
+                            <input type="radio" name="sendTiming" value="immediate" checked class="mr-4">
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <i data-lucide="zap" class="w-5 h-5 text-green-500 mr-2"></i>
+                                    <span class="font-medium text-gray-800">Send Immediately</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">Messages will be sent right after you click send</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-gold transition-all">
+                            <input type="radio" name="sendTiming" value="scheduled" class="mr-4">
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <i data-lucide="calendar" class="w-5 h-5 text-blue-500 mr-2"></i>
+                                    <span class="font-medium text-gray-800">Schedule for Later</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">Choose a specific date and time to send</p>
+                                <div id="schedule-options" class="hidden mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                                        <input type="date" id="schedule-date" class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg input-focus">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                                        <input type="time" id="schedule-time" class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg input-focus">
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Final Confirmation -->
+            <div class="mb-8">
+                <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-xl p-6">
+                    <div class="flex items-start">
+                        <i data-lucide="alert-triangle" class="w-6 h-6 text-yellow-600 mr-3 mt-1 flex-shrink-0"></i>
+                        <div>
+                            <h4 class="font-semibold text-yellow-800 mb-2">Important Confirmation</h4>
+                            <p class="text-sm text-yellow-700 mb-3">
+                                You are about to send a mass message to <span id="final-recipient-count" class="font-bold text-yellow-800">0</span> users.
+                                This action cannot be undone. Please review all details carefully before sending.
+                            </p>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="confirm-send" class="mr-3">
+                                <label for="confirm-send" class="text-sm text-yellow-700">
+                                    I have reviewed the message and audience details
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar (Hidden initially) -->
+            <div id="send-progress" class="hidden mb-8">
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Sending Progress</h3>
+                        <div class="text-sm text-gray-600" id="progress-text">Preparing to send...</div>
+                    </div>
+
+                    <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
+                        <div id="progress-bar" class="bg-gradient-gold h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 text-center text-sm">
+                        <div>
+                            <div class="font-semibold text-gray-800" id="progress-sent">0</div>
+                            <div class="text-gray-600">Sent</div>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-orange-600" id="progress-pending">0</div>
+                            <div class="text-gray-600">Pending</div>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-red-600" id="progress-failed">0</div>
+                            <div class="text-gray-600">Failed</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+                <button id="prev-step-3" class="btn-secondary px-6 py-3 rounded-xl font-medium flex items-center space-x-2">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span>Previous Step</span>
+                </button>
+
+                <div class="flex items-center space-x-4">
+                    <button id="save-draft-final" class="btn-secondary px-6 py-3 rounded-xl font-medium flex items-center space-x-2">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                        <span>Save Draft</span>
+                    </button>
+                    <button id="send-message" class="btn-primary px-8 py-3 rounded-xl font-medium flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span id="send-button-text">Send Message</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/auth-helper.js"></script>
+    <script src="../js/admin-mass-messaging.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "virtuosa",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^7.1.0",
+    "mongoose": "^9.2.1",
+    "multer": "^2.1.0",
+    "nodemailer": "^7.0.5",
+    "socket.io": "^4.8.3"
+  }
+}

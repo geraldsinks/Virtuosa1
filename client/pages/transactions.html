@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions - Virtuosa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<style>
+    body {
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .bg-navy {
+        background-color: #0A1128;
+    }
+
+    .text-gold {
+        color: #FFD700;
+    }
+
+    .bg-button-gold {
+        background-color: #C19A6B;
+    }
+
+    .hover-bg-button-gold:hover {
+        background-color: #A98B68;
+    }
+
+    .bg-dark-navy {
+        background-color: #060A18;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+</style>
+</head>
+
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <!-- Standard Navigation -->
+    <header class="bg-navy text-white shadow-lg py-3 px-6 md:px-12 sticky top-0 z-50">
+        <div class="container mx-auto flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center">
+                <a href="/pages/index.html" class="text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+            <div class="flex-grow max-w-lg md:mx-auto order-3 md:order-2 w-full md:w-auto">
+                <div class="relative">
+                    <input type="text" placeholder="Search for books, notes, and more..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400">
+                    <button
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="user-info-container" class="flex items-center space-x-4 order-2 md:order-3">
+                <a href="/pages/login.html" id="login-link"
+                    class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
+                <div id="user-menu" class="relative hidden">
+                    <button onclick="window.toggleUserMenu()"
+                        class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
+                        <span id="user-greeting"></span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="user-dropdown"
+                        class="absolute right-0 top-8 w-48 bg-navy rounded-lg shadow-xl z-50 py-2 hidden">
+                        <a href="/pages/profile.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-user mr-2"></i>My Profile
+                        </a>
+                        <a href="/pages/dashboard.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                        </a>
+                        <a href="/pages/transactions.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-exchange-alt mr-2"></i>My Transactions
+                        </a>
+                        <a href="/pages/reviews.html"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-star mr-2"></i>My Reviews
+                        </a>
+                        <div id="seller-links" class="hidden">
+                            <a href="/pages/create-product.html"
+                                class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Create Listing
+                            </a>
+                        </div>
+                        <div id="admin-link" class="hidden">
+                            <a href="/pages/admin-dashboard.html"
+                                class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-cog mr-2"></i>Admin Panel
+                            </a>
+                        </div>
+                        <div class="border-t border-gray-700 my-1"></div>
+                        <button onclick="window.logout()"
+                            class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Log Out
+                        </button>
+                    </div>
+                </div>
+                <button id="logout-button"
+                    class="bg-button-gold text-white font-semibold py-2 px-6 rounded-full shadow-lg hover-bg-button-gold transition-colors hidden">Log
+                    Out</button>
+                <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span
+                        class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">My Transactions</h1>
+            <p class="text-gray-600 mt-2">Manage your buying and selling transactions</p>
+        </div>
+
+        <!-- Transaction Type Tabs -->
+        <div class="bg-white rounded-lg shadow mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="flex space-x-8 px-6">
+                    <button onclick="showTab('all')"
+                        class="tab-button py-4 border-b-2 border-blue-500 text-blue-600 font-medium">
+                        All Transactions
+                    </button>
+                    <button onclick="showTab('buying')"
+                        class="tab-button py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">
+                        Buying
+                    </button>
+                    <button onclick="showTab('selling')"
+                        class="tab-button py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">
+                        Selling
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex flex-wrap gap-4 items-center">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Status</label>
+                    <select id="statusFilter" onchange="loadTransactions()"
+                        class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Date Range</label>
+                    <select id="dateFilter" onchange="loadTransactions()"
+                        class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Time</option>
+                        <option value="7">Last 7 Days</option>
+                        <option value="30">Last 30 Days</option>
+                        <option value="90">Last 90 Days</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Search</label>
+                    <input type="text" id="searchFilter" placeholder="Search products or users..."
+                        onkeyup="loadTransactions()"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions List -->
+        <div class="bg-white rounded-lg shadow">
+            <div id="transactionsList" class="divide-y divide-gray-200">
+                <!-- Transactions will be populated here -->
+            </div>
+
+            <!-- Pagination -->
+            <div id="pagination" class="px-6 py-4 border-t border-gray-200">
+                <!-- Pagination will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Details Modal -->
+    <div id="transactionModal"
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div
+            class="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-lg bg-white max-h-[90vh] overflow-y-auto">
+            <div class="mt-3">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Transaction Details</h3>
+                    <button onclick="closeTransactionModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div id="transactionDetails">
+                    <!-- Transaction details will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-lg bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Process Payment</h3>
+                <div id="paymentDetails" class="mb-4">
+                    <!-- Payment details will be populated here -->
+                </div>
+                <form id="paymentForm" onsubmit="processPayment(event)">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Payment Method</label>
+                        <select id="paymentMethod" required class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                            <option value="">Select payment method</option>
+                            <option value="mobile_money">Mobile Money</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="cash">Cash</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Payment Reference</label>
+                        <input type="text" id="paymentReference" required
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2"
+                            placeholder="Transaction ID or reference">
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closePaymentModal()"
+                            class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            Process Payment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shipment Modal -->
+    <div id="shipmentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-lg bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Confirm Shipment</h3>
+                <div id="shipmentDetails" class="mb-4">
+                    <!-- Shipment details will be populated here -->
+                </div>
+                <form id="shipmentForm" onsubmit="confirmShipment(event)">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Tracking Number (Optional)</label>
+                        <input type="text" id="trackingNumber"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2"
+                            placeholder="Enter tracking number if available">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Delivery Method</label>
+                        <select id="deliveryMethod" required class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                            <option value="">Select delivery method</option>
+                            <option value="pickup">Campus Pickup</option>
+                            <option value="delivery">Delivery</option>
+                            <option value="courier">Courier Service</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeShipmentModal()"
+                            class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+                            Confirm Shipment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dispute Modal -->
+    <div id="disputeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-lg bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Raise Dispute</h3>
+                <div id="disputeDetails" class="mb-4">
+                    <!-- Dispute details will be populated here -->
+                </div>
+                <form id="disputeForm" onsubmit="raiseDispute(event)">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Dispute Reason</label>
+                        <textarea id="disputeReason" rows="4" required
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2"
+                            placeholder="Please describe the issue..."></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeDisputeModal()"
+                            class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                            Raise Dispute
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/header.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/transactions.js"></script>
+</body>
+
+</html>

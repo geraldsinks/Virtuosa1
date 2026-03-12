@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Shopping Cart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-button-gold {
+            background-color: #C19A6B;
+        }
+
+        .hover-bg-button-gold:hover {
+            background-color: #A98B68;
+        }
+
+        .bg-dark-navy {
+            background-color: #060A18;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+    <header class="bg-navy text-white shadow-lg py-3 px-6 md:px-12 sticky top-0 z-50">
+        <div class="v-container v-header-row">
+            <div class="flex items-center v-header-logo">
+                <a href="/pages/index.html" class="text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+            <div class="flex-grow max-w-lg md:mx-auto order-3 md:order-2 w-full md:w-auto v-header-search">
+                <div class="relative">
+                    <input type="text" placeholder="Search for books, notes, and more..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400">
+                    <button
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="user-info-container" class="flex items-center space-x-4 order-2 md:order-3 v-header-actions">
+                <a href="/pages/login.html" id="login-link"
+                    class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
+                <span id="user-greeting" class="text-white font-medium"></span>
+                <button id="logout-button"
+                    class="bg-button-gold text-white font-semibold py-2 px-6 rounded-full shadow-lg hover-bg-button-gold transition-colors hidden">Log
+                    Out</button>
+                <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span
+                        class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full"
+                        id="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    <main class="flex-grow py-8">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold text-navy mb-6">Shopping Cart</h1>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <div id="cart-items" class="bg-white rounded-lg shadow-lg p-6">
+                        <p class="text-center text-gray-500 py-8">Your cart is empty. <a id="continue-shopping-empty"
+                                class="text-gold font-semibold">Continue shopping</a></p>
+                    </div>
+                </div>
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-lg p-6 h-fit sticky top-20">
+                        <h2 class="text-xl font-bold text-navy mb-4">Order Summary</h2>
+                        <div class="space-y-3 border-t border-gray-200 pt-4">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Subtotal:</span>
+                                <span class="font-semibold text-navy" id="subtotal">ZMW 0.00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Shipping:</span>
+                                <span class="font-semibold text-navy" id="shipping">ZMW 0.00</span>
+                            </div>
+                            <div class="flex justify-between border-t border-gray-200 pt-3">
+                                <span class="font-bold text-navy">Total:</span>
+                                <span class="font-bold text-lg text-gold" id="total">ZMW 0.00</span>
+                            </div>
+                            <button
+                                class="w-full bg-button-gold text-white font-semibold py-2 px-4 rounded-full hover-bg-button-gold transition-colors mt-4">Proceed
+                                to Checkout</button>
+                            <a id="continue-shopping-button"
+                                class="block text-center bg-gray-200 text-navy font-semibold py-2 px-4 rounded-full hover:bg-gray-300 transition-colors">Continue
+                                Shopping</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="bg-navy text-gray-400 p-4 text-center shadow-inner mt-auto">
+        &copy; 2025 Virtuosa. All rights reserved.
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginLink = document.getElementById('login-link');
+            const userGreeting = document.getElementById('user-greeting');
+            const logoutButton = document.getElementById('logout-button');
+
+            function updateUserUI() {
+                const userFullName = localStorage.getItem('userFullName');
+                if (userFullName) {
+                    loginLink.classList.add('hidden');
+                    userGreeting.textContent = `Hello, ${userFullName}`;
+                    userGreeting.classList.remove('hidden');
+                    logoutButton.classList.remove('hidden');
+                } else {
+                    loginLink.classList.remove('hidden');
+                    userGreeting.classList.add('hidden');
+                    logoutButton.classList.add('hidden');
+                }
+            }
+
+            updateUserUI();
+
+            // Handle Continue Shopping functionality
+            function getContinueShoppingUrl() {
+                // Check if we have a stored previous page
+                const previousPage = sessionStorage.getItem('previousPage');
+                if (previousPage && previousPage !== window.location.href) {
+                    return previousPage;
+                }
+                
+                // Fallback to document.referrer
+                const referrer = document.referrer;
+                if (referrer && referrer !== window.location.href && !referrer.includes('login.html')) {
+                    return referrer;
+                }
+                
+                // Final fallback to products page
+                return '/pages/products.html';
+            }
+
+            // Setup continue shopping links
+            const continueShoppingEmpty = document.getElementById('continue-shopping-empty');
+            const continueShoppingButton = document.getElementById('continue-shopping-button');
+            const continueShoppingUrl = getContinueShoppingUrl();
+
+            if (continueShoppingEmpty) {
+                continueShoppingEmpty.href = continueShoppingUrl;
+            }
+            
+            if (continueShoppingButton) {
+                continueShoppingButton.href = continueShoppingUrl;
+            }
+
+            logoutButton.addEventListener('click', async () => {
+                try {
+                    await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userEmail');
+                    localStorage.removeItem('userFullName');
+                    window.location.href = '/pages/index.html';
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+            });
+        });
+    </script>
+    <script src="../js/cart.js"></script>
+</body>
+
+</html>

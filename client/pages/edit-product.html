@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Listing - Virtuosa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-gold {
+            background-color: #FFD700;
+        }
+
+        .bg-button-gold {
+            background-color: #C19A6B;
+        }
+
+        .hover-bg-button-gold:hover {
+            background-color: #A98B68;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.35);
+            border-color: #C19A6B;
+        }
+
+        .step-active {
+            background: linear-gradient(135deg, #C19A6B 0%, #FFD700 100%);
+            color: #0A1128;
+        }
+
+        .step-inactive {
+            background-color: #e5e7eb;
+            color: #6B7280;
+        }
+
+        .drag-area {
+            border: 2px dashed #C19A6B;
+            transition: all 0.3s;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased">
+    <header class="bg-navy text-white shadow-lg py-3 px-6 md:px-12 sticky top-0 z-50">
+        <div class="container mx-auto flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center">
+                <a href="/pages/index.html" class="text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+            <div id="user-info-container" class="flex items-center space-x-4">
+                <a href="/pages/seller-dashboard.html"
+                    class="text-white hover:text-gold transition-colors font-medium">Dashboard</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 max-w-3xl">
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-navy">Edit Listing</h1>
+                <p class="text-gray-500 mt-1 text-sm">Update your product details</p>
+            </div>
+            <a href="/pages/seller-dashboard.html"
+                class="text-sm text-gold font-semibold hover:underline flex items-center gap-1">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <form id="editProductForm" class="space-y-6">
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Product Name</label>
+                        <input type="text" id="productName" required
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Category</label>
+                        <select id="category" required
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm bg-white">
+                            <option value="Electronics">Electronics</option>
+                            <option value="Computers & Software">Computers & Software</option>
+                            <option value="Men's Clothing">Men's Clothing</option>
+                            <option value="Women's Clothing">Women's Clothing</option>
+                            <option value="Shoes">Shoes</option>
+                            <option value="Accessories">Accessories</option>
+                            <option value="Textbooks">Textbooks</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Condition</label>
+                        <select id="condition" required
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm bg-white">
+                            <option value="New">New</option>
+                            <option value="Like New">Like New</option>
+                            <option value="Good">Good</option>
+                            <option value="Fair">Fair</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Price (ZMW)</label>
+                        <input type="number" id="price" required min="0" step="0.01"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
+                        <textarea id="description" required rows="4"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm resize-none"></textarea>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Current Photos</label>
+                        <div id="currentImages" class="flex flex-wrap gap-2 mb-4"></div>
+                        <p class="text-xs text-gray-500 italic">Editing photos is coming soon. For now, you can update
+                            text and price.</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-end mt-8 border-t pt-6">
+                    <button type="submit"
+                        class="bg-navy text-gold font-bold px-10 py-3 rounded-xl hover:bg-opacity-90 transition-all shadow-lg flex items-center gap-2">
+                        <i data-lucide="save" class="w-4 h-4"></i> Save Changes
+                    </button>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <script src="../js/header.js"></script>
+    <script src="../js/cart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            const token = localStorage.getItem('token');
+
+            if (!productId || !token) {
+                window.location.href = '/pages/seller-dashboard.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/products/${productId}`);
+                const product = await response.json();
+
+                if (!response.ok) throw new Error('Failed to load product');
+
+                document.getElementById('productName').value = product.name;
+                document.getElementById('category').value = product.category;
+                document.getElementById('condition').value = product.condition;
+                document.getElementById('price').value = product.price;
+                document.getElementById('description').value = product.description;
+
+                const imgContainer = document.getElementById('currentImages');
+                if (product.images && product.images.length > 0) {
+                    imgContainer.innerHTML = product.images.map(img => `
+                        <img src="${img}" class="w-20 h-20 object-cover rounded-lg border border-gray-200">
+                    `).join('');
+                } else {
+                    imgContainer.innerHTML = '<p class="text-gray-400 text-sm">No images uploaded.</p>';
+                }
+
+                if (window.lucide) window.lucide.createIcons();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to load product details');
+            }
+
+            document.getElementById('editProductForm').onsubmit = async (e) => {
+                e.preventDefault();
+
+                const updates = {
+                    name: document.getElementById('productName').value,
+                    category: document.getElementById('category').value,
+                    condition: document.getElementById('condition').value,
+                    price: parseFloat(document.getElementById('price').value),
+                    description: document.getElementById('description').value
+                };
+
+                try {
+                    const response = await fetch(`/api/products/${productId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(updates)
+                    });
+
+                    if (response.ok) {
+                        alert('Product updated successfully!');
+                        window.location.href = '/pages/seller-dashboard.html';
+                    } else {
+                        const data = await response.json();
+                        alert(data.message || 'Update failed');
+                    }
+                } catch (error) {
+                    console.error('Update error:', error);
+                    alert('An error occurred');
+                }
+            };
+        });
+    </script>
+</body>
+
+</html>
