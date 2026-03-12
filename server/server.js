@@ -19,11 +19,15 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: "*",
+        origin: ["https://virtuosa1.vercel.app", "http://localhost:5500"],
         methods: ["GET", "POST"]
     }
 });
-app.use(cors());
+app.use(cors( {
+    origin: ["https://virtuosa1.vercel.app", "http://localhost:5500"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../client')));
 
