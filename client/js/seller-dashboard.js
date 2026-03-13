@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const user = await response.json();
         if (!user.isSeller) {
             alert('Access denied. Seller privileges required.');
-            window.location.href = 'dashboard.html';
+            window.location.href = '/pages/buyer-dashboard.html';
             return;
         }
     } catch (error) {
