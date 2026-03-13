@@ -33,23 +33,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isSeller = (userData.isSeller === true || 
                             userData.isSeller === 'true');
 
-            // QUICK & DIRTY GUARD - Prevents infinite loop
-            const currentPath = window.location.pathname.toLowerCase();
-            if (
-                (isAdmin && currentPath.includes('admin-dashboard')) ||
-                (isSeller && currentPath.includes('seller-dashboard')) ||
-                (!isAdmin && !isSeller && currentPath.includes('buyer-dashboard'))
-            ) {
-                console.log('✅ Already on the correct dashboard – skipping redirect');
-                return;   // STOP HERE - no redirect
+            // === IMPROVED GUARD (this is the fix for the remaining loop) ===
+            // We ONLY want to redirect when we are on the universal router page
+            const currentFile = window.location.pathname.split('/').pop().toLowerCase();
+            console.log('📍 Current page file:', currentFile);
+            console.log('👤 Role → Admin:', isAdmin, 'Seller:', isSeller);
+
+            if (currentFile !== 'dashboard.html') {
+                console.log('✅ Already on role-specific dashboard – skipping redirect (no loop)');
+                return;   // STOP HERE – this kills the loop
             }
+            // ============================================================
 
             // Only redirect if we are still on the router page (dashboard.html)
             if (isAdmin) {
+                console.log('🔄 Redirecting to admin-dashboard.html');
                 window.location.href = 'admin-dashboard.html';
             } else if (isSeller) {
+                console.log('🔄 Redirecting to seller-dashboard.html');
                 window.location.href = 'seller-dashboard.html';
             } else {
+                console.log('🔄 Redirecting to buyer-dashboard.html');
                 window.location.href = 'buyer-dashboard.html';
             }
 
