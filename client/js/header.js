@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Fetch user data to get role
             try {
-                const response = await fetch('/api/user/profile', {
+                const response = await fetch(`${API_BASE}/user/profile`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Fetch notifications
             try {
-                const notificationsResponse = await fetch('/api/notifications', {
+                const notificationsResponse = await fetch(`${API_BASE}/notifications`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Fetch message conversations for badge
             try {
-                const messagesResponse = await fetch('/api/messages/conversations', {
+                const messagesResponse = await fetch(`${API_BASE}/messages/conversations`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.logout = async function (event) {
         if (event) event.preventDefault();
         try {
-            await fetch('/api/auth/logout', {
+            await fetch(`${API_BASE}/auth/logout`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });

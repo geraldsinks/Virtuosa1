@@ -1,4 +1,5 @@
 // Admin Dashboard JavaScript
+const API_BASE = 'https://virtuosa-server.onrender.com/api';
 let currentDisputeId = null;
 let revenueChart = null;
 let userStatsChart = null;
@@ -12,7 +13,7 @@ function checkAdminAccess() {
     }
 
     // Verify admin status
-    fetch('/api/user/profile', {
+    fetch(`${API_BASE}/user/profile`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -494,7 +495,7 @@ async function loadDisputes() {
     try {
         const token = localStorage.getItem('token');
 
-        const response = await fetch('/api/admin/transactions?disputeStatus=Open', {
+        const response = await fetch(`${API_BASE}/admin/transactions?disputeStatus=Open`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -620,7 +621,7 @@ async function resolveDispute() {
 async function loadApplications() {
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch('/api/admin/applications', {
+        const response = await fetch(`${API_BASE}/admin/applications`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -838,7 +839,7 @@ async function loadRetentionStats() {
     try {
         const token = localStorage.getItem('token');
 
-        const response = await fetch('/api/admin/retention/stats', {
+        const response = await fetch(`${API_BASE}/admin/retention/stats`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -869,7 +870,7 @@ async function loadRetentionConfig() {
     try {
         const token = localStorage.getItem('token');
 
-        const response = await fetch('/api/admin/retention/config', {
+        const response = await fetch(`${API_BASE}/admin/retention/config`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

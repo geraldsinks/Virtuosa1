@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function loadDashboardData() {
         try {
-            const response = await fetch('/api/seller/dashboard', {
+            const response = await fetch(`${API_BASE}/seller/dashboard`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const originalContent = saveStoreBtn.innerHTML;
                 saveStoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
 
-                const response = await fetch('/api/seller/store-settings', {
+                const response = await fetch(`${API_BASE}/seller/store-settings`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!container) return;
 
         try {
-            const response = await fetch('/api/notifications', {
+            const response = await fetch(`${API_BASE}/notifications`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const notifications = await response.json();

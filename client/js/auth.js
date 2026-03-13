@@ -332,7 +332,17 @@ function renderAuthComponent(type) {
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
     if (token) {
-        window.location.href = '/pages/dashboard.html';
+        // Redirect to role-specific dashboard based on stored user data
+        const isAdmin = localStorage.getItem('isAdmin') === 'true';
+        const isSeller = localStorage.getItem('isSeller') === 'true';
+        
+        if (isAdmin) {
+            window.location.href = '/pages/admin-dashboard.html';
+        } else if (isSeller) {
+            window.location.href = '/pages/seller-dashboard.html';
+        } else {
+            window.location.href = '/pages/buyer-dashboard.html';
+        }
     } else {
         const urlParams = new URLSearchParams(window.location.search);
         const resetToken = urlParams.get('token');
