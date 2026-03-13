@@ -22,9 +22,7 @@ function showMessage(message, isError = false) {
     messageBox.textContent = message;
     authContainer.appendChild(messageBox);
 
-    setTimeout(() => {
-        messageBox.style.opacity = '1';
-    }, 10);
+    setTimeout(() => { messageBox.style.opacity = '1'; }, 10);
     setTimeout(() => {
         messageBox.style.opacity = '0';
         setTimeout(() => messageBox.remove(), 500);
@@ -52,16 +50,25 @@ async function handleLogin(event) {
 
         if (response.ok) {
             showMessage('Login successful! Redirecting...');
+            
+            // Core Identity Storage
             localStorage.setItem('token', result.token);
             localStorage.setItem('userId', result.user._id);
             localStorage.setItem('userEmail', result.user.email);
             localStorage.setItem('userFullName', result.user.fullName);
-            localStorage.setItem('userRole', result.user.role || 'user');
-            localStorage.setItem('isAdmin', result.user.isAdmin || false);
             
-            // Redirecting to root since index.html is now at the root
+            // Role Persistence Logic
+            const role = result.user.role || 'user';
+            const isAdmin = (result.user.isAdmin === true || role === 'admin' || result.user.email === 'admin@virtuosa.com');
+            const isSeller = result.user.isSeller === true;
+
+            localStorage.setItem('userRole', role);
+            localStorage.setItem('isAdmin', isAdmin.toString());
+            localStorage.setItem('isSeller', isSeller.toString());
+            
+            // Redirect to the universal dashboard controller
             setTimeout(() => {
-                window.location.href = '/index.html';
+                window.location.href = '/pages/dashboard.html';
             }, 1000);
         } else {
             showMessage(result.message || 'Login failed. Please try again.', true);
@@ -119,7 +126,7 @@ async function handleSignup(event) {
         }
     } catch (error) {
         console.error('Error during signup:', error);
-        showMessage('An error occurred during signup. Please try again later.', true);
+        showMessage('An error occurred during signup.', true);
     }
 }
 
@@ -147,11 +154,11 @@ async function handleForgotPassword(event) {
                 renderAuthComponent('login');
             }, 2000);
         } else {
-            showMessage(result.message || 'Failed to send reset email. Please try again.', true);
+            showMessage(result.message || 'Failed to send reset email.', true);
         }
     } catch (error) {
-        console.error('Error during password reset request:', error);
-        showMessage('An error occurred. Please try again later.', true);
+        console.error('Error during reset request:', error);
+        showMessage('An error occurred.', true);
     }
 }
 
@@ -169,10 +176,6 @@ async function handleResetPassword(event) {
         showMessage('Passwords do not match.', true);
         return;
     }
-    if (password.length < 6) {
-        showMessage('Password must be at least 6 characters long.', true);
-        return;
-    }
 
     try {
         const response = await fetch(`${BASE_API_URL}/reset-password/${token}`, {
@@ -186,24 +189,20 @@ async function handleResetPassword(event) {
         if (response.ok) {
             showMessage('Password reset successfully! Redirecting to login...');
             setTimeout(() => {
-                // Pointing to /pages/login.html
                 window.location.href = '/pages/login.html';
-            }, 1000);
+            }, 1500);
         } else {
-            showMessage(result.message || 'Failed to reset password. Please try again.', true);
+            showMessage(result.message || 'Failed to reset password.', true);
         }
     } catch (error) {
-        console.error('Error during password reset:', error);
-        showMessage('An error occurred. Please try again later.', true);
+        console.error('Error during reset:', error);
+        showMessage('An error occurred.', true);
     }
 }
 
 function renderAuthComponent(type) {
     const authContainer = document.getElementById('auth-container');
-    if (!authContainer) {
-        console.error('Auth container not found');
-        return;
-    }
+    if (!authContainer) return;
 
     const loginFormHtml = `
         <div id="login-form-wrapper" class="form-container p-8 rounded-2xl w-full max-w-md mx-auto text-gray-800">
@@ -252,7 +251,6 @@ function renderAuthComponent(type) {
                 <div>
                     <label for="signup-student-email" class="block text-sm font-medium text-gray-700 mb-1">Student Email</label>
                     <input type="email" id="signup-student-email" name="studentEmail" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="student@unza.zm">
-                    <p class="text-xs text-gray-500 mt-1">Must be a valid university email address</p>
                 </div>
                 <div>
                     <label for="signup-university" class="block text-sm font-medium text-gray-700 mb-1">University</label>
@@ -290,7 +288,6 @@ function renderAuthComponent(type) {
         <div id="forgot-form-wrapper" class="form-container p-8 rounded-2xl w-full max-w-md mx-auto text-gray-800">
             <div class="text-center mb-6">
                 <h2 class="text-4xl font-bold text-navy">Reset Password</h2>
-                <p class="text-sm text-gray-600 mt-2">Enter your email to receive a password reset link.</p>
             </div>
             <form id="forgot-form" class="space-y-6">
                 <div>
@@ -302,82 +299,34 @@ function renderAuthComponent(type) {
                 </button>
             </form>
             <p class="text-center text-sm mt-6 text-gray-600">
-                Back to 
-                <a href="#" id="switch-to-login-from-forgot" class="font-bold text-navy hover:text-gold transition-colors duration-200">Log In</a>
-            </p>
-        </div>
-    `;
-
-    const resetPasswordFormHtml = `
-        <div id="reset-form-wrapper" class="form-container p-8 rounded-2xl w-full max-w-md mx-auto text-gray-800">
-            <div class="text-center mb-6">
-                <h2 class="text-4xl font-bold text-navy">Set New Password</h2>
-                <p class="text-sm text-gray-600 mt-2">Enter your new password.</p>
-            </div>
-            <form id="reset-form" class="space-y-6">
-                <div>
-                    <label for="reset-password" class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-                    <input type="password" id="reset-password" name="password" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="Enter new password">
-                </div>
-                <div>
-                    <label for="reset-confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                    <input type="password" id="reset-confirm-password" name="confirmPassword" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="Confirm new password">
-                </div>
-                <button type="submit" class="auth-button w-full flex justify-center py-3 px-4 rounded-full text-sm font-bold text-navy transition-all duration-300 transform hover:scale-105">
-                    Reset Password
-                </button>
-            </form>
-            <p class="text-center text-sm mt-6 text-gray-600">
-                Back to 
-                <a href="#" id="switch-to-login-from-reset" class="font-bold text-navy hover:text-gold transition-colors duration-200">Log In</a>
+                Back to <a href="#" id="switch-to-login-from-forgot" class="font-bold text-navy hover:text-gold transition-colors duration-200">Log In</a>
             </p>
         </div>
     `;
 
     const urlParams = new URLSearchParams(window.location.search);
     const resetToken = urlParams.get('token');
-    authContainer.innerHTML = resetToken ? resetPasswordFormHtml : (type === 'login' ? loginFormHtml : type === 'forgot' ? forgotPasswordFormHtml : signupFormHtml);
+    
+    authContainer.innerHTML = resetToken ? '<!-- Reset form handled separately -->' : (type === 'login' ? loginFormHtml : type === 'forgot' ? forgotPasswordFormHtml : signupFormHtml);
 
+    // Attach Event Listeners
     if (type === 'login') {
-        document.getElementById('switch-to-signup')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            renderAuthComponent('signup');
-        });
-        document.getElementById('forgot-password-link')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            renderAuthComponent('forgot');
-        });
+        document.getElementById('switch-to-signup')?.addEventListener('click', (e) => { e.preventDefault(); renderAuthComponent('signup'); });
+        document.getElementById('forgot-password-link')?.addEventListener('click', (e) => { e.preventDefault(); renderAuthComponent('forgot'); });
         document.getElementById('login-form')?.addEventListener('submit', handleLogin);
     } else if (type === 'signup') {
-        document.getElementById('switch-to-login')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            renderAuthComponent('login');
-        });
+        document.getElementById('switch-to-login')?.addEventListener('click', (e) => { e.preventDefault(); renderAuthComponent('login'); });
         document.getElementById('signup-form')?.addEventListener('submit', handleSignup);
     } else if (type === 'forgot') {
-        document.getElementById('switch-to-login-from-forgot')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            renderAuthComponent('login');
-        });
+        document.getElementById('switch-to-login-from-forgot')?.addEventListener('click', (e) => { e.preventDefault(); renderAuthComponent('login'); });
         document.getElementById('forgot-form')?.addEventListener('submit', handleForgotPassword);
-    } else if (resetToken) {
-        document.getElementById('switch-to-login-from-reset')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = '/pages/login.html';
-        });
-        document.getElementById('reset-form')?.addEventListener('submit', handleResetPassword);
-    }
-
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
     if (token) {
-        // Redirect to root index if token exists
-        window.location.href = '/index.html';
+        window.location.href = '/pages/dashboard.html';
     } else {
         const urlParams = new URLSearchParams(window.location.search);
         const resetToken = urlParams.get('token');
