@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Check seller access
     try {
-        const response = await fetch('/api/user/profile', {
+        const response = await fetch(`${API_BASE}/user/profile`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

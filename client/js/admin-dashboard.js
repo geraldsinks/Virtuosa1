@@ -27,7 +27,7 @@ function checkAdminAccess() {
             // Check if user email matches admin email or role is admin or isAdmin is true
             if (user.email !== 'admin@virtuosa.com' && user.role !== 'admin' && user.isAdmin !== 'true' && user.isAdmin !== true) {
                 alert('Access denied. Admin privileges required.');
-                window.location.href = 'index.html';
+                window.location.href = '/pages/buyer-dashboard.html';
             }
         })
         .catch(error => {

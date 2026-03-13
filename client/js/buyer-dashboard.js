@@ -1,4 +1,5 @@
 // Buyer Dashboard JavaScript
+const API_BASE = 'https://virtuosa-server.onrender.com/api';
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
 
@@ -29,7 +30,7 @@ async function loadDashboardData() {
         showLoadingStates();
 
         // Fetch user data
-        const userResponse = await fetch('/api/user/profile', {
+        const userResponse = await fetch(`${API_BASE}/user/profile`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -95,7 +96,7 @@ async function loadRecentOrders() {
     const token = localStorage.getItem('token');
     
     try {
-        const response = await fetch('/api/transactions?limit=5', {
+        const response = await fetch(`${API_BASE}/transactions?limit=5`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -235,7 +236,7 @@ async function loadSpendingChart() {
     const token = localStorage.getItem('token');
     
     try {
-        const response = await fetch('/api/transactions', {
+        const response = await fetch(`${API_BASE}/transactions`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 

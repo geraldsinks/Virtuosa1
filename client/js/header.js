@@ -1,4 +1,5 @@
 // Navigation Header and Authentication Logic for Virtuosa
+const API_BASE = 'https://virtuosa-server.onrender.com/api';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Only run this script if it hasn't been initialized yet
@@ -61,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     // Update dashboard link based on role to prevent redirect loop
-                    const dashboardLink = document.querySelector('a[href="/pages/dashboard.html"]');
+                    const dashboardLink = document.querySelector('#user-dropdown a[href="/pages/dashboard.html"]');
                     if (dashboardLink) {
                         const isAdmin = (userEmail === 'admin@virtuosa.com' || userData.role === 'admin' || userData.isAdmin === 'true' || userData.isAdmin === true);
                         const isSeller = userData.isSeller === true;
