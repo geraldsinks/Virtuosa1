@@ -3,28 +3,14 @@ const API_BASE = 'https://virtuosa-server.onrender.com/api';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
-
     if (!token) {
         window.location.href = 'login.html';
         return;
     }
-    // === ADD THIS RIGHT HERE ===
-const currentPath = window.location.pathname.toLowerCase();
 
-if (
-    (isAdmin && currentPath.includes('admin-dashboard')) ||
-    (isSeller && currentPath.includes('seller-dashboard')) ||
-    (!isAdmin && !isSeller && currentPath.includes('buyer-dashboard'))
-) {
-    console.log('Already on correct dashboard – skipping redirect');
-    return;   // ← STOP HERE, no more redirect
-}
-// === END OF GUARD ===
-    
     // Determine current host for API calls
     const loadingState = document.getElementById('loadingState');
     const errorState = document.getElementById('errorState');
-
     if (loadingState) loadingState.classList.remove('hidden');
 
     try {
@@ -39,9 +25,26 @@ if (
             if (errorState) errorState.classList.add('hidden');
 
             // Routing Logic
-            const isAdmin = (userData.email === 'admin@virtuosa.com' || userData.role === 'admin' || userData.isAdmin === true || userData.isAdmin === 'true');
-            const isSeller = (userData.isSeller === true || userData.isSeller === 'true');
+            const isAdmin = (userData.email === 'admin@virtuosa.com' || 
+                           userData.role === 'admin' || 
+                           userData.isAdmin === true || 
+                           userData.isAdmin === 'true');
+            
+            const isSeller = (userData.isSeller === true || 
+                            userData.isSeller === 'true');
 
+            // QUICK & DIRTY GUARD - Prevents infinite loop
+            const currentPath = window.location.pathname.toLowerCase();
+            if (
+                (isAdmin && currentPath.includes('admin-dashboard')) ||
+                (isSeller && currentPath.includes('seller-dashboard')) ||
+                (!isAdmin && !isSeller && currentPath.includes('buyer-dashboard'))
+            ) {
+                console.log('✅ Already on the correct dashboard – skipping redirect');
+                return;   // STOP HERE - no redirect
+            }
+
+            // Only redirect if we are still on the router page (dashboard.html)
             if (isAdmin) {
                 window.location.href = 'admin-dashboard.html';
             } else if (isSeller) {
@@ -49,10 +52,10 @@ if (
             } else {
                 window.location.href = 'buyer-dashboard.html';
             }
+
         } else {
             throw new Error('Unauthorized session');
         }
-
     } catch (error) {
         console.error('Dashboard error:', error);
         if (loadingState) loadingState.classList.add('hidden');
@@ -67,12 +70,10 @@ async function loadRecentTransactions() {
         const response = await fetch(`${API_BASE}/transactions`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-
         if (response.ok) {
             const transactions = await response.json();
             const container = document.getElementById('recentTransactions');
             if (!container) return;
-
             if (transactions.length === 0) {
                 container.innerHTML = '<p class="text-gray-500">No recent transactions</p>';
             } else {
@@ -102,12 +103,10 @@ async function loadRecentReviews() {
         const response = await fetch(`${API_BASE}/reviews/my`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-
         if (response.ok) {
             const reviews = await response.json();
             const container = document.getElementById('recentReviews');
             if (!container) return;
-
             if (reviews.length === 0) {
                 container.innerHTML = '<p class="text-gray-500">No recent reviews</p>';
             } else {
@@ -144,7 +143,13 @@ function generateStars(rating) {
 }
 
 function getTransactionStatusColor(status) {
-    const colors = { 'Pending': 'text-yellow-600', 'Confirmed': 'text-blue-600', 'Shipped': 'text-purple-600', 'Completed': 'text-green-600', 'Cancelled': 'text-red-600' };
+    const colors = { 
+        'Pending': 'text-yellow-600', 
+        'Confirmed': 'text-blue-600', 
+        'Shipped': 'text-purple-600', 
+        'Completed': 'text-green-600', 
+        'Cancelled': 'text-red-600' 
+    };
     return colors[status] || 'text-gray-600';
 }
 
