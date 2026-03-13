@@ -1,4 +1,5 @@
-const BASE_API_URL = '/api/auth';
+// Updated to point to your Render backend
+const BASE_API_URL = 'https://virtuosa-server.onrender.com/api/auth';
 
 function showMessage(message, isError = false) {
     const authContainer = document.getElementById('auth-container');
@@ -14,6 +15,8 @@ function showMessage(message, isError = false) {
         margin-top: 1rem;
         opacity: 0;
         transition: opacity 0.5s ease-in-out;
+        z-index: 1000;
+        position: relative;
     `;
     messageBox.className = isError ? 'bg-red-600' : 'bg-green-600';
     messageBox.textContent = message;
@@ -55,14 +58,10 @@ async function handleLogin(event) {
             localStorage.setItem('userFullName', result.user.fullName);
             localStorage.setItem('userRole', result.user.role || 'user');
             localStorage.setItem('isAdmin', result.user.isAdmin || false);
-            console.log('Login successful, user data stored:', {
-                userId: result.user._id,
-                email: result.user.email,
-                role: result.user.role,
-                isAdmin: result.user.isAdmin
-            });
+            
+            // Redirecting to root since index.html is now at the root
             setTimeout(() => {
-                window.location.href = '/pages/index.html';
+                window.location.href = '/index.html';
             }, 1000);
         } else {
             showMessage(result.message || 'Login failed. Please try again.', true);
@@ -187,6 +186,7 @@ async function handleResetPassword(event) {
         if (response.ok) {
             showMessage('Password reset successfully! Redirecting to login...');
             setTimeout(() => {
+                // Pointing to /pages/login.html
                 window.location.href = '/pages/login.html';
             }, 1000);
         } else {
@@ -247,7 +247,7 @@ function renderAuthComponent(type) {
                 </div>
                 <div>
                     <label for="signup-phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                    <input type="tel" id="signup-phone" name="phoneNumber" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="+260XXXXXXXXX" pattern="\+260[0-9]{9}">
+                    <input type="tel" id="signup-phone" name="phoneNumber" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="+260XXXXXXXXX" pattern="\\+260[0-9]{9}">
                 </div>
                 <div>
                     <label for="signup-student-email" class="block text-sm font-medium text-gray-700 mb-1">Student Email</label>
@@ -376,7 +376,8 @@ function renderAuthComponent(type) {
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
     if (token) {
-        window.location.href = '/pages/index.html';
+        // Redirect to root index if token exists
+        window.location.href = '/index.html';
     } else {
         const urlParams = new URLSearchParams(window.location.search);
         const resetToken = urlParams.get('token');
