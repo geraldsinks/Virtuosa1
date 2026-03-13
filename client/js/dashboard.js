@@ -8,7 +8,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = 'login.html';
         return;
     }
+    // === ADD THIS RIGHT HERE ===
+const currentPath = window.location.pathname.toLowerCase();
 
+if (
+    (isAdmin && currentPath.includes('admin-dashboard')) ||
+    (isSeller && currentPath.includes('seller-dashboard')) ||
+    (!isAdmin && !isSeller && currentPath.includes('buyer-dashboard'))
+) {
+    console.log('Already on correct dashboard – skipping redirect');
+    return;   // ← STOP HERE, no more redirect
+}
+// === END OF GUARD ===
+    
     // Determine current host for API calls
     const loadingState = document.getElementById('loadingState');
     const errorState = document.getElementById('errorState');
