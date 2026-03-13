@@ -60,6 +60,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         adminLink.classList.add('hidden');
                     }
 
+                    // Update dashboard link based on role to prevent redirect loop
+                    const dashboardLink = document.querySelector('a[href="/pages/dashboard.html"]');
+                    if (dashboardLink) {
+                        const isAdmin = (userEmail === 'admin@virtuosa.com' || userData.role === 'admin' || userData.isAdmin === 'true' || userData.isAdmin === true);
+                        const isSeller = userData.isSeller === true;
+                        
+                        if (isAdmin) {
+                            dashboardLink.href = '/pages/admin-dashboard.html';
+                        } else if (isSeller) {
+                            dashboardLink.href = '/pages/seller-dashboard.html';
+                        } else {
+                            dashboardLink.href = '/pages/buyer-dashboard.html';
+                        }
+                    }
+
                     // Dynamically add Messages link if not present
                     const userDropdown = document.getElementById('user-dropdown');
                     if (userDropdown && !document.getElementById('messages-link')) {

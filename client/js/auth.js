@@ -66,9 +66,15 @@ async function handleLogin(event) {
             localStorage.setItem('isAdmin', isAdmin.toString());
             localStorage.setItem('isSeller', isSeller.toString());
             
-            // Redirect to the universal dashboard controller
+            // Redirect directly to role-specific dashboard (no more universal router)
             setTimeout(() => {
-                window.location.href = '/pages/dashboard.html';
+                if (isAdmin) {
+                    window.location.href = '/pages/admin-dashboard.html';
+                } else if (isSeller) {
+                    window.location.href = '/pages/seller-dashboard.html';
+                } else {
+                    window.location.href = '/pages/buyer-dashboard.html';
+                }
             }, 1000);
         } else {
             showMessage(result.message || 'Login failed. Please try again.', true);
