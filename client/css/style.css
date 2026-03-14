@@ -463,36 +463,39 @@ body {
     }
     
     .v-header-row {
-        align-items: center; /* Ensure items are in a straight line */
+        align-items: center !important; /* Ensure items are in a straight line */
         gap: 1rem; /* Proper spacing between items */
         justify-content: space-between; /* Even distribution */
     }
     
     .v-header-logo {
-        display: flex;
-        align-items: center;
+        display: flex !important;
+        align-items: center !important;
+        flex-shrink: 0;
     }
     
     .v-header-search {
-        display: flex;
-        align-items: center;
-        flex: 1 1 auto;
-        max-width: 600px; /* Make search bar wider */
-        min-width: 200px; /* Accommodative behavior */
+        display: flex !important;
+        align-items: center !important;
+        flex: 1 1 auto !important;
+        max-width: 600px !important; /* Make search bar wider - override Tailwind */
+        min-width: 200px !important; /* Accommodative behavior */
+        margin: 0 auto !important; /* Override md:mx-auto */
     }
     
     .v-header-actions {
-        display: flex;
-        align-items: center;
+        display: flex !important;
+        align-items: center !important;
+        flex-shrink: 0;
     }
     
     /* Sub navigation alignment */
     .bg-dark-navy .flex.items-center {
-        align-items: center; /* Ensure Hot Deals, Best Sellers, Become a Seller are in straight line */
+        align-items: center !important; /* Ensure Hot Deals, Best Sellers, Become a Seller are in straight line */
     }
     
     .bg-dark-navy .flex.items-center.space-x-4 {
-        align-items: center;
+        align-items: center !important;
     }
 }
 
