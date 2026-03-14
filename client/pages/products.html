@@ -51,8 +51,66 @@
 </head>
 
 <body class="bg-gray-100 antialiased flex flex-col min-h-screen">
-    <header class="bg-navy text-white shadow-lg py-3 px-6 md:px-12 sticky top-0 z-50">
-        <div class="v-container v-header-row">
+    <!-- Mobile Header Structure (320px-480px) -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Row 1: Utilities and Branding -->
+        <div class="v-container mobile-header-row-1">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-3 mobile-header-actions">
+                    <!-- Sign in / Profile Icon -->
+                    <a href="/pages/login.html" id="mobile-login-link" class="v-touch text-white hover:text-gold transition-colors mobile-auth-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span class="mobile-auth-label hidden ml-1 text-sm">Sign in</span>
+                    </a>
+                    
+                    <!-- Cart Icon with Badge -->
+                    <a href="/pages/cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Search-First Experience -->
+        <div class="v-container mobile-header-row-2 pb-3">
+            <div class="relative mobile-search-container">
+                <input id="mobile-search-input" type="text" 
+                    placeholder="Search campus marketplace..." 
+                    class="w-full pl-4 pr-12 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400 mobile-search-input"
+                    autocomplete="off">
+                <button id="mobile-search-button" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors mobile-search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <!-- Mobile Search Suggestions -->
+                <div id="mobile-search-suggestions" class="absolute mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
+                    <!-- Suggestions injected via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Header (Hidden on Mobile) -->
+        <div class="v-container v-header-row hidden md:flex">
             <div class="flex items-center v-header-logo">
                 <a href="/index.html" class="text-3xl font-bold text-gold">Virtuosa</a>
             </div>
@@ -96,6 +154,187 @@
             </div>
         </div>
     </header>
+
+    <!-- Mobile Navigation Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay">
+        <div class="mobile-menu-content">
+            <div class="mobile-menu-header">
+                <div class="text-xl font-bold text-gold">Menu</div>
+                <button id="mobile-menu-close" class="mobile-menu-close">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Account Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Account</div>
+                <a href="/pages/login.html" class="mobile-menu-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Sign In</span>
+                </a>
+                <a href="/pages/profile.html" class="mobile-menu-link">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="/pages/dashboard.html" class="mobile-menu-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/orders.html" class="mobile-menu-link">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>My Orders</span>
+                </a>
+                <a href="/pages/transactions.html" class="mobile-menu-link">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+                <a href="/pages/reviews.html" class="mobile-menu-link">
+                    <i class="fas fa-star"></i>
+                    <span>My Reviews</span>
+                </a>
+            </div>
+
+            <!-- Shopping Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Shopping</div>
+                <a href="/pages/cart.html" class="mobile-menu-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Shopping Cart</span>
+                </a>
+                <a href="/pages/products.html?category=Hot%20Deals" class="mobile-menu-link">
+                    <i class="fas fa-fire"></i>
+                    <span>Hot Deals</span>
+                </a>
+                <a href="/pages/products.html?category=Best%20Sellers" class="mobile-menu-link">
+                    <i class="fas fa-crown"></i>
+                    <span>Best Sellers</span>
+                </a>
+                <a href="/pages/seller.html" class="mobile-menu-link">
+                    <i class="fas fa-store"></i>
+                    <span>Become a Seller</span>
+                </a>
+            </div>
+
+            <!-- Categories Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Categories</div>
+                <a href="/pages/products.html?category=Electronics" class="mobile-menu-link">
+                    <i class="fas fa-laptop"></i>
+                    <span>Electronics</span>
+                </a>
+                <a href="/pages/products.html?category=Computers%20%26%20Software" class="mobile-menu-link">
+                    <i class="fas fa-desktop"></i>
+                    <span>Computers & Software</span>
+                </a>
+                <a href="/pages/products.html?category=Services" class="mobile-menu-link">
+                    <i class="fas fa-concierge-bell"></i>
+                    <span>Services</span>
+                </a>
+                <a href="/pages/products.html?category=Watches%20%26%20Jewellery" class="mobile-menu-link">
+                    <i class="fas fa-gem"></i>
+                    <span>Watches & Jewellery</span>
+                </a>
+                <a href="/pages/products.html?category=Men%27s%20Clothing" class="mobile-menu-link">
+                    <i class="fas fa-tshirt"></i>
+                    <span>Men's Clothing</span>
+                </a>
+                <a href="/pages/products.html?category=Women%27s%20Clothing" class="mobile-menu-link">
+                    <i class="fas fa-female"></i>
+                    <span>Women's Clothing</span>
+                </a>
+                <a href="/pages/products.html?category=Shoes" class="mobile-menu-link">
+                    <i class="fas fa-shoe-prints"></i>
+                    <span>Shoes</span>
+                </a>
+                <a href="/pages/products.html?category=Accessories" class="mobile-menu-link">
+                    <i class="fas fa-glasses"></i>
+                    <span>Accessories</span>
+                </a>
+                <a href="/pages/products.html?category=Personal%20Care%20%26%20Beauty" class="mobile-menu-link">
+                    <i class="fas fa-spa"></i>
+                    <span>Personal Care & Beauty</span>
+                </a>
+                <a href="/pages/products.html?category=Food%20%26%20Beverages" class="mobile-menu-link">
+                    <i class="fas fa-utensils"></i>
+                    <span>Food & Beverages</span>
+                </a>
+                <a href="/pages/products.html?category=Sports%20%26%20Outdoors" class="mobile-menu-link">
+                    <i class="fas fa-football-ball"></i>
+                    <span>Sports & Outdoors</span>
+                </a>
+                <a href="/pages/products.html?category=Home%20%26%20Living" class="mobile-menu-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home & Living</span>
+                </a>
+            </div>
+
+            <!-- Customer Service Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Customer Service</div>
+                <a href="#" class="mobile-menu-link">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Help Center</span>
+                </a>
+                <a href="#" class="mobile-menu-link">
+                    <i class="fas fa-comments"></i>
+                    <span>Contact Support</span>
+                </a>
+                <a href="/pages/messages.html" class="mobile-menu-link">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+                <a href="/pages/notifications.html" class="mobile-menu-link">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+            </div>
+
+            <!-- Seller Section (shown for authenticated sellers) -->
+            <div class="mobile-menu-section" id="mobile-seller-section" style="display: none;">
+                <div class="mobile-menu-title">Seller Tools</div>
+                <a href="/pages/seller-dashboard.html" class="mobile-menu-link">
+                    <i class="fas fa-store"></i>
+                    <span>Seller Dashboard</span>
+                </a>
+                <a href="/pages/create-product.html" class="mobile-menu-link">
+                    <i class="fas fa-plus"></i>
+                    <span>Create Listing</span>
+                </a>
+                <a href="/pages/seller-analytics.html" class="mobile-menu-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="/pages/seller-verification.html" class="mobile-menu-link">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Verification</span>
+                </a>
+            </div>
+
+            <!-- Admin Section (shown for authenticated admins) -->
+            <div class="mobile-menu-section" id="mobile-admin-section" style="display: none;">
+                <div class="mobile-menu-title">Admin Tools</div>
+                <a href="/pages/admin-dashboard.html" class="mobile-menu-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Admin Dashboard</span>
+                </a>
+                <a href="/pages/admin-seller-applications.html" class="mobile-menu-link">
+                    <i class="fas fa-user-check"></i>
+                    <span>Seller Applications</span>
+                </a>
+                <a href="/pages/admin-mass-messaging.html" class="mobile-menu-link">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Mass Messaging</span>
+                </a>
+                <a href="/pages/admin-retention.html" class="mobile-menu-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Retention Analytics</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Horizontal category navigation -->
     <nav class="bg-dark-navy text-gray-200 shadow-inner">
         <div class="container mx-auto px-4 py-2 flex items-center justify-between gap-4 overflow-x-auto hide-scrollbar">
@@ -1380,6 +1619,7 @@
             });
         });
     </script>
+    <script src="../js/mobile-header.js"></script>
     <script src="../js/cart.js"></script>
 </body>
 
