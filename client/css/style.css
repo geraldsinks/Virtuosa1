@@ -353,31 +353,6 @@ body {
     }
     
     .mobile-header-actions {
-        gap: 0.25rem;
-    }
-    
-    .mobile-logo {
-        font-size: 1rem;
-    }
-    
-    .mobile-search-input {
-        height: 40px;
-        font-size: 0.8rem;
-    }
-    
-    .v-touch {
-        min-width: 40px;
-        min-height: 40px;
-    }
-}
-
-/* Responsive adjustments for small screens (360px-479px) */
-@media (min-width: 360px) and (max-width: 479px) {
-    .mobile-header-row-1 {
-        padding: 0 12px;
-    }
-    
-    .mobile-header-actions {
         gap: 0.375rem;
     }
     
@@ -386,8 +361,8 @@ body {
     }
     
     .mobile-search-input {
-        height: 44px;
-        font-size: 0.875rem;
+        height: 40px;
+        font-size: 0.8rem;
     }
 }
 
@@ -405,86 +380,12 @@ body {
         height: 48px;
         font-size: 0.9375rem;
     }
-    
-    .mobile-header-actions {
-        gap: 0.5rem;
-    }
-    
-    .v-touch {
-        min-width: 48px;
-        min-height: 48px;
-    }
-}
-
-/* Tablet adjustments (768px-1023px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-    .mobile-header-row-1,
-    .mobile-header-row-2 {
-        display: none !important;
-    }
-    
-    .v-header-row {
-        display: flex !important;
-    }
-    
-    /* Compact tablet header */
-    .v-header-search {
-        max-width: 400px;
-    }
-    
-    .v-header-actions {
-        gap: 0.75rem;
-    }
-}
-
-/* Large screen adjustments (1024px+) */
-@media (min-width: 1024px) {
-    .mobile-header-row-1,
-    .mobile-header-row-2 {
-        display: none !important;
-    }
-    
-    .v-header-row {
-        display: flex !important;
-    }
-    
-    .v-header-search {
-        max-width: 600px;
-    }
-}
-
-/* Special adjustments for dashboard pages on mobile */
-@media (max-width: 767px) {
-    body.buyer-dashboard .mobile-header-row-1 .mobile-header-actions,
-    body.seller-dashboard .mobile-header-row-1 .mobile-header-actions {
-        gap: 0.25rem;
-    }
-    
-    body.buyer-dashboard .mobile-header-row-1 .v-touch,
-    body.seller-dashboard .mobile-header-row-1 .v-touch {
-        padding: 0.25rem;
-    }
-    
-    body.buyer-dashboard .mobile-header-row-1 svg,
-    body.seller-dashboard .mobile-header-row-1 svg {
-        width: 1.25rem;
-        height: 1.25rem;
-    }
 }
 
 /* Hide desktop header on mobile */
 @media (max-width: 767px) {
     .v-header-row:not(.mobile-header-row-1):not(.mobile-header-row-2) {
         display: none !important;
-    }
-    
-    /* Ensure mobile headers are visible */
-    .mobile-header-row-1 {
-        display: flex !important;
-    }
-    
-    .mobile-header-row-2 {
-        display: flex !important;
     }
 }
 
