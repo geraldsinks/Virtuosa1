@@ -453,6 +453,29 @@ body {
     .v-header-row,
     .desktop-header {
         display: flex !important;
+        padding: 16px 0; /* Add proper vertical padding for desktop header */
+        min-height: 60px; /* Ensure consistent height */
+    }
+    
+    .v-header-row {
+        align-items: center; /* Ensure items are in a straight line */
+        gap: 1rem; /* Proper spacing between items */
+        justify-content: space-between; /* Even distribution */
+    }
+    
+    .v-header-logo {
+        display: flex;
+        align-items: center;
+    }
+    
+    .v-header-search {
+        display: flex;
+        align-items: center;
+    }
+    
+    .v-header-actions {
+        display: flex;
+        align-items: center;
     }
 }
 
