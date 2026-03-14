@@ -272,7 +272,7 @@
         <!-- Desktop Header (Hidden on Mobile) -->
         <div class="v-container v-header-row desktop-header" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: relative; padding: 8px 0; min-height: 48px;">
             <div class="flex items-center v-header-logo" style="display: flex; align-items: center; flex-shrink: 0; position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 10;">
-                <a href="#" class="text-3xl font-bold text-gold">Virtuosa</a>
+                <a href="#" class="text-xl md:text-3xl font-bold text-gold">Virtuosa</a>
             </div>
             <div class="v-header-search" style="display: flex; align-items: center; flex: 0 0 auto; max-width: 700px; min-width: 300px; margin: 0 auto; position: relative; z-index: 5;">
                 <div class="relative">
@@ -297,7 +297,7 @@
             </div>
             <div id="user-info-container" class="flex items-center space-x-4 v-header-actions" style="display: flex; align-items: center; flex-shrink: 0; position: absolute; right: 0; top: 50%; transform: translateY(-50%); z-index: 10;">
                 <a href="/pages/login.html" id="login-link"
-                    class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
+                    class="text-white hover:text-gold transition-colors font-medium text-sm md:text-base hidden md:block">Log In</a>
                 <div id="user-menu" class="relative hidden">
                     <button onclick="toggleUserMenu()"
                         class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
@@ -350,7 +350,7 @@
                     </div>
                 </div>
                 <button id="logout-button"
-                    class="bg-button-gold text-white font-semibold py-2 px-6 rounded-full shadow-lg hover-bg-button-gold transition-colors hidden">Log
+                    class="bg-button-gold text-white font-semibold py-1.5 px-3 md:py-2 md:px-6 text-sm md:text-base rounded-full shadow-lg hover-bg-button-gold transition-colors hidden">Log
                     Out</button>
                 <a href="/pages/messages.html" class="relative text-white hover:text-gold transition-colors mr-2">
                     <i class="fas fa-envelope text-xl mt-1"></i>

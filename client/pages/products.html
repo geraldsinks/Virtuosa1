@@ -112,7 +112,7 @@
         <!-- Desktop Header (Hidden on Mobile) -->
         <div class="v-container v-header-row desktop-header">
             <div class="flex items-center v-header-logo">
-                <a href="/index.html" class="text-3xl font-bold text-gold">Virtuosa</a>
+                <a href="/index.html" class="text-xl md:text-3xl font-bold text-gold">Virtuosa</a>
             </div>
             <!-- Global marketplace search with autocomplete -->
             <div class="v-header-search">
@@ -137,10 +137,10 @@
             </div>
             <div id="user-info-container" class="flex items-center space-x-4 order-2 md:order-3 v-header-actions">
                 <a href="/pages/login.html" id="login-link"
-                    class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
+                    class="text-white hover:text-gold transition-colors font-medium text-sm md:text-base hidden md:block">Log In</a>
                 <span id="user-greeting" class="text-white font-medium hidden md:inline"></span>
                 <button id="logout-button"
-                    class="bg-button-gold text-white font-semibold py-2 px-6 rounded-full shadow-lg hover-bg-button-gold transition-colors hidden">Log
+                    class="bg-button-gold text-white font-semibold py-1.5 px-3 md:py-2 md:px-6 text-sm md:text-base rounded-full shadow-lg hover-bg-button-gold transition-colors hidden">Log
                     Out</button>
                 <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
@@ -718,11 +718,12 @@
                 if (userFullName) {
                     loginLink.classList.add('hidden');
                     userGreeting.textContent = `Hello, ${userFullName}`;
-                    userGreeting.classList.remove('hidden');
+                    userGreeting.classList.add('hidden', 'md:inline');
                     logoutButton.classList.remove('hidden');
                 } else {
                     loginLink.classList.remove('hidden');
                     userGreeting.classList.add('hidden');
+                    if(userGreeting.classList.contains('md:inline')) userGreeting.classList.remove('md:inline');
                     logoutButton.classList.add('hidden');
                 }
             }

@@ -107,15 +107,15 @@
 
 <body class="bg-gray-50 antialiased">
     <!-- Standard Navigation -->
-    <header class="bg-navy text-white shadow-lg py-3 px-6 md:px-12 sticky top-0 z-50">
-        <div class="container mx-auto flex items-center justify-between flex-wrap gap-4">
+    <header class="bg-navy text-white shadow-lg py-3 px-4 md:px-12 sticky top-0 z-50">
+        <div class="container mx-auto flex items-center justify-between flex-nowrap gap-2 md:gap-4">
             <div class="flex items-center">
-                <a href="/index.html" class="text-3xl font-bold text-gold">Virtuosa</a>
+                <a href="/index.html" class="text-xl md:text-3xl font-bold text-gold">Virtuosa</a>
             </div>
             
             <div id="user-info-container" class="flex items-center space-x-4 order-2 md:order-3">
                 <a href="/pages/login.html" id="login-link"
-                    class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
+                    class="text-white hover:text-gold transition-colors font-medium text-sm md:text-base hidden md:block">Log In</a>
                 <div id="user-menu" class="relative hidden">
                     <button onclick="window.toggleUserMenu()"
                         class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
