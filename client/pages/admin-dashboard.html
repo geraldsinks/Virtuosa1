@@ -42,8 +42,31 @@
 </head>
 
 <body class="bg-gray-50 flex flex-col min-h-screen">
-    <!-- Standard Navigation -->
-    <header class="bg-navy text-white shadow-lg py-3 px-6 md:px-12 sticky top-0 z-50">
+    <!-- Dashboard Mobile Header (No Search) -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50 dashboard-mobile-header">
+        <div class="dashboard-header-row">
+            <div class="dashboard-header-left">
+                <a href="/index.html" class="dashboard-logo">Virtuosa</a>
+                <span id="dashboard-user-greeting" class="dashboard-user-greeting">Admin</span>
+            </div>
+            <div class="dashboard-header-right">
+                <a href="/pages/messages.html" class="dashboard-nav-icon">
+                    <i class="fas fa-envelope"></i>
+                    <span class="dashboard-badge message-badge">0</span>
+                </a>
+                <a href="/pages/notifications.html" class="dashboard-nav-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="dashboard-badge notification-badge">0</span>
+                </a>
+                <button id="dashboard-menu-toggle" class="dashboard-nav-icon">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Standard Desktop Navigation -->
+    <header class="bg-navy text-white shadow-lg py-3 px-6 md:px-12 sticky top-0 z-50 dashboard-desktop-header">
         <div class="container mx-auto flex items-center justify-between flex-wrap gap-4">
             <div class="flex items-center">
                 <a href="/index.html" class="text-3xl font-bold text-gold">Virtuosa</a>
@@ -564,6 +587,7 @@
         </div>
     </div>
 
+    <script src="../js/dashboard-mobile-header.js"></script>
     <script src="../js/header.js"></script>
     <script src="../js/cart.js"></script>
     <script src="../js/admin-dashboard.js"></script>
