@@ -40,105 +40,79 @@
             display: none !important;
         }
 
-        /* Amazon-style responsive header layout */
+        /* Amazon-inspired responsive header layout - FIXED */
         @media (min-width: 768px) {
             .v-header-row,
             .desktop-header {
                 display: flex !important;
-                flex-direction: column !important;
                 align-items: center !important;
-                justify-content: center !important;
-                gap: 0.75rem !important;
-                padding: 12px 0 !important;
+                justify-content: space-between !important;
+                gap: 1rem !important;
+                padding: 0.75rem 0 !important;
+                min-height: auto !important;
                 position: relative !important;
+                flex-wrap: nowrap !important;
             }
             
             .v-header-logo {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                flex-shrink: 0 !important;
-                order: 1 !important;
-                width: 100% !important;
+                flex: 0 0 auto !important;
+                min-width: 120px !important;
+                margin-right: 1rem !important;
             }
             
             .v-header-search {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                width: 100% !important;
-                max-width: 800px !important;
-                order: 2 !important;
+                flex: 1 1 auto !important;
+                max-width: 600px !important;
+                min-width: 300px !important;
                 position: relative !important;
                 z-index: 5 !important;
             }
             
             .v-header-actions {
+                flex: 0 0 auto !important;
                 display: flex !important;
                 align-items: center !important;
-                justify-content: center !important;
-                flex-shrink: 0 !important;
-                order: 3 !important;
-                width: 100% !important;
-                gap: 1rem !important;
-            }
-            
-            nav.bg-dark-navy .container .flex {
-                display: flex !important;
-                align-items: center !important;
+                gap: 0.75rem !important;
+                min-width: 200px !important;
+                justify-content: flex-end !important;
             }
         }
 
         @media (min-width: 1024px) {
             .v-header-row,
             .desktop-header {
-                flex-direction: row !important;
-                align-items: center !important;
-                justify-content: space-between !important;
-                gap: 1rem !important;
-                padding: 8px 0 !important;
-                min-height: 48px !important;
-                position: relative !important;
+                padding: 0.5rem 0 !important;
+                gap: 1.5rem !important;
             }
             
             .v-header-logo {
-                position: absolute !important;
-                left: 0 !important;
-                top: 50% !important;
-                transform: translateY(-50%) !important;
-                z-index: 10 !important;
-                flex-shrink: 0 !important;
-                width: auto !important;
-                order: 1 !important;
+                flex: 0 0 150px !important;
             }
             
             .v-header-search {
                 max-width: 700px !important;
-                min-width: 300px !important;
-                margin: 0 auto !important;
-                position: relative !important;
-                z-index: 5 !important;
-                flex: 0 0 auto !important;
-                width: auto !important;
-                order: 2 !important;
+                min-width: 400px !important;
             }
             
             .v-header-actions {
-                position: absolute !important;
-                right: 0 !important;
-                top: 50% !important;
-                transform: translateY(-50%) !important;
-                z-index: 10 !important;
-                flex-shrink: 0 !important;
-                width: auto !important;
-                order: 3 !important;
-                gap: 0.75rem !important;
+                gap: 1rem !important;
+                min-width: 250px !important;
             }
         }
 
         @media (min-width: 1280px) {
+            .v-header-row,
+            .desktop-header {
+                gap: 2rem !important;
+            }
+            
             .v-header-search {
                 max-width: 800px !important;
+                min-width: 500px !important;
+            }
+            
+            .v-header-actions {
+                min-width: 300px !important;
             }
         }
 
@@ -350,7 +324,7 @@
         <!-- Desktop Header (Hidden on Mobile) -->
         <div class="v-container v-header-row desktop-header">
             <div class="v-header-logo">
-                <a href="/index.html" class="text-3xl font-bold text-gold">Virtuosa</a>
+                <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
             </div>
             <div class="v-header-search">
                 <div class="relative">
