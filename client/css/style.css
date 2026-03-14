@@ -399,6 +399,10 @@ body {
 }
 
 /* Sub Navigation Category Menu Responsive Behavior */
+.nav-category-menu {
+    display: none; /* Hidden by default */
+}
+
 @media (max-width: 767px) {
     /* Hide entire category menu section on mobile (mobile header is active) */
     .nav-category-menu {
@@ -453,8 +457,8 @@ body {
     .v-header-row,
     .desktop-header {
         display: flex !important;
-        padding: 16px 0; /* Add proper vertical padding for desktop header */
-        min-height: 60px; /* Ensure consistent height */
+        padding: 8px 0; /* Reduced from 16px to 8px */
+        min-height: 48px; /* Reduced from 60px to 48px */
     }
     
     .v-header-row {
