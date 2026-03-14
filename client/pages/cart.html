@@ -179,24 +179,202 @@
         &copy; 2025 Virtuosa. All rights reserved.
     </footer>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            const API_BASE = 'https://virtuosa-server.onrender.com/api';
             const loginLink = document.getElementById('login-link');
             const userGreeting = document.getElementById('user-greeting');
             const logoutButton = document.getElementById('logout-button');
+            const cartItemsContainer = document.getElementById('cart-items');
+            const subtotalElement = document.getElementById('subtotal');
+            const totalElement = document.getElementById('total');
+            const checkoutButton = document.querySelector('button');
 
-            function updateUserUI() {
-                const userFullName = localStorage.getItem('userFullName');
-                if (userFullName) {
-                    loginLink.classList.add('hidden');
-                    userGreeting.textContent = `Hello, ${userFullName}`;
-                    userGreeting.classList.add('hidden', 'md:inline');
-                    logoutButton.classList.remove('hidden');
-                } else {
-                    loginLink.classList.remove('hidden');
-                    userGreeting.classList.add('hidden');
-                    if(userGreeting.classList.contains('md:inline')) userGreeting.classList.remove('md:inline');
-                    logoutButton.classList.add('hidden');
+            let cartItems = [];
+            let cartTotal = 0;
+
+            // Load cart from backend
+            async function loadCart() {
+                const token = localStorage.getItem('token');
+                
+                if (!token) {
+                    // Load from localStorage for non-logged in users
+                    cartItems = JSON.parse(localStorage.getItem('virtuosa_cart') || '[]');
+                    renderCart();
+                    updateUserUI();
+                    return;
                 }
+
+                try {
+                    const response = await fetch(`${API_BASE}/cart`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        cartItems = data.items || [];
+                        cartTotal = data.total || 0;
+                        renderCart();
+                    }
+                } catch (error) {
+                    console.error('Error loading cart:', error);
+                    cartItems = [];
+                    renderCart();
+                }
+                
+                updateUserUI();
+            }
+
+            // Render cart items
+            function renderCart() {
+                if (!cartItems || cartItems.length === 0) {
+                    cartItemsContainer.innerHTML = `
+                        <p class="text-center text-gray-500 py-8">
+                            Your cart is empty. <a id="continue-shopping-empty" 
+                            class="text-gold font-semibold">Continue shopping</a>
+                        </p>`;
+                    subtotalElement.textContent = 'ZMW 0.00';
+                    totalElement.textContent = 'ZMW 0.00';
+                    return;
+                }
+
+                let html = '';
+                let subtotal = 0;
+
+                cartItems.forEach(item => {
+                    const itemTotal = (item.product?.price || item.price || 0) * item.quantity;
+                    subtotal += itemTotal;
+                    
+                    const productImage = item.product?.images?.[0] || item.image || 'https://placehold.co/80x80';
+                    const productName = item.product?.name || item.name || 'Unknown Product';
+                    const productPrice = item.product?.price || item.price || 0;
+
+                    html += `
+                        <div class="flex items-center space-x-4 py-4 border-b border-gray-200 cart-item" data-item-id="${item._id}">
+                            <img src="${productImage}" alt="${productName}" class="w-20 h-20 object-cover rounded-lg">
+                            <div class="flex-grow">
+                                <h3 class="font-semibold text-navy">${productName}</h3>
+                                <p class="text-gray-600">ZMW ${productPrice.toFixed(2)}</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="updateQuantity('${item._id}', ${item.quantity - 1})" 
+                                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100">
+                                    <i class="fas fa-minus text-xs"></i>
+                                </button>
+                                <span class="w-12 text-center">${item.quantity}</span>
+                                <button onclick="updateQuantity('${item._id}', ${item.quantity + 1})" 
+                                    class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100">
+                                    <i class="fas fa-plus text-xs"></i>
+                                </button>
+                                <button onclick="removeFromCart('${item._id}')" 
+                                    class="ml-4 text-red-500 hover:text-red-700">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                cartItemsContainer.innerHTML = html;
+                subtotalElement.textContent = `ZMW ${subtotal.toFixed(2)}`;
+                totalElement.textContent = `ZMW ${subtotal.toFixed(2)}`;
+            }
+
+            // Update item quantity
+            window.updateQuantity = async (itemId, newQuantity) => {
+                if (newQuantity < 1) {
+                    removeFromCart(itemId);
+                    return;
+                }
+
+                const token = localStorage.getItem('token');
+                
+                if (token) {
+                    try {
+                        const response = await fetch(`${API_BASE}/cart/update`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ productId: itemId, quantity: newQuantity })
+                        });
+
+                        if (response.ok) {
+                            await loadCart(); // Reload cart from backend
+                        } else {
+                            showToast('Failed to update quantity', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error updating quantity:', error);
+                        showToast('Failed to update quantity', 'error');
+                    }
+                } else {
+                    // Update localStorage
+                    const cart = JSON.parse(localStorage.getItem('virtuosa_cart') || '[]');
+                    const itemIndex = cart.findIndex(item => item._id === itemId);
+                    if (itemIndex >= 0) {
+                        cart[itemIndex].quantity = newQuantity;
+                        localStorage.setItem('virtuosa_cart', JSON.stringify(cart));
+                        cartItems = cart;
+                        renderCart();
+                    }
+                }
+            };
+
+            // Remove item from cart
+            window.removeFromCart = async (itemId) => {
+                const token = localStorage.getItem('token');
+                
+                if (token) {
+                    try {
+                        const response = await fetch(`${API_BASE}/cart/remove/${itemId}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+
+                        if (response.ok) {
+                            await loadCart(); // Reload cart from backend
+                            showToast('Item removed from cart', 'success');
+                        } else {
+                            showToast('Failed to remove item', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error removing item:', error);
+                        showToast('Failed to remove item', 'error');
+                    }
+                } else {
+                    // Remove from localStorage
+                    const cart = JSON.parse(localStorage.getItem('virtuosa_cart') || '[]');
+                    const updatedCart = cart.filter(item => item._id !== itemId);
+                    localStorage.setItem('virtuosa_cart', JSON.stringify(updatedCart));
+                    cartItems = updatedCart;
+                    renderCart();
+                    showToast('Item removed from cart', 'success');
+                }
+            };
+
+            // Show toast notification
+            function showToast(message, type = 'success') {
+                let container = document.getElementById('toast-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'toast-container';
+                    document.body.appendChild(container);
+                }
+
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `
+                    <i class="fas fa-check-circle toast-icon"></i>
+                    <span class="toast-message">${message}</span>
+                `;
+
+                container.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 400);
+                }, 3000);
             }
 
             updateUserUI();

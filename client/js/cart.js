@@ -1,35 +1,91 @@
 // Cart Logic for Virtuosa
+const API_BASE = 'https://virtuosa-server.onrender.com/api';
 
-// Initialize cart from localStorage
-function getCart() {
+// Initialize cart from localStorage (fallback) and sync with backend
+async function getCart() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        // Fallback to localStorage for non-logged in users
+        const cart = localStorage.getItem('virtuosa_cart');
+        return cart ? JSON.parse(cart) : [];
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/cart`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            return data.items || [];
+        }
+    } catch (error) {
+        console.error('Error fetching cart from backend:', error);
+    }
+
+    // Fallback to localStorage
     const cart = localStorage.getItem('virtuosa_cart');
     return cart ? JSON.parse(cart) : [];
 }
 
-function saveCart(cart) {
+async function saveCart(cart) {
+    const token = localStorage.getItem('token');
+    
+    if (token) {
+        // For logged in users, cart is managed on backend
+        // Individual operations will sync with backend
+        updateCartIcon();
+        return;
+    }
+
+    // For non-logged in users, save to localStorage
     localStorage.setItem('virtuosa_cart', JSON.stringify(cart));
     updateCartIcon();
 }
 
-function addToCart(product) {
-    const cart = getCart();
+async function addToCart(product, quantity = 1) {
+    const token = localStorage.getItem('token');
+    
+    if (token) {
+        // Add to backend cart
+        try {
+            const response = await fetch(`${API_BASE}/cart/add`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ productId: product._id, quantity })
+            });
 
-    // Check if item already exists in cart
-    const existingItem = cart.find(item => item._id === product._id);
-
-    if (existingItem) {
-        existingItem.quantity += 1;
+            if (response.ok) {
+                showToast(`${product.name} added to cart!`, 'success');
+                updateCartIcon();
+            } else {
+                const error = await response.json();
+                showToast(error.message || 'Failed to add to cart', 'error');
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            showToast('Failed to add to cart', 'error');
+        }
     } else {
-        cart.push({
-            ...product,
-            quantity: 1
-        });
+        // Add to localStorage cart
+        const cart = await getCart();
+        const existingItem = cart.find(item => item._id === product._id);
+
+        if (existingItem) {
+            existingItem.quantity += quantity;
+        } else {
+            cart.push({
+                ...product,
+                quantity: quantity
+            });
+        }
+
+        await saveCart(cart);
+        showToast(`${product.name} added to cart!`, 'success');
     }
-
-    saveCart(cart);
-
-    // Show modern toast notification
-    showToast(`${product.name} added to cart!`, 'success');
 }
 
 /**
@@ -97,6 +153,7 @@ document.addEventListener('click', (e) => {
         }
 
         if (productData && productData._id) {
+            e.preventDefault();
             addToCart(productData);
         } else {
             console.error('Invalid product data on button', btn);

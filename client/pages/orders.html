@@ -139,33 +139,31 @@
 
     <main class="flex-grow py-8">
         <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="md:col-span-1">
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h3 class="text-lg font-bold text-navy mb-4">Menu</h3>
-                        <nav class="space-y-3">
-                            <a href="/pages/profile.html"
-                                class="block px-4 py-2 text-navy hover:bg-gray-100 rounded-lg transition-colors">My
-                                Profile</a>
-                            <a href="/pages/orders.html"
-                                class="block px-4 py-2 bg-gold text-white rounded-lg font-semibold">My Orders</a>
-                            <a href="/pages/settings.html"
-                                class="block px-4 py-2 text-navy hover:bg-gray-100 rounded-lg transition-colors">Settings</a>
-                            <a href="/index.html"
-                                class="block px-4 py-2 text-navy hover:bg-gray-100 rounded-lg transition-colors">Back to
-                                Shopping</a>
-                        </nav>
-                    </div>
+            <h1 class="text-3xl font-bold text-navy mb-6">My Orders</h1>
+            
+            <!-- Order Status Filter -->
+            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="loadOrders(1, '')" class="filter-btn px-4 py-2 rounded-lg bg-navy text-white">All Orders</button>
+                    <button onclick="loadOrders(1, 'Pending')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Pending</button>
+                    <button onclick="loadOrders(1, 'Processing')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Processing</button>
+                    <button onclick="loadOrders(1, 'Shipped')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Shipped</button>
+                    <button onclick="loadOrders(1, 'Delivered')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Delivered</button>
                 </div>
-                <div class="md:col-span-3">
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h1 class="text-3xl font-bold text-navy mb-6">My Orders</h1>
-                        <div id="orders-content" class="space-y-4">
-                            <p class="text-center text-gray-500 py-8">You haven't placed any orders yet. <a
-                                    href="/pages/products.html" class="text-gold font-semibold">Start shopping</a></p>
-                        </div>
-                    </div>
+            </div>
+
+            <!-- Orders Container -->
+            <div id="orders-container">
+                <!-- Orders will be loaded here -->
+                <div class="text-center py-12">
+                    <i class="fas fa-spinner fa-spin text-4xl text-gold mb-4"></i>
+                    <p class="text-gray-600">Loading your orders...</p>
                 </div>
+            </div>
+
+            <!-- Pagination -->
+            <div id="pagination-container" class="mt-8">
+                <!-- Pagination will be loaded here -->
             </div>
         </div>
     </main>
@@ -173,10 +171,247 @@
         &copy; 2025 Virtuosa. All rights reserved.
     </footer>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            const API_BASE = 'https://virtuosa-server.onrender.com/api';
             const loginLink = document.getElementById('login-link');
             const userGreeting = document.getElementById('user-greeting');
             const logoutButton = document.getElementById('logout-button');
+            
+            let orders = [];
+            let currentPage = 1;
+            const ordersPerPage = 10;
+
+            // Load orders from backend
+            async function loadOrders(page = 1, status = '') {
+                const token = localStorage.getItem('token');
+                
+                if (!token) {
+                    window.location.href = '/pages/login.html';
+                    return;
+                }
+
+                try {
+                    const queryParams = new URLSearchParams({
+                        page: page.toString(),
+                        limit: ordersPerPage.toString(),
+                        ...(status && { status })
+                    });
+
+                    const response = await fetch(`${API_BASE}/orders?${queryParams}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        orders = data.orders || [];
+                        renderOrders();
+                        renderPagination(data.pagination);
+                    } else {
+                        console.error('Failed to load orders:', await response.json());
+                        orders = [];
+                        renderOrders();
+                    }
+                } catch (error) {
+                    console.error('Error loading orders:', error);
+                    orders = [];
+                    renderOrders();
+                }
+            }
+
+            // Render orders
+            function renderOrders() {
+                const ordersContainer = document.getElementById('orders-container');
+                
+                if (!orders || orders.length === 0) {
+                    ordersContainer.innerHTML = `
+                        <div class="text-center py-12">
+                            <i class="fas fa-box text-6xl text-gray-300 mb-4"></i>
+                            <h3 class="text-xl font-semibold text-gray-600 mb-2">No orders found</h3>
+                            <p class="text-gray-500 mb-6">You haven't placed any orders yet.</p>
+                            <a href="/pages/products.html" class="inline-flex items-center bg-button-gold text-white px-6 py-3 rounded-full hover-bg-button-gold transition-colors">
+                                <i class="fas fa-shopping-bag mr-2"></i>
+                                Start Shopping
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                orders.forEach(order => {
+                    const statusColor = getStatusColor(order.status);
+                    const statusIcon = getStatusIcon(order.status);
+                    const orderDate = new Date(order.createdAt).toLocaleDateString();
+                    const productImage = order.product?.images?.[0] || 'https://placehold.co/100x100';
+                    
+                    html += `
+                        <div class="bg-white rounded-lg shadow-md p-6 mb-4 hover:shadow-lg transition-shadow">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                                <div class="flex items-center space-x-3 mb-2 md:mb-0">
+                                    <img src="${productImage}" alt="${order.product?.name}" class="w-16 h-16 object-cover rounded-lg">
+                                    <div>
+                                        <h3 class="font-semibold text-navy text-lg">${order.product?.name || 'Unknown Product'}</h3>
+                                        <p class="text-gray-600 text-sm">Order #${order._id.slice(-8)}</p>
+                                        <p class="text-gray-500 text-xs">${orderDate}</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusColor}">
+                                        <i class="${statusIcon} mr-1"></i>
+                                        ${order.status}
+                                    </span>
+                                    <p class="font-bold text-lg text-gold mt-2">ZMW ${order.totalAmount?.toFixed(2) || '0.00'}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-t pt-4">
+                                <div class="text-sm text-gray-600 mb-2 sm:mb-0">
+                                    <p><i class="fas fa-user mr-1"></i> Seller: ${order.seller?.fullName || 'Unknown'}</p>
+                                    <p><i class="fas fa-box mr-1"></i> Quantity: ${order.quantity}</p>
+                                    ${order.trackingNumber ? `<p><i class="fas fa-truck mr-1"></i> Tracking: ${order.trackingNumber}</p>` : ''}
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="viewOrderDetails('${order._id}')" 
+                                        class="px-4 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors text-sm">
+                                        <i class="fas fa-eye mr-1"></i> View Details
+                                    </button>
+                                    ${order.status === 'Shipped' ? `
+                                        <button onclick="confirmDelivery('${order._id}')" 
+                                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+                                            <i class="fas fa-check mr-1"></i> Confirm Delivery
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                ordersContainer.innerHTML = html;
+            }
+
+            // Get status color
+            function getStatusColor(status) {
+                switch (status) {
+                    case 'Pending': return 'bg-yellow-100 text-yellow-800';
+                    case 'Processing': return 'bg-blue-100 text-blue-800';
+                    case 'Shipped': return 'bg-purple-100 text-purple-800';
+                    case 'Delivered': return 'bg-green-100 text-green-800';
+                    default: return 'bg-gray-100 text-gray-800';
+                }
+            }
+
+            // Get status icon
+            function getStatusIcon(status) {
+                switch (status) {
+                    case 'Pending': return 'fas fa-clock';
+                    case 'Processing': return 'fas fa-cog';
+                    case 'Shipped': return 'fas fa-truck';
+                    case 'Delivered': return 'fas fa-check-circle';
+                    default: return 'fas fa-question-circle';
+                }
+            }
+
+            // Render pagination
+            function renderPagination(pagination) {
+                const paginationContainer = document.getElementById('pagination-container');
+                
+                if (!pagination || pagination.totalPages <= 1) {
+                    paginationContainer.innerHTML = '';
+                    return;
+                }
+
+                let html = '<div class="flex justify-center items-center space-x-2">';
+                
+                // Previous button
+                if (pagination.currentPage > 1) {
+                    html += `<button onclick="loadOrders(${pagination.currentPage - 1})" class="px-3 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>`;
+                }
+                
+                // Page numbers
+                for (let i = 1; i <= pagination.totalPages; i++) {
+                    const isActive = i === pagination.currentPage;
+                    html += `<button onclick="loadOrders(${i})" class="px-4 py-2 rounded-lg transition-colors ${
+                        isActive ? 'bg-gold text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }">${i}</button>`;
+                }
+                
+                // Next button
+                if (pagination.currentPage < pagination.totalPages) {
+                    html += `<button onclick="loadOrders(${pagination.currentPage + 1})" class="px-3 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>`;
+                }
+                
+                html += '</div>';
+                paginationContainer.innerHTML = html;
+            }
+
+            // View order details
+            window.viewOrderDetails = async (orderId) => {
+                // You can implement a modal or redirect to order details page
+                window.location.href = `/pages/order-details.html?id=${orderId}`;
+            };
+
+            // Confirm delivery
+            window.confirmDelivery = async (orderId) => {
+                const token = localStorage.getItem('token');
+                
+                if (!confirm('Are you sure you have received this order and want to confirm delivery?')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ 
+                            status: 'Delivered',
+                            deliveryNotes: 'Delivery confirmed by buyer'
+                        })
+                    });
+
+                    if (response.ok) {
+                        showToast('Delivery confirmed successfully!', 'success');
+                        await loadOrders(currentPage); // Reload orders
+                    } else {
+                        const error = await response.json();
+                        showToast(error.message || 'Failed to confirm delivery', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error confirming delivery:', error);
+                    showToast('Failed to confirm delivery', 'error');
+                }
+            };
+
+            // Show toast notification
+            function showToast(message, type = 'success') {
+                let container = document.getElementById('toast-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'toast-container';
+                    document.body.appendChild(container);
+                }
+
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `
+                    <i class="fas fa-check-circle toast-icon"></i>
+                    <span class="toast-message">${message}</span>
+                `;
+
+                container.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 400);
+                }, 3000);
+            }
 
             function updateUserUI() {
                 const userFullName = localStorage.getItem('userFullName');
@@ -195,6 +430,7 @@
             }
 
             updateUserUI();
+            await loadOrders(1); // Load first page of orders
 
             logoutButton.addEventListener('click', async () => {
                 try {
@@ -211,7 +447,7 @@
     </script>
     <script src="../js/header.js"></script>
     <script src="../js/cart.js"></script>
-<script src="/js/config.js"></script><script src="/js/header.js"></script><script src="/js/mobile-header.js"></script>
+<script src="/js/config.js"></script><script src="/js/header.js"></script><script src="/js/mobile-header.js"></script><script src="/js/mobile-header.js"></script>
 </body>
 
 </html>

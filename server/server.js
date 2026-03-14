@@ -3126,6 +3126,125 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
     }
 });
 
+// Update user profile
+app.put('/api/user/profile', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const {
+            fullName,
+            phoneNumber,
+            university,
+            campusLocation,
+            yearOfStudy,
+            faculty,
+            studentId,
+            bio
+        } = req.body;
+
+        // Update allowed fields
+        if (fullName) user.fullName = fullName;
+        if (phoneNumber) user.phoneNumber = phoneNumber;
+        if (university) user.university = university;
+        if (campusLocation) user.campusLocation = campusLocation;
+        if (yearOfStudy) user.yearOfStudy = yearOfStudy;
+        if (faculty) user.faculty = faculty;
+        if (studentId) user.studentId = studentId;
+        if (bio) user.bio = bio;
+
+        await user.save();
+        res.json({ message: 'Profile updated successfully', user });
+    } catch (error) {
+        console.error('Update profile error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Upload profile picture
+app.post('/api/user/profile-picture', authenticateToken, profilePictureUpload.single('profilePicture'), async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        // Update user profile picture URL
+        user.profilePicture = `/uploads/profiles/${req.file.filename}`;
+        await user.save();
+
+        res.json({
+            message: 'Profile picture uploaded successfully',
+            profilePicture: user.profilePicture
+        });
+    } catch (error) {
+        console.error('Upload profile picture error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Remove profile picture
+app.delete('/api/user/profile-picture', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Remove file from disk if exists
+        if (user.profilePicture) {
+            const filePath = path.join(__dirname, '../client', user.profilePicture);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        }
+
+        // Update user profile picture
+        user.profilePicture = undefined;
+        await user.save();
+
+        res.json({ message: 'Profile picture removed successfully' });
+    } catch (error) {
+        console.error('Remove profile picture error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Configure Multer for profile pictures
+const profilePictureStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = path.join(__dirname, '../client/uploads/profiles');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'profile-' + req.user.userId + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const profilePictureUpload = multer({
+    storage: profilePictureStorage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /jpeg|jpg|png|gif|webp/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+        if (extname && mimetype) {
+            return cb(null, true);
+        }
+        cb(new Error('Only images (jpeg, jpg, png, gif, webp) are allowed'));
+    }
+});
+
 // Get user notifications
 app.get('/api/notifications', authenticateToken, async (req, res) => {
     try {
@@ -4910,5 +5029,349 @@ async function migrateExistingMessages() {
 
 // Run migration on server start
 migrateExistingMessages();
+
+// ============================================
+// CART AND CHECKOUT ENDPOINTS
+// ============================================
+
+// Cart Schema for persistent cart storage
+const cartSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    items: [{
+        product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+        quantity: { type: Number, required: true, min: 1 },
+        addedAt: { type: Date, default: Date.now }
+    }],
+    updatedAt: { type: Date, default: Date.now }
+});
+
+const Cart = mongoose.model('Cart', cartSchema);
+
+// Get user cart
+app.get('/api/cart', authenticateToken, async (req, res) => {
+    try {
+        const cart = await Cart.findOne({ user: req.user.userId })
+            .populate('items.product', 'name price images category seller');
+        
+        if (!cart) {
+            return res.json({ items: [], total: 0 });
+        }
+
+        const total = cart.items.reduce((sum, item) => {
+            return sum + (item.product.price * item.quantity);
+        }, 0);
+
+        res.json({ items: cart.items, total });
+    } catch (error) {
+        console.error('Get cart error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Add item to cart
+app.post('/api/cart/add', authenticateToken, async (req, res) => {
+    try {
+        const { productId, quantity = 1 } = req.body;
+
+        if (!productId) {
+            return res.status(400).json({ message: 'Product ID is required' });
+        }
+
+        // Verify product exists and is active
+        const product = await Product.findById(productId);
+        if (!product || product.status !== 'Active') {
+            return res.status(404).json({ message: 'Product not available' });
+        }
+
+        let cart = await Cart.findOne({ user: req.user.userId });
+        
+        if (!cart) {
+            cart = new Cart({ user: req.user.userId, items: [] });
+        }
+
+        // Check if item already exists in cart
+        const existingItemIndex = cart.items.findIndex(
+            item => item.product.toString() === productId
+        );
+
+        if (existingItemIndex >= 0) {
+            cart.items[existingItemIndex].quantity += quantity;
+        } else {
+            cart.items.push({ product: productId, quantity });
+        }
+
+        cart.updatedAt = new Date();
+        await cart.save();
+
+        res.json({ message: 'Item added to cart successfully' });
+    } catch (error) {
+        console.error('Add to cart error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Update cart item quantity
+app.put('/api/cart/update', authenticateToken, async (req, res) => {
+    try {
+        const { productId, quantity } = req.body;
+
+        if (!productId || !quantity || quantity < 1) {
+            return res.status(400).json({ message: 'Valid product ID and quantity are required' });
+        }
+
+        const cart = await Cart.findOne({ user: req.user.userId });
+        if (!cart) {
+            return res.status(404).json({ message: 'Cart not found' });
+        }
+
+        const itemIndex = cart.items.findIndex(
+            item => item.product.toString() === productId
+        );
+
+        if (itemIndex === -1) {
+            return res.status(404).json({ message: 'Item not found in cart' });
+        }
+
+        cart.items[itemIndex].quantity = quantity;
+        cart.updatedAt = new Date();
+        await cart.save();
+
+        res.json({ message: 'Cart updated successfully' });
+    } catch (error) {
+        console.error('Update cart error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Remove item from cart
+app.delete('/api/cart/remove/:productId', authenticateToken, async (req, res) => {
+    try {
+        const { productId } = req.params;
+
+        const cart = await Cart.findOne({ user: req.user.userId });
+        if (!cart) {
+            return res.status(404).json({ message: 'Cart not found' });
+        }
+
+        cart.items = cart.items.filter(
+            item => item.product.toString() !== productId
+        );
+        cart.updatedAt = new Date();
+        await cart.save();
+
+        res.json({ message: 'Item removed from cart successfully' });
+    } catch (error) {
+        console.error('Remove from cart error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Clear cart
+app.delete('/api/cart/clear', authenticateToken, async (req, res) => {
+    try {
+        await Cart.findOneAndDelete({ user: req.user.userId });
+        res.json({ message: 'Cart cleared successfully' });
+    } catch (error) {
+        console.error('Clear cart error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Checkout process
+app.post('/api/checkout', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const cart = await Cart.findOne({ user: req.user.userId })
+            .populate('items.product');
+
+        if (!cart || cart.items.length === 0) {
+            return res.status(400).json({ message: 'Cart is empty' });
+        }
+
+        const { deliveryAddress, paymentMethod, deliveryMethod } = req.body;
+
+        if (!deliveryAddress || !paymentMethod || !deliveryMethod) {
+            return res.status(400).json({ message: 'Delivery address, payment method, and delivery method are required' });
+        }
+
+        // Create transactions for each item in cart
+        const transactions = [];
+        for (const cartItem of cart.items) {
+            const transaction = new Transaction({
+                buyer: req.user.userId,
+                seller: cartItem.product.seller,
+                product: cartItem.product._id,
+                quantity: cartItem.quantity,
+                price: cartItem.product.price,
+                totalAmount: cartItem.product.price * cartItem.quantity,
+                deliveryAddress,
+                deliveryMethod,
+                paymentMethod,
+                status: 'Pending',
+                paymentStatus: 'Pending'
+            });
+
+            await transaction.save();
+            transactions.push(transaction);
+
+            // Create notification for seller
+            await new Notification({
+                user: cartItem.product.seller,
+                title: 'New Order Received',
+                message: `You have a new order for ${cartItem.quantity}x ${cartItem.product.name}`,
+                type: 'Transaction',
+                link: `/seller-dashboard.html?tab=orders`
+            }).save();
+        }
+
+        // Clear the cart after successful checkout
+        await Cart.findOneAndDelete({ user: req.user.userId });
+
+        // Create notification for buyer
+        await new Notification({
+            user: req.user.userId,
+            title: 'Order Placed Successfully',
+            message: `Your order for ${transactions.length} items has been placed successfully`,
+            type: 'Transaction',
+            link: `/orders.html`
+        }).save();
+
+        res.json({
+            message: 'Checkout successful',
+            transactions: transactions.map(t => ({
+                id: t._id,
+                productName: cart.items.find(item => item.product._id.toString() === t.product.toString()).product.name,
+                totalAmount: t.totalAmount,
+                status: t.status
+            }))
+        });
+    } catch (error) {
+        console.error('Checkout error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Get user orders
+app.get('/api/orders', authenticateToken, async (req, res) => {
+    try {
+        const { page = 1, limit = 10, status } = req.query;
+        
+        let query = { buyer: req.user.userId };
+        if (status) {
+            query.status = status;
+        }
+
+        const orders = await Transaction.find(query)
+            .populate('product', 'name images price')
+            .populate('seller', 'fullName storeName')
+            .sort({ createdAt: -1 })
+            .limit(limit * 1)
+            .skip((page - 1) * limit);
+
+        const total = await Transaction.countDocuments(query);
+
+        res.json({
+            orders,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(total / limit),
+                total,
+                limit: parseInt(limit)
+            }
+        });
+    } catch (error) {
+        console.error('Get orders error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Get order details
+app.get('/api/orders/:orderId', authenticateToken, async (req, res) => {
+    try {
+        const order = await Transaction.findById(req.params.orderId)
+            .populate('product', 'name images description price')
+            .populate('seller', 'fullName storeName email phoneNumber')
+            .populate('buyer', 'fullName email phoneNumber');
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Check if user is buyer or seller
+        if (order.buyer._id.toString() !== req.user.userId && 
+            order.seller._id.toString() !== req.user.userId) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        res.json(order);
+    } catch (error) {
+        console.error('Get order details error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Update order status (for delivery confirmation)
+app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
+    try {
+        const { status, trackingNumber, deliveryNotes } = req.body;
+        
+        const order = await Transaction.findById(req.params.orderId)
+            .populate('seller', 'fullName')
+            .populate('buyer', 'fullName');
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const user = await User.findById(req.user.userId);
+        const isBuyer = order.buyer._id.toString() === req.user.userId;
+        const isSeller = order.seller._id.toString() === req.user.userId;
+
+        // Validate status transitions based on user role
+        if (isBuyer && status === 'Delivered') {
+            // Buyer can confirm delivery
+            order.status = 'Delivered';
+            order.deliveryConfirmedAt = new Date();
+            order.deliveryNotes = deliveryNotes;
+        } else if (isSeller) {
+            // Seller can update shipping status
+            if (status === 'Shipped') {
+                order.status = 'Shipped';
+                order.trackingNumber = trackingNumber;
+                order.shippedAt = new Date();
+            } else if (status === 'Processing') {
+                order.status = 'Processing';
+            }
+        } else {
+            return res.status(403).json({ message: 'Invalid status update for this user' });
+        }
+
+        await order.save();
+
+        // Create notification for the other party
+        const notificationRecipient = isBuyer ? order.seller._id : order.buyer._id;
+        const notificationTitle = isBuyer ? 'Delivery Confirmed' : 'Order Status Updated';
+        const notificationMessage = isBuyer 
+            ? `${order.buyer.fullName} confirmed delivery of the order`
+            : `Order status updated to ${status}`;
+
+        await new Notification({
+            user: notificationRecipient,
+            title: notificationTitle,
+            message: notificationMessage,
+            type: 'Transaction',
+            link: `/orders.html`
+        }).save();
+
+        res.json({ message: 'Order status updated successfully', order });
+    } catch (error) {
+        console.error('Update order status error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 
 console.log('🗂️ Data Retention Management System initialized');
