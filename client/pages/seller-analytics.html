@@ -128,22 +128,108 @@
     <div id="mobile-menu-overlay" class="mobile-menu-overlay">
         <div class="mobile-menu-content">
             <div class="mobile-menu-header">
-                <div class="text-xl font-bold text-gold">Virtuosa Menu</div>
+                <div class="text-xl font-bold text-gold">Menu</div>
                 <button id="mobile-menu-close" class="mobile-menu-close">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
-            <div class="mobile-menu-section">
-                <a href="/index.html" class="mobile-menu-link"><i class="fas fa-home"></i><span>Home</span></a>
-                <a href="/pages/products.html" class="mobile-menu-link"><i class="fas fa-shopping-bag"></i><span>Shop All</span></a>
-                <a href="/pages/cart.html" class="mobile-menu-link"><i class="fas fa-shopping-cart"></i><span>My Cart</span></a>
-            </div>
+
+            <!-- Account Section -->
             <div class="mobile-menu-section">
                 <div class="mobile-menu-title">Account</div>
-                <a href="/pages/profile.html" class="mobile-menu-link"><i class="fas fa-user"></i><span>Profile</span></a>
-                <a href="/pages/orders.html" class="mobile-menu-link"><i class="fas fa-box"></i><span>Orders</span></a>
+                <a href="/pages/login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span id="mobile-menu-sign-text">Sign In</span>
+                </a>
+                <a href="/pages/profile.html" class="mobile-menu-link">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="/pages/buyer-dashboard.html" class="mobile-menu-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/orders.html" class="mobile-menu-link">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>My Orders</span>
+                </a>
+                <a href="/pages/transactions.html" class="mobile-menu-link">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+                <a href="/pages/reviews.html" class="mobile-menu-link">
+                    <i class="fas fa-star"></i>
+                    <span>My Reviews</span>
+                </a>
+            </div>
+
+            <!-- Seller Section (shown only to sellers) -->
+            <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
+                <div class="mobile-menu-title">Seller Tools</div>
+                <a href="/pages/seller-dashboard.html" class="mobile-menu-link">
+                    <i class="fas fa-store"></i>
+                    <span>Seller Dashboard</span>
+                </a>
+                <a href="/pages/create-product.html" class="mobile-menu-link">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Add Product</span>
+                </a>
+                <a href="/pages/seller-analytics.html" class="mobile-menu-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="/pages/seller-orders.html" class="mobile-menu-link">
+                    <i class="fas fa-box"></i>
+                    <span>Orders</span>
+                </a>
+            </div>
+
+            <!-- Admin Section (shown only to admins) -->
+            <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
+                <div class="mobile-menu-title">Admin Panel</div>
+                <a href="/pages/admin-dashboard.html" class="mobile-menu-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Admin Dashboard</span>
+                </a>
+                <a href="/pages/admin-asset-library.html" class="mobile-menu-link">
+                    <i class="fas fa-images"></i>
+                    <span>Asset Library</span>
+                </a>
+                <a href="/pages/admin-seller-applications.html" class="mobile-menu-link">
+                    <i class="fas fa-user-check"></i>
+                    <span>Seller Applications</span>
+                </a>
+                <a href="/pages/admin-mass-messaging.html" class="mobile-menu-link">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Mass Messaging</span>
+                </a>
+                <a href="/pages/admin-retention.html" class="mobile-menu-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Retention</span>
+                </a>
+            </div>
+
+            <!-- Shopping Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Shopping</div>
+                <a href="/pages/cart.html" class="mobile-menu-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Shopping Cart</span>
+                </a>
+                <a href="/pages/products.html?category=Hot%20Deals" class="mobile-menu-link">
+                    <i class="fas fa-fire"></i>
+                    <span>Hot Deals</span>
+                </a>
+                <a href="/pages/products.html?category=Best%20Sellers" class="mobile-menu-link">
+                    <i class="fas fa-crown"></i>
+                    <span>Best Sellers</span>
+                </a>
+                <a href="/pages/products.html" class="mobile-menu-link">
+                    <i class="fas fa-th-large"></i>
+                    <span>All Products</span>
+                </a>
             </div>
         </div>
     </div>
