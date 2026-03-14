@@ -382,6 +382,55 @@ body {
     }
 }
 
+/* Sub Navigation Category Menu Responsive Behavior */
+@media (max-width: 639px) {
+    /* Hide entire category menu section on very small screens */
+    .nav-category-menu {
+        display: none !important;
+    }
+    
+    /* Hide category label on products page */
+    .nav-category-label {
+        display: none !important;
+    }
+}
+
+@media (min-width: 640px) and (max-width: 767px) {
+    /* Show "All" category menu on small tablets */
+    .nav-category-menu {
+        display: flex;
+    }
+    
+    /* Hide some category links to save space */
+    .nav-category-menu .category-link:nth-child(n+4) {
+        display: none;
+    }
+    
+    /* Show category label on products page */
+    .nav-category-label {
+        display: inline;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    /* Show more categories on tablets */
+    .nav-category-menu .category-link:nth-child(n+4) {
+        display: inline-block;
+    }
+    
+    /* Still hide some to maintain clean layout */
+    .nav-category-menu .category-link:nth-child(n+7) {
+        display: none;
+    }
+}
+
+@media (min-width: 1024px) {
+    /* Show all categories on desktop */
+    .nav-category-menu .category-link {
+        display: inline-block !important;
+    }
+}
+
 /* Hide desktop header on mobile */
 @media (max-width: 767px) {
     .v-header-row:not(.mobile-header-row-1):not(.mobile-header-row-2) {
