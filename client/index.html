@@ -40,11 +40,59 @@
             display: none !important;
         }
 
-        /* Force header alignment override all other styles */
+        /* Amazon-style responsive header layout */
         @media (min-width: 768px) {
             .v-header-row,
             .desktop-header {
                 display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 0.75rem !important;
+                padding: 12px 0 !important;
+                position: relative !important;
+            }
+            
+            .v-header-logo {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                flex-shrink: 0 !important;
+                order: 1 !important;
+                width: 100% !important;
+            }
+            
+            .v-header-search {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                width: 100% !important;
+                max-width: 800px !important;
+                order: 2 !important;
+                position: relative !important;
+                z-index: 5 !important;
+            }
+            
+            .v-header-actions {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                flex-shrink: 0 !important;
+                order: 3 !important;
+                width: 100% !important;
+                gap: 1rem !important;
+            }
+            
+            nav.bg-dark-navy .container .flex {
+                display: flex !important;
+                align-items: center !important;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .v-header-row,
+            .desktop-header {
+                flex-direction: row !important;
                 align-items: center !important;
                 justify-content: space-between !important;
                 gap: 1rem !important;
@@ -60,6 +108,8 @@
                 transform: translateY(-50%) !important;
                 z-index: 10 !important;
                 flex-shrink: 0 !important;
+                width: auto !important;
+                order: 1 !important;
             }
             
             .v-header-search {
@@ -69,6 +119,8 @@
                 position: relative !important;
                 z-index: 5 !important;
                 flex: 0 0 auto !important;
+                width: auto !important;
+                order: 2 !important;
             }
             
             .v-header-actions {
@@ -78,11 +130,39 @@
                 transform: translateY(-50%) !important;
                 z-index: 10 !important;
                 flex-shrink: 0 !important;
+                width: auto !important;
+                order: 3 !important;
+                gap: 0.75rem !important;
             }
-            
-            nav.bg-dark-navy .container .flex {
-                display: flex !important;
-                align-items: center !important;
+        }
+
+        @media (min-width: 1280px) {
+            .v-header-search {
+                max-width: 800px !important;
+            }
+        }
+
+        /* Navigation container styles */
+        .nav-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-items {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .nav-items {
+                gap: 1.5rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .nav-items {
+                gap: 2rem;
             }
         }
 
@@ -268,11 +348,11 @@
         </div>
 
         <!-- Desktop Header (Hidden on Mobile) -->
-        <div class="v-container v-header-row desktop-header" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: relative; padding: 8px 0; min-height: 48px;">
-            <div class="flex items-center v-header-logo" style="display: flex; align-items: center; flex-shrink: 0; position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 10;">
-                <a href="#" class="text-3xl font-bold text-gold">Virtuosa</a>
+        <div class="v-container v-header-row desktop-header">
+            <div class="v-header-logo">
+                <a href="/index.html" class="text-3xl font-bold text-gold">Virtuosa</a>
             </div>
-            <div class="v-header-search" style="display: flex; align-items: center; flex: 0 0 auto; max-width: 700px; min-width: 300px; margin: 0 auto; position: relative; z-index: 5;">
+            <div class="v-header-search">
                 <div class="relative">
                     <input id="home-search-input" type="text"
                         placeholder="Search campus marketplace (e.g. &quot;HP laptop&quot;, &quot;Men's hoodie&quot;)..."
@@ -293,7 +373,7 @@
                     </div>
                 </div>
             </div>
-            <div id="user-info-container" class="flex items-center space-x-4 v-header-actions" style="display: flex; align-items: center; flex-shrink: 0; position: absolute; right: 0; top: 50%; transform: translateY(-50%); z-index: 10;">
+            <div id="user-info-container" class="v-header-actions">
                 <a href="/pages/login.html" id="login-link"
                     class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
                 <div id="user-menu" class="relative hidden">
@@ -350,12 +430,12 @@
                 <button id="logout-button"
                     class="bg-button-gold text-white font-semibold py-2 px-6 rounded-full shadow-lg hover-bg-button-gold transition-colors hidden">Log
                     Out</button>
-                <a href="/pages/messages.html" class="relative text-white hover:text-gold transition-colors mr-2">
-                    <i class="fas fa-envelope text-xl mt-1"></i>
+                <a href="/pages/messages.html" class="relative text-white hover:text-gold transition-colors">
+                    <i class="fas fa-envelope text-xl"></i>
                     <span
                         class="message-badge-count hidden absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
                 </a>
-                <a href="/pages/notifications.html" class="relative text-white hover:text-gold transition-colors mr-2">
+                <a href="/pages/notifications.html" class="relative text-white hover:text-gold transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -604,8 +684,8 @@
     </div>
 
     <nav class="bg-dark-navy text-white shadow-lg py-2 px-6 md:px-12 z-40">
-        <div class="container mx-auto flex items-center" style="display: flex; align-items: center;">
-            <div class="flex items-center space-x-4 md:space-x-8" style="display: flex; align-items: center;">
+        <div class="container mx-auto nav-container">
+            <div class="nav-items">
                 <!-- Category Menu - Hidden on small screens, progressively shown -->
                 <div class="nav-category-menu relative flex items-center space-x-2">
                     <button id="menu-toggle" class="flex items-center text-white hover:text-gold transition-colors">

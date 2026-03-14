@@ -22,6 +22,131 @@
             background-color: #0A1128;
         }
 
+        .hidden {
+            display: none !important;
+        }
+
+        /* Amazon-style responsive header layout */
+        @media (min-width: 768px) {
+            .v-header-row,
+            .desktop-header {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 0.75rem !important;
+                padding: 12px 0 !important;
+                position: relative !important;
+            }
+            
+            .v-header-logo {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                flex-shrink: 0 !important;
+                order: 1 !important;
+                width: 100% !important;
+            }
+            
+            .v-header-search {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                width: 100% !important;
+                max-width: 800px !important;
+                order: 2 !important;
+                position: relative !important;
+                z-index: 5 !important;
+            }
+            
+            .v-header-actions {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                flex-shrink: 0 !important;
+                order: 3 !important;
+                width: 100% !important;
+                gap: 1rem !important;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .v-header-row,
+            .desktop-header {
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 1rem !important;
+                padding: 8px 0 !important;
+                min-height: 48px !important;
+                position: relative !important;
+            }
+            
+            .v-header-logo {
+                position: absolute !important;
+                left: 0 !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                z-index: 10 !important;
+                flex-shrink: 0 !important;
+                width: auto !important;
+                order: 1 !important;
+            }
+            
+            .v-header-search {
+                max-width: 700px !important;
+                min-width: 300px !important;
+                margin: 0 auto !important;
+                position: relative !important;
+                z-index: 5 !important;
+                flex: 0 0 auto !important;
+                width: auto !important;
+                order: 2 !important;
+            }
+            
+            .v-header-actions {
+                position: absolute !important;
+                right: 0 !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                z-index: 10 !important;
+                flex-shrink: 0 !important;
+                width: auto !important;
+                order: 3 !important;
+                gap: 0.75rem !important;
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .v-header-search {
+                max-width: 800px !important;
+            }
+        }
+
+        /* Navigation container styles */
+        .nav-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-items {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .nav-items {
+                gap: 1.5rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .nav-items {
+                gap: 2rem;
+            }
+        }
+
         .text-gold {
             color: #FFD700;
         }
@@ -92,85 +217,50 @@
 
         <!-- Desktop Header (Hidden on Mobile) -->
         <div class="v-container v-header-row desktop-header">
-            <div class="flex items-center justify-between w-full">
-                <!-- Logo Section -->
-                <div class="flex items-center v-header-logo">
-                    <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold hover:text-yellow-400 transition-colors">Virtuosa</a>
-                </div>
+            <div class="v-header-logo">
+                <a href="/index.html" class="text-xl md:text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
 
-                <!-- Navigation Section -->
-                <div class="hidden lg:flex items-center space-x-8">
-                    <a href="/index.html" class="text-white hover:text-gold transition-colors font-medium">Home</a>
-                    <a href="/pages/products.html" class="text-white hover:text-gold transition-colors font-medium">Shop</a>
-                    <a href="/pages/seller-dashboard.html" class="text-white hover:text-gold transition-colors font-medium">Seller Dashboard</a>
-                </div>
-
-                <!-- User Actions Section -->
-                <div id="user-info-container" class="flex items-center space-x-4 v-header-actions">
-                    <!-- Cart -->
-                    <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors group">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        <span class="cart-badge-count absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
-                    </a>
-
-                    <!-- Notifications -->
-                    <a href="/pages/notifications.html" class="relative text-white hover:text-gold transition-colors group">
-                        <i class="fas fa-bell text-lg group-hover:scale-110 transition-transform"></i>
-                        <span id="notification-badge-desktop" class="absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
-                    </a>
-                    
-                    <!-- Messages -->
-                    <a href="/pages/messages.html" class="relative text-white hover:text-gold transition-colors group">
-                        <i class="fas fa-envelope text-lg group-hover:scale-110 transition-transform"></i>
-                        <span id="message-badge-desktop" class="absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
-                    </a>
-
-                    <!-- User Menu -->
-                    <div id="user-menu" class="relative hidden">
-                        <button onclick="toggleUserMenu()" class="flex items-center space-x-2 text-white hover:text-gold transition-colors font-medium bg-white/10 px-3 py-2 rounded-lg hover:bg-white/20 transition-all">
-                            <span id="user-greeting" class="text-sm md:text-base"></span>
-                            <i class="fas fa-user-circle text-lg md:text-base"></i>
-                            <i class="fas fa-chevron-down text-xs"></i>
-                        </button>
-                        <div id="user-dropdown" class="absolute right-0 top-12 w-56 bg-navy rounded-lg shadow-xl z-50 py-2 hidden border border-gray-700">
-                            <a href="/pages/profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-user mr-2"></i>My Profile</a>
-                            <a href="/pages/buyer-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-shopping-cart mr-2"></i>Buyer Dashboard</a>
-                            <a href="/pages/seller-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-store mr-2"></i>Seller Dashboard</a>
-                            
-                            <!-- Admin Dashboard Link (shown only to admins) -->
-                            <a href="/pages/admin-dashboard.html" id="dropdown-admin-link" class="hidden block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-cog mr-2"></i>Admin Panel</a>
-                            
-                            <div class="border-t border-gray-700 my-1"></div>
-                            <a href="/pages/notifications.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-bell mr-2"></i>Notifications</a>
-                            <a href="/pages/messages.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-envelope mr-2"></i>Messages</a>
-                            <div class="border-t border-gray-700 my-1"></div>
-                            <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i>Log Out</button>
-                        </div>
-                    </div>
-
-                    <!-- Login Link (shown when not logged in) -->
-                    <a href="/pages/login.html" id="login-link" class="hidden bg-gold text-navy px-4 py-2 rounded-lg font-medium hover:bg-yellow-400 transition-colors">Log In</a>
-
-                    <!-- Quick Action Buttons -->
-                    <div class="hidden md:flex items-center space-x-2">
-                        <!-- Admin Dashboard Link (shown only to admins) -->
-                        <div id="desktop-admin-link" class="hidden md:flex items-center">
-                            <a href="/pages/admin-dashboard.html" class="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium text-sm flex items-center space-x-1">
-                                <i class="fas fa-cog"></i>
-                                <span class="hidden lg:inline">Admin</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Mobile Menu Toggle (Tablet) -->
-                    <button id="desktop-menu-toggle" class="lg:hidden text-white hover:text-gold transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            <div class="v-header-search">
+                <div class="relative">
+                    <input id="home-search-input" type="text"
+                        placeholder="Search campus marketplace..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400"
+                        autocomplete="off">
+                    <button id="home-search-button"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                         </svg>
                     </button>
                 </div>
+            </div>
+
+            <div id="user-info-container" class="v-header-actions">
+                <a href="/pages/login.html" id="login-link" class="text-white hover:text-gold transition-colors font-medium text-sm md:text-base hidden md:block">Log In</a>
+                <div id="user-menu" class="relative hidden">
+                    <button onclick="toggleUserMenu()" class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
+                        <span id="user-greeting" class="hidden md:inline"></span>
+                        <i class="fas fa-user-circle text-lg md:text-base"></i>
+                        <i class="fas fa-chevron-down text-xs hidden md:inline"></i>
+                    </button>
+                    <div id="user-dropdown" class="absolute right-0 top-10 w-48 bg-navy rounded-lg shadow-xl z-50 py-2 hidden">
+                        <a href="/pages/profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-user mr-2"></i>My Profile</a>
+                        <a href="/pages/buyer-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-tachometer-alt mr-2"></i>Dashboard</a>
+                        <a href="/pages/seller-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-store mr-2"></i>Seller Dashboard</a>
+                        <div id="admin-link" class="hidden">
+                            <a href="/pages/admin-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-cog mr-2"></i>Admin Panel</a>
+                        </div>
+                        <div class="border-t border-gray-700 my-1"></div>
+                        <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i>Log Out</button>
+                    </div>
+                </div>
+                <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
             </div>
         </div>
 
@@ -190,6 +280,75 @@
             </div>
         </div>
     </header>
+
+    <!-- Universal Navigation (Tablet and Desktop) -->
+    <nav class="bg-dark-navy text-white shadow-lg py-2 px-6 md:px-12 z-40">
+        <div class="container mx-auto nav-container">
+            <div class="nav-items">
+                <!-- Category Menu - Hidden on small screens, progressively shown -->
+                <div class="nav-category-menu relative flex items-center space-x-2">
+                    <button id="menu-toggle" class="flex items-center text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <span class="text-white font-medium">All</span>
+                    <div id="categories-dropdown"
+                        class="absolute left-0 top-10 hidden w-72 bg-navy rounded-lg shadow-xl z-50 py-2">
+                        <a href="/pages/products.html?category=Electronics"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Electronics</a>
+                        <a href="/pages/products.html?category=Computers%20%26%20Software"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Computers &
+                            Software</a>
+                        <a href="/pages/products.html?category=Services"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Services</a>
+                        <a href="/pages/products.html?category=Watches%20%26%20Jewellery"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Watches &
+                            Jewellery</a>
+                        <div class="border-t border-gray-700 my-1"></div>
+                        <a href="/pages/products.html?category=Men%27s%20Clothing"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Men's
+                            Clothing</a>
+                        <a href="/pages/products.html?category=Women%27s%20Clothing"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Women's
+                            Clothing</a>
+                        <a href="/pages/products.html?category=Shoes"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Shoes</a>
+                        <a href="/pages/products.html?category=Accessories"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Accessories</a>
+                        <div class="border-t border-gray-700 my-1"></div>
+                        <a href="/pages/products.html?category=Personal%20Care%20%26%20Beauty"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Personal Care
+                            & Beauty</a>
+                        <a href="pages/products.html?category=Food%20%26%20Beverages"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Food &
+                            Beverages</a>
+                        <a href="pages/products.html?category=Sports%20%26%20Outdoors"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Sports &
+                            Outdoors</a>
+                        <a href="pages/products.html?category=Home%20%26%20Living"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Home &
+                            Living</a>
+                        <div class="border-t border-gray-700 my-1"></div>
+                        <a href="pages/products.html?category=Hot%20Deals"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Hot Deals</a>
+                        <a href="/pages/products.html?category=Best%20Sellers"
+                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Best
+                            Sellers</a>
+                    </div>
+                </div>
+                <a href="/pages/products.html?category=Hot%20Deals"
+                    class="text-white hover:text-gold transition-colors font-medium category-link">Hot Deals</a>
+                <a href="/pages/products.html?category=Best%20Sellers"
+                    class="text-white hover:text-gold transition-colors font-medium category-link">Best Sellers</a>
+                <a href="/pages/seller.html"
+                    class="bg-button-gold text-white font-semibold py-2 px-6 rounded-full shadow-lg hover-bg-button-gold transition-colors">Become
+                    a Seller</a>
+            </div>
+        </div>
+    </nav>
 
     <!-- Mobile Navigation Menu Overlay -->
     <div id="mobile-menu-overlay" class="mobile-menu-overlay">
