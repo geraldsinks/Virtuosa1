@@ -221,13 +221,17 @@ function updateCartBadge() {
 // Authentication State Functions
 function updateAuthState() {
     const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userEmail = localStorage.getItem('userEmail');
+    const userFullName = localStorage.getItem('userFullName');
+    const isAdmin = localStorage.getItem('isAdmin') === 'true';
+    const isSeller = localStorage.getItem('isSeller') === 'true';
     
     const mobileLoginLink = document.getElementById('mobile-login-link');
     const mobileSellerSection = document.getElementById('mobile-seller-section');
     const mobileAdminSection = document.getElementById('mobile-admin-section');
+    const userGreeting = document.getElementById('user-greeting');
     
-    if (token && user.email) {
+    if (token && userEmail) {
         // User is authenticated
         if (mobileLoginLink) {
             mobileLoginLink.innerHTML = `
@@ -238,15 +242,24 @@ function updateAuthState() {
             `;
             mobileLoginLink.href = '/pages/profile.html';
         }
+
+        // Update greeting in header if it exists
+        if (userGreeting && userFullName) {
+            userGreeting.textContent = `Hello, ${userFullName.split(' ')[0]}`;
+        }
         
         // Show seller section if user is a seller
-        if (user.isSeller && mobileSellerSection) {
+        if (isSeller && mobileSellerSection) {
             mobileSellerSection.style.display = 'block';
+        } else if (mobileSellerSection) {
+            mobileSellerSection.style.display = 'none';
         }
         
         // Show admin section if user is an admin
-        if (user.isAdmin && mobileAdminSection) {
+        if (isAdmin && mobileAdminSection) {
             mobileAdminSection.style.display = 'block';
+        } else if (mobileAdminSection) {
+            mobileAdminSection.style.display = 'none';
         }
     } else {
         // User is not authenticated
@@ -259,6 +272,9 @@ function updateAuthState() {
             `;
             mobileLoginLink.href = '/pages/login.html';
         }
+        if (mobileSellerSection) mobileSellerSection.style.display = 'none';
+        if (mobileAdminSection) mobileAdminSection.style.display = 'none';
+        if (userGreeting) userGreeting.textContent = '';
     }
 }
 
