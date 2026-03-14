@@ -54,11 +54,28 @@ document.addEventListener('DOMContentLoaded', () => {
                         sellerLinks.classList.add('hidden');
                     }
 
+                    // Show mobile seller section
+                    const mobileSellerSection = document.getElementById('mobile-seller-section');
+                    if (userData.isSeller && mobileSellerSection) {
+                        mobileSellerSection.style.display = 'block';
+                    } else if (mobileSellerSection) {
+                        mobileSellerSection.style.display = 'none';
+                    }
+
                     // Show admin link if user is admin
                     if ((userEmail === 'admin@virtuosa.com' || userData.role === 'admin' || userData.isAdmin === 'true' || userData.isAdmin === true) && adminLink) {
                         adminLink.classList.remove('hidden');
                     } else if (adminLink) {
                         adminLink.classList.add('hidden');
+                    }
+
+                    // Show mobile admin section
+                    const mobileAdminSection = document.getElementById('mobile-admin-section');
+                    const isAdmin = userEmail === 'admin@virtuosa.com' || userData.role === 'admin' || userData.isAdmin === 'true' || userData.isAdmin === true;
+                    if (isAdmin && mobileAdminSection) {
+                        mobileAdminSection.style.display = 'block';
+                    } else if (mobileAdminSection) {
+                        mobileAdminSection.style.display = 'none';
                     }
 
                     // Always point to buyer dashboard as requested
@@ -107,12 +124,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Update notification badge if it exists
                     const notificationBadge = document.getElementById('notification-badge-count');
+                    const mobileNotificationBadge = document.getElementById('mobile-notification-badge');
                     if (notificationBadge) {
                         notificationBadge.textContent = unreadCount;
                         if (unreadCount > 0) {
                             notificationBadge.classList.remove('hidden');
                         } else {
                             notificationBadge.classList.add('hidden');
+                        }
+                    }
+                    if (mobileNotificationBadge) {
+                        mobileNotificationBadge.textContent = unreadCount;
+                        if (unreadCount > 0) {
+                            mobileNotificationBadge.classList.remove('hidden');
+                        } else {
+                            mobileNotificationBadge.classList.add('hidden');
                         }
                     }
                 }
@@ -131,12 +157,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     const unreadMessageCount = conversations.reduce((total, conv) => total + (conv.unreadCount || 0), 0);
 
                     // Update message badge if it exists
-                    const messageBadges = document.querySelectorAll('.message-badge-count, a[href*="messages.html"] span');
+                    const messageBadges = document.querySelectorAll('.message-badge-count, a[href*="messages.html"] span, #mobile-message-badge');
                     messageBadges.forEach(badge => {
                         const parent = badge.closest('a');
                         const isMessageRelated = parent && parent.href?.includes('messages.html');
+                        const isMobileBadge = badge.id === 'mobile-message-badge';
 
-                        if (isMessageRelated || badge.classList.contains('message-badge-count')) {
+                        if (isMessageRelated || isMobileBadge || badge.classList.contains('message-badge-count')) {
                             badge.textContent = unreadMessageCount;
                             if (unreadMessageCount > 0) {
                                 badge.classList.remove('hidden');
