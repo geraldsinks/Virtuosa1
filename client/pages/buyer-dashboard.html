@@ -154,25 +154,25 @@
 
             <div id="user-info-container" class="flex items-center space-x-4 v-header-actions">
                 <a href="/pages/login.html" id="login-link" class="text-white hover:text-gold transition-colors font-medium text-sm md:text-base hidden md:block">Log In</a>
-                <div id="user-menu" class="relative hidden">
-                    <button onclick="toggleUserMenu()" class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
-                        <span id="user-greeting" class="hidden md:inline"></span>
-                        <i class="fas fa-user-circle text-lg md:text-base"></i>
-                        <i class="fas fa-chevron-down text-xs hidden md:inline"></i>
-                    </button>
-                    <div id="user-dropdown" class="absolute right-0 top-10 w-48 bg-navy rounded-lg shadow-xl z-50 py-2 hidden">
-                        <a href="/pages/profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-user mr-2"></i>My Profile</a>
-                        <a href="/pages/dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-tachometer-alt mr-2"></i>Dashboard</a>
-                        <div class="border-t border-gray-700 my-1"></div>
-                        <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i>Log Out</button>
-                    </div>
-                </div>
+                
                 <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                     <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
                 </a>
+
+                <div class="hidden md:flex items-center text-white space-x-2">
+                    <span id="user-greeting" class="text-sm font-medium"></span>
+                    <i class="fas fa-user-circle"></i>
+                </div>
+
+                <!-- Hamburger Menu Toggle (Desktop) -->
+                <button id="desktop-menu-toggle" class="text-white hover:text-gold transition-colors hidden md:block">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
             </div>
         </div>
     </header>
@@ -189,14 +189,36 @@
                 </button>
             </div>
             <div class="mobile-menu-section">
-                <a href="/index.html" class="mobile-menu-link"><i class="fas fa-home"></i><span>Home</span></a>
+                <!-- Shopping Section -->
+                <div class="mobile-menu-title">Shopping</div>
                 <a href="/pages/products.html" class="mobile-menu-link"><i class="fas fa-shopping-bag"></i><span>Shop All</span></a>
-                <a href="/pages/cart.html" class="mobile-menu-link"><i class="fas fa-shopping-cart"></i><span>My Cart</span></a>
             </div>
+            
             <div class="mobile-menu-section">
+                <!-- Account Section -->
                 <div class="mobile-menu-title">Account</div>
-                <a href="/pages/profile.html" class="mobile-menu-link"><i class="fas fa-user"></i><span>Profile</span></a>
-                <a href="/pages/orders.html" class="mobile-menu-link"><i class="fas fa-box"></i><span>Orders</span></a>
+                <a href="/pages/buyer-dashboard.html" class="mobile-menu-link"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+                <a href="/pages/notifications.html" class="mobile-menu-link"><i class="fas fa-bell"></i><span>Notifications</span></a>
+                <a href="/pages/messages.html" class="mobile-menu-link">
+                    <i class="fas fa-envelope"></i><span>Messages</span>
+                </a>
+                
+                <div class="border-t border-gray-700 my-2"></div>
+                
+                <!-- Role Specific Panels -->
+                <div id="mobile-seller-section" style="display: none;">
+                    <a href="/pages/seller-dashboard.html" class="mobile-menu-link"><i class="fas fa-store"></i><span>Seller Panel</span></a>
+                </div>
+                
+                <div id="mobile-admin-section" style="display: none;">
+                    <a href="/pages/admin-dashboard.html" class="mobile-menu-link"><i class="fas fa-cog"></i><span>Admin Panel</span></a>
+                </div>
+
+                <div class="border-t border-gray-700 my-2"></div>
+                
+                <button onclick="logout()" class="mobile-menu-link w-full text-left" style="background: none; border: none; padding: 0.75rem 1.25rem; display: flex; align-items: center; color: white;">
+                    <i class="fas fa-sign-out-alt w-5 text-center mr-3 text-gold"></i><span>Log Out</span>
+                </button>
             </div>
         </div>
     </div>

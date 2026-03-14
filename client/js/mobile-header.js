@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeMobileHeader() {
     // Mobile Menu Elements
     const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const desktopMenuToggle = document.getElementById('desktop-menu-toggle');
     const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
     const mobileMenuClose = document.getElementById('mobile-menu-close');
     
@@ -22,6 +23,11 @@ function initializeMobileHeader() {
     // Initialize Mobile Menu
     if (mobileMenuToggle && mobileMenuOverlay) {
         mobileMenuToggle.addEventListener('click', openMobileMenu);
+    }
+    
+    // Initialize Desktop Menu Toggle (if search/user dropdown is replaced by hamburger)
+    if (desktopMenuToggle && mobileMenuOverlay) {
+        desktopMenuToggle.addEventListener('click', openMobileMenu);
     }
     
     if (mobileMenuClose && mobileMenuOverlay) {
@@ -263,10 +269,7 @@ function handleResponsiveBehavior() {
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
-            // Close mobile menu when switching to desktop
-            if (window.innerWidth >= 768) {
-                closeMobileMenu();
-            }
+            // Removed automatic closure for desktop switch to allow hamburger on desktop
         }, 250);
     });
     
