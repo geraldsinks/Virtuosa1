@@ -383,8 +383,8 @@ body {
 }
 
 /* Sub Navigation Category Menu Responsive Behavior */
-@media (max-width: 639px) {
-    /* Hide entire category menu section on very small screens */
+@media (max-width: 767px) {
+    /* Hide entire category menu section on mobile */
     .nav-category-menu {
         display: none !important;
     }
@@ -395,13 +395,13 @@ body {
     }
 }
 
-@media (min-width: 640px) and (max-width: 767px) {
-    /* Show "All" category menu on small tablets */
+@media (min-width: 768px) and (max-width: 1023px) {
+    /* Show category menu on tablets */
     .nav-category-menu {
         display: flex;
     }
     
-    /* Hide some category links to save space */
+    /* Hide some category links to save space on tablets */
     .nav-category-menu .category-link:nth-child(n+4) {
         display: none;
     }
@@ -409,18 +409,6 @@ body {
     /* Show category label on products page */
     .nav-category-label {
         display: inline;
-    }
-}
-
-@media (min-width: 768px) and (max-width: 1023px) {
-    /* Show more categories on tablets */
-    .nav-category-menu .category-link:nth-child(n+4) {
-        display: inline-block;
-    }
-    
-    /* Still hide some to maintain clean layout */
-    .nav-category-menu .category-link:nth-child(n+7) {
-        display: none;
     }
 }
 
@@ -433,7 +421,8 @@ body {
 
 /* Hide desktop header on mobile */
 @media (max-width: 767px) {
-    .v-header-row:not(.mobile-header-row-1):not(.mobile-header-row-2) {
+    .v-header-row:not(.mobile-header-row-1):not(.mobile-header-row-2),
+    .desktop-header {
         display: none !important;
     }
 }
@@ -445,7 +434,8 @@ body {
         display: none !important;
     }
     
-    .v-header-row {
+    .v-header-row,
+    .desktop-header {
         display: flex !important;
     }
 }
@@ -460,12 +450,13 @@ body {
     --v-body-min: 14px;
 }
 
+/* Breakpoint-aware styling hooks */
 html[data-v-bp="sm"],
 html[data-v-bp="mobile"],
 html[data-v-bp="tablet"],
 html[data-v-bp="desktop"],
 html[data-v-bp="wide"] {
-    /* hook for breakpoint-aware styling */
+    /* These attributes can be used for JavaScript-driven breakpoint detection */
 }
 
 /* Touch targets */
