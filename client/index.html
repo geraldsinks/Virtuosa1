@@ -224,11 +224,11 @@
         </div>
 
         <!-- Desktop Header (Hidden on Mobile) -->
-        <div class="v-container v-header-row desktop-header">
-            <div class="flex items-center v-header-logo">
+        <div class="v-container v-header-row desktop-header" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+            <div class="flex items-center v-header-logo" style="display: flex; align-items: center; flex-shrink: 0;">
                 <a href="#" class="text-3xl font-bold text-gold">Virtuosa</a>
             </div>
-            <div class="v-header-search">
+            <div class="v-header-search" style="display: flex; align-items: center; flex: 1 1 auto; max-width: 600px; min-width: 200px; margin: 0 1rem;">
                 <div class="relative">
                     <input id="home-search-input" type="text"
                         placeholder="Search campus marketplace (e.g. &quot;HP laptop&quot;, &quot;Men's hoodie&quot;)..."
@@ -249,7 +249,7 @@
                     </div>
                 </div>
             </div>
-            <div id="user-info-container" class="flex items-center space-x-4 order-2 md:order-3 v-header-actions">
+            <div id="user-info-container" class="flex items-center space-x-4 v-header-actions" style="display: flex; align-items: center; flex-shrink: 0;">
                 <a href="/pages/login.html" id="login-link"
                     class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
                 <div id="user-menu" class="relative hidden">
@@ -514,8 +514,8 @@
     </div>
 
     <nav class="bg-dark-navy text-white shadow-lg py-2 px-6 md:px-12 z-40">
-        <div class="container mx-auto flex items-center">
-            <div class="flex items-center space-x-4 md:space-x-8">
+        <div class="container mx-auto flex items-center" style="display: flex; align-items: center;">
+            <div class="flex items-center space-x-4 md:space-x-8" style="display: flex; align-items: center;">
                 <!-- Category Menu - Hidden on small screens, progressively shown -->
                 <div class="nav-category-menu relative flex items-center space-x-2">
                     <button id="menu-toggle" class="flex items-center text-white hover:text-gold transition-colors">

@@ -462,39 +462,49 @@ body {
         min-height: 48px; /* Reduced from 60px to 48px */
     }
     
+    /* More specific rules to override everything */
+    header .v-container.v-header-row.desktop-header {
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 1rem !important;
+    }
+    
     .v-header-row {
         align-items: center !important; /* Ensure items are in a straight line */
         gap: 1rem; /* Proper spacing between items */
         justify-content: space-between; /* Even distribution */
     }
     
-    .v-header-logo {
+    header .v-header-row .v-header-logo {
         display: flex !important;
         align-items: center !important;
-        flex-shrink: 0;
+        flex-shrink: 0 !important;
+        order: 1 !important;
     }
     
-    .v-header-search {
+    header .v-header-row .v-header-search {
         display: flex !important;
         align-items: center !important;
         flex: 1 1 auto !important;
         max-width: 600px !important; /* Make search bar wider - override Tailwind */
         min-width: 200px !important; /* Accommodative behavior */
-        margin: 0 auto !important; /* Override md:mx-auto */
+        margin: 0 1rem !important; /* Override md:mx-auto */
+        order: 2 !important;
     }
     
-    .v-header-actions {
+    header .v-header-row .v-header-actions {
         display: flex !important;
         align-items: center !important;
-        flex-shrink: 0;
+        flex-shrink: 0 !important;
+        order: 3 !important;
     }
     
     /* Sub navigation alignment */
-    .bg-dark-navy .flex.items-center {
+    nav.bg-dark-navy .container.mx-auto .flex.items-center {
         align-items: center !important; /* Ensure Hot Deals, Best Sellers, Become a Seller are in straight line */
     }
     
-    .bg-dark-navy .flex.items-center.space-x-4 {
+    nav.bg-dark-navy .container.mx-auto .flex.items-center.space-x-4 {
         align-items: center !important;
     }
 }
