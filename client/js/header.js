@@ -28,6 +28,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (logoutButton) logoutButton.classList.remove('hidden');
 
+            // Update mobile menu sign link to show Sign Out
+            const mobileMenuSignLink = document.getElementById('mobile-menu-sign-link');
+            const mobileMenuSignText = document.getElementById('mobile-menu-sign-text');
+            if (mobileMenuSignLink && mobileMenuSignText) {
+                mobileMenuSignLink.href = '#';
+                mobileMenuSignLink.onclick = window.logout;
+                mobileMenuSignText.textContent = 'Sign Out';
+                const icon = mobileMenuSignLink.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-sign-out-alt';
+                }
+            }
+
             // Show user menu
             const userMenu = document.getElementById('user-menu');
             if (userMenu) {
@@ -122,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const notifications = await notificationsResponse.json();
                     const unreadCount = notifications.filter(n => !n.isRead).length;
 
-                    // Update notification badge if it exists
+                    // Update notification badge if it exists (combined for mobile)
                     const notificationBadge = document.getElementById('notification-badge-count');
                     const mobileNotificationBadge = document.getElementById('mobile-notification-badge');
                     if (notificationBadge) {
@@ -156,14 +169,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     const conversations = await messagesResponse.json();
                     const unreadMessageCount = conversations.reduce((total, conv) => total + (conv.unreadCount || 0), 0);
 
-                    // Update message badge if it exists
-                    const messageBadges = document.querySelectorAll('.message-badge-count, a[href*="messages.html"] span, #mobile-message-badge');
+                    // Update message badge if it exists (desktop only)
+                    const messageBadges = document.querySelectorAll('.message-badge-count, a[href*="messages.html"] span');
                     messageBadges.forEach(badge => {
                         const parent = badge.closest('a');
                         const isMessageRelated = parent && parent.href?.includes('messages.html');
                         const isMobileBadge = badge.id === 'mobile-message-badge';
 
-                        if (isMessageRelated || isMobileBadge || badge.classList.contains('message-badge-count')) {
+                        if (isMessageRelated || badge.classList.contains('message-badge-count')) {
                             badge.textContent = unreadMessageCount;
                             if (unreadMessageCount > 0) {
                                 badge.classList.remove('hidden');
@@ -172,6 +185,19 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         }
                     });
+
+                    // Combine message count with notification count for mobile
+                    const mobileNotificationBadge = document.getElementById('mobile-notification-badge');
+                    if (mobileNotificationBadge) {
+                        const currentNotificationCount = parseInt(mobileNotificationBadge.textContent) || 0;
+                        const totalCount = currentNotificationCount + unreadMessageCount;
+                        mobileNotificationBadge.textContent = totalCount;
+                        if (totalCount > 0) {
+                            mobileNotificationBadge.classList.remove('hidden');
+                        } else {
+                            mobileNotificationBadge.classList.add('hidden');
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching message conversations:', error);
@@ -180,6 +206,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (loginLink) loginLink.classList.remove('hidden');
             if (userGreeting) userGreeting.classList.add('hidden');
             if (logoutButton) logoutButton.classList.add('hidden');
+
+            // Update mobile menu sign link to show Sign In
+            const mobileMenuSignLink = document.getElementById('mobile-menu-sign-link');
+            const mobileMenuSignText = document.getElementById('mobile-menu-sign-text');
+            if (mobileMenuSignLink && mobileMenuSignText) {
+                mobileMenuSignLink.href = '/pages/login.html';
+                mobileMenuSignLink.onclick = null;
+                mobileMenuSignText.textContent = 'Sign In';
+                const icon = mobileMenuSignLink.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-sign-in-alt';
+                }
+            }
 
             // Hide user menu
             const userMenu = document.getElementById('user-menu');
