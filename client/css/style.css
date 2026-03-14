@@ -449,7 +449,7 @@ body {
 }
 
 /* Hide mobile-specific elements on desktop */
-@media (min-width: var(--v-breakpoint-md)) {
+@media (min-width: 768px) {
     .mobile-header-row-1,
     .mobile-header-row-2 {
         display: none !important;
@@ -460,10 +460,10 @@ body {
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
-        gap: var(--v-space-lg) !important;
-        padding: var(--v-space-sm) 0 !important;
-        min-height: calc(var(--v-space-2xl) + var(--v-space-lg)) !important;
-        position: relative !important;
+        gap: 1rem !important;
+        padding: 8px 0 !important;
+        min-height: 48px !important;
+        position: relative;
     }
     
     /* More specific rules to override everything */
@@ -471,10 +471,10 @@ body {
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
-        gap: var(--v-space-lg) !important;
-        padding: var(--v-space-sm) 0 !important;
-        min-height: calc(var(--v-space-2xl) + var(--v-space-lg)) !important;
-        position: relative !important;
+        gap: 1rem !important;
+        padding: 8px 0 !important;
+        min-height: 48px !important;
+        position: relative;
     }
     
     /* Logo - Fixed to left */
@@ -494,8 +494,8 @@ body {
         display: flex !important;
         align-items: center !important;
         flex: 0 0 auto !important;
-        max-width: calc(var(--v-breakpoint-xl) * 0.55) !important; /* Responsive max-width */
-        min-width: calc(var(--v-breakpoint-md) * 0.4) !important; /* Responsive min-width */
+        max-width: 700px !important; /* Much wider */
+        min-width: 300px !important; /* Wider minimum */
         margin: 0 auto !important; /* Perfect center */
         position: relative !important;
         z-index: 5 !important;
