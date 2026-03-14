@@ -13,9 +13,52 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.lucide.createIcons();
     }
 
+    // Initialize user menu
+    initializeUserMenu(token);
+
     // Load dashboard data
     await loadDashboardData();
 });
+
+// Initialize user menu
+function initializeUserMenu(token) {
+    // Show user menu and hide login link
+    const userMenu = document.getElementById('user-menu');
+    const loginLink = document.getElementById('login-link');
+    
+    if (userMenu) {
+        userMenu.classList.remove('hidden');
+    }
+    
+    if (loginLink) {
+        loginLink.classList.add('hidden');
+    }
+}
+
+// Toggle user menu dropdown
+window.toggleUserMenu = function() {
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('hidden');
+    }
+};
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const userMenu = document.getElementById('user-menu');
+    const dropdown = document.getElementById('user-dropdown');
+    
+    if (userMenu && dropdown && !userMenu.contains(event.target)) {
+        dropdown.classList.add('hidden');
+    }
+});
+
+// Logout function
+window.logout = function() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/pages/login.html';
+};
 
 async function loadDashboardData() {
     const token = localStorage.getItem('token');
@@ -42,6 +85,12 @@ async function loadDashboardData() {
         
         // Update welcome message
         document.getElementById('buyer-name').textContent = userData.fullName || 'Buyer';
+        
+        // Update user greeting in header
+        const userGreeting = document.getElementById('user-greeting');
+        if (userGreeting) {
+            userGreeting.textContent = userData.fullName || 'User';
+        }
 
         // Check user roles and update UI accordingly
         updateRoleBasedUI(userData);
@@ -67,12 +116,16 @@ function updateRoleBasedUI(userData) {
     const mobileAdminSection = document.getElementById('mobile-admin-section');
     const desktopSellerLink = document.getElementById('desktop-seller-link');
     const desktopAdminLink = document.getElementById('desktop-admin-link');
+    const dropdownSellerLink = document.getElementById('dropdown-seller-link');
+    const dropdownAdminLink = document.getElementById('dropdown-admin-link');
     
     // Reset visibility
     if (mobileSellerSection) mobileSellerSection.style.display = 'none';
     if (mobileAdminSection) mobileAdminSection.style.display = 'none';
     if (desktopSellerLink) desktopSellerLink.style.display = 'none';
     if (desktopAdminLink) desktopAdminLink.style.display = 'none';
+    if (dropdownSellerLink) dropdownSellerLink.classList.add('hidden');
+    if (dropdownAdminLink) dropdownAdminLink.classList.add('hidden');
     
     // Show seller section if user is a seller
     if (userData.isSeller) {
@@ -82,6 +135,10 @@ function updateRoleBasedUI(userData) {
         
         if (desktopSellerLink) {
             desktopSellerLink.style.display = 'flex';
+        }
+        
+        if (dropdownSellerLink) {
+            dropdownSellerLink.classList.remove('hidden');
         }
         
         // Update "Become a Seller" card to "Seller Dashboard"
@@ -105,13 +162,18 @@ function updateRoleBasedUI(userData) {
     }
     
     // Show admin section if user is an admin
-    if (userData.isAdmin) {
+    const isAdmin = userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin' || userData.email === 'admin@virtuosa.com';
+    if (isAdmin) {
         if (mobileAdminSection) {
             mobileAdminSection.style.display = 'block';
         }
         
         if (desktopAdminLink) {
             desktopAdminLink.style.display = 'flex';
+        }
+        
+        if (dropdownAdminLink) {
+            dropdownAdminLink.classList.remove('hidden');
         }
     }
     

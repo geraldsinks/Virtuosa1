@@ -106,43 +106,85 @@
 
         <!-- Desktop Header (Hidden on Mobile) -->
         <div class="v-container v-header-row desktop-header">
-            <div class="flex items-center v-header-logo">
-                <a href="/index.html" class="text-xl md:text-3xl font-bold text-gold">Virtuosa</a>
-            </div>
-
-            <div id="user-info-container" class="flex items-center space-x-4 v-header-actions">
-                <a href="/pages/login.html" id="login-link" class="text-white hover:text-gold transition-colors font-medium text-sm md:text-base hidden md:block">Log In</a>
-                <div id="user-menu" class="relative hidden">
-                    <button onclick="toggleUserMenu()" class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
-                        <span id="user-greeting" class="hidden md:inline"></span>
-                        <i class="fas fa-user-circle text-lg md:text-base"></i>
-                        <i class="fas fa-chevron-down text-xs hidden md:inline"></i>
-                    </button>
-                    <div id="user-dropdown" class="absolute right-0 top-10 w-48 bg-navy rounded-lg shadow-xl z-50 py-2 hidden">
-                        <a href="/pages/profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-user mr-2"></i>My Profile</a>
-                        <a href="/pages/dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-tachometer-alt mr-2"></i>Dashboard</a>
-                        <div class="border-t border-gray-700 my-1"></div>
-                        <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i>Log Out</button>
-                    </div>
+            <div class="flex items-center justify-between w-full">
+                <!-- Logo Section -->
+                <div class="flex items-center v-header-logo">
+                    <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold hover:text-yellow-400 transition-colors">Virtuosa</a>
                 </div>
-                <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
-                </a>
-                
-                <!-- Notifications -->
-                <a href="/pages/notifications.html" class="relative text-white hover:text-gold transition-colors">
-                    <i class="fas fa-bell"></i>
-                    <span id="notification-badge-desktop" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
-                </a>
-                
-                <!-- Messages -->
-                <a href="/pages/messages.html" class="relative text-white hover:text-gold transition-colors">
-                    <i class="fas fa-envelope"></i>
-                    <span id="message-badge-desktop" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
-                </a>
+
+                <!-- Navigation Section -->
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="/index.html" class="text-white hover:text-gold transition-colors font-medium">Home</a>
+                    <a href="/pages/products.html" class="text-white hover:text-gold transition-colors font-medium">Shop</a>
+                    <a href="/pages/seller-dashboard.html" class="text-white hover:text-gold transition-colors font-medium">Seller Dashboard</a>
+                </div>
+
+                <!-- User Actions Section -->
+                <div id="user-info-container" class="flex items-center space-x-4 v-header-actions">
+                    <!-- Cart -->
+                    <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors group">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                    </a>
+
+                    <!-- Notifications -->
+                    <a href="/pages/notifications.html" class="relative text-white hover:text-gold transition-colors group">
+                        <i class="fas fa-bell text-lg group-hover:scale-110 transition-transform"></i>
+                        <span id="notification-badge-desktop" class="absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                    
+                    <!-- Messages -->
+                    <a href="/pages/messages.html" class="relative text-white hover:text-gold transition-colors group">
+                        <i class="fas fa-envelope text-lg group-hover:scale-110 transition-transform"></i>
+                        <span id="message-badge-desktop" class="absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+
+                    <!-- User Menu -->
+                    <div id="user-menu" class="relative hidden">
+                        <button onclick="toggleUserMenu()" class="flex items-center space-x-2 text-white hover:text-gold transition-colors font-medium bg-white/10 px-3 py-2 rounded-lg hover:bg-white/20 transition-all">
+                            <span id="user-greeting" class="text-sm md:text-base"></span>
+                            <i class="fas fa-user-circle text-lg md:text-base"></i>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="user-dropdown" class="absolute right-0 top-12 w-56 bg-navy rounded-lg shadow-xl z-50 py-2 hidden border border-gray-700">
+                            <a href="/pages/profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-user mr-2"></i>My Profile</a>
+                            <a href="/pages/buyer-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-shopping-cart mr-2"></i>Buyer Dashboard</a>
+                            <a href="/pages/seller-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-store mr-2"></i>Seller Dashboard</a>
+                            
+                            <!-- Admin Dashboard Link (shown only to admins) -->
+                            <a href="/pages/admin-dashboard.html" id="dropdown-admin-link" class="hidden block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-cog mr-2"></i>Admin Panel</a>
+                            
+                            <div class="border-t border-gray-700 my-1"></div>
+                            <a href="/pages/notifications.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-bell mr-2"></i>Notifications</a>
+                            <a href="/pages/messages.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-envelope mr-2"></i>Messages</a>
+                            <div class="border-t border-gray-700 my-1"></div>
+                            <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i>Log Out</button>
+                        </div>
+                    </div>
+
+                    <!-- Login Link (shown when not logged in) -->
+                    <a href="/pages/login.html" id="login-link" class="hidden bg-gold text-navy px-4 py-2 rounded-lg font-medium hover:bg-yellow-400 transition-colors">Log In</a>
+
+                    <!-- Quick Action Buttons -->
+                    <div class="hidden md:flex items-center space-x-2">
+                        <!-- Admin Dashboard Link (shown only to admins) -->
+                        <div id="desktop-admin-link" class="hidden md:flex items-center">
+                            <a href="/pages/admin-dashboard.html" class="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium text-sm flex items-center space-x-1">
+                                <i class="fas fa-cog"></i>
+                                <span class="hidden lg:inline">Admin</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Menu Toggle (Tablet) -->
+                    <button id="desktop-menu-toggle" class="lg:hidden text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     </header>

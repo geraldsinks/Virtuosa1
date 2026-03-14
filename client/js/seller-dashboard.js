@@ -1,11 +1,48 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '/pages/login.html';
-        return;
-    }
+// Seller Dashboard JavaScript
+const API_BASE = 'https://virtuosa-server.onrender.com/api';
 
-    // Check seller access
+// Initialize user menu
+function initializeUserMenu(token) {
+    // Show user menu and hide login link
+    const userMenu = document.getElementById('user-menu');
+    const loginLink = document.getElementById('login-link');
+    
+    if (userMenu) {
+        userMenu.classList.remove('hidden');
+    }
+    
+    if (loginLink) {
+        loginLink.classList.add('hidden');
+    }
+}
+
+// Toggle user menu dropdown
+window.toggleUserMenu = function() {
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('hidden');
+    }
+};
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const userMenu = document.getElementById('user-menu');
+    const dropdown = document.getElementById('user-dropdown');
+    
+    if (userMenu && dropdown && !userMenu.contains(event.target)) {
+        dropdown.classList.add('hidden');
+    }
+});
+
+// Logout function
+window.logout = function() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/pages/login.html';
+};
+
+// Check seller access and update UI
+async function checkSellerAccess(token) {
     try {
         const response = await fetch(`${API_BASE}/user/profile`, {
             headers: {
@@ -18,19 +55,52 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const user = await response.json();
-        if (!user.isSeller) {
-            alert('Access denied. Seller privileges required.');
+        
+        // Check if user is seller or admin
+        if (!user.isSeller && !user.isAdmin) {
+            alert('Access denied. Seller or admin privileges required.');
             window.location.href = '/pages/buyer-dashboard.html';
             return;
+        }
+
+        // Check admin role and update UI
+        const isAdmin = user.isAdmin === true || user.isAdmin === 'true' || user.role === 'admin' || user.email === 'admin@virtuosa.com';
+        if (isAdmin) {
+            const dropdownAdminLink = document.getElementById('dropdown-admin-link');
+            const desktopAdminLink = document.getElementById('desktop-admin-link');
+            
+            if (dropdownAdminLink) {
+                dropdownAdminLink.classList.remove('hidden');
+            }
+            
+            if (desktopAdminLink) {
+                desktopAdminLink.style.display = 'flex';
+            }
         }
     } catch (error) {
         console.error('Seller check failed:', error);
         window.location.href = '/pages/login.html';
         return;
     }
+}
 
-    let dashboardData = null;
-    let salesChart = null;
+document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/pages/login.html';
+        return;
+    }
+
+    // Initialize Lucide icons
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+
+    // Initialize user menu
+    initializeUserMenu(token);
+
+    // Check seller access
+    await checkSellerAccess(token);
 
     // Load dashboard data
     await loadDashboardData();
