@@ -40,152 +40,79 @@
             display: none !important;
         }
 
-        /* Modern Header Design - Tablet to Desktop */
+        /* Amazon-inspired responsive header layout - FIXED */
         @media (min-width: 768px) {
             .v-header-row,
             .desktop-header {
-                display: grid !important;
-                grid-template-columns: 1fr 2fr 1fr !important;
+                display: flex !important;
                 align-items: center !important;
-                gap: 2rem !important;
-                padding: 1rem 0 !important;
-                background: linear-gradient(135deg, #0A1128 0%, #1a2347 100%) !important;
+                justify-content: space-between !important;
+                gap: 1rem !important;
+                padding: 0.75rem 0 !important;
+                min-height: auto !important;
                 position: relative !important;
-                border-bottom: 1px solid rgba(255, 215, 0, 0.2) !important;
+                flex-wrap: nowrap !important;
             }
             
             .v-header-logo {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: flex-start !important;
-                position: relative !important;
-            }
-            
-            .v-header-logo a {
-                font-size: 1.75rem !important;
-                font-weight: 800 !important;
-                background: linear-gradient(135deg, #FFD700, #FFA500) !important;
-                -webkit-background-clip: text !important;
-                -webkit-text-fill-color: transparent !important;
-                background-clip: text !important;
-                text-shadow: 0 0 20px rgba(255, 215, 0, 0.3) !important;
-                transition: all 0.3s ease !important;
-            }
-            
-            .v-header-logo a:hover {
-                transform: translateY(-2px) !important;
-                filter: brightness(1.2) !important;
+                flex: 0 0 auto !important;
+                min-width: 120px !important;
+                margin-right: 1rem !important;
             }
             
             .v-header-search {
+                flex: 1 1 auto !important;
+                max-width: 600px !important;
+                min-width: 300px !important;
                 position: relative !important;
-                max-width: 100% !important;
-            }
-            
-            .v-header-search .relative {
-                background: rgba(255, 255, 255, 0.1) !important;
-                border-radius: 50px !important;
-                backdrop-filter: blur(10px) !important;
-                border: 1px solid rgba(255, 215, 0, 0.3) !important;
-                transition: all 0.3s ease !important;
-            }
-            
-            .v-header-search .relative:hover {
-                background: rgba(255, 255, 255, 0.15) !important;
-                border-color: rgba(255, 215, 0, 0.5) !important;
-                box-shadow: 0 0 20px rgba(255, 215, 0, 0.2) !important;
-            }
-            
-            .v-header-search input {
-                background: transparent !important;
-                border: none !important;
-                color: #ffffff !important;
-                font-weight: 500 !important;
-            }
-            
-            .v-header-search input::placeholder {
-                color: rgba(255, 255, 255, 0.6) !important;
-            }
-            
-            .v-header-search button {
-                background: linear-gradient(135deg, #FFD700, #FFA500) !important;
-                border-radius: 50% !important;
-                width: 36px !important;
-                height: 36px !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                transition: all 0.3s ease !important;
-            }
-            
-            .v-header-search button:hover {
-                transform: scale(1.1) !important;
-                box-shadow: 0 0 15px rgba(255, 215, 0, 0.4) !important;
+                z-index: 5 !important;
             }
             
             .v-header-actions {
+                flex: 0 0 auto !important;
                 display: flex !important;
                 align-items: center !important;
+                gap: 0.75rem !important;
+                min-width: 200px !important;
                 justify-content: flex-end !important;
-                gap: 1rem !important;
-            }
-            
-            .v-header-actions a,
-            .v-header-actions button {
-                background: rgba(255, 255, 255, 0.1) !important;
-                border: 1px solid rgba(255, 215, 0, 0.3) !important;
-                border-radius: 12px !important;
-                padding: 0.5rem 1rem !important;
-                color: #FFD700 !important;
-                font-weight: 600 !important;
-                transition: all 0.3s ease !important;
-                backdrop-filter: blur(5px) !important;
-            }
-            
-            .v-header-actions a:hover,
-            .v-header-actions button:hover {
-                background: rgba(255, 215, 0, 0.2) !important;
-                border-color: #FFD700 !important;
-                transform: translateY(-2px) !important;
-                box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3) !important;
             }
         }
 
         @media (min-width: 1024px) {
             .v-header-row,
             .desktop-header {
-                grid-template-columns: 1.5fr 3fr 1.5fr !important;
-                gap: 3rem !important;
-                padding: 1.25rem 0 !important;
+                padding: 0.5rem 0 !important;
+                gap: 1.5rem !important;
             }
             
-            .v-header-logo a {
-                font-size: 2rem !important;
+            .v-header-logo {
+                flex: 0 0 150px !important;
             }
             
-            .v-header-search .relative {
-                height: 48px !important;
+            .v-header-search {
+                max-width: 700px !important;
+                min-width: 400px !important;
             }
             
             .v-header-actions {
-                gap: 1.25rem !important;
+                gap: 1rem !important;
+                min-width: 250px !important;
             }
         }
 
         @media (min-width: 1280px) {
             .v-header-row,
             .desktop-header {
-                grid-template-columns: 1fr 2.5fr 1fr !important;
-                max-width: 1400px !important;
-                margin: 0 auto !important;
+                gap: 2rem !important;
             }
             
-            .v-header-logo a {
-                font-size: 2.25rem !important;
+            .v-header-search {
+                max-width: 800px !important;
+                min-width: 500px !important;
             }
             
-            .v-header-search .relative {
-                height: 52px !important;
+            .v-header-actions {
+                min-width: 300px !important;
             }
         }
 
@@ -397,16 +324,16 @@
         <!-- Desktop Header (Hidden on Mobile) -->
         <div class="v-container v-header-row desktop-header">
             <div class="v-header-logo">
-                <a href="/index.html">Virtuosa</a>
+                <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
             </div>
             <div class="v-header-search">
                 <div class="relative">
                     <input id="home-search-input" type="text"
-                        placeholder="Discover amazing products..."
-                        class="w-full pl-5 pr-12 py-3 text-sm focus:outline-none"
+                        placeholder="Search campus marketplace (e.g. &quot;HP laptop&quot;, &quot;Men's hoodie&quot;)..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400"
                         autocomplete="off">
                     <button id="home-search-button"
-                        class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
                                 d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
@@ -421,9 +348,11 @@
                 </div>
             </div>
             <div id="user-info-container" class="v-header-actions">
-                <a href="/pages/login.html" id="login-link" class="hidden md:block">Sign In</a>
+                <a href="/pages/login.html" id="login-link"
+                    class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
                 <div id="user-menu" class="relative hidden">
-                    <button onclick="toggleUserMenu()" class="flex items-center space-x-2">
+                    <button onclick="toggleUserMenu()"
+                        class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
                         <span id="user-greeting"></span>
                         <i class="fas fa-chevron-down text-xs"></i>
                     </button>
@@ -472,7 +401,24 @@
                         </button>
                     </div>
                 </div>
-                <a href="/pages/cart.html" class="relative">
+                <button id="logout-button"
+                    class="bg-button-gold text-white font-semibold py-2 px-6 rounded-full shadow-lg hover-bg-button-gold transition-colors hidden">Log
+                    Out</button>
+                <a href="/pages/messages.html" class="relative text-white hover:text-gold transition-colors">
+                    <i class="fas fa-envelope text-xl"></i>
+                    <span
+                        class="message-badge-count hidden absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+                <a href="/pages/notifications.html" class="relative text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    <span id="notification-badge-count"
+                        class="hidden absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+                <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
