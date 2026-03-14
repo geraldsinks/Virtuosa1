@@ -139,75 +139,24 @@
                     <a href="/pages/notifications.html" class="relative v-touch text-white hover:text-gold transition-colors">
                         <i class="fas fa-bell"></i>
                         <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
-                        <span class="cart-badge-count absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
                     </a>
-
-                    <!-- Notifications -->
-                    <a href="/pages/notifications.html" class="relative text-white hover:text-gold transition-colors group">
-                        <i class="fas fa-bell text-lg group-hover:scale-110 transition-transform"></i>
-                        <span id="notification-badge-desktop" class="absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
-                    </a>
-
-                    <!-- Messages -->
-                    <a href="/pages/messages.html" class="relative text-white hover:text-gold transition-colors group">
-                        <i class="fas fa-envelope text-lg group-hover:scale-110 transition-transform"></i>
-                        <span id="message-badge-desktop" class="absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
-                    </a>
-
-                    <!-- User Menu -->
-                    <div id="user-menu" class="relative hidden">
-                        <button onclick="toggleUserMenu()" class="flex items-center space-x-2 text-white hover:text-gold transition-colors font-medium bg-white/10 px-3 py-2 rounded-lg hover:bg-white/20 transition-all">
-                            <span id="user-greeting" class="text-sm md:text-base"></span>
-                            <i class="fas fa-user-circle text-lg md:text-base"></i>
-                            <i class="fas fa-chevron-down text-xs"></i>
-                        </button>
-                        <div id="user-dropdown" class="absolute right-0 top-12 w-56 bg-navy rounded-lg shadow-xl z-50 py-2 hidden border border-gray-700">
-                            <a href="/pages/profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-user mr-2"></i>My Profile</a>
-                            <a href="/pages/buyer-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-shopping-cart mr-2"></i>Buyer Dashboard</a>
-                            
-                            <!-- Seller Dashboard Link (shown only to sellers) -->
-                            <a href="/pages/seller-dashboard.html" id="dropdown-seller-link" class="hidden block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-store mr-2"></i>Seller Dashboard</a>
-                            
-                            <!-- Admin Dashboard Link (shown only to admins) -->
-                            <a href="/pages/admin-dashboard.html" id="dropdown-admin-link" class="hidden block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-cog mr-2"></i>Admin Panel</a>
-                            
-                            <div class="border-t border-gray-700 my-1"></div>
-                            <a href="/pages/notifications.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-bell mr-2"></i>Notifications</a>
-                            <a href="/pages/messages.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-envelope mr-2"></i>Messages</a>
-                            <div class="border-t border-gray-700 my-1"></div>
-                            <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i>Log Out</button>
-                        </div>
-                    </div>
-
-                    <!-- Login Link (shown when not logged in) -->
-                    <a href="/pages/login.html" id="login-link" class="hidden bg-gold text-navy px-4 py-2 rounded-lg font-medium hover:bg-yellow-400 transition-colors">Log In</a>
-
-                    <!-- Quick Action Buttons -->
-                    <div class="hidden md:flex items-center space-x-2">
-                        <!-- Seller Dashboard Link (shown only to sellers) -->
-                        <div id="desktop-seller-link" class="hidden md:flex items-center">
-                            <a href="/pages/seller-dashboard.html" class="seller-dashboard-link flex items-center space-x-1 px-3 py-2 rounded-lg">
-                                <i class="fas fa-store"></i>
-                                <span class="hidden lg:inline">Seller</span>
-                            </a>
-                        </div>
-
-                        <!-- Admin Dashboard Link (shown only to admins) -->
-                        <div id="desktop-admin-link" class="hidden md:flex items-center">
-                            <a href="/pages/admin-dashboard.html" class="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium text-sm flex items-center space-x-1">
-                                <i class="fas fa-cog"></i>
-                                <span class="hidden lg:inline">Admin</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Mobile Menu Toggle (Tablet) -->
-                    <button id="desktop-menu-toggle" class="lg:hidden text-white hover:text-gold transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Search-First Experience -->
+        <div class="v-container mobile-header-row-2 pb-3">
+            <div class="relative mobile-search-container">
+                <input id="mobile-search-input" type="text" 
+                    placeholder="Search campus marketplace..." 
+                    class="w-full pl-4 pr-12 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400 mobile-search-input"
+                    autocomplete="off">
+                <button id="mobile-search-button" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors mobile-search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-4zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 112 8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
             </div>
         </div>
     </header>
@@ -216,58 +165,111 @@
     <div id="mobile-menu-overlay" class="mobile-menu-overlay">
         <div class="mobile-menu-content">
             <div class="mobile-menu-header">
-                <div class="text-xl font-bold text-gold">Virtuosa Menu</div>
+                <div class="text-xl font-bold text-gold">Menu</div>
                 <button id="mobile-menu-close" class="mobile-menu-close">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
-            <div class="mobile-menu-section">
-                <!-- Shopping Section -->
-                <div class="mobile-menu-title">Shopping</div>
-                <a href="/pages/products.html" class="mobile-menu-link"><i class="fas fa-shopping-bag"></i><span>Shop All</span></a>
-            </div>
-            
-            <div class="mobile-menu-section">
-                <!-- Account Section -->
-                <div class="mobile-menu-title">Account</div>
-                <a href="/pages/buyer-dashboard.html" class="mobile-menu-link"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
-                <a href="/pages/notifications.html" class="mobile-menu-link"><i class="fas fa-bell"></i><span>Notifications</span></a>
-                <a href="/pages/messages.html" class="mobile-menu-link">
-                    <i class="fas fa-envelope"></i><span>Messages</span>
-                </a>
-                
-                <div class="border-t border-gray-700 my-2"></div>
-                
-                <!-- Role Specific Panels -->
-                <div id="mobile-seller-section" style="display: none;">
-                    <div class="mobile-menu-title">Seller Tools</div>
-                    <a href="/pages/seller-dashboard.html" class="mobile-menu-link bg-green-600 hover:bg-green-700 text-white">
-                        <i class="fas fa-store"></i><span>Seller Dashboard</span>
-                    </a>
-                    <a href="/pages/create-product.html" class="mobile-menu-link">
-                        <i class="fas fa-plus-circle"></i><span>Add Product</span>
-                    </a>
-                    <a href="/pages/seller-analytics.html" class="mobile-menu-link">
-                        <i class="fas fa-chart-line"></i><span>Analytics</span>
-                    </a>
-                </div>
-                
-                <div id="mobile-admin-section" style="display: none;">
-                    <a href="/pages/admin-dashboard.html" class="mobile-menu-link"><i class="fas fa-cog"></i><span>Admin Panel</span></a>
-                </div>
 
-                <div class="border-t border-gray-700 my-2"></div>
-                
-                <button onclick="logout()" class="mobile-menu-link w-full text-left" style="background: none; border: none; padding: 0.75rem 1.25rem; display: flex; align-items: center; color: white;">
-                    <i class="fas fa-sign-out-alt w-5 text-center mr-3 text-gold"></i><span>Log Out</span>
-                </button>
+            <!-- Account Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Account</div>
+                <a href="/pages/login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span id="mobile-menu-sign-text">Sign In</span>
+                </a>
+                <a href="/pages/profile.html" class="mobile-menu-link">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="/pages/buyer-dashboard.html" class="mobile-menu-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/orders.html" class="mobile-menu-link">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>My Orders</span>
+                </a>
+                <a href="/pages/transactions.html" class="mobile-menu-link">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+                <a href="/pages/reviews.html" class="mobile-menu-link">
+                    <i class="fas fa-star"></i>
+                    <span>My Reviews</span>
+                </a>
+            </div>
+
+            <!-- Seller Section (shown only to sellers) -->
+            <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
+                <div class="mobile-menu-title">Seller Tools</div>
+                <a href="/pages/seller-dashboard.html" class="mobile-menu-link">
+                    <i class="fas fa-store"></i>
+                    <span>Seller Dashboard</span>
+                </a>
+                <a href="/pages/create-product.html" class="mobile-menu-link">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Add Product</span>
+                </a>
+                <a href="/pages/seller-analytics.html" class="mobile-menu-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="/pages/seller-orders.html" class="mobile-menu-link">
+                    <i class="fas fa-box"></i>
+                    <span>Orders</span>
+                </a>
+            </div>
+
+            <!-- Admin Section (shown only to admins) -->
+            <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
+                <div class="mobile-menu-title">Admin Panel</div>
+                <a href="/pages/admin-dashboard.html" class="mobile-menu-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Admin Dashboard</span>
+                </a>
+                <a href="/pages/admin-asset-library.html" class="mobile-menu-link">
+                    <i class="fas fa-images"></i>
+                    <span>Asset Library</span>
+                </a>
+                <a href="/pages/admin-seller-applications.html" class="mobile-menu-link">
+                    <i class="fas fa-user-check"></i>
+                    <span>Seller Applications</span>
+                </a>
+                <a href="/pages/admin-mass-messaging.html" class="mobile-menu-link">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Mass Messaging</span>
+                </a>
+                <a href="/pages/admin-retention.html" class="mobile-menu-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Retention</span>
+                </a>
+            </div>
+
+            <!-- Shopping Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Shopping</div>
+                <a href="/pages/cart.html" class="mobile-menu-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Shopping Cart</span>
+                </a>
+                <a href="/pages/products.html?category=Hot%20Deals" class="mobile-menu-link">
+                    <i class="fas fa-fire"></i>
+                    <span>Hot Deals</span>
+                </a>
+                <a href="/pages/products.html?category=Best%20Sellers" class="mobile-menu-link">
+                    <i class="fas fa-crown"></i>
+                    <span>Best Sellers</span>
+                </a>
+                <a href="/pages/products.html" class="mobile-menu-link">
+                    <i class="fas fa-th-large"></i>
+                    <span>All Products</span>
+                </a>
             </div>
         </div>
     </div>
-
-
 
     <main class="flex-grow">
         <!-- Welcome Section -->
