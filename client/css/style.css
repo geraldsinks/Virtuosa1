@@ -9,6 +9,33 @@ body {
     display: none !important;
 }
 
+/* Seller Dashboard Links */
+.seller-dashboard-link {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.seller-dashboard-link:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+.mobile-menu-link.bg-green-600 {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    color: white !important;
+    font-weight: 500 !important;
+}
+
+.mobile-menu-link.bg-green-600:hover {
+    background: linear-gradient(135deg, #059669, #047857) !important;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -542,6 +569,8 @@ html[data-v-bp="tablet"],
 html[data-v-bp="desktop"],
 html[data-v-bp="wide"] {
     /* These attributes can be used for JavaScript-driven breakpoint detection */
+    /* Add breakpoint-specific styles here as needed */
+    box-sizing: border-box; /* Temporary fix to avoid empty ruleset */
 }
 
 /* Touch targets */

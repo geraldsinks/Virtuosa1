@@ -35,6 +35,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load dashboard data
     await loadDashboardData();
 
+    // Check for notifications periodically
+    setInterval(checkNotifications, 30000); // Check every 30 seconds
+    await checkNotifications(); // Initial check
+
     async function loadDashboardData() {
         try {
             const response = await fetch(`${API_BASE}/seller/dashboard`, {
@@ -239,10 +243,80 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <span class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${getStatusColor(transaction.status)}">
                         ${transaction.status}
                     </span>
+                    <div class="mt-2 space-x-1">
+                        ${getOrderActionButtons(transaction)}
+                    </div>
                 </div>
             </div>
         `).join('');
     }
+
+    function getOrderActionButtons(transaction) {
+        switch (transaction.status) {
+            case 'Pending':
+                return `
+                    <button onclick="updateOrderStatus('${transaction._id}', 'Processing')" 
+                        class="text-xs px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+                        Accept
+                    </button>
+                    <button onclick="updateOrderStatus('${transaction._id}', 'Cancelled')" 
+                        class="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
+                        Cancel
+                    </button>
+                `;
+            case 'Processing':
+                return `
+                    <button onclick="updateOrderStatus('${transaction._id}', 'Shipped')" 
+                        class="text-xs px-2 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
+                        Ship
+                    </button>
+                `;
+            case 'Shipped':
+                return `
+                    <span class="text-xs text-gray-600">Awaiting delivery</span>
+                `;
+            case 'Delivered':
+                return `
+                    <span class="text-xs text-green-600">Completed</span>
+                `;
+            case 'Cancelled':
+                return `
+                    <span class="text-xs text-red-600">Cancelled</span>
+                `;
+            default:
+                return '';
+        }
+    }
+
+    // Update order status function
+    window.updateOrderStatus = async (orderId, newStatus) => {
+        if (!confirm(`Are you sure you want to ${newStatus.toLowerCase()} this order?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            if (response.ok) {
+                showMessage(`Order ${newStatus.toLowerCase()} successfully!`, false);
+                await loadDashboardData(); // Reload dashboard data
+                await checkNotifications(); // Check for new notifications
+            } else {
+                const error = await response.json();
+                showMessage(error.message || 'Failed to update order', true);
+            }
+        } catch (error) {
+            console.error('Error updating order:', error);
+            showMessage('Failed to update order', true);
+        }
+    };
 
     function updateRecentReviews() {
         // ... (previous code)
@@ -505,11 +579,64 @@ document.addEventListener('DOMContentLoaded', async () => {
         messageDiv.textContent = message;
         document.body.appendChild(messageDiv);
 
-        setTimeout(() => {
+    setTimeout(() => {
             messageDiv.remove();
         }, 3000);
     }
 
+    // Check for new notifications
+    async function checkNotifications() {
+        try {
+            const response = await fetch(`${API_BASE}/notifications`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const notifications = await response.json();
+                const unreadCount = notifications.filter(n => !n.isRead).length;
+                
+                // Update notification badges
+                updateNotificationBadges(unreadCount);
+
+                // Show notification for new orders
+                const newOrderNotifications = notifications.filter(n => 
+                    !n.isRead && n.type === 'Transaction' && n.message.includes('new order')
+                );
+                
+                if (newOrderNotifications.length > 0) {
+                    showMessage(`You have ${newOrderNotifications.length} new order(s)!`);
+                }
+            }
+        } catch (error) {
+            console.error('Error checking notifications:', error);
+        }
+    }
+
+    // Update notification badges
+    function updateNotificationBadges(count) {
+        const badges = document.querySelectorAll('#notification-badge, #notification-badge-desktop');
+        badges.forEach(badge => {
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        });
+    }
+
+    // Action handlers
+    window.addProduct = () => {
+        window.location.href = '/pages/add-product.html';
+    };
+
+    window.viewProducts = () => {
+        window.location.href = '/pages/my-products.html';
+    };
+
     // Auto-refresh dashboard every 30 seconds
-    setInterval(loadDashboardData, 30000);
+    setInterval(() => {
+        loadDashboardData();
+        checkNotifications();
+    }, 30000);
 });

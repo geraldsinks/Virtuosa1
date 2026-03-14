@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Seller Orders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-button-gold {
+            background-color: #C19A6B;
+        }
+
+        .hover-bg-button-gold:hover {
+            background-color: #A98B68;
+        }
+
+        .order-card {
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .status-processing { background-color: #dbeafe; color: #1e40af; }
+        .status-shipped { background-color: #e9d5ff; color: #6b21a8; }
+        .status-delivered { background-color: #d1fae5; color: #065f46; }
+        .status-cancelled { background-color: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased">
+    
+    <!-- Mobile Header Structure -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="v-container mobile-header-row-1">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-3 mobile-header-actions">
+                    <!-- Sign in / Profile Icon -->
+                    <a href="/pages/login.html" id="mobile-login-link" class="v-touch text-white hover:text-gold transition-colors mobile-auth-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span class="mobile-auth-label hidden ml-1 text-sm">Sign in</span>
+                    </a>
+                    
+                    <!-- Notifications -->
+                    <a href="/pages/notifications.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <i class="fas fa-bell"></i>
+                        <span id="notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                    
+                    <!-- Messages -->
+                    <a href="/pages/messages.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <i class="fas fa-envelope"></i>
+                        <span id="message-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Header (Hidden on Mobile) -->
+        <div class="v-container v-header-row desktop-header">
+            <div class="flex items-center v-header-logo">
+                <a href="/index.html" class="text-xl md:text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+
+            <div id="user-info-container" class="flex items-center space-x-4 v-header-actions">
+                <a href="/pages/login.html" id="login-link" class="text-white hover:text-gold transition-colors font-medium text-sm md:text-base hidden md:block">Log In</a>
+                
+                <!-- Notifications -->
+                <a href="/pages/notifications.html" class="relative text-white hover:text-gold transition-colors">
+                    <i class="fas fa-bell"></i>
+                    <span id="notification-badge-desktop" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                </a>
+                
+                <!-- Messages -->
+                <a href="/pages/messages.html" class="relative text-white hover:text-gold transition-colors">
+                    <i class="fas fa-envelope"></i>
+                    <span id="message-badge-desktop" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                </a>
+
+                <div class="hidden md:flex items-center text-white space-x-2">
+                    <span id="user-greeting" class="text-sm font-medium"></span>
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                
+                <!-- Buyer Dashboard Link -->
+                <div class="hidden md:flex items-center">
+                    <a href="/pages/buyer-dashboard.html" class="text-white hover:text-gold transition-colors font-medium text-sm flex items-center space-x-1">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Buyer Dashboard</span>
+                    </a>
+                </div>
+
+                <!-- Hamburger Menu Toggle (Desktop) -->
+                <button id="desktop-menu-toggle" class="text-white hover:text-gold transition-colors hidden md:block">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay">
+        <div class="mobile-menu-content">
+            <div class="mobile-menu-header">
+                <div class="text-xl font-bold text-gold">Virtuosa Menu</div>
+                <button id="mobile-menu-close" class="mobile-menu-close">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Seller Tools</div>
+                <a href="/pages/seller-dashboard.html" class="mobile-menu-link"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+                <a href="/pages/seller-orders.html" class="mobile-menu-link bg-green-600 hover:bg-green-700 text-white"><i class="fas fa-box"></i><span>Orders</span></a>
+                <a href="/pages/create-product.html" class="mobile-menu-link"><i class="fas fa-plus-circle"></i><span>Add Product</span></a>
+                <a href="/pages/seller-shop.html" class="mobile-menu-link"><i class="fas fa-store"></i><span>My Shop</span></a>
+                <a href="/pages/seller-analytics.html" class="mobile-menu-link"><i class="fas fa-chart-line"></i><span>Analytics</span></a>
+            </div>
+            
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Shopping</div>
+                <a href="/pages/buyer-dashboard.html" class="mobile-menu-link"><i class="fas fa-shopping-cart"></i><span>Buyer Dashboard</span></a>
+                <a href="/pages/products.html" class="mobile-menu-link"><i class="fas fa-shopping-bag"></i><span>Shop All</span></a>
+            </div>
+            
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Account</div>
+                <a href="/pages/notifications.html" class="mobile-menu-link"><i class="fas fa-bell"></i><span>Notifications</span></a>
+                <a href="/pages/messages.html" class="mobile-menu-link"><i class="fas fa-envelope"></i><span>Messages</span></a>
+                <a href="/pages/profile.html" class="mobile-menu-link"><i class="fas fa-user"></i><span>Profile</span></a>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-grow py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-3xl font-bold text-navy">My Orders</h1>
+                <div class="flex items-center space-x-4">
+                    <!-- Status Filter -->
+                    <select id="status-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold">
+                        <option value="">All Orders</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                    
+                    <!-- Refresh Button -->
+                    <button id="refresh-orders" class="px-4 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Orders Container -->
+            <div id="orders-container">
+                <!-- Orders will be loaded here -->
+                <div class="text-center py-12">
+                    <i class="fas fa-spinner fa-spin text-4xl text-gold mb-4"></i>
+                    <p class="text-gray-600">Loading your orders...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div id="pagination-container" class="mt-8">
+                <!-- Pagination will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-navy text-gray-400 p-4 text-center shadow-inner mt-auto">
+        &copy; 2025 Virtuosa. All rights reserved.
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const API_BASE = 'https://virtuosa-server.onrender.com/api';
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                window.location.href = '/pages/login.html';
+                return;
+            }
+
+            // Check seller access
+            try {
+                const response = await fetch(`${API_BASE}/user/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Not authorized');
+                }
+
+                const user = await response.json();
+                if (!user.isSeller) {
+                    alert('Access denied. Seller privileges required.');
+                    window.location.href = '/pages/buyer-dashboard.html';
+                    return;
+                }
+
+                // Update user greeting
+                document.getElementById('user-greeting').textContent = `Hello, ${user.fullName}`;
+            } catch (error) {
+                console.error('Seller check failed:', error);
+                window.location.href = '/pages/login.html';
+                return;
+            }
+
+            let currentPage = 1;
+            const ordersPerPage = 10;
+            let currentFilter = '';
+
+            // Load orders
+            await loadOrders();
+
+            // Event listeners
+            document.getElementById('status-filter').addEventListener('change', (e) => {
+                currentFilter = e.target.value;
+                currentPage = 1;
+                loadOrders();
+            });
+
+            document.getElementById('refresh-orders').addEventListener('click', () => {
+                loadOrders();
+            });
+
+            // Load orders function
+            async function loadOrders() {
+                try {
+                    const queryParams = new URLSearchParams({
+                        page: currentPage.toString(),
+                        limit: ordersPerPage.toString(),
+                        ...(currentFilter && { status: currentFilter })
+                    });
+
+                    const response = await fetch(`${API_BASE}/orders?${queryParams}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        renderOrders(data.orders || []);
+                        renderPagination(data.pagination);
+                    } else {
+                        console.error('Failed to load orders:', await response.json());
+                        renderOrders([]);
+                    }
+                } catch (error) {
+                    console.error('Error loading orders:', error);
+                    renderOrders([]);
+                }
+            }
+
+            // Render orders
+            function renderOrders(orders) {
+                const container = document.getElementById('orders-container');
+                
+                if (!orders || orders.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12">
+                            <i class="fas fa-box text-6xl text-gray-300 mb-4"></i>
+                            <h3 class="text-xl font-semibold text-gray-600 mb-2">No orders found</h3>
+                            <p class="text-gray-500 mb-6">You don't have any orders yet.</p>
+                            <a href="/pages/seller-dashboard.html" class="inline-flex items-center bg-button-gold text-white px-6 py-3 rounded-full hover-bg-button-gold transition-colors">
+                                <i class="fas fa-tachometer-alt mr-2"></i>
+                                Back to Dashboard
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                orders.forEach(order => {
+                    const statusColor = getStatusColor(order.status);
+                    const statusIcon = getStatusIcon(order.status);
+                    const orderDate = new Date(order.createdAt).toLocaleDateString();
+                    const productImage = order.product?.images?.[0] || 'https://placehold.co/100x100';
+                    
+                    html += `
+                        <div class="order-card bg-white rounded-lg shadow-md p-6 mb-4">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                                <div class="flex items-center space-x-3 mb-2 md:mb-0">
+                                    <img src="${productImage}" alt="${order.product?.name}" class="w-16 h-16 object-cover rounded-lg">
+                                    <div>
+                                        <h3 class="font-semibold text-navy text-lg">${order.product?.name || 'Unknown Product'}</h3>
+                                        <p class="text-gray-600 text-sm">Order #${order._id.slice(-8)}</p>
+                                        <p class="text-gray-500 text-xs">${orderDate}</p>
+                                        <p class="text-gray-600 text-sm">Buyer: ${order.buyer?.fullName || 'Unknown'}</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <span class="status-badge ${statusColor}">
+                                        <i class="${statusIcon} mr-1"></i>
+                                        ${order.status}
+                                    </span>
+                                    <p class="font-bold text-lg text-gold mt-2">ZMW ${order.totalAmount?.toFixed(2) || '0.00'}</p>
+                                    <p class="text-sm text-gray-600">Qty: ${order.quantity}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-t pt-4">
+                                <div class="text-sm text-gray-600 mb-2 sm:mb-0">
+                                    ${order.trackingNumber ? `<p><i class="fas fa-truck mr-1"></i> Tracking: ${order.trackingNumber}</p>` : ''}
+                                    ${order.deliveryMethod ? `<p><i class="fas fa-shipping-alt mr-1"></i> Delivery: ${order.deliveryMethod}</p>` : ''}
+                                    ${order.buyer?.email ? `<p><i class="fas fa-envelope mr-1"></i> ${order.buyer.email}</p>` : ''}
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="viewOrderDetails('${order._id}')" 
+                                        class="px-4 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors text-sm">
+                                        <i class="fas fa-eye mr-1"></i> View Details
+                                    </button>
+                                    <button onclick="messageBuyer('${order.buyer?._id}', '${order.product?.name}')" 
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                        <i class="fas fa-message mr-1"></i> Message
+                                    </button>
+                                    ${getActionButtons(order)}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            }
+
+            // Get action buttons based on order status
+            function getActionButtons(order) {
+                switch (order.status) {
+                    case 'Pending':
+                        return `
+                            <button onclick="updateOrderStatus('${order._id}', 'Processing')" 
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+                                <i class="fas fa-check mr-1"></i> Accept Order
+                            </button>
+                            <button onclick="updateOrderStatus('${order._id}', 'Cancelled')" 
+                                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm">
+                                <i class="fas fa-times mr-1"></i> Cancel
+                            </button>
+                        `;
+                    case 'Processing':
+                        return `
+                            <button onclick="showShippingForm('${order._id}')" 
+                                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                                <i class="fas fa-truck mr-1"></i> Mark as Shipped
+                            </button>
+                        `;
+                    case 'Shipped':
+                        return `
+                            <span class="text-sm text-gray-600">Waiting for delivery confirmation</span>
+                        `;
+                    case 'Delivered':
+                        return `
+                            <span class="text-sm text-green-600 font-medium">Order completed</span>
+                        `;
+                    case 'Cancelled':
+                        return `
+                            <span class="text-sm text-red-600 font-medium">Order cancelled</span>
+                        `;
+                    default:
+                        return '';
+                }
+            }
+
+            // Update order status
+            window.updateOrderStatus = async (orderId, newStatus) => {
+                if (!confirm(`Are you sure you want to ${newStatus.toLowerCase()} this order?`)) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+
+                    if (response.ok) {
+                        showToast(`Order ${newStatus.toLowerCase()} successfully!`, 'success');
+                        await loadOrders(); // Reload orders
+                    } else {
+                        const error = await response.json();
+                        showToast(error.message || 'Failed to update order', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error updating order:', error);
+                    showToast('Failed to update order', 'error');
+                }
+            };
+
+            // Show shipping form
+            window.showShippingForm = (orderId) => {
+                const trackingNumber = prompt('Enter tracking number (optional):');
+                if (trackingNumber === null) return; // User cancelled
+
+                updateOrderStatus(orderId, 'Shipped');
+            };
+
+            // View order details
+            window.viewOrderDetails = (orderId) => {
+                window.location.href = `/pages/order-details.html?id=${orderId}`;
+            };
+
+            // Message buyer
+            window.messageBuyer = (buyerId, productName) => {
+                window.location.href = `/pages/messages.html?recipientId=${buyerId}&product=${encodeURIComponent(productName)}`;
+            };
+
+            // Render pagination
+            function renderPagination(pagination) {
+                const container = document.getElementById('pagination-container');
+                
+                if (!pagination || pagination.totalPages <= 1) {
+                    container.innerHTML = '';
+                    return;
+                }
+
+                let html = '<div class="flex justify-center items-center space-x-2">';
+                
+                // Previous button
+                if (pagination.currentPage > 1) {
+                    html += `<button onclick="loadPage(${pagination.currentPage - 1})" class="px-3 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>`;
+                }
+                
+                // Page numbers
+                for (let i = 1; i <= pagination.totalPages; i++) {
+                    const isActive = i === pagination.currentPage;
+                    html += `<button onclick="loadPage(${i})" class="px-4 py-2 rounded-lg transition-colors ${
+                        isActive ? 'bg-gold text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }">${i}</button>`;
+                }
+                
+                // Next button
+                if (pagination.currentPage < pagination.totalPages) {
+                    html += `<button onclick="loadPage(${pagination.currentPage + 1})" class="px-3 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>`;
+                }
+                
+                html += '</div>';
+                container.innerHTML = html;
+            }
+
+            // Load specific page
+            window.loadPage = async (page) => {
+                currentPage = page;
+                await loadOrders();
+            };
+
+            // Helper functions
+            function getStatusColor(status) {
+                switch (status) {
+                    case 'Pending': return 'status-pending';
+                    case 'Processing': return 'status-processing';
+                    case 'Shipped': return 'status-shipped';
+                    case 'Delivered': return 'status-delivered';
+                    case 'Cancelled': return 'status-cancelled';
+                    default: return 'bg-gray-100 text-gray-800';
+                }
+            }
+
+            function getStatusIcon(status) {
+                switch (status) {
+                    case 'Pending': return 'fas fa-clock';
+                    case 'Processing': return 'fas fa-cog';
+                    case 'Shipped': return 'fas fa-truck';
+                    case 'Delivered': return 'fas fa-check-circle';
+                    case 'Cancelled': return 'fas fa-times-circle';
+                    default: return 'fas fa-question-circle';
+                }
+            }
+
+            // Toast notification
+            function showToast(message, type = 'success') {
+                let container = document.getElementById('toast-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'toast-container';
+                    document.body.appendChild(container);
+                }
+
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `
+                    <i class="fas fa-check-circle toast-icon"></i>
+                    <span class="toast-message">${message}</span>
+                `;
+
+                container.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 400);
+                }, 3000);
+            }
+        });
+    </script>
+    <script src="/js/config.js"></script>
+    <script src="/js/header.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/mobile-header.js"></script>
+</body>
+
+</html>

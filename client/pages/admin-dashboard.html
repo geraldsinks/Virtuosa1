@@ -125,6 +125,17 @@
                 </button>
             </div>
             <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Admin Panel</div>
+                <a href="/pages/admin-dashboard.html" class="mobile-menu-link bg-red-600 hover:bg-red-700 text-white"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+                <a href="/pages/admin-asset-library.html" class="mobile-menu-link"><i class="fas fa-images"></i><span>Asset Library</span></a>
+                <a href="/pages/admin-seller-applications.html" class="mobile-menu-link"><i class="fas fa-user-check"></i><span>Seller Applications</span></a>
+                <a href="/pages/admin-mass-messaging.html" class="mobile-menu-link"><i class="fas fa-bullhorn"></i><span>Mass Messaging</span></a>
+                <a href="/pages/admin-retention.html" class="mobile-menu-link"><i class="fas fa-chart-line"></i><span>Retention</span></a>
+            </div>
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Shopping</div>
+                <a href="/pages/buyer-dashboard.html" class="mobile-menu-link"><i class="fas fa-shopping-cart"></i><span>Buyer Dashboard</span></a>
+                <a href="/pages/seller-dashboard.html" class="mobile-menu-link"><i class="fas fa-store"></i><span>Seller Dashboard</span></a>
                 <a href="/index.html" class="mobile-menu-link"><i class="fas fa-home"></i><span>Home</span></a>
                 <a href="/pages/products.html" class="mobile-menu-link"><i class="fas fa-shopping-bag"></i><span>Shop All</span></a>
                 <a href="/pages/cart.html" class="mobile-menu-link"><i class="fas fa-shopping-cart"></i><span>My Cart</span></a>
@@ -132,6 +143,8 @@
             <div class="mobile-menu-section">
                 <div class="mobile-menu-title">Account</div>
                 <a href="/pages/profile.html" class="mobile-menu-link"><i class="fas fa-user"></i><span>Profile</span></a>
+                <a href="/pages/notifications.html" class="mobile-menu-link"><i class="fas fa-bell"></i><span>Notifications</span></a>
+                <a href="/pages/messages.html" class="mobile-menu-link"><i class="fas fa-envelope"></i><span>Messages</span></a>
                 <a href="/pages/orders.html" class="mobile-menu-link"><i class="fas fa-box"></i><span>Orders</span></a>
             </div>
         </div>
@@ -144,6 +157,57 @@
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
             <p class="text-gray-600 mt-2">Monitor and manage the Virtuosa platform</p>
+        </div>
+
+        <!-- Admin Navigation Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <a href="/pages/admin-asset-library.html" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-blue-500 group">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Asset Library</h3>
+                        <p class="text-sm text-gray-600">Manage marketing assets and banners</p>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-images text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="/pages/admin-seller-applications.html" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-green-500 group">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Seller Applications</h3>
+                        <p class="text-sm text-gray-600">Review and approve seller requests</p>
+                    </div>
+                    <div class="bg-green-50 p-3 rounded-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-user-check text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="/pages/admin-mass-messaging.html" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-purple-500 group">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Mass Messaging</h3>
+                        <p class="text-sm text-gray-600">Send announcements to users</p>
+                    </div>
+                    <div class="bg-purple-50 p-3 rounded-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-bullhorn text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="/pages/admin-retention.html" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-orange-500 group">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">User Retention</h3>
+                        <p class="text-sm text-gray-600">Monitor engagement metrics</p>
+                    </div>
+                    <div class="bg-orange-50 p-3 rounded-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-chart-line text-orange-600 text-xl"></i>
+                    </div>
+                </div>
+            </a>
         </div>
 
         <!-- Period Selector -->

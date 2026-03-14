@@ -88,6 +88,18 @@
                         </svg>
                         <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
                     </a>
+                    
+                    <!-- Notifications -->
+                    <a href="/pages/notifications.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <i class="fas fa-bell"></i>
+                        <span id="notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                    
+                    <!-- Messages -->
+                    <a href="/pages/messages.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <i class="fas fa-envelope"></i>
+                        <span id="message-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -118,6 +130,18 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                     <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+                
+                <!-- Notifications -->
+                <a href="/pages/notifications.html" class="relative text-white hover:text-gold transition-colors">
+                    <i class="fas fa-bell"></i>
+                    <span id="notification-badge-desktop" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                </a>
+                
+                <!-- Messages -->
+                <a href="/pages/messages.html" class="relative text-white hover:text-gold transition-colors">
+                    <i class="fas fa-envelope"></i>
+                    <span id="message-badge-desktop" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
                 </a>
             </div>
         </div>
@@ -283,7 +307,7 @@
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-xl font-bold text-navy">Recent Orders</h2>
-                        <button onclick="window.location.href='/pages/transactions.html?type=selling'"
+                        <button onclick="window.location.href='/pages/seller-orders.html'"
                             class="text-sm text-gold font-semibold hover:underline">View All Orders</button>
                     </div>
                     <div id="recent-transactions" class="space-y-4">

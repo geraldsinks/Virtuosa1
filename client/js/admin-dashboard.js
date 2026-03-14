@@ -43,7 +43,7 @@ async function loadDashboardData() {
         const token = localStorage.getItem('token');
         const period = document.getElementById('periodSelector').value;
 
-        const response = await fetch(`/api/admin/dashboard?period=${period}`, {
+        const response = await fetch(`${API_BASE}/admin/dashboard?period=${period}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

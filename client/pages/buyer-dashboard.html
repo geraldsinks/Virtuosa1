@@ -166,6 +166,22 @@
                     <span id="user-greeting" class="text-sm font-medium"></span>
                     <i class="fas fa-user-circle"></i>
                 </div>
+                
+                <!-- Seller Dashboard Link (shown only to sellers) -->
+                <div id="desktop-seller-link" class="hidden md:flex items-center">
+                    <a href="/pages/seller-dashboard.html" class="seller-dashboard-link flex items-center space-x-1">
+                        <i class="fas fa-store"></i>
+                        <span>Seller Dashboard</span>
+                    </a>
+                </div>
+
+                <!-- Admin Dashboard Link (shown only to admins) -->
+                <div id="desktop-admin-link" class="hidden md:flex items-center">
+                    <a href="/pages/admin-dashboard.html" class="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium text-sm flex items-center space-x-1">
+                        <i class="fas fa-cog"></i>
+                        <span>Admin Panel</span>
+                    </a>
+                </div>
 
                 <!-- Hamburger Menu Toggle (Desktop) -->
                 <button id="desktop-menu-toggle" class="text-white hover:text-gold transition-colors hidden md:block">
@@ -207,7 +223,16 @@
                 
                 <!-- Role Specific Panels -->
                 <div id="mobile-seller-section" style="display: none;">
-                    <a href="/pages/seller-dashboard.html" class="mobile-menu-link"><i class="fas fa-store"></i><span>Seller Panel</span></a>
+                    <div class="mobile-menu-title">Seller Tools</div>
+                    <a href="/pages/seller-dashboard.html" class="mobile-menu-link bg-green-600 hover:bg-green-700 text-white">
+                        <i class="fas fa-store"></i><span>Seller Dashboard</span>
+                    </a>
+                    <a href="/pages/create-product.html" class="mobile-menu-link">
+                        <i class="fas fa-plus-circle"></i><span>Add Product</span>
+                    </a>
+                    <a href="/pages/seller-analytics.html" class="mobile-menu-link">
+                        <i class="fas fa-chart-line"></i><span>Analytics</span>
+                    </a>
                 </div>
                 
                 <div id="mobile-admin-section" style="display: none;">

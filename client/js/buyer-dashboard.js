@@ -43,6 +43,9 @@ async function loadDashboardData() {
         // Update welcome message
         document.getElementById('buyer-name').textContent = userData.fullName || 'Buyer';
 
+        // Check user roles and update UI accordingly
+        updateRoleBasedUI(userData);
+
         // Load dashboard statistics
         await Promise.all([
             loadOrderStats(),
@@ -54,6 +57,67 @@ async function loadDashboardData() {
     } catch (error) {
         console.error('Dashboard loading error:', error);
         showErrorState();
+    }
+}
+
+// Update UI based on user roles
+function updateRoleBasedUI(userData) {
+    // Show/hide seller section in mobile menu
+    const mobileSellerSection = document.getElementById('mobile-seller-section');
+    const mobileAdminSection = document.getElementById('mobile-admin-section');
+    const desktopSellerLink = document.getElementById('desktop-seller-link');
+    const desktopAdminLink = document.getElementById('desktop-admin-link');
+    
+    // Reset visibility
+    if (mobileSellerSection) mobileSellerSection.style.display = 'none';
+    if (mobileAdminSection) mobileAdminSection.style.display = 'none';
+    if (desktopSellerLink) desktopSellerLink.style.display = 'none';
+    if (desktopAdminLink) desktopAdminLink.style.display = 'none';
+    
+    // Show seller section if user is a seller
+    if (userData.isSeller) {
+        if (mobileSellerSection) {
+            mobileSellerSection.style.display = 'block';
+        }
+        
+        if (desktopSellerLink) {
+            desktopSellerLink.style.display = 'flex';
+        }
+        
+        // Update "Become a Seller" card to "Seller Dashboard"
+        const becomeSellerCard = document.querySelector('a[href="/pages/seller.html"].quick-action-card');
+        if (becomeSellerCard) {
+            becomeSellerCard.href = '/pages/seller-dashboard.html';
+            becomeSellerCard.querySelector('h3').textContent = 'Seller Dashboard';
+            becomeSellerCard.querySelector('p').textContent = 'Manage your store';
+            
+            // Update icon
+            const iconContainer = becomeSellerCard.querySelector('.bg-gold\\/20');
+            if (iconContainer) {
+                iconContainer.className = 'bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4';
+                const icon = iconContainer.querySelector('i');
+                if (icon) {
+                    icon.setAttribute('data-lucide', 'store');
+                    icon.className = 'w-6 h-6 text-green-600';
+                }
+            }
+        }
+    }
+    
+    // Show admin section if user is an admin
+    if (userData.isAdmin) {
+        if (mobileAdminSection) {
+            mobileAdminSection.style.display = 'block';
+        }
+        
+        if (desktopAdminLink) {
+            desktopAdminLink.style.display = 'flex';
+        }
+    }
+    
+    // Re-initialize Lucide icons if they were updated
+    if (window.lucide) {
+        window.lucide.createIcons();
     }
 }
 
