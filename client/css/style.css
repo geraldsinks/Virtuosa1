@@ -110,9 +110,10 @@ body {
 }
 
 .v-header-search {
-    min-width: 200px; /* Increased from 120px for accommodative behavior */
+    min-width: 250px;
     flex: 1 1 auto;
-    max-width: 600px; /* Make search bar wider */
+    max-width: 800px;
+    margin: 0 1.5rem;
 }
 
 .v-header-actions {
@@ -493,10 +494,10 @@ body {
     header .v-header-row .v-header-search {
         display: flex !important;
         align-items: center !important;
-        flex: 0 0 auto !important;
-        max-width: 700px !important; /* Much wider */
-        min-width: 300px !important; /* Wider minimum */
-        margin: 0 auto !important; /* Perfect center */
+        flex: 1 1 auto !important;
+        max-width: 800px !important;
+        min-width: 250px !important;
+        margin: 0 1.5rem !important;
         position: relative !important;
         z-index: 5 !important;
     }
@@ -638,8 +639,9 @@ html[data-v-bp="wide"] {
 
 .v-header-search {
     flex: 1 1 auto;
-    min-width: 200px; /* Increased from 140px for accommodative behavior */
-    max-width: 600px; /* Make search bar wider */
+    min-width: 250px;
+    max-width: 800px;
+    margin: 0 1.5rem;
 }
 
 .v-header-logo a {
