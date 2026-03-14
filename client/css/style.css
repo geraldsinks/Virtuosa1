@@ -110,8 +110,9 @@ body {
 }
 
 .v-header-search {
-    min-width: 120px;
+    min-width: 200px; /* Increased from 120px for accommodative behavior */
     flex: 1 1 auto;
+    max-width: 600px; /* Make search bar wider */
 }
 
 .v-header-actions {
@@ -475,10 +476,22 @@ body {
     .v-header-search {
         display: flex;
         align-items: center;
+        flex: 1 1 auto;
+        max-width: 600px; /* Make search bar wider */
+        min-width: 200px; /* Accommodative behavior */
     }
     
     .v-header-actions {
         display: flex;
+        align-items: center;
+    }
+    
+    /* Sub navigation alignment */
+    .bg-dark-navy .flex.items-center {
+        align-items: center; /* Ensure Hot Deals, Best Sellers, Become a Seller are in straight line */
+    }
+    
+    .bg-dark-navy .flex.items-center.space-x-4 {
         align-items: center;
     }
 }
@@ -596,7 +609,8 @@ html[data-v-bp="wide"] {
 
 .v-header-search {
     flex: 1 1 auto;
-    min-width: 140px;
+    min-width: 200px; /* Increased from 140px for accommodative behavior */
+    max-width: 600px; /* Make search bar wider */
 }
 
 .v-header-logo a {
