@@ -458,21 +458,21 @@ body {
     .v-header-row,
     .desktop-header {
         display: flex !important;
-        padding: 8px 0; /* Reduced from 16px to 8px */
-        min-height: 48px; /* Reduced from 60px to 48px */
-    }
-    
-    /* More specific rules to override everything */
-    header .v-container.v-header-row.desktop-header {
+        padding: 8px 0 !important; /* Reduced from 16px to 8px */
+        min-height: 48px !important; /* Reduced from 60px to 48px */
         align-items: center !important;
         justify-content: space-between !important;
         gap: 1rem !important;
     }
     
-    .v-header-row {
-        align-items: center !important; /* Ensure items are in a straight line */
-        gap: 1rem; /* Proper spacing between items */
-        justify-content: space-between; /* Even distribution */
+    /* More specific rules to override everything */
+    header .v-container.v-header-row.desktop-header {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 1rem !important;
+        padding: 8px 0 !important;
+        min-height: 48px !important;
     }
     
     header .v-header-row .v-header-logo {
@@ -501,10 +501,12 @@ body {
     
     /* Sub navigation alignment */
     nav.bg-dark-navy .container.mx-auto .flex.items-center {
+        display: flex !important;
         align-items: center !important; /* Ensure Hot Deals, Best Sellers, Become a Seller are in straight line */
     }
     
     nav.bg-dark-navy .container.mx-auto .flex.items-center.space-x-4 {
+        display: flex !important;
         align-items: center !important;
     }
 }

@@ -40,6 +40,30 @@
             display: none !important;
         }
 
+        /* Force header alignment override all other styles */
+        @media (min-width: 768px) {
+            .v-header-row,
+            .desktop-header {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 1rem !important;
+                padding: 8px 0 !important;
+                min-height: 48px !important;
+            }
+            
+            .v-header-search {
+                max-width: 600px !important;
+                min-width: 200px !important;
+                margin: 0 1rem !important;
+            }
+            
+            nav.bg-dark-navy .container .flex {
+                display: flex !important;
+                align-items: center !important;
+            }
+        }
+
         .ad-card {
             transition: opacity 0.5s ease-in-out;
         }
