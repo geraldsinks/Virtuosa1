@@ -1,48 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
+const fs = require('fs');
+const path = require('path');
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtuosa - My Orders</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css">
-    <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-        }
+const baseDir = 'c:/Users/HP USER/Desktop/Virtuosa/client';
+const pagesDir = path.join(baseDir, 'pages');
 
-        .bg-navy {
-            background-color: #0A1128;
-        }
-
-        .text-gold {
-            color: #FFD700;
-        }
-
-        .bg-button-gold {
-            background-color: #C19A6B;
-        }
-
-        .hover-bg-button-gold:hover {
-            background-color: #A98B68;
-        }
-
-        .bg-dark-navy {
-            background-color: #060A18;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-    </style>
-</head>
-
-<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
-    
+const MOBILE_HEADER_HTML = `
     <!-- Mobile Header Structure (320px-480px) -->
     <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
         <!-- Row 1: Utilities and Branding -->
@@ -80,13 +42,52 @@
                 </div>
             </div>
         </div>
+`;
 
+const SEARCH_ROW_HTML = `
+        <!-- Row 2: Search-First Experience (Product Pages Only) -->
+        <div class="v-container mobile-header-row-2 pb-3">
+            <div class="relative mobile-search-container">
+                <input id="mobile-search-input" type="text" 
+                    placeholder="Search campus marketplace..." 
+                    class="w-full pl-4 pr-12 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400 mobile-search-input"
+                    autocomplete="off">
+                <button id="mobile-search-button" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors mobile-search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+`;
+
+const DESKTOP_HEADER_BASE = `
         <!-- Desktop Header (Hidden on Mobile) -->
         <div class="v-container v-header-row desktop-header">
             <div class="flex items-center v-header-logo">
                 <a href="/index.html" class="text-xl md:text-3xl font-bold text-gold">Virtuosa</a>
             </div>
+`;
 
+const DESKTOP_SEARCH_HTML = `
+            <div class="v-header-search">
+                <div class="relative">
+                    <input id="home-search-input" type="text"
+                        placeholder="Search campus marketplace..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400"
+                        autocomplete="off">
+                    <button id="home-search-button"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+`;
+
+const ACTIONS_HTML = `
             <div id="user-info-container" class="flex items-center space-x-4 v-header-actions">
                 <a href="/pages/login.html" id="login-link" class="text-white hover:text-gold transition-colors font-medium text-sm md:text-base hidden md:block">Log In</a>
                 <div id="user-menu" class="relative hidden">
@@ -111,7 +112,9 @@
             </div>
         </div>
     </header>
+`;
 
+const OVERLAY_HTML = `
     <!-- Mobile Navigation Menu Overlay -->
     <div id="mobile-menu-overlay" class="mobile-menu-overlay">
         <div class="mobile-menu-content">
@@ -135,83 +138,43 @@
             </div>
         </div>
     </div>
+`;
 
+function processHtml(filePath) {
+    let content = fs.readFileSync(filePath, 'utf8');
+    const isProductPage = filePath.includes('index.html') || filePath.includes('products.html') || filePath.includes('product-detail.html');
 
-    <main class="flex-grow py-8">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="md:col-span-1">
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h3 class="text-lg font-bold text-navy mb-4">Menu</h3>
-                        <nav class="space-y-3">
-                            <a href="/pages/profile.html"
-                                class="block px-4 py-2 text-navy hover:bg-gray-100 rounded-lg transition-colors">My
-                                Profile</a>
-                            <a href="/pages/orders.html"
-                                class="block px-4 py-2 bg-gold text-white rounded-lg font-semibold">My Orders</a>
-                            <a href="/pages/settings.html"
-                                class="block px-4 py-2 text-navy hover:bg-gray-100 rounded-lg transition-colors">Settings</a>
-                            <a href="/index.html"
-                                class="block px-4 py-2 text-navy hover:bg-gray-100 rounded-lg transition-colors">Back to
-                                Shopping</a>
-                        </nav>
-                    </div>
-                </div>
-                <div class="md:col-span-3">
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h1 class="text-3xl font-bold text-navy mb-6">My Orders</h1>
-                        <div id="orders-content" class="space-y-4">
-                            <p class="text-center text-gray-500 py-8">You haven't placed any orders yet. <a
-                                    href="/pages/products.html" class="text-gold font-semibold">Start shopping</a></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-    <footer class="bg-navy text-gray-400 p-4 text-center shadow-inner mt-auto">
-        &copy; 2025 Virtuosa. All rights reserved.
-    </footer>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const loginLink = document.getElementById('login-link');
-            const userGreeting = document.getElementById('user-greeting');
-            const logoutButton = document.getElementById('logout-button');
+    let newHeader = MOBILE_HEADER_HTML;
+    if (isProductPage) newHeader += SEARCH_ROW_HTML;
+    newHeader += DESKTOP_HEADER_BASE;
+    if (isProductPage) newHeader += DESKTOP_SEARCH_HTML;
+    newHeader += ACTIONS_HTML;
 
-            function updateUserUI() {
-                const userFullName = localStorage.getItem('userFullName');
-                if (userFullName) {
-                    loginLink.classList.add('hidden');
-                    userGreeting.textContent = `Hello, ${userFullName}`;
-                    userGreeting.classList.add('hidden', 'md:inline');
-                    logoutButton.classList.remove('hidden');
-                } else {
-                    loginLink.classList.remove('hidden');
-                    userGreeting.classList.add('hidden');
-                    if(userGreeting.classList.contains('md:inline')) userGreeting.classList.remove('md:inline');
-                    logoutButton.classList.add('hidden');
-                    window.location.href = '/pages/login.html';
-                }
-            }
+    // 1. Replace the entire <header>...</header> block
+    content = content.replace(/<header[\s\S]*?<\/header>/, newHeader);
 
-            updateUserUI();
+    // 2. Ensure overlay
+    if (content.includes('id="mobile-menu-overlay"')) {
+        content = content.replace(/<div id="mobile-menu-overlay"[\s\S]*?<\/div>\s*<\/div>/, OVERLAY_HTML);
+    } else {
+        content = content.replace(/<\/header>/, '<\/header>\n' + OVERLAY_HTML);
+    }
 
-            logoutButton.addEventListener('click', async () => {
-                try {
-                    await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('userEmail');
-                    localStorage.removeItem('userFullName');
-                    window.location.href = '/index.html';
-                } catch (error) {
-                    console.error('Logout error:', error);
-                }
-            });
-        });
-    </script>
-    <script src="../js/header.js"></script>
-    <script src="../js/cart.js"></script>
-<script src="/js/config.js"></script><script src="/js/header.js"></script><script src="/js/mobile-header.js"></script>
-</body>
+    // 3. Essential scripts
+    const scripts = '<script src="/js/config.js"></script>' +
+                    '<script src="/js/header.js"></script>' +
+                    '<script src="/js/mobile-header.js"></script>';
+    
+    if (!content.includes('mobile-header.js')) {
+        content = content.replace(/<\/body>/, scripts + '\n</body>');
+    }
 
-</html>
+    fs.writeFileSync(filePath, content, 'utf8');
+}
+
+processHtml(path.join(baseDir, 'index.html'));
+const files = fs.readdirSync(pagesDir).filter(f => f.endsWith('.html'));
+for (const file of files) {
+    processHtml(path.join(pagesDir, file));
+}
+console.log('Unification complete.');

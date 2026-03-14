@@ -215,13 +215,15 @@ function updateCartBadge() {
 // Authentication State Functions
 function updateAuthState() {
     const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userFullName = localStorage.getItem('userFullName');
+    const isSeller = localStorage.getItem('isSeller') === 'true';
+    const isAdmin = localStorage.getItem('isAdmin') === 'true';
     
     const mobileLoginLink = document.getElementById('mobile-login-link');
     const mobileSellerSection = document.getElementById('mobile-seller-section');
     const mobileAdminSection = document.getElementById('mobile-admin-section');
     
-    if (token && user.email) {
+    if (token && userFullName) {
         // User is authenticated
         if (mobileLoginLink) {
             mobileLoginLink.innerHTML = `
@@ -233,13 +235,12 @@ function updateAuthState() {
             mobileLoginLink.href = '/pages/profile.html';
         }
         
-        // Show seller section if user is a seller
-        if (user.isSeller && mobileSellerSection) {
+        // Show sections in mobile menu overlay
+        if (isSeller && mobileSellerSection) {
             mobileSellerSection.style.display = 'block';
         }
         
-        // Show admin section if user is an admin
-        if (user.isAdmin && mobileAdminSection) {
+        if (isAdmin && mobileAdminSection) {
             mobileAdminSection.style.display = 'block';
         }
     } else {
