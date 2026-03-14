@@ -50,12 +50,34 @@
                 gap: 1rem !important;
                 padding: 8px 0 !important;
                 min-height: 48px !important;
+                position: relative !important;
+            }
+            
+            .v-header-logo {
+                position: absolute !important;
+                left: 0 !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                z-index: 10 !important;
+                flex-shrink: 0 !important;
             }
             
             .v-header-search {
-                max-width: 600px !important;
-                min-width: 200px !important;
-                margin: 0 1rem !important;
+                max-width: 700px !important;
+                min-width: 300px !important;
+                margin: 0 auto !important;
+                position: relative !important;
+                z-index: 5 !important;
+                flex: 0 0 auto !important;
+            }
+            
+            .v-header-actions {
+                position: absolute !important;
+                right: 0 !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                z-index: 10 !important;
+                flex-shrink: 0 !important;
             }
             
             nav.bg-dark-navy .container .flex {
@@ -248,11 +270,11 @@
         </div>
 
         <!-- Desktop Header (Hidden on Mobile) -->
-        <div class="v-container v-header-row desktop-header" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
-            <div class="flex items-center v-header-logo" style="display: flex; align-items: center; flex-shrink: 0;">
+        <div class="v-container v-header-row desktop-header" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: relative; padding: 8px 0; min-height: 48px;">
+            <div class="flex items-center v-header-logo" style="display: flex; align-items: center; flex-shrink: 0; position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 10;">
                 <a href="#" class="text-3xl font-bold text-gold">Virtuosa</a>
             </div>
-            <div class="v-header-search" style="display: flex; align-items: center; flex: 1 1 auto; max-width: 600px; min-width: 200px; margin: 0 1rem;">
+            <div class="v-header-search" style="display: flex; align-items: center; flex: 0 0 auto; max-width: 700px; min-width: 300px; margin: 0 auto; position: relative; z-index: 5;">
                 <div class="relative">
                     <input id="home-search-input" type="text"
                         placeholder="Search campus marketplace (e.g. &quot;HP laptop&quot;, &quot;Men's hoodie&quot;)..."
@@ -273,7 +295,7 @@
                     </div>
                 </div>
             </div>
-            <div id="user-info-container" class="flex items-center space-x-4 v-header-actions" style="display: flex; align-items: center; flex-shrink: 0;">
+            <div id="user-info-container" class="flex items-center space-x-4 v-header-actions" style="display: flex; align-items: center; flex-shrink: 0; position: absolute; right: 0; top: 50%; transform: translateY(-50%); z-index: 10;">
                 <a href="/pages/login.html" id="login-link"
                     class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
                 <div id="user-menu" class="relative hidden">

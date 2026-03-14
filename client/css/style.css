@@ -458,11 +458,12 @@ body {
     .v-header-row,
     .desktop-header {
         display: flex !important;
-        padding: 8px 0 !important; /* Reduced from 16px to 8px */
-        min-height: 48px !important; /* Reduced from 60px to 48px */
         align-items: center !important;
         justify-content: space-between !important;
         gap: 1rem !important;
+        padding: 8px 0 !important;
+        min-height: 48px !important;
+        position: relative;
     }
     
     /* More specific rules to override everything */
@@ -473,30 +474,43 @@ body {
         gap: 1rem !important;
         padding: 8px 0 !important;
         min-height: 48px !important;
+        position: relative;
     }
     
+    /* Logo - Fixed to left */
     header .v-header-row .v-header-logo {
         display: flex !important;
         align-items: center !important;
         flex-shrink: 0 !important;
-        order: 1 !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        z-index: 10 !important;
     }
     
+    /* Search - Centered and wider */
     header .v-header-row .v-header-search {
         display: flex !important;
         align-items: center !important;
-        flex: 1 1 auto !important;
-        max-width: 600px !important; /* Make search bar wider - override Tailwind */
-        min-width: 200px !important; /* Accommodative behavior */
-        margin: 0 1rem !important; /* Override md:mx-auto */
-        order: 2 !important;
+        flex: 0 0 auto !important;
+        max-width: 700px !important; /* Much wider */
+        min-width: 300px !important; /* Wider minimum */
+        margin: 0 auto !important; /* Perfect center */
+        position: relative !important;
+        z-index: 5 !important;
     }
     
+    /* User Actions - Fixed to right */
     header .v-header-row .v-header-actions {
         display: flex !important;
         align-items: center !important;
         flex-shrink: 0 !important;
-        order: 3 !important;
+        position: absolute !important;
+        right: 0 !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        z-index: 10 !important;
     }
     
     /* Sub navigation alignment */
