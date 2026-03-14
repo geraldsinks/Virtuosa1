@@ -1,3 +1,6 @@
+// Messages Simple JavaScript
+const API_BASE = 'https://virtuosa-server.onrender.com/api';
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Messages page loaded');
     
@@ -56,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (token) {
             try {
-                const response = await fetch(`/api/messages/${recipientId}`, {
+                const response = await fetch(`${API_BASE}/messages/${recipientId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
@@ -132,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (token) {
             try {
-                const response = await fetch('/api/messages/conversations', {
+                const response = await fetch(`${API_BASE}/messages/conversations`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
@@ -227,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             try {
-                const response = await fetch('/api/messages', {
+                const response = await fetch(`${API_BASE}/messages`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

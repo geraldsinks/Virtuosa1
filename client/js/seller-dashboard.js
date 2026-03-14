@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         try {
-            const response = await fetch(`/api/products/${productId}`, {
+            const response = await fetch(`${API_BASE}/products/${productId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

@@ -1,3 +1,6 @@
+// Seller Verification JavaScript
+const API_BASE = 'https://virtuosa-server.onrender.com/api';
+
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -17,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load user data
     let userData;
     try {
-        const response = await fetch('/api/user/profile', {
+        const response = await fetch(`${API_BASE}/user/profile`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -168,7 +171,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.resendVerification = async () => {
         try {
-            const response = await fetch('/api/auth/resend-verification', {
+            const response = await fetch(`${API_BASE}/auth/resend-verification`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -190,7 +193,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.becomeSeller = async () => {
         try {
-            const response = await fetch('/api/user/become-seller', {
+            const response = await fetch(`${API_BASE}/user/become-seller`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -224,7 +227,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         try {
-            const response = await fetch('/api/seller/verify-payment', {
+            const response = await fetch(`${API_BASE}/seller/verify-payment`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

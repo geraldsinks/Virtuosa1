@@ -1,4 +1,6 @@
 // Token Manager - Automatic Token Refresh and Reconnection
+const API_BASE = 'https://virtuosa-server.onrender.com/api';
+
 class TokenManager {
     constructor() {
         this.token = localStorage.getItem('token');
@@ -88,7 +90,7 @@ class TokenManager {
 
         this.refreshPromise = new Promise(async (resolve, reject) => {
             try {
-                const response = await fetch('/api/auth/refresh', {
+                const response = await fetch(`${API_BASE}/auth/refresh`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

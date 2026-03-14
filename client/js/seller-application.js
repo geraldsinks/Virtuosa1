@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function checkApplicationStatus() {
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch('/api/seller/application-status', {
+        const response = await fetch(`${API_BASE}/seller/application-status`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -648,7 +648,7 @@ async function handleSubmit(e) {
             }
         };
 
-        const response = await fetch('/api/seller/apply', {
+        const response = await fetch(`${API_BASE}/seller/apply`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

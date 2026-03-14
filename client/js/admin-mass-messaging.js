@@ -1,3 +1,6 @@
+// Admin Mass Messaging JavaScript
+const API_BASE = 'https://virtuosa-server.onrender.com/api';
+
 // Admin Mass Messaging System - Enhanced Version
 class AdminMassMessaging {
     constructor() {
@@ -320,7 +323,7 @@ class AdminMassMessaging {
         try {
             // First try the debug endpoint
             console.log('Trying debug endpoint...');
-            const response = await fetch('/api/admin/debug/stats', {
+            const response = await fetch(`${API_BASE}/admin/debug/stats`, {
                 headers: { 'Authorization': `Bearer ${this.token}` }
             });
 
@@ -337,7 +340,7 @@ class AdminMassMessaging {
             // Fallback to original endpoint
             try {
                 console.log('Trying original endpoint...');
-                const response = await fetch('/api/admin/users/stats', {
+                const response = await fetch(`${API_BASE}/admin/users/stats`, {
                     headers: { 'Authorization': `Bearer ${this.token}` }
                 });
 
@@ -540,10 +543,10 @@ class AdminMassMessaging {
             let response;
             if (window.authHelper) {
                 console.log('🔐 Using authHelper for API call...');
-                response = await window.authHelper.authenticatedFetch(`/api/admin/users/target?${queryParams}`);
+                response = await window.authHelper.authenticatedFetch(`${API_BASE}/admin/users/target?${queryParams}`);
             } else {
                 console.log('⚠️ Using regular fetch (no authHelper)...');
-                response = await fetch(`/api/admin/users/target?${queryParams}`, {
+                response = await fetch(`${API_BASE}/admin/users/target?${queryParams}`, {
                     headers: { 'Authorization': `Bearer ${this.token}` }
                 });
             }
@@ -863,17 +866,6 @@ class AdminMassMessaging {
                 title: this.messageData.title,
                 content: this.messageData.content,
                 userIds: this.targetUsers.map(user => user.id),
-                scheduleTime: this.messageData.scheduleTime
-            };
-
-            console.log('📦 Payload:', payload);
-
-            const response = await window.authHelper.authenticatedFetch('/api/admin/messages/send-mass', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
             });
 
             console.log('📊 Send response status:', response.status);

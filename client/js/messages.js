@@ -1,3 +1,6 @@
+// Messages JavaScript
+const API_BASE = 'https://virtuosa-server.onrender.com/api';
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Messages page loading...');
     
@@ -448,7 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             console.log('Fetching conversations from API...');
-            const response = await fetch('/api/messages/conversations', {
+            const response = await fetch(`${API_BASE}/messages/conversations`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
@@ -585,7 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             console.log('Fetching messages from API...');
-            const response = await fetch(`/api/messages/${currentRecipientId}`, {
+            const response = await fetch(`${API_BASE}/messages/${currentRecipientId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
@@ -724,7 +727,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // Fallback to HTTP
             try {
-                const response = await fetch('/api/messages', {
+                const response = await fetch(`${API_BASE}/messages`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -821,7 +824,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!newContent || newContent === currentContent) return;
 
         try {
-            const response = await fetch(`/api/messages/${messageId}`, {
+            const response = await fetch(`${API_BASE}/messages/${messageId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -842,7 +845,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirm('Are you sure you want to delete this message?')) return;
 
         try {
-            const response = await fetch(`/api/messages/${messageId}`, {
+            const response = await fetch(`${API_BASE}/messages/${messageId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -862,7 +865,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // Fallback to HTTP
             try {
-                const response = await fetch(`/api/messages/${messageId}/reactions`, {
+                const response = await fetch(`${API_BASE}/messages/${messageId}/reactions`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -6,11 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    const API_BASE = 'https://virtuosa-server.onrender.com/api';
     const container = document.getElementById('notifications-container');
 
     async function loadNotifications() {
         try {
-            const response = await fetch('/api/notifications', {
+            const response = await fetch(`${API_BASE}/notifications`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -114,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.markAsRead = async (id, link) => {
         try {
-            await fetch(`/api/notifications/${id}/read`, {
+            await fetch(`${API_BASE}/notifications/${id}/read`, {
                 method: 'PUT',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

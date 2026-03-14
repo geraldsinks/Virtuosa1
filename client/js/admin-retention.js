@@ -476,7 +476,9 @@ class AdminRetentionManagement {
     }
 }
 
-// Initialize when DOM is loaded
+// Initialize// Admin Retention JavaScript
+const API_BASE = 'https://virtuosa-server.onrender.com/api';
+
 document.addEventListener('DOMContentLoaded', () => {
     window.retentionManager = new AdminRetentionManagement();
 });

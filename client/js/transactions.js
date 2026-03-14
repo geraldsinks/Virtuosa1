@@ -1,4 +1,5 @@
 // Transaction Management JavaScript
+const API_BASE = 'https://virtuosa-server.onrender.com/api';
 let currentTransactionId = null;
 let currentTransactionType = 'all';
 let currentPage = 1;
@@ -21,7 +22,7 @@ async function loadTransactions(page = 1) {
             params.append('search', search);
         }
         
-        const response = await fetch(`/api/transactions?${params}`, {
+        const response = await fetch(`${API_BASE}/transactions?${params}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -157,7 +158,7 @@ async function viewTransactionDetails(transactionId) {
     try {
         const token = localStorage.getItem('token');
         
-        const response = await fetch(`/api/transactions/${transactionId}`, {
+        const response = await fetch(`${API_BASE}/transactions/${transactionId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -301,7 +302,7 @@ async function loadPaymentDetails(transactionId) {
     try {
         const token = localStorage.getItem('token');
         
-        const response = await fetch(`/api/transactions/${transactionId}`, {
+        const response = await fetch(`${API_BASE}/transactions/${transactionId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -344,7 +345,7 @@ async function processPayment(event) {
         const paymentMethod = document.getElementById('paymentMethod').value;
         const paymentReference = document.getElementById('paymentReference').value;
 
-        const response = await fetch(`/api/transactions/${currentTransactionId}/pay`, {
+        const response = await fetch(`${API_BASE}/transactions/${currentTransactionId}/pay`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -384,7 +385,7 @@ async function loadShipmentDetails(transactionId) {
     try {
         const token = localStorage.getItem('token');
         
-        const response = await fetch(`/api/transactions/${transactionId}`, {
+        const response = await fetch(`${API_BASE}/transactions/${transactionId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -427,7 +428,7 @@ async function confirmShipment(event) {
         const trackingNumber = document.getElementById('trackingNumber').value;
         const deliveryMethod = document.getElementById('deliveryMethod').value;
 
-        const response = await fetch(`/api/transactions/${currentTransactionId}/ship`, {
+        const response = await fetch(`${API_BASE}/transactions/${currentTransactionId}/ship`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -457,12 +458,11 @@ async function confirmShipment(event) {
 async function confirmDelivery(transactionId) {
     if (!confirm('Are you sure you have received the item and want to confirm delivery? This will release the payment to the seller.')) {
         return;
-    }
 
-    try {
-        const token = localStorage.getItem('token');
+try {
+const token = localStorage.getItem('token');
         
-        const response = await fetch(`/api/transactions/${transactionId}/confirm-delivery`, {
+const response = await fetch(`${API_BASE}/transactions/${transactionId}/confirm-delivery`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -496,7 +496,7 @@ async function loadDisputeDetails(transactionId) {
     try {
         const token = localStorage.getItem('token');
         
-        const response = await fetch(`/api/transactions/${transactionId}`, {
+        const response = await fetch(`${API_BASE}/transactions/${transactionId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -538,7 +538,7 @@ async function raiseDispute(event) {
         const token = localStorage.getItem('token');
         const disputeReason = document.getElementById('disputeReason').value;
 
-        const response = await fetch(`/api/transactions/${currentTransactionId}/dispute`, {
+        const response = await fetch(`${API_BASE}/transactions/${currentTransactionId}/dispute`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

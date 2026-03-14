@@ -7,7 +7,7 @@ async function loadMyReviews() {
     try {
         const token = localStorage.getItem('token');
         
-        const response = await fetch('/api/reviews/my-reviews', {
+        const response = await fetch(`${API_BASE}/reviews/my-reviews`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -30,7 +30,7 @@ async function loadReviewsAboutMe() {
     try {
         const token = localStorage.getItem('token');
         
-        const response = await fetch('/api/reviews/about-me', {
+        const response = await fetch(`${API_BASE}/reviews/about-me`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -183,7 +183,7 @@ async function loadTransactionsForReview() {
             return;
         }
 
-        const response = await fetch('/api/transactions?status=Completed', {
+        const response = await fetch(`${API_BASE}/transactions?status=Completed`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -234,7 +234,7 @@ async function createReview(event) {
             return;
         }
 
-        const response = await fetch('/api/reviews', {
+        const response = await fetch(`${API_BASE}/reviews`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -292,7 +292,7 @@ async function loadReviewDetails(reviewId) {
     try {
         const token = localStorage.getItem('token');
         
-        const response = await fetch(`/api/reviews/${reviewId}`, {
+        const response = await fetch(`${API_BASE}/reviews/${reviewId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -333,7 +333,7 @@ async function submitResponse() {
             return;
         }
 
-        const response = await fetch(`/api/reviews/${currentReviewId}/respond`, {
+        const response = await fetch(`${API_BASE}/reviews/${currentReviewId}/respond`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -374,7 +374,7 @@ async function deleteReview(reviewId) {
     try {
         const token = localStorage.getItem('token');
         
-        const response = await fetch(`/api/reviews/${reviewId}`, {
+        const response = await fetch(`${API_BASE}/reviews/${reviewId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -455,7 +455,9 @@ function logout() {
 }
 
 // Initialize reviews page
-document.addEventListener('DOMContentLoaded', function() {
+const API_BASE = 'https://virtuosa-server.onrender.com/api';
+
+document.addEventListener('DOMContentLoaded', async () => {
     // Load initial tab
     loadMyReviews();
     

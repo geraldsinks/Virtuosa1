@@ -209,7 +209,7 @@ async function createProduct(event) {
             formData.append(`images`, image.file);
         });
         
-        const response = await fetch('/api/products', {
+        const response = await fetch(`${API_BASE}/products`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -281,7 +281,7 @@ async function checkSellerStatus() {
     try {
         const token = localStorage.getItem('token');
         
-        const response = await fetch('/api/user/profile', {
+        const response = await fetch(`${API_BASE}/user/profile`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -330,8 +330,10 @@ async function checkSellerStatus() {
     }
 }
 
-// Initialize page
-document.addEventListener('DOMContentLoaded', function() {
+// Create Product JavaScript
+const API_BASE = 'https://virtuosa-server.onrender.com/api';
+
+document.addEventListener('DOMContentLoaded', async () => {
     checkSellerStatus();
     updateStepDisplay();
 });
