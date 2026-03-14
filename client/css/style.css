@@ -110,10 +110,9 @@ body {
 }
 
 .v-header-search {
-    min-width: 250px;
+    min-width: 200px; /* Increased from 120px for accommodative behavior */
     flex: 1 1 auto;
-    max-width: 800px;
-    margin: 0 1.5rem;
+    max-width: 600px; /* Make search bar wider */
 }
 
 .v-header-actions {
@@ -423,45 +422,23 @@ body {
         display: flex !important;
     }
     
-
-/* Mobile Header Row 2: Search-First Experience */
-.mobile-header-row-2 {
-    padding: 0 12px;
+    /* Hide some category links to save space on tablets */
+    .nav-category-menu .category-link:nth-child(n+4) {
+        display: none;
+    }
+    
+    /* Show category label on products page */
+    .nav-category-label {
+        display: inline;
+    }
 }
 
-.mobile-search-container {
-    width: 100%;
+@media (min-width: 1024px) {
+    /* Show all categories on desktop */
+    .nav-category-menu .category-link {
+        display: inline-block !important;
+    }
 }
-
-.mobile-search-input {
-    height: 44px;
-    font-size: 0.875rem;
-    padding: 0 3rem 0 1rem;
-    border-radius: 12px;
-    background: #1f2937;
-    border: 1px solid #374151;
-    transition: all 0.2s ease;
-}
-
-.mobile-search-input:focus {
-    background: #111827;
-    border-color: #FFD700;
-    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
-}
-
-.mobile-search-button {
-    right: 0.75rem;
-    padding: 0.5rem;
-    border-radius: 6px;
-}
-
-.mobile-search-button:hover {
-    background: rgba(255, 215, 0, 0.1);
-}
-
-/* ============================== */
-/* Final Header Layout Logic      */
-/* ============================== */
 
 /* Hide desktop header on mobile */
 @media (max-width: 767px) {
@@ -471,7 +448,7 @@ body {
     }
 }
 
-/* Show desktop header and hide mobile elements starting from tablet */
+/* Hide mobile-specific elements on desktop */
 @media (min-width: 768px) {
     .mobile-header-row-1,
     .mobile-header-row-2 {
@@ -483,74 +460,230 @@ body {
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
-        gap: 1.5rem !important;
-        padding: 10px 1.5rem !important;
+        gap: 1rem !important;
+        padding: 8px 0 !important;
         min-height: 48px !important;
-        position: relative !important;
+        position: relative;
     }
     
+    /* More specific rules to override everything */
+    header .v-container.v-header-row.desktop-header {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 1rem !important;
+        padding: 8px 0 !important;
+        min-height: 48px !important;
+        position: relative;
+    }
+    
+    /* Logo - Fixed to left */
     header .v-header-row .v-header-logo {
         display: flex !important;
         align-items: center !important;
         flex-shrink: 0 !important;
-        position: relative !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
         z-index: 10 !important;
-        margin-right: auto;
     }
     
+    /* Search - Centered and wider */
     header .v-header-row .v-header-search {
         display: flex !important;
         align-items: center !important;
-        flex: 1 1 auto !important;
-        max-width: 700px !important;
-        min-width: 300px !important;
-        margin: 0 2rem !important;
+        flex: 0 0 auto !important;
+        max-width: 700px !important; /* Much wider */
+        min-width: 300px !important; /* Wider minimum */
+        margin: 0 auto !important; /* Perfect center */
         position: relative !important;
         z-index: 5 !important;
     }
     
+    /* User Actions - Fixed to right */
     header .v-header-row .v-header-actions {
         display: flex !important;
         align-items: center !important;
         flex-shrink: 0 !important;
-        position: relative !important;
+        position: absolute !important;
+        right: 0 !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
         z-index: 10 !important;
-        margin-left: auto;
     }
-}
-
-/* Sub Navigation Fixes */
-.nav-category-menu {
-    display: none;
-}
-@media (min-width: 768px) {
-    .nav-category-menu {
+    
+    /* Sub navigation alignment */
+    nav.bg-dark-navy .container.mx-auto .flex.items-center {
         display: flex !important;
-        align-items: center;
+        align-items: center !important; /* Ensure Hot Deals, Best Sellers, Become a Seller are in straight line */
+    }
+    
+    nav.bg-dark-navy .container.mx-auto .flex.items-center.space-x-4 {
+        display: flex !important;
+        align-items: center !important;
     }
 }
 
-/* Mobile overlay defaults */
-#mobile-menu-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.9);
-    z-index: 9999;
-    display: none;
-    overflow-y: auto;
-}
-#mobile-menu-overlay.active {
-    display: block;
-}
+/* ============================== */
+/* Virtuosa Mobile-First Foundation */
+/* (Amazon-style survival priorities) */
+/* ============================== */
 
-/* Utility classes at end */
 :root {
     --v-touch: 44px;
+    --v-body-min: 14px;
 }
+
+/* Breakpoint-aware styling hooks */
+html[data-v-bp="sm"],
+html[data-v-bp="mobile"],
+html[data-v-bp="tablet"],
+html[data-v-bp="desktop"],
+html[data-v-bp="wide"] {
+    /* These attributes can be used for JavaScript-driven breakpoint detection */
+}
+
+/* Touch targets */
 .v-touch {
     min-width: var(--v-touch);
     min-height: var(--v-touch);
     display: inline-flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Priority-based hiding helpers (CSS-only). */
+@media (max-width: 479px) {
+    .v-hide-sm {
+        display: none !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .v-hide-mobile {
+        display: none !important;
+    }
+}
+
+@media (max-width: 1023px) {
+    .v-hide-tablet {
+        display: none !important;
+    }
+}
+
+/* Line clamp utilities (Tailwind CDN often lacks the plugin). */
+.line-clamp-1,
+.line-clamp-2,
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-1 { -webkit-line-clamp: 1; line-clamp: 1; }
+.line-clamp-2 { -webkit-line-clamp: 2; line-clamp: 2; }
+.line-clamp-3 { -webkit-line-clamp: 3; line-clamp: 3; }
+
+/* Media rules: square-first like Amazon listings. */
+.v-media-square {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    background: #FFFFFF;
+    overflow: hidden;
+}
+
+.v-media-img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+/* Main product images should avoid cropping (Amazon-style). */
+.v-img-main {
+    object-fit: contain !important;
+    background: #FFFFFF;
+}
+
+/* CTA: allow icon-only collapse on smallest screens. */
+.v-cta {
+    min-height: var(--v-touch);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.v-cta__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.v-cta__label {
+    display: inline;
+}
+
+@media (max-width: 479px) {
+    .v-cta__label {
+        display: none;
+    }
+}
+
+/* Header: keep a single row; search is highest priority and should expand. */
+.v-header-row {
+    flex-wrap: nowrap;
+}
+
+.v-header-search {
+    flex: 1 1 auto;
+    min-width: 200px; /* Increased from 140px for accommodative behavior */
+    max-width: 600px; /* Make search bar wider */
+}
+
+.v-header-logo a {
+    font-size: clamp(1.15rem, 5vw, 1.75rem);
+}
+
+.v-header-actions a,
+.v-header-actions button {
+    min-height: var(--v-touch);
+}
+
+@media (max-width: 479px) {
+    .v-header-row {
+        gap: 0.5rem;
+    }
+
+    .v-header-actions {
+        gap: 0.35rem;
+    }
+}
+
+/* Grid: mobile-first, drop columns instead of shrinking below tap targets. */
+.v-grid-products {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+@media (min-width: 480px) {
+    .v-grid-products { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 768px) {
+    .v-grid-products { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+    .v-grid-products { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1200px) {
+    .v-grid-products { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1440px) {
+    .v-grid-products { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }

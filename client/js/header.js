@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (userGreeting) {
                 userGreeting.textContent = `Hello, ${userFullName}`;
-                userGreeting.classList.add('hidden', 'md:inline');
+                userGreeting.classList.remove('hidden');
             }
             if (logoutButton) logoutButton.classList.remove('hidden');
 
@@ -160,10 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             if (loginLink) loginLink.classList.remove('hidden');
-            if (userGreeting) {
-                userGreeting.classList.add('hidden');
-                userGreeting.classList.remove('md:inline');
-            }
+            if (userGreeting) userGreeting.classList.add('hidden');
             if (logoutButton) logoutButton.classList.add('hidden');
 
             // Hide user menu
