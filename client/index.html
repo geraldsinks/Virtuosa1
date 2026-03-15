@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="css/style.css">
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
@@ -40,49 +40,77 @@
             display: none !important;
         }
 
-        /* Amazon-inspired responsive header layout - FIXED */
+        /* Amazon-inspired responsive header layout */
         @media (min-width: 768px) {
-            .v-header-row,
-            .desktop-header {
+            .desktop-header-container {
+                display: block !important;
+            }
+
+            .v-header-row-upper {
                 display: flex !important;
                 align-items: center !important;
                 justify-content: space-between !important;
-                gap: 1rem !important;
+                gap: 1.5rem !important;
                 padding: 0.75rem 0 !important;
-                min-height: auto !important;
-                position: relative !important;
-                flex-wrap: nowrap !important;
+                min-height: 64px !important;
             }
             
             .v-header-logo {
                 flex: 0 0 auto !important;
                 min-width: 120px !important;
-                margin-right: 1rem !important;
             }
             
             .v-header-search {
                 flex: 1 1 auto !important;
-                max-width: 600px !important;
-                min-width: 300px !important;
+                max-width: 700px !important;
                 position: relative !important;
-                z-index: 5 !important;
             }
             
             .v-header-actions {
                 flex: 0 0 auto !important;
                 display: flex !important;
                 align-items: center !important;
-                gap: 0.75rem !important;
-                min-width: 200px !important;
+                gap: 1.25rem !important;
                 justify-content: flex-end !important;
+            }
+
+            /* Custom Styling for Search in Desktop to look more like Amazon */
+            .v-header-search .relative {
+                display: flex;
+                width: 100%;
+            }
+
+            #home-search-input {
+                border-radius: 8px 0 0 8px;
+                height: 40px;
+                border: none;
+                flex: 1;
+            }
+
+            #home-search-button {
+                position: static !important;
+                transform: none !important;
+                background-color: #febd69;
+                color: #0A1128;
+                padding: 0 16px;
+                border-radius: 0 8px 8px 0;
+                height: 40px;
+                transition: background-color 0.2s;
+            }
+
+            #home-search-button:hover {
+                background-color: #f3a847;
+            }
+
+            #home-search-button svg {
+                width: 20px;
+                height: 20px;
             }
         }
 
-        @media (min-width: 1024px) {
-            .v-header-row,
-            .desktop-header {
-                padding: 0.5rem 0 !important;
-                gap: 1.5rem !important;
+        @media (min-width: 768px) {
+            .v-header-row-upper {
+                gap: 2rem !important;
             }
             
             .v-header-logo {
@@ -90,30 +118,34 @@
             }
             
             .v-header-search {
-                max-width: 700px !important;
-                min-width: 400px !important;
+                max-width: 800px !important;
             }
             
             .v-header-actions {
-                gap: 1rem !important;
-                min-width: 250px !important;
+                gap: 1.5rem !important;
+            }
+
+            /* Hide mobile header rows on desktop */
+            .mobile-header-row-1,
+            .mobile-header-row-2 {
+                display: none !important;
             }
         }
 
-        @media (min-width: 1280px) {
-            .v-header-row,
-            .desktop-header {
-                gap: 2rem !important;
-            }
-            
-            .v-header-search {
-                max-width: 800px !important;
-                min-width: 500px !important;
-            }
-            
-            .v-header-actions {
-                min-width: 300px !important;
-            }
+        /* Ensure overlay is hidden by default even if main CSS fails */
+        .mobile-menu-overlay {
+            display: none;
+        }
+
+        .mobile-menu-overlay.active {
+            display: block !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
         }
 
         /* Navigation container styles */
@@ -131,6 +163,10 @@
         @media (min-width: 768px) {
             .nav-items {
                 gap: 1.5rem;
+            }
+            
+            #desktop-all-menu {
+                display: flex !important;
             }
         }
 
@@ -322,111 +358,111 @@
         </div>
 
         <!-- Desktop Header (Hidden on Mobile) -->
-        <div class="v-container v-header-row desktop-header">
-            <div class="v-header-logo">
-                <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
-            </div>
-            <div class="v-header-search">
-                <div class="relative">
-                    <input id="home-search-input" type="text"
-                        placeholder="Search campus marketplace (e.g. &quot;HP laptop&quot;, &quot;Men's hoodie&quot;)..."
-                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400"
-                        autocomplete="off">
-                    <button id="home-search-button"
-                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                    <!-- Autocomplete suggestions -->
-                    <div id="home-search-suggestions"
-                        class="absolute mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
-                        <!-- Suggestions injected via JS -->
-                    </div>
+        <div class="v-container desktop-header-container hidden">
+            <div class="v-header-row-upper">
+                <div class="v-header-logo">
+                    <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
                 </div>
-            </div>
-            <div id="user-info-container" class="v-header-actions">
-                <a href="/pages/login.html" id="login-link"
-                    class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
-                <div id="user-menu" class="relative hidden">
-                    <button onclick="toggleUserMenu()"
-                        class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
-                        <span id="user-greeting"></span>
-                        <i class="fas fa-chevron-down text-xs"></i>
-                    </button>
-                    <div id="user-dropdown"
-                        class="absolute right-0 top-8 w-48 bg-navy rounded-lg shadow-xl z-50 py-2 hidden">
-                        <a href="/pages/profile.html"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                            <i class="fas fa-user mr-2"></i>My Profile
-                        </a>
-                        <a href="/pages/dashboard.html"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                            <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
-                        </a>
-                        <a href="/pages/notifications.html"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                            <i class="fas fa-bell mr-2"></i>Notifications
-                        </a>
-                        <a href="/pages/transactions.html"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                            <i class="fas fa-exchange-alt mr-2"></i>My Transactions
-                        </a>
-                        <a href="/pages/reviews.html"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                            <i class="fas fa-star mr-2"></i>My Reviews
-                        </a>
-                        <div id="seller-links" class="hidden">
-                            <a href="pages/seller-dashboard.html"
-                                class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                                <i class="fas fa-store mr-2"></i>Seller Panel
-                            </a>
-                            <a href="pages/create-product.html"
-                                class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                                <i class="fas fa-plus mr-2"></i>Create Listing
-                            </a>
-                        </div>
-                        <div id="admin-link" class="hidden">
-                            <a href="/pages/admin-dashboard.html"
-                                class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                                <i class="fas fa-cog mr-2"></i>Admin Panel
-                            </a>
-                        </div>
-                        <div class="border-t border-gray-700 my-1"></div>
-                        <button onclick="logout()"
-                            class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                            <i class="fas fa-sign-out-alt mr-2"></i>Log Out
+                <div class="v-header-search">
+                    <div class="relative">
+                        <input id="home-search-input" type="text"
+                            placeholder="Search campus marketplace (e.g. &quot;HP laptop&quot;, &quot;Men's hoodie&quot;)..."
+                            class="w-full pl-4 pr-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-white text-gray-800 placeholder-gray-500"
+                            autocomplete="off">
+                        <button id="home-search-button"
+                            class="text-gray-400 hover:text-gold transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                    clip-rule="evenodd" />
+                            </svg>
                         </button>
+                        <!-- Autocomplete suggestions -->
+                        <div id="home-search-suggestions"
+                            class="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-xl max-h-96 overflow-y-auto hidden z-[60]">
+                            <!-- Suggestions injected via JS -->
+                        </div>
                     </div>
                 </div>
-                <button id="logout-button"
-                    class="bg-button-gold text-white font-semibold py-2 px-6 rounded-full shadow-lg hover-bg-button-gold transition-colors hidden">Log
-                    Out</button>
-                <a href="/pages/messages.html" class="relative text-white hover:text-gold transition-colors">
-                    <i class="fas fa-envelope text-xl"></i>
-                    <span
-                        class="message-badge-count hidden absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
-                </a>
-                <a href="/pages/notifications.html" class="relative text-white hover:text-gold transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                    </svg>
-                    <span id="notification-badge-count"
-                        class="hidden absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
-                </a>
-                <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <span
-                        class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
-                </a>
+                <div id="user-info-container" class="v-header-actions">
+                    <a href="/pages/login.html" id="login-link"
+                        class="text-white hover:text-gold transition-colors font-medium hidden md:flex flex-col items-start leading-tight group">
+                        <div class="text-[11px] text-gray-300 font-normal">Hello, sign in</div>
+                        <div class="flex items-center -mt-0.5">
+                            <span class="text-sm font-bold">Account & Lists</span>
+                            <i class="fas fa-chevron-down text-[9px] ml-1 opacity-60"></i>
+                        </div>
+                    </a>
+                    <div id="user-menu" class="relative hidden">
+                        <button onclick="toggleUserMenu()"
+                            class="text-white hover:text-gold transition-colors font-medium flex flex-col items-start leading-tight">
+                            <span id="user-greeting" class="text-xs text-gray-400 font-normal"></span>
+                            <div class="flex items-center">
+                                <span>Account & Lists</span>
+                                <i class="fas fa-chevron-down text-[10px] ml-1 opacity-60"></i>
+                            </div>
+                        </button>
+                        <div id="user-dropdown"
+                            class="absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-2xl z-[60] py-4 text-gray-800 hidden border border-gray-100">
+                            <!-- User Account Links (Simplified for brevity, similar to Amazon) -->
+                            <div class="px-4 pb-4 border-b border-gray-100 mb-2">
+                                <a href="/pages/profile.html" class="v-button bg-button-gold text-white text-center py-2 px-4 rounded-md text-sm block font-semibold hover:bg-gold transition-colors">Manage Profile</a>
+                                <p class="text-[10px] text-center mt-2 text-gray-500">New customer? <a href="/pages/register.html" class="text-blue-600 hover:underline">Start here.</a></p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 px-4">
+                                <div>
+                                    <h4 class="font-bold text-sm mb-2 border-b border-gray-50 pb-1">Your List</h4>
+                                    <a href="#" class="block text-xs py-1 hover:text-gold">Create a List</a>
+                                    <a href="#" class="block text-xs py-1 hover:text-gold">Find a List</a>
+                                </div>
+                                <div class="border-l border-gray-50 pl-2">
+                                    <h4 class="font-bold text-sm mb-2 border-b border-gray-50 pb-1">Your Account</h4>
+                                    <a href="/pages/profile.html" class="block text-xs py-1 hover:text-gold">Account</a>
+                                    <a href="/pages/buyer-dashboard.html" class="block text-xs py-1 hover:text-gold">Orders</a>
+                                    <a href="/pages/notifications.html" class="block text-xs py-1 hover:text-gold">Notifications</a>
+                                    <div id="seller-links" class="hidden">
+                                        <div class="border-t border-gray-50 my-1 pt-1"></div>
+                                        <a href="/pages/seller-dashboard.html" class="block text-xs py-1 hover:text-gold font-semibold text-green-700">Seller Panel</a>
+                                    </div>
+                                    <div id="admin-link" class="hidden">
+                                        <div class="border-t border-gray-50 my-1 pt-1"></div>
+                                        <a href="/pages/admin-dashboard.html" class="block text-xs py-1 hover:text-gold font-semibold text-red-700">Admin Panel</a>
+                                    </div>
+                                    <div class="border-t border-gray-50 my-2"></div>
+                                    <button onclick="logout()" class="block w-full text-left text-xs py-1 hover:text-gold">Sign Out</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="/pages/messages.html" class="relative text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <div class="relative">
+                            <i class="fas fa-envelope text-xl"></i>
+                            <span class="message-badge-count hidden absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white bg-red-600 rounded-full">0</span>
+                        </div>
+                        <span class="text-xs mt-0.5">Messages</span>
+                    </a>
+
+                    <a href="/pages/notifications.html" class="relative text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <div class="relative">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            <span id="notification-badge-count" class="hidden absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white bg-red-600 rounded-full">0</span>
+                        </div>
+                        <span class="text-xs mt-0.5">Updates</span>
+                    </a>
+
+                    <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors flex items-end">
+                        <div class="relative">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            <span class="cart-badge-count absolute top-0.5 left-1/2 -translate-x-1/2 text-gold font-bold text-sm">0</span>
+                        </div>
+                        <span class="text-sm font-bold mb-1 ml-0.5">Cart</span>
+                    </a>
+                </div>
             </div>
         </div>
     </header>
@@ -657,70 +693,30 @@
         </div>
     </div>
 
-    <nav class="bg-dark-navy text-white shadow-lg py-2 px-6 md:px-12 z-40">
+    <nav class="bg-dark-navy text-white shadow-lg py-1 px-6 md:px-12 z-40">
         <div class="container mx-auto nav-container">
-            <div class="nav-items">
+            <div class="nav-items flex items-center">
+                <!-- Desktop "All" Menu Trigger (Amazon-style) -->
+                <button id="desktop-all-menu" class="hidden md:flex items-center text-white hover:outline hover:outline-1 hover:outline-white px-2 py-1 transition-all mr-4">
+                    <i class="fas fa-bars mr-1.5"></i>
+                    <span class="font-bold text-sm">All</span>
+                </button>
+
                 <!-- Category Menu - Hidden on small screens, progressively shown -->
-                <div class="nav-category-menu relative flex items-center space-x-2">
-                    <button id="menu-toggle" class="flex items-center text-white hover:text-gold transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
-                    <span class="text-white font-medium">All</span>
-                    <div id="categories-dropdown"
-                        class="absolute left-0 top-10 hidden w-72 bg-navy rounded-lg shadow-xl z-50 py-2">
-                        <a href="/pages/products.html?category=Electronics"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Electronics</a>
-                        <a href="/pages/products.html?category=Computers%20%26%20Software"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Computers &
-                            Software</a>
-                        <a href="/pages/products.html?category=Services"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Services</a>
-                        <a href="/pages/products.html?category=Watches%20%26%20Jewellery"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Watches &
-                            Jewellery</a>
-                        <div class="border-t border-gray-700 my-1"></div>
-                        <a href="/pages/products.html?category=Men%27s%20Clothing"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Men's
-                            Clothing</a>
-                        <a href="/pages/products.html?category=Women%27s%20Clothing"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Women's
-                            Clothing</a>
-                        <a href="/pages/products.html?category=Shoes"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Shoes</a>
-                        <a href="/pages/products.html?category=Accessories"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Accessories</a>
-                        <div class="border-t border-gray-700 my-1"></div>
-                        <a href="/pages/products.html?category=Personal%20Care%20%26%20Beauty"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Personal Care
-                            & Beauty</a>
-                        <a href="pages/products.html?category=Food%20%26%20Beverages"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Food &
-                            Beverages</a>
-                        <a href="pages/products.html?category=Sports%20%26%20Outdoors"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Sports &
-                            Outdoors</a>
-                        <a href="pages/products.html?category=Home%20%26%20Living"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Home &
-                            Living</a>
-                        <div class="border-t border-gray-700 my-1"></div>
-                        <a href="pages/products.html?category=Hot%20Deals"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Hot Deals</a>
-                        <a href="/pages/products.html?category=Best%20Sellers"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors category-link">Best
-                            Sellers</a>
-                    </div>
+                <div class="nav-category-menu relative flex items-center space-x-4">
+                    <a href="/pages/products.html?category=Hot%20Deals"
+                        class="text-sm text-white hover:outline hover:outline-1 hover:outline-white px-2 py-1 transition-all font-medium category-link">Hot Deals</a>
+                    <a href="/pages/products.html?category=Best%20Sellers"
+                        class="text-sm text-white hover:outline hover:outline-1 hover:outline-white px-2 py-1 transition-all font-medium category-link">Best Sellers</a>
+                    <a href="/pages/seller.html"
+                        class="text-sm text-white hover:outline hover:outline-1 hover:outline-white px-2 py-1 transition-all font-medium">Become a Seller</a>
+                    <a href="/pages/products.html?category=Electronics"
+                        class="hidden lg:inline-block text-sm text-white hover:outline hover:outline-1 hover:outline-white px-2 py-1 transition-all font-medium category-link">Electronics</a>
+                    <a href="/pages/products.html?category=Services"
+                        class="hidden lg:inline-block text-sm text-white hover:outline hover:outline-1 hover:outline-white px-2 py-1 transition-all font-medium category-link">Services</a>
+                    <a href="/pages/products.html?category=Food%20%26%20Beverages"
+                        class="hidden xl:inline-block text-sm text-white hover:outline hover:outline-1 hover:outline-white px-2 py-1 transition-all font-medium category-link">Food & Beverages</a>
                 </div>
-                <a href="/pages/products.html?category=Hot%20Deals"
-                    class="text-white hover:text-gold transition-colors font-medium category-link">Hot Deals</a>
-                <a href="/pages/products.html?category=Best%20Sellers"
-                    class="text-white hover:text-gold transition-colors font-medium category-link">Best Sellers</a>
-                <a href="/pages/seller.html"
-                    class="bg-button-gold text-white font-semibold py-2 px-6 rounded-full shadow-lg hover-bg-button-gold transition-colors">Become
-                    a Seller</a>
             </div>
         </div>
     </nav>

@@ -25,7 +25,13 @@ function initializeMobileHeader() {
         mobileMenuToggle.addEventListener('click', openMobileMenu);
     }
     
-    // Initialize Desktop Menu Toggle (if search/user dropdown is replaced by hamburger)
+    // Desktop "All" Menu Trigger (Amazon-style)
+    const desktopAllMenu = document.getElementById('desktop-all-menu');
+    if (desktopAllMenu && mobileMenuOverlay) {
+        desktopAllMenu.addEventListener('click', openMobileMenu);
+    }
+    
+    // Initialize Desktop Menu Toggle (legacy/backup)
     if (desktopMenuToggle && mobileMenuOverlay) {
         desktopMenuToggle.addEventListener('click', openMobileMenu);
     }
