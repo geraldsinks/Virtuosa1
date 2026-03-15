@@ -1,7 +1,39 @@
 /* Custom styles for Virtuosa */
 
+:root {
+    --navy: #0A1128;
+    --dark-navy: #060A18;
+    --gold: #FFD700;
+    --button-gold: #C19A6B;
+    --button-gold-hover: #A98B68;
+}
+
 body {
     font-family: 'Inter', sans-serif;
+}
+
+.bg-navy {
+    background-color: var(--navy);
+}
+
+.bg-dark-navy {
+    background-color: var(--dark-navy);
+}
+
+.text-gold {
+    color: var(--gold);
+}
+
+.bg-gold {
+    background-color: var(--gold);
+}
+
+.bg-button-gold {
+    background-color: var(--button-gold);
+}
+
+.hover-bg-button-gold:hover {
+    background-color: var(--button-gold-hover);
 }
 
 /* Hide an element and remove it from the layout */
