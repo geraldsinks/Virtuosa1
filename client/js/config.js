@@ -1,1 +1,1 @@
-const API_BASE_URL = "https://virtuosa-server.onrender.com";
+const API_BASE = "https://virtuosa-server.onrender.com/api";

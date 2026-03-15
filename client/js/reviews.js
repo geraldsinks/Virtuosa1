@@ -455,7 +455,7 @@ function logout() {
 }
 
 // Initialize reviews page
-const API_BASE = 'https://virtuosa-server.onrender.com/api';
+// API_BASE is provided by config.js
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Load initial tab

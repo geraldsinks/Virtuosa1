@@ -1,5 +1,5 @@
 // Seller Verification JavaScript
-const API_BASE = 'https://virtuosa-server.onrender.com/api';
+// API_BASE is provided by config.js
 
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');

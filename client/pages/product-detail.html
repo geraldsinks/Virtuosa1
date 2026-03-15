@@ -1,1 +1,366 @@
-﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Virtuosa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body { font-family: 'Montserrat', sans-serif; }
+        .text-gold { color: #FFD700; }
+        .bg-gold { background-color: #FFD700; }
+        .bg-navy { background-color: #0A1128; }
+        .bg-button-gold { background-color: #C19A6B; }
+        .hover-bg-button-gold:hover { background-color: #A98B68; }
+        .product-image-container { aspect-ratio: 1/1; overflow: hidden; border-radius: 1rem; }
+        .product-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .product-image:hover { transform: scale(1.05); }
+    </style>
+</head>
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <!-- Header Container (Standardized) -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Row 1: Utilities and Branding -->
+        <div class="v-container mobile-header-row-1">
+            <div class="flex items-center justify-between py-3">
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                <div class="flex-1 text-center">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+                <div class="flex items-center space-x-3 mobile-header-actions">
+                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Search Bar -->
+        <div class="v-container mobile-header-row-2 pb-3">
+            <div class="relative mobile-search-container">
+                <input id="mobile-search-input" type="text" 
+                    placeholder="Search campus marketplace..." 
+                    class="w-full pl-4 pr-12 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400 mobile-search-input"
+                    autocomplete="off">
+                <button id="mobile-search-button" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors mobile-search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Desktop Header -->
+        <div class="v-container v-header-row desktop-header">
+            <div class="v-header-logo">
+                <a href="../index.html" class="text-xl md:text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+            <div class="v-header-search">
+                <div class="relative">
+                    <input id="home-search-input" type="text"
+                        placeholder="Search campus marketplace..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400"
+                        autocomplete="off">
+                    <button id="home-search-button"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="user-info-container" class="v-header-actions">
+                <a href="login.html" id="login-link" class="text-white hover:text-gold transition-colors font-medium text-sm md:text-base hidden md:block">Log In</a>
+                <div id="user-menu" class="relative hidden">
+                    <button onclick="toggleUserMenu()" class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
+                        <span id="user-greeting" class="hidden md:inline"></span>
+                        <i class="fas fa-user-circle text-lg md:text-base"></i>
+                        <i class="fas fa-chevron-down text-xs hidden md:inline"></i>
+                    </button>
+                    <div id="user-dropdown" class="absolute right-0 top-10 w-48 bg-navy rounded-lg shadow-xl z-50 py-2 hidden">
+                        <a href="profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">My Profile</a>
+                        <a href="buyer-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">Dashboard</a>
+                        <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">Log Out</button>
+                    </div>
+                </div>
+                <a href="cart.html" class="relative text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+    <div class="mobile-menu-content">
+        <div class="mobile-menu-header">
+            <div class="text-xl font-bold text-gold">Menu</div>
+            <button id="mobile-menu-close" class="mobile-menu-close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="mobile-menu-section px-4 py-2">
+            <a href="../index.html" class="block py-2 text-gray-300 hover:text-gold transition-colors">Home</a>
+            <a href="products.html" class="block py-2 text-gray-300 hover:text-gold transition-colors">Products</a>
+            <a href="cart.html" class="block py-2 text-gray-300 hover:text-gold transition-colors">Cart</a>
+        </div>
+    </div>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div id="product-container" class="max-w-6xl mx-auto hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- Product Images -->
+                <div class="space-y-4">
+                    <div class="product-image-container bg-white shadow-sm border border-gray-100">
+                        <img id="main-product-image" src="" alt="" class="product-image">
+                    </div>
+                    <div id="thumbnail-container" class="grid grid-cols-4 gap-4">
+                        <!-- Thumbnails will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Product Details -->
+                <div class="flex flex-col">
+                    <div class="mb-2">
+                        <span id="product-category" class="text-sm font-semibold text-gold uppercase tracking-wider"></span>
+                    </div>
+                    <h1 id="product-name" class="text-3xl md:text-4xl font-bold text-navy mb-4"></h1>
+                    
+                    <div class="flex items-center gap-4 mb-6">
+                        <span id="product-price" class="text-2xl font-bold text-gold"></span>
+                        <span id="product-original-price" class="text-lg text-gray-400 line-through hidden"></span>
+                        <span id="product-discount" class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full hidden"></span>
+                    </div>
+
+                    <div class="border-t border-gray-100 pt-6 mb-6">
+                        <h3 class="text-sm font-bold text-navy uppercase tracking-wider mb-3">Description</h3>
+                        <p id="product-description" class="text-gray-600 leading-relaxed"></p>
+                    </div>
+
+                    <div class="space-y-6 pt-6 border-t border-gray-100">
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center border border-gray-200 rounded-full px-4 py-2 space-x-6">
+                                <button id="decrease-qty" class="text-gray-500 hover:text-navy transition-colors">
+                                    <i data-lucide="minus" class="w-4 h-4"></i>
+                                </button>
+                                <span id="quantity" class="font-bold text-navy w-4 text-center">1</span>
+                                <button id="increase-qty" class="text-gray-500 hover:text-navy transition-colors">
+                                    <i data-lucide="plus" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            <button id="add-to-cart-btn" class="flex-grow bg-navy text-white font-bold py-4 px-8 rounded-full hover:bg-gray-800 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2">
+                                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                                Add to Cart
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 py-6">
+                            <div class="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                                <div class="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center text-gold">
+                                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Quality</p>
+                                    <p class="text-xs font-semibold text-navy">Campus Verified</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                                <div class="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center text-gold">
+                                    <i data-lucide="truck" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Delivery</p>
+                                    <p class="text-xs font-semibold text-navy">Fast Pickup</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seller Info -->
+                    <div class="mt-8 p-6 bg-gray-100 rounded-2xl border border-gray-200">
+                        <h3 class="text-sm font-bold text-navy uppercase tracking-wider mb-4">Seller Information</h3>
+                        <div class="flex items-center gap-4">
+                            <div id="seller-avatar" class="w-12 h-12 bg-navy rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                <!-- Initial will be here -->
+                            </div>
+                            <div class="flex-grow">
+                                <p id="seller-name" class="font-bold text-navy"></p>
+                                <p class="text-xs text-gray-500">Member since 2024</p>
+                            </div>
+                            <a id="visit-shop-link" href="#" class="text-sm font-bold text-navy hover:text-gold transition-colors">Visit Shop</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="flex flex-col items-center justify-center py-20">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold mb-4"></div>
+            <p class="text-gray-500 font-medium">Loading premium product details...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden flex flex-col items-center justify-center py-20 text-center">
+            <div class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6">
+                <i data-lucide="alert-circle" class="w-10 h-10"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-navy mb-2">Product Not Found</h2>
+            <p class="text-gray-500 max-w-md mb-8">We couldn't find the item you're looking for. It might have been sold or removed from the marketplace.</p>
+            <a href="products.html" class="bg-navy text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-all">Browse More Items</a>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="../js/auth.js"></script>
+    <script src="../js/mobile-menu.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/search.js"></script>
+    <script src="../js/notifications.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const productContainer = document.getElementById('product-container');
+            const loadingState = document.getElementById('loading-state');
+            const errorState = document.getElementById('error-state');
+            
+            // Get product ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+
+            if (!productId) {
+                showError();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/products/${productId}`);
+                if (!response.ok) throw new Error('Product not found');
+                
+                const product = await response.json();
+                renderProduct(product);
+                
+                // Initialize Lucide icons after rendering
+                lucide.createIcons();
+            } catch (error) {
+                console.error('Error fetching product:', error);
+                showError();
+            }
+        });
+
+        function renderProduct(product) {
+            document.getElementById('product-name').textContent = product.name;
+            document.getElementById('product-category').textContent = product.category || 'General';
+            document.getElementById('product-description').textContent = product.description || 'No description available for this item.';
+            
+            const price = parseFloat(product.price);
+            document.getElementById('product-price').textContent = `K${price.toLocaleString()}`;
+            
+            if (product.originalPrice && product.originalPrice > product.price) {
+                const originalPrice = parseFloat(product.originalPrice);
+                const priceEl = document.getElementById('product-original-price');
+                priceEl.textContent = `K${originalPrice.toLocaleString()}`;
+                priceEl.classList.remove('hidden');
+                
+                const discount = Math.round(((originalPrice - price) / originalPrice) * 100);
+                const discountEl = document.getElementById('product-discount');
+                discountEl.textContent = `${discount}% OFF`;
+                discountEl.classList.remove('hidden');
+            }
+
+            // Images
+            const mainImage = document.getElementById('main-product-image');
+            const images = product.images || [];
+            if (images.length > 0) {
+                mainImage.src = images[0];
+                
+                const thumbnailContainer = document.getElementById('thumbnail-container');
+                images.forEach((img, idx) => {
+                    const thumb = document.createElement('div');
+                    thumb.className = `cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${idx === 0 ? 'border-gold' : 'border-transparent hover:border-gray-300'}`;
+                    thumb.innerHTML = `<img src="${img}" class="w-full h-full object-cover">`;
+                    thumb.onclick = () => {
+                        mainImage.src = img;
+                        document.querySelectorAll('#thumbnail-container div').forEach(d => d.classList.remove('border-gold'));
+                        thumb.classList.add('border-gold');
+                    };
+                    thumbnailContainer.appendChild(thumb);
+                });
+            } else {
+                mainImage.src = 'https://placehold.co/600x400?text=No+Image';
+            }
+
+            // Seller Info
+            document.getElementById('seller-name').textContent = product.seller?.storeName || product.seller?.name || 'Virtuosa Seller';
+            const initial = (product.seller?.storeName || product.seller?.name || 'V')[0].toUpperCase();
+            document.getElementById('seller-avatar').textContent = initial;
+            
+            const shopLink = document.getElementById('visit-shop-link');
+            const sellerId = product.seller?._id || product.seller;
+            shopLink.href = `seller-shop.html?${product.seller?.storeSlug ? `shop=${product.seller.storeSlug}` : `sellerId=${sellerId}`}`;
+
+            // Quantity Control
+            let qty = 1;
+            const quantityEl = document.getElementById('quantity');
+            document.getElementById('increase-qty').onclick = () => { qty++; quantityEl.textContent = qty; };
+            document.getElementById('decrease-qty').onclick = () => { if (qty > 1) { qty--; quantityEl.textContent = qty; } };
+
+            // Add to Cart
+            const addToCartBtn = document.getElementById('add-to-cart-btn');
+            addToCartBtn.onclick = () => {
+                const cartEvent = new CustomEvent('addItemToCart', {
+                    detail: {
+                        productId: product._id,
+                        name: product.name,
+                        price: product.price,
+                        image: images[0] || '',
+                        quantity: qty
+                    }
+                });
+                window.dispatchEvent(cartEvent);
+                
+                // Visual feedback
+                const originalContent = addToCartBtn.innerHTML;
+                addToCartBtn.innerHTML = '<i data-lucide="check" class="w-5 h-5"></i> Added to Cart!';
+                addToCartBtn.classList.replace('bg-navy', 'bg-green-600');
+                lucide.createIcons();
+                
+                setTimeout(() => {
+                    addToCartBtn.innerHTML = originalContent;
+                    addToCartBtn.classList.replace('bg-green-600', 'bg-navy');
+                    lucide.createIcons();
+                }, 2000);
+            };
+
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('product-container').classList.remove('hidden');
+        }
+
+        function showError() {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('error-state').classList.remove('hidden');
+        }
+    </script>
+    <script src="../js/config.js"></script>
+    <script src="../js/mobile-header.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/auth/auth-helper.js"></script>
+</html>

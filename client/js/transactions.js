@@ -1,5 +1,5 @@
 // Transaction Management JavaScript
-const API_BASE = 'https://virtuosa-server.onrender.com/api';
+// API_BASE is provided by config.js
 let currentTransactionId = null;
 let currentTransactionType = 'all';
 let currentPage = 1;

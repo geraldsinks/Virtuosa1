@@ -1,5 +1,5 @@
-// Updated to point to your Render backend
-const BASE_API_URL = 'https://virtuosa-server.onrender.com/api/auth';
+// Use the global API_BASE from config.js
+const BASE_API_URL = `${API_BASE}/auth`;
 
 function showMessage(message, isError = false) {
     const authContainer = document.getElementById('auth-container');

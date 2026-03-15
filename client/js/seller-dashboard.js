@@ -1,5 +1,5 @@
 // Seller Dashboard JavaScript
-const API_BASE = 'https://virtuosa-server.onrender.com/api';
+// API_BASE is provided by config.js
 
 // Initialize user menu
 function initializeUserMenu(token) {

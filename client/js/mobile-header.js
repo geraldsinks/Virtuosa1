@@ -129,7 +129,7 @@ function initializeMobileSearch() {
 
 async function loadProductsForSearch() {
     try {
-        const response = await fetch('https://virtuosa-server.onrender.com/api/products');
+        const response = await fetch(`${API_BASE}/products`);
         if (response.ok) {
             window.mobileAllProducts = await response.json();
         }
@@ -148,7 +148,7 @@ function showSearchSuggestions(query) {
             <div class="mobile-search-suggestion-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-b-0" 
                  onclick="selectMobileSearchSuggestion('${product.name}', '${product._id}')">
                 <div class="flex items-center space-x-3">
-                    <img src="${product.image?.startsWith('http') ? product.image : 'https://virtuosa-server.onrender.com' + (product.image || '/placeholder-product.jpg')}" 
+                    <img src="${product.image?.startsWith('http') ? product.image : API_BASE.replace('/api', '') + (product.image || '/placeholder-product.jpg')}" 
                          alt="${product.name}" 
                          class="w-10 h-10 object-cover rounded">
                     <div class="flex-1 min-w-0">

@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const API_BASE = 'https://virtuosa-server.onrender.com/api';
+    // API_BASE is provided by config.js
     const container = document.getElementById('notifications-container');
 
     async function loadNotifications() {

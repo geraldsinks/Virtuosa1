@@ -1,5 +1,5 @@
 // Token Manager - Automatic Token Refresh and Reconnection
-const API_BASE = 'https://virtuosa-server.onrender.com/api';
+// API_BASE is provided by config.js
 
 class TokenManager {
     constructor() {

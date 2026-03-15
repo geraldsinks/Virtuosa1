@@ -95,7 +95,7 @@ async function loadMarketingData() {
 // Ad Sliders Management
 async function loadAdSliders() {
     try {
-        const response = await fetch('https://virtuosa-server.onrender.com/api/marketing/ad-sliders', {
+        const response = await fetch(`${API_BASE}/marketing/ad-sliders`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
 
@@ -190,7 +190,7 @@ function renderAdSliders(adSliders) {
 // Category Cards Management
 async function loadCategoryCards() {
     try {
-        const response = await fetch('https://virtuosa-server.onrender.com/api/marketing/category-cards', {
+        const response = await fetch(`${API_BASE}/marketing/category-cards`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
 
@@ -300,7 +300,7 @@ function renderCategoryCards(cards) {
 // Asset Library Management
 async function loadAssetLibrary() {
     try {
-        const response = await fetch('https://virtuosa-server.onrender.com/api/marketing/assets', {
+        const response = await fetch(`${API_BASE}/marketing/assets`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
 
@@ -331,7 +331,7 @@ async function loadFallbackCategories() {
     }
 
     try {
-        const response = await fetch('https://virtuosa-server.onrender.com/api/marketing/fallback-categories', {
+        const response = await fetch(`${API_BASE}/marketing/fallback-categories`, {
             cache: 'no-store',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -448,7 +448,7 @@ function renderFallbackCategories(fallbackCategories) {
     }
 
     // Load default categories from /api/categories to show as base
-    fetch('https://virtuosa-server.onrender.com/api/categories')
+    fetch(`${API_BASE}/categories`)
         .then(response => response.json())
         .then(defaultCategories => {
             if (!Array.isArray(defaultCategories) || defaultCategories.length === 0) {
@@ -578,7 +578,7 @@ async function resetFallbackCategory(originalName) {
         const existingOverride = existingOverrides.find(o => o.originalName === originalName);
 
         if (existingOverride) {
-            const response = await fetch(`https://virtuosa-server.onrender.com/api/marketing/fallback-categories/${existingOverride._id}`, {
+            const response = await fetch(`${API_BASE}/marketing/fallback-categories/${existingOverride._id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
@@ -610,7 +610,7 @@ async function saveFallbackCategoryData(originalName) {
     const cardType = document.getElementById(`fallback-type-${originalName}`)?.value || 'square';
 
     try {
-        const response = await fetch('https://virtuosa-server.onrender.com/api/marketing/fallback-categories', {
+        const response = await fetch(`${API_BASE}/marketing/fallback-categories`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -1224,7 +1224,7 @@ async function deleteAsset(id) {
     if (!confirm('Are you sure you want to delete this asset?')) return;
 
     try {
-        const response = await fetch(`https://virtuosa-server.onrender.com/api/marketing/assets/${id}`, {
+        const response = await fetch(`${API_BASE}/marketing/assets/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
@@ -2164,7 +2164,7 @@ async function addNewAdSlider() {
     const backgroundImage = prompt('Enter background image URL:') || 'https://placehold.co/1200x320/0A1128/FFFFFF?text=New+Ad';
 
     try {
-        const response = await fetch('https://virtuosa-server.onrender.com/api/marketing/ad-sliders', {
+        const response = await fetch(`${API_BASE}/marketing/ad-sliders`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -2199,7 +2199,7 @@ async function addNewCategoryCard() {
     const image = prompt('Enter image URL:') || 'https://placehold.co/400x240/CCCCCC/FFFFFF?text=' + encodeURIComponent(name);
 
     try {
-        const response = await fetch('https://virtuosa-server.onrender.com/api/marketing/category-cards', {
+        const response = await fetch(`${API_BASE}/marketing/category-cards`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -2231,7 +2231,7 @@ function addNewBanner() {
 
 async function loadPromotions() {
     try {
-        const response = await fetch('https://virtuosa-server.onrender.com/api/marketing/promotions', {
+        const response = await fetch(`${API_BASE}/marketing/promotions`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
 
@@ -2257,7 +2257,7 @@ async function loadPromotions() {
 
 async function loadBanners() {
     try {
-        const response = await fetch('https://virtuosa-server.onrender.com/api/marketing/banners', {
+        const response = await fetch(`${API_BASE}/marketing/banners`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
 

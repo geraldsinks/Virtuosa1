@@ -122,31 +122,149 @@ body {
     }
 }
 
-/* Header preservation zone */
-.v-header-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: nowrap;
-    gap: 0.75rem;
+/* Header: Consistent two-row layout for tablet+ */
+@media (min-width: 768px) {
+    .desktop-header-container {
+        display: block !important;
+    }
+
+    .v-header-row-upper {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 1rem !important;
+        padding: 0.5rem 0 !important;
+        min-height: 60px !important;
+    }
+    
+    .v-header-logo {
+        flex: 0 0 auto !important;
+        min-width: 100px !important;
+        margin-left: -0.5rem; /* Pull logo a bit more to the left */
+    }
+    
+    .v-header-search {
+        flex: 1 1 auto !important;
+        max-width: 650px !important;
+        position: relative !important;
+    }
+    
+    .v-header-actions {
+        flex: 0 0 auto !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 1rem !important;
+        justify-content: flex-end !important;
+    }
+
+    .v-header-search .relative {
+        display: flex;
+        width: 100%;
+    }
+
+    #home-search-input {
+        border-radius: 9999px 0 0 9999px; /* Pill shape */
+        height: 40px;
+        border: 1px solid #374151;
+        background-color: #1f2937;
+        color: white;
+        padding-left: 1.25rem;
+        flex: 1;
+    }
+
+    #home-search-button {
+        position: static !important;
+        transform: none !important;
+        background-color: #C19A6B; /* Virtuosa Gold */
+        color: white;
+        padding: 0 20px;
+        border-radius: 0 9999px 9999px 0;
+        height: 40px;
+        transition: all 0.2s;
+    }
+
+    #home-search-button:hover {
+        background-color: #A98B68;
+    }
+
+    .v-header-actions .badge-container {
+        position: relative;
+    }
+
+    .v-header-actions .badge {
+        position: absolute;
+        top: -5px;
+        right: -8px;
+        padding: 2px 5px;
+        font-size: 10px;
+        border-radius: 9999px;
+        background-color: #EF4444;
+        color: white;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .mobile-header-row-1,
+    .mobile-header-row-2 {
+        display: none !important;
+    }
 }
 
-.v-header-logo {
-    min-width: 80px;
-    flex-shrink: 0;
+@media (min-width: 1024px) {
+    .v-header-row-upper {
+        gap: 1.5rem !important;
+    }
+    
+    .v-header-logo {
+        min-width: 130px !important;
+    }
+    
+    .v-header-search {
+        max-width: 750px !important;
+    }
 }
 
-.v-header-search {
-    min-width: 200px; /* Increased from 120px for accommodative behavior */
-    flex: 1 1 auto;
-    max-width: 600px; /* Make search bar wider */
+/* Mobile Menu Side Drawer */
+.mobile-menu-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9998;
+    backdrop-filter: blur(2px);
 }
 
-.v-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-shrink: 0;
+.mobile-menu-overlay.active {
+    display: block !important;
+}
+
+.mobile-menu-content {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #0d152b;
+    z-index: 9999;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+}
+
+.mobile-menu-overlay.active + .mobile-menu-content,
+.mobile-menu-overlay.active .mobile-menu-content {
+    transform: translateX(0);
+}
+
+@media (min-width: 768px) {
+    .mobile-menu-content {
+        width: 380px; 
+        border-right: 1px solid rgba(255,215,0,0.1);
+    }
 }
 
 /* Square / near-square cards */
@@ -504,41 +622,6 @@ body {
         position: relative;
     }
     
-    /* Logo - Fixed to left */
-    header .v-header-row .v-header-logo {
-        display: flex !important;
-        align-items: center !important;
-        flex-shrink: 0 !important;
-        position: absolute !important;
-        left: 0 !important;
-        top: 50% !important;
-        transform: translateY(-50%) !important;
-        z-index: 10 !important;
-    }
-    
-    /* Search - Centered and wider */
-    header .v-header-row .v-header-search {
-        display: flex !important;
-        align-items: center !important;
-        flex: 0 0 auto !important;
-        max-width: 700px !important; /* Much wider */
-        min-width: 300px !important; /* Wider minimum */
-        margin: 0 auto !important; /* Perfect center */
-        position: relative !important;
-        z-index: 5 !important;
-    }
-    
-    /* User Actions - Fixed to right */
-    header .v-header-row .v-header-actions {
-        display: flex !important;
-        align-items: center !important;
-        flex-shrink: 0 !important;
-        position: absolute !important;
-        right: 0 !important;
-        top: 50% !important;
-        transform: translateY(-50%) !important;
-        z-index: 10 !important;
-    }
     
     /* Sub navigation alignment */
     nav.bg-dark-navy .container.mx-auto .flex.items-center {

@@ -1,5 +1,5 @@
 // Admin Dashboard JavaScript
-const API_BASE = 'https://virtuosa-server.onrender.com/api';
+// API_BASE is provided by config.js
 let currentDisputeId = null;
 let revenueChart = null;
 let userStatsChart = null;

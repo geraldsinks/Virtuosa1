@@ -40,152 +40,6 @@
             display: none !important;
         }
 
-        /* Amazon-inspired responsive header layout */
-        @media (min-width: 768px) {
-            .desktop-header-container {
-                display: block !important;
-            }
-
-            .v-header-row-upper {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: space-between !important;
-                gap: 1rem !important;
-                padding: 0.5rem 0 !important;
-                min-height: 60px !important;
-            }
-            
-            .v-header-logo {
-                flex: 0 0 auto !important;
-                min-width: 100px !important;
-                margin-left: -0.5rem; /* Pull logo a bit more to the left */
-            }
-            
-            .v-header-search {
-                flex: 1 1 auto !important;
-                max-width: 650px !important;
-                position: relative !important;
-            }
-            
-            .v-header-actions {
-                flex: 0 0 auto !important;
-                display: flex !important;
-                align-items: center !important;
-                gap: 1rem !important;
-                justify-content: flex-end !important;
-            }
-
-            .v-header-search .relative {
-                display: flex;
-                width: 100%;
-            }
-
-            #home-search-input {
-                border-radius: 9999px 0 0 9999px; /* Pill shape */
-                height: 40px;
-                border: 1px solid #374151;
-                background-color: #1f2937;
-                color: white;
-                padding-left: 1.25rem;
-                flex: 1;
-            }
-
-            #home-search-button {
-                position: static !important;
-                transform: none !important;
-                background-color: #C19A6B; /* Virtuosa Gold */
-                color: white;
-                padding: 0 20px;
-                border-radius: 0 9999px 9999px 0;
-                height: 40px;
-                transition: all 0.2s;
-            }
-
-            #home-search-button:hover {
-                background-color: #A98B68;
-            }
-
-            /* Consistent badge positioning for desktop */
-            .v-header-actions .badge-container {
-                position: relative;
-            }
-
-            .v-header-actions .badge {
-                position: absolute;
-                top: -5px;
-                right: -8px;
-                padding: 2px 5px;
-                font-size: 10px;
-                border-radius: 9999px;
-                background-color: #EF4444;
-                color: white;
-                font-weight: 700;
-                line-height: 1;
-            }
-
-            /* Hide mobile header rows on desktop */
-            .mobile-header-row-1,
-            .mobile-header-row-2 {
-                display: none !important;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .v-header-row-upper {
-                gap: 1.5rem !important;
-            }
-            
-            .v-header-logo {
-                min-width: 130px !important;
-            }
-            
-            .v-header-search {
-                max-width: 750px !important;
-            }
-        }
-
-        /* Ensure overlay is hidden by default even if main CSS fails */
-        .mobile-menu-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 9998;
-            backdrop-filter: blur(2px);
-        }
-
-        .mobile-menu-overlay.active {
-            display: block !important;
-        }
-
-        .mobile-menu-content {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 100%;
-            background-color: #0d152b; /* Slightly lighter navy for contrast */
-            z-index: 9999;
-            overflow-y: auto;
-            transform: translateX(-100%);
-            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
-        }
-
-        .mobile-menu-overlay.active + .mobile-menu-content,
-        .mobile-menu-overlay.active .mobile-menu-content {
-            transform: translateX(0);
-        }
-
-        @media (min-width: 768px) {
-            .mobile-menu-content {
-                width: 380px; /* Desktop constrained width */
-                border-right: 1px solid rgba(255,215,0,0.1);
-            }
-        }
 
         /* Navigation container styles */
         .nav-container {
@@ -837,6 +691,7 @@
     <script src="/js/ad-slider.js"></script>
     <script src="/js/header.js"></script>
     <script src="/js/cart.js"></script>
+    <script src="js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.isIndexScriptRunning) return;
@@ -1053,7 +908,7 @@
                 if (!homeSearchInput || !homeSearchSuggestions) return;
 
                 try {
-                    const response = await fetch('https://virtuosa-server.onrender.com/api/products', {
+                    const response = await fetch(`${API_BASE}/products`, {
                         method: 'GET',
                         headers: { 'Content-Type': 'application/json' }
                     });

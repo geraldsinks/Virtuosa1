@@ -1,5 +1,5 @@
 // Cart Logic for Virtuosa
-const API_BASE = 'https://virtuosa-server.onrender.com/api';
+// API_BASE is provided by config.js
 
 // Initialize cart from localStorage (fallback) and sync with backend
 async function getCart() {

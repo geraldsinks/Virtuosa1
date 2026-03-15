@@ -1,5 +1,5 @@
 // Navigation Header and Authentication Logic for Virtuosa
-const API_BASE = 'https://virtuosa-server.onrender.com/api';
+// API_BASE is provided by config.js
 
 document.addEventListener('DOMContentLoaded', () => {
     // Only run this script if it hasn't been initialized yet

@@ -1,5 +1,5 @@
 // Admin Mass Messaging JavaScript
-const API_BASE = 'https://virtuosa-server.onrender.com/api';
+// API_BASE is provided by config.js
 
 // Admin Mass Messaging System - Enhanced Version
 class AdminMassMessaging {
@@ -865,7 +865,16 @@ class AdminMassMessaging {
             const payload = {
                 title: this.messageData.title,
                 content: this.messageData.content,
-                userIds: this.targetUsers.map(user => user.id),
+                userIds: this.targetUsers.map(user => user.id)
+            };
+
+            const response = await fetch(`${API_BASE}/admin/messages/mass-send`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
             });
 
             console.log('📊 Send response status:', response.status);

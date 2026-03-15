@@ -1,5 +1,5 @@
 // Messages JavaScript
-const API_BASE = 'https://virtuosa-server.onrender.com/api';
+// API_BASE is provided by config.js
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Messages page loading...');
