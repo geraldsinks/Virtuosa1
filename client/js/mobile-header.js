@@ -201,9 +201,11 @@ function performSearch() {
     const mobileSearchInput = document.getElementById('mobile-search-input');
     const query = mobileSearchInput.value.trim();
     
-    if (query) {
-        // Redirect to products page with search query
-        window.location.href = `/pages/products.html?search=${encodeURIComponent(query)}`;
+    if (query && window.performSearch) {
+        window.performSearch(query);
+    } else if (query) {
+        // Fallback if header.js not loaded for some reason
+        window.location.href = `/pages/products.html?q=${encodeURIComponent(query)}`;
     }
 }
 

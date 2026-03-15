@@ -284,4 +284,62 @@ document.addEventListener('DOMContentLoaded', () => {
             userDropdown.classList.add('hidden');
         }
     });
+
+    /**
+     * Unified Search Logic
+     */
+    window.performSearch = function (query) {
+        const trimmedQuery = (query || "").trim();
+        if (!trimmedQuery) return;
+
+        console.log('Performing search for:', trimmedQuery);
+
+        // If we're already on the products page, we can update the list dynamically
+        // instead of a full page reload if the products.js is set up to listen
+        if (window.location.pathname.includes('products.html')) {
+            const searchEvent = new CustomEvent('virtuosaSearch', { detail: { query: trimmedQuery } });
+            window.dispatchEvent(searchEvent);
+        } else {
+            // Otherwise redirect to products page with search param
+            window.location.href = `/pages/products.html?q=${encodeURIComponent(trimmedQuery)}`;
+        }
+    };
+
+    /**
+     * Unified Category Navigation
+     */
+    window.handleCategoryClick = function (category) {
+        if (!category) return;
+
+        console.log('Category clicked:', category);
+
+        if (window.location.pathname.includes('products.html')) {
+            const categoryEvent = new CustomEvent('virtuosaCategory', { detail: { category: category } });
+            window.dispatchEvent(categoryEvent);
+        } else {
+            window.location.href = `/pages/products.html?category=${encodeURIComponent(category)}`;
+        }
+    };
+
+    // Global listeners for search inputs in all headers
+    document.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.id === 'home-search-input' || activeElement.id === 'mobile-search-input' || activeElement.classList.contains('search-input'))) {
+                window.performSearch(activeElement.value);
+            }
+        }
+    });
+
+    // Handle search button clicks if they have ID patterns
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('#home-search-button, #mobile-search-button, .search-button');
+        if (btn) {
+            const container = btn.closest('.v-header-search, .mobile-search-container, .search-container');
+            const input = container ? container.querySelector('input') : null;
+            if (input) {
+                window.performSearch(input.value);
+            }
+        }
+    });
 });

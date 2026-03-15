@@ -817,3 +817,34 @@ html[data-v-bp="wide"] {
 @media (min-width: 1440px) {
     .v-grid-products { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
+
+/* Scrollbar Utilities */
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Navigation Row 2 Styles */
+.nav-category-item {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    color: #9ca3af; /* gray-400 */
+    white-space: nowrap;
+    transition: color 0.2s;
+}
+
+.nav-category-item:hover {
+    color: var(--gold);
+}
+
+.nav-row-2-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
