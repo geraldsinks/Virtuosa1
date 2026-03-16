@@ -170,10 +170,10 @@
 </head>
 
 <body class="bg-gray-100 antialiased flex flex-col min-h-screen">
-    <!-- Mobile Header Structure (320px-480px) -->
+    <!-- Mobile Header Structure (320px-767px) - Hidden at tablet+ -->
     <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
-        <!-- Row 1: Utilities and Branding -->
-        <div class="v-container mobile-header-row-1">
+        <!-- Row 1: Utilities and Branding (Mobile only) -->
+        <div class="v-container mobile-header-row-1 md:hidden">
             <div class="flex items-center justify-between py-3">
                 <!-- Hamburger Menu (Left) -->
                 <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
@@ -206,8 +206,8 @@
             </div>
         </div>
 
-        <!-- Row 2: Search-First Experience -->
-        <div class="v-container mobile-header-row-2 pb-3">
+        <!-- Row 2: Search-First Experience (Mobile only) -->
+        <div class="v-container mobile-header-row-2 pb-3 md:hidden">
             <div class="relative mobile-search-container">
                 <input id="mobile-search-input" type="text" 
                     placeholder="Search campus marketplace..." 
@@ -226,8 +226,9 @@
             </div>
         </div>
 
-        <div class="v-container v-header-row desktop-header-container">
-            <div class="v-header-row-upper">
+        <!-- Desktop Header (hidden on mobile, shown at tablet+) -->
+        <div class="v-container v-header-row desktop-header-container hidden md:block">
+            <div class="v-header-row-upper flex">
                 <div class="v-header-logo">
                     <a href="index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
                 </div>

@@ -154,6 +154,11 @@ body {
     }
 }
 
+/* Header: Default hidden, shown at tablet+ */
+.desktop-header-container {
+    display: none;
+}
+
 /* Header: Consistent two-row layout for tablet+ */
 @media (min-width: 768px) {
     .desktop-header-container {
@@ -167,52 +172,58 @@ body {
         gap: 1rem !important;
         padding: 0.5rem 0 !important;
         min-height: 60px !important;
+        width: 100% !important;
     }
     
     .v-header-logo {
         flex: 0 0 auto !important;
         min-width: 100px !important;
-        margin-left: -0.5rem; /* Pull logo a bit more to the left */
+        margin-right: 1rem;
     }
     
     .v-header-search {
-        flex: 1 1 auto !important;
-        max-width: 650px !important;
-        position: relative !important;
+        flex: 1 1 0% !important;
+        min-width: 200px !important;
+        max-width: none !important;
+        width: 100% !important;
     }
     
     .v-header-actions {
         flex: 0 0 auto !important;
         display: flex !important;
         align-items: center !important;
-        gap: 1rem !important;
+        gap: 1.5rem !important;
         justify-content: flex-end !important;
+        margin-left: 1rem;
     }
 
     .v-header-search .relative {
         display: flex;
         width: 100%;
+        max-width: 800px;
     }
 
     #home-search-input {
-        border-radius: 9999px 0 0 9999px; /* Pill shape */
-        height: 40px;
+        border-radius: 9999px 0 0 9999px;
+        height: 44px;
         border: 1px solid #374151;
         background-color: #1f2937;
         color: white;
         padding-left: 1.25rem;
         flex: 1;
+        min-width: 0;
     }
 
     #home-search-button {
         position: static !important;
         transform: none !important;
-        background-color: #C19A6B; /* Virtuosa Gold */
+        background-color: #C19A6B;
         color: white;
-        padding: 0 20px;
+        padding: 0 24px;
         border-radius: 0 9999px 9999px 0;
-        height: 40px;
+        height: 44px;
         transition: all 0.2s;
+        flex-shrink: 0;
     }
 
     #home-search-button:hover {
@@ -244,15 +255,19 @@ body {
 
 @media (min-width: 1024px) {
     .v-header-row-upper {
-        gap: 1.5rem !important;
+        gap: 2rem !important;
     }
     
     .v-header-logo {
-        min-width: 130px !important;
+        min-width: 140px !important;
     }
     
-    .v-header-search {
-        max-width: 750px !important;
+    .v-header-search .relative {
+        max-width: 1000px;
+    }
+    
+    .v-header-actions {
+        gap: 2rem !important;
     }
 }
 
