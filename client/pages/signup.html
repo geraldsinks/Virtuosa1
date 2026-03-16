@@ -171,13 +171,14 @@
         }
 
         .virtuosa-text {
-            font-size: 28px;
+            font-size: 16px;
             font-weight: 800;
             background: linear-gradient(135deg, #FFD700, #C19A6B);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
+            letter-spacing: -0.5px;
         }
 
         .phone-input-group {
@@ -223,7 +224,8 @@
             }
             
             .virtuosa-text {
-                font-size: 20px;
+                font-size: 12px;
+                letter-spacing: -0.3px;
             }
             
             h1 {
@@ -534,7 +536,7 @@
             <!-- Logo Section -->
             <div class="text-center mb-8">
                 <div class="virtuosa-icon mx-auto mb-4">
-                    <span class="virtuosa-text">V</span>
+                    <span class="virtuosa-text">VIRTUOSA</span>
                 </div>
                 <h1 class="text-3xl font-bold text-white mb-2">Join Virtuosa</h1>
                 <p class="text-gray-300">Create your account to start trading</p>
@@ -599,6 +601,12 @@
                             <p class="phone-hint">Zambian numbers only (9 digits) - e.g., 976123456</p>
                         </div>
                         <div>
+                            <label for="signup-student-email" class="form-label block text-sm">Student Email</label>
+                            <input type="email" id="signup-student-email" name="studentEmail" required 
+                                class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400" 
+                                placeholder="student@unza.zm">
+                        </div>
+                        <div>
                             <label for="signup-university" class="form-label block text-sm">University</label>
                             <select id="signup-university" name="university" required 
                                 class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50">
@@ -611,10 +619,10 @@
                         <div>
                             <label for="signup-password" class="form-label block text-sm">Password</label>
                             <div class="relative">
-                                <input type="password" id="signup-password" name="password" required 
+                                <input type="password" id="signup-password-input" name="password" required 
                                     class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400 pr-12" 
                                     placeholder="Enter your password">
-                                <span class="password-toggle" onclick="togglePassword('signup-password')">
+                                <span class="password-toggle" onclick="togglePassword('signup-password-input')">
                                     <i class="fas fa-eye" id="signup-password-toggle"></i>
                                 </span>
                             </div>
@@ -624,10 +632,10 @@
                         <div>
                             <label for="signup-confirm-password" class="form-label block text-sm">Confirm Password</label>
                             <div class="relative">
-                                <input type="password" id="signup-confirm-password" name="confirmPassword" required 
+                                <input type="password" id="signup-confirm-password-input" name="confirmPassword" required 
                                     class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400 pr-12" 
                                     placeholder="Confirm your password">
-                                <span class="password-toggle" onclick="togglePassword('signup-confirm-password')">
+                                <span class="password-toggle" onclick="togglePassword('signup-confirm-password-input')">
                                     <i class="fas fa-eye" id="signup-confirm-password-toggle"></i>
                                 </span>
                             </div>
@@ -666,29 +674,26 @@
                                     <label for="not-robot" class="text-sm text-gray-700 flex-1">
                                         I'm not a robot
                                     </label>
+                                    <div class="text-xs text-gray-500" id="captcha-timer">Loading...</div>
                                 </div>
-                                <div class="mt-3">
+                                <div class="mt-3" id="captcha-challenge">
                                     <p class="text-xs text-gray-600 mb-2">Complete the security check:</p>
-                                    <div class="flex items-center space-x-2">
+                                    <div class="flex items-center space-x-2 mb-2">
                                         <span class="text-lg">🔒</span>
-                                        <span class="text-sm text-gray-700">Select all images with:</span>
-                                        <span class="font-bold text-navy">Virtuosa Logo</span>
+                                        <span class="text-sm text-gray-700" id="challenge-text">Select all images with:</span>
+                                        <span class="font-bold text-navy" id="challenge-target">...</span>
                                     </div>
-                                    <div class="grid grid-cols-3 gap-2 mt-2">
-                                        <label class="cursor-pointer border-2 border-gray-300 rounded p-2 hover:border-gold transition-colors">
-                                            <input type="checkbox" class="hidden robot-check" data-correct="false">
-                                            <span class="text-2xl">🚗</span>
-                                        </label>
-                                        <label class="cursor-pointer border-2 border-gray-300 rounded p-2 hover:border-gold transition-colors">
-                                            <input type="checkbox" class="hidden robot-check" data-correct="true">
-                                            <span class="text-2xl">V</span>
-                                        </label>
-                                        <label class="cursor-pointer border-2 border-gray-300 rounded p-2 hover:border-gold transition-colors">
-                                            <input type="checkbox" class="hidden robot-check" data-correct="false">
-                                            <span class="text-2xl">⭐</span>
-                                        </label>
+                                    <div class="grid grid-cols-3 gap-2" id="captcha-grid">
+                                        <!-- Dynamic images will be loaded here -->
                                     </div>
-                                    <p id="robot-verify-message" class="text-xs mt-2 hidden"></p>
+                                    <div class="flex justify-between items-center mt-2">
+                                        <button type="button" id="refresh-captcha" 
+                                            class="text-xs text-gray-600 hover:text-navy transition-colors"
+                                            onclick="generateCaptcha()">
+                                            🔄 Refresh
+                                        </button>
+                                        <p id="robot-verify-message" class="text-xs hidden"></p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -705,7 +710,7 @@
             document.getElementById('signup-form')?.addEventListener('submit', handleSignup);
             
             // Password strength checker
-            document.getElementById('signup-password')?.addEventListener('input', checkPasswordStrength);
+            document.getElementById('signup-password-input')?.addEventListener('input', checkPasswordStrength);
             
             // Phone number validation
             document.getElementById('signup-phone')?.addEventListener('input', validatePhoneNumber);
@@ -727,7 +732,7 @@
         }
 
         function checkPasswordStrength() {
-            const password = document.getElementById('signup-password')?.value;
+            const password = document.getElementById('signup-password-input')?.value;
             const strengthMeter = document.getElementById('password-strength');
             
             if (!password || !strengthMeter) return;
@@ -784,43 +789,110 @@
         }
 
         function setupRobotCheck() {
-            const robotChecks = document.querySelectorAll('.robot-check');
+            generateCaptcha();
+        }
+
+        function generateCaptcha() {
+            const challenges = [
+                { target: 'Virtuosa Logo', correct: ['V'], incorrect: ['🚗', '⭐', '📱', '💻', '🏫'] },
+                { target: 'Books', correct: ['📚', '📖'], incorrect: ['🚗', '⭐', '📱', '💻', '🏫', '🎓', '🔔'] },
+                { target: 'Buildings', correct: ['🏫', '🏢'], incorrect: ['🚗', '⭐', '📱', '💻', '📚', '🎓', '🔔'] },
+                { target: 'Technology', correct: ['💻', '📱'], incorrect: ['🚗', '⭐', '📚', '🏫', '🎓', '🔔'] },
+                { target: 'Stars', correct: ['⭐', '✨'], incorrect: ['🚗', '📚', '📱', '💻', '🏫', '🎓', '🔔'] }
+            ];
+            
+            const challenge = challenges[Math.floor(Math.random() * challenges.length)];
+            const allImages = [...challenge.correct, ...challenge.incorrect.slice(0, 4)];
+            
+            // Shuffle images
+            for (let i = allImages.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allImages[i], allImages[j]] = [allImages[j], allImages[i]];
+            }
+            
+            // Update challenge text
+            document.getElementById('challenge-target').textContent = challenge.target;
+            
+            // Generate grid
+            const grid = document.getElementById('captcha-grid');
+            grid.innerHTML = '';
+            
+            allImages.forEach((image, index) => {
+                const isCorrect = challenge.correct.includes(image);
+                const label = document.createElement('label');
+                label.className = 'cursor-pointer border-2 border-gray-300 rounded p-2 hover:border-gold transition-colors';
+                label.innerHTML = `
+                    <input type="checkbox" class="hidden captcha-check" data-correct="${isCorrect}" data-index="${index}">
+                    <span class="text-2xl">${image}</span>
+                `;
+                grid.appendChild(label);
+            });
+            
+            // Add event listeners
+            document.querySelectorAll('.captcha-check').forEach(check => {
+                check.addEventListener('change', validateCaptcha);
+            });
+            
+            // Start timer
+            startCaptchaTimer();
+        }
+
+        function validateCaptcha() {
+            const checks = document.querySelectorAll('.captcha-check');
             const message = document.getElementById('robot-verify-message');
             
-            robotChecks.forEach(check => {
-                check.addEventListener('change', function() {
-                    const selectedCorrect = Array.from(robotChecks)
-                        .filter(c => c.checked && c.dataset.correct === 'true').length;
-                    const selectedIncorrect = Array.from(robotChecks)
-                        .filter(c => c.checked && c.dataset.correct === 'false').length;
-                    
-                    // Update border colors
-                    robotChecks.forEach(c => {
-                        const label = c.parentElement;
-                        if (c.checked) {
-                            if (c.dataset.correct === 'true') {
-                                label.className = 'cursor-pointer border-2 border-green-500 rounded p-2 bg-green-50';
-                            } else {
-                                label.className = 'cursor-pointer border-2 border-red-500 rounded p-2 bg-red-50';
-                            }
-                        } else {
-                            label.className = 'cursor-pointer border-2 border-gray-300 rounded p-2 hover:border-gold transition-colors';
-                        }
-                    });
-                    
-                    // Show verification message
-                    if (selectedCorrect === 1 && selectedIncorrect === 0) {
-                        message.textContent = '✅ Security check passed!';
-                        message.className = 'text-xs mt-2 text-green-600';
-                    } else if (selectedIncorrect > 0) {
-                        message.textContent = '❌ Please select only the correct images';
-                        message.className = 'text-xs mt-2 text-red-600';
+            const selectedCorrect = Array.from(checks)
+                .filter(c => c.checked && c.dataset.correct === 'true').length;
+            const selectedIncorrect = Array.from(checks)
+                .filter(c => c.checked && c.dataset.correct === 'false').length;
+            
+            // Update border colors
+            checks.forEach(c => {
+                const label = c.parentElement;
+                if (c.checked) {
+                    if (c.dataset.correct === 'true') {
+                        label.className = 'cursor-pointer border-2 border-green-500 rounded p-2 bg-green-50';
                     } else {
-                        message.textContent = 'Please select the Virtuosa logo';
-                        message.className = 'text-xs mt-2 text-gray-600';
+                        label.className = 'cursor-pointer border-2 border-red-500 rounded p-2 bg-red-50';
                     }
-                });
+                } else {
+                    label.className = 'cursor-pointer border-2 border-gray-300 rounded p-2 hover:border-gold transition-colors';
+                }
             });
+            
+            // Show verification message
+            const targetText = document.getElementById('challenge-target').textContent;
+            const correctCount = document.querySelectorAll('.captcha-check[data-correct="true"]').length;
+            
+            if (selectedCorrect === correctCount && selectedIncorrect === 0) {
+                message.textContent = '✅ Security check passed!';
+                message.className = 'text-xs mt-2 text-green-600';
+                document.getElementById('not-robot').checked = true;
+            } else if (selectedIncorrect > 0) {
+                message.textContent = '❌ Please select only the correct images';
+                message.className = 'text-xs mt-2 text-red-600';
+                document.getElementById('not-robot').checked = false;
+            } else {
+                message.textContent = `Please select all ${targetText.toLowerCase()}`;
+                message.className = 'text-xs mt-2 text-gray-600';
+                document.getElementById('not-robot').checked = false;
+            }
+        }
+
+        function startCaptchaTimer() {
+            let seconds = 30;
+            const timer = document.getElementById('captcha-timer');
+            
+            const interval = setInterval(() => {
+                timer.textContent = `Expires in ${seconds}s`;
+                seconds--;
+                
+                if (seconds < 0) {
+                    clearInterval(interval);
+                    timer.textContent = 'Expired';
+                    generateCaptcha();
+                }
+            }, 1000);
         }
 
         // Override the renderAuthComponent to show signup form by default

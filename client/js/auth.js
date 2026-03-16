@@ -49,7 +49,7 @@ function togglePassword(inputId) {
 async function handleLogin(event) {
     event.preventDefault();
     const email = document.getElementById('login-email')?.value;
-    const password = document.getElementById('login-password')?.value;
+    const password = document.getElementById('login-password-input')?.value;
 
     if (!email || !password) {
         showMessage('Please fill in both email and password.', true);
@@ -109,8 +109,8 @@ async function handleSignup(event) {
     const university = document.getElementById('signup-university')?.value;
     let phoneNumber = document.getElementById('signup-phone')?.value;
     const studentEmail = document.getElementById('signup-student-email')?.value;
-    const password = document.getElementById('signup-password')?.value;
-    const confirmPassword = document.getElementById('signup-confirm-password')?.value;
+    const password = document.getElementById('signup-password-input')?.value;
+    const confirmPassword = document.getElementById('signup-confirm-password-input')?.value;
     const agreedToTerms = document.getElementById('signup-agreedToTerms')?.checked;
 
     if (!fullName || !email || !university || !phoneNumber || !studentEmail || !password || !confirmPassword) {
@@ -243,10 +243,10 @@ function renderAuthComponent(type) {
                 <div>
                     <label for="login-password" class="form-label block text-sm">Password</label>
                     <div class="relative">
-                        <input type="password" id="login-password" name="password" required 
+                        <input type="password" id="login-password-input" name="password" required 
                             class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400 pr-12" 
                             placeholder="Enter your password">
-                        <span class="password-toggle" onclick="togglePassword('login-password')">
+                        <span class="password-toggle" onclick="togglePassword('login-password-input')">
                             <i class="fas fa-eye" id="login-password-toggle"></i>
                         </span>
                     </div>
