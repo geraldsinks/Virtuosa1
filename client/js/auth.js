@@ -29,6 +29,23 @@ function showMessage(message, isError = false) {
     }, 3000);
 }
 
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const toggle = document.getElementById(inputId + '-toggle');
+    
+    if (input && toggle) {
+        if (input.type === 'password') {
+            input.type = 'text';
+            toggle.classList.remove('fa-eye');
+            toggle.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            toggle.classList.remove('fa-eye-slash');
+            toggle.classList.add('fa-eye');
+        }
+    }
+}
+
 async function handleLogin(event) {
     event.preventDefault();
     const email = document.getElementById('login-email')?.value;
@@ -90,7 +107,7 @@ async function handleSignup(event) {
     const fullName = document.getElementById('signup-fullName')?.value;
     const email = document.getElementById('signup-email')?.value;
     const university = document.getElementById('signup-university')?.value;
-    const phoneNumber = document.getElementById('signup-phone')?.value;
+    let phoneNumber = document.getElementById('signup-phone')?.value;
     const studentEmail = document.getElementById('signup-student-email')?.value;
     const password = document.getElementById('signup-password')?.value;
     const confirmPassword = document.getElementById('signup-confirm-password')?.value;
@@ -100,6 +117,10 @@ async function handleSignup(event) {
         showMessage('Please fill in all fields.', true);
         return;
     }
+    
+    // Add +260 country code to phone number
+    phoneNumber = '+260' + phoneNumber;
+    
     if (password !== confirmPassword) {
         showMessage('Passwords do not match.', true);
         return;
@@ -125,7 +146,7 @@ async function handleSignup(event) {
         if (response.ok) {
             showMessage('Account created successfully! Please check your student email for verification.');
             setTimeout(() => {
-                renderAuthComponent('login');
+                window.location.href = 'login.html';
             }, 2000);
         } else {
             showMessage(result.message || 'Signup failed. Please try again.', true);
@@ -211,28 +232,30 @@ function renderAuthComponent(type) {
     if (!authContainer) return;
 
     const loginFormHtml = `
-        <div id="login-form-wrapper" class="form-container p-8 rounded-2xl w-full max-w-md mx-auto text-gray-800">
-            <div class="text-center mb-6">
-                <h2 class="text-4xl font-bold text-navy">Welcome Back</h2>
-            </div>
+        <div id="login-form-wrapper" class="form-container">
             <form id="login-form" class="space-y-6">
                 <div>
-                    <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                    <input type="email" id="login-email" name="email" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="Enter your email">
+                    <label for="login-email" class="form-label block text-sm">Email Address</label>
+                    <input type="email" id="login-email" name="email" required 
+                        class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400" 
+                        placeholder="Enter your email">
                 </div>
                 <div>
-                    <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input type="password" id="login-password" name="password" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="Enter your password">
+                    <label for="login-password" class="form-label block text-sm">Password</label>
+                    <div class="relative">
+                        <input type="password" id="login-password" name="password" required 
+                            class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400 pr-12" 
+                            placeholder="Enter your password">
+                        <span class="password-toggle" onclick="togglePassword('login-password')">
+                            <i class="fas fa-eye" id="login-password-toggle"></i>
+                        </span>
+                    </div>
                     <a href="#" id="forgot-password-link" class="block text-right text-sm text-navy hover:text-gold transition-colors duration-200 mt-2">Forgot Password?</a>
                 </div>
-                <button type="submit" class="auth-button w-full flex justify-center py-3 px-4 rounded-full text-sm font-bold text-navy transition-all duration-300 transform hover:scale-105">
+                <button type="submit" class="auth-button w-full flex justify-center py-3 px-4 rounded-full text-sm font-bold text-navy transition-all duration-300">
                     Log In
                 </button>
             </form>
-            <p class="text-center text-sm mt-6 text-gray-600">
-                Don't have an account? 
-                <a href="#" id="switch-to-signup" class="font-bold text-navy hover:text-gold transition-colors duration-200">Sign Up</a>
-            </p>
         </div>
     `;
 
@@ -291,22 +314,18 @@ function renderAuthComponent(type) {
     `;
 
     const forgotPasswordFormHtml = `
-        <div id="forgot-form-wrapper" class="form-container p-8 rounded-2xl w-full max-w-md mx-auto text-gray-800">
-            <div class="text-center mb-6">
-                <h2 class="text-4xl font-bold text-navy">Reset Password</h2>
-            </div>
+        <div id="forgot-form-wrapper" class="form-container">
             <form id="forgot-form" class="space-y-6">
                 <div>
-                    <label for="forgot-email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                    <input type="email" id="forgot-email" name="email" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="Enter your email">
+                    <label for="forgot-email" class="form-label block text-sm">Email Address</label>
+                    <input type="email" id="forgot-email" name="email" required 
+                        class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400" 
+                        placeholder="Enter your email">
                 </div>
-                <button type="submit" class="auth-button w-full flex justify-center py-3 px-4 rounded-full text-sm font-bold text-navy transition-all duration-300 transform hover:scale-105">
+                <button type="submit" class="auth-button w-full flex justify-center py-3 px-4 rounded-full text-sm font-bold text-navy transition-all duration-300">
                     Send Reset Link
                 </button>
             </form>
-            <p class="text-center text-sm mt-6 text-gray-600">
-                Back to <a href="#" id="switch-to-login-from-forgot" class="font-bold text-navy hover:text-gold transition-colors duration-200">Log In</a>
-            </p>
         </div>
     `;
 

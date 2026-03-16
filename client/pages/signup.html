@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtuosa - Log In</title>
+    <title>Virtuosa - Sign Up</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -75,40 +75,34 @@
             color: #374151;
         }
 
-        .divider {
+        .phone-input-group {
             position: relative;
-            text-align: center;
-            margin: 2rem 0;
         }
 
-        .divider::before {
-            content: '';
+        .phone-country-code {
             position: absolute;
+            left: 12px;
             top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #e5e7eb;
-        }
-
-        .divider span {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 0 1rem;
+            transform: translateY(-50%);
             color: #6b7280;
-            font-size: 0.875rem;
-            position: relative;
+            font-weight: 600;
+            pointer-events: none;
         }
 
-        .social-button {
+        .phone-input {
+            padding-left: 3.5rem;
+        }
+
+        .strength-meter {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 0.5rem;
             transition: all 0.3s;
-            border: 2px solid #e5e7eb;
-            background: white;
         }
 
-        .social-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
+        .strength-weak { background: #ef4444; width: 33%; }
+        .strength-medium { background: #f59e0b; width: 66%; }
+        .strength-strong { background: #10b981; width: 100%; }
 
         @media (max-width: 768px) {
             .auth-container {
@@ -419,20 +413,20 @@
                 <a href="../index.html" class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full shadow-lg mb-4">
                     <span class="text-3xl font-bold text-gold">V</span>
                 </a>
-                <h1 class="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-                <p class="text-gray-300">Sign in to your Virtuosa account</p>
+                <h1 class="text-3xl font-bold text-white mb-2">Join Virtuosa</h1>
+                <p class="text-gray-300">Create your account to start trading</p>
             </div>
 
-            <!-- Login Form Container -->
+            <!-- Signup Form Container -->
             <div id="auth-container" class="auth-container rounded-2xl p-8">
-                <!-- Login form will be rendered here by JavaScript -->
+                <!-- Signup form will be rendered here by JavaScript -->
             </div>
 
             <!-- Footer Links -->
             <div class="text-center mt-6">
                 <p class="text-gray-300 text-sm">
-                    Don't have an account? 
-                    <a href="signup.html" class="text-gold hover:text-yellow-400 font-semibold transition-colors">Sign Up</a>
+                    Already have an account? 
+                    <a href="login.html" class="text-gold hover:text-yellow-400 font-semibold transition-colors">Log In</a>
                 </p>
             </div>
         </div>
@@ -447,6 +441,160 @@
     <script src="/js/mobile-header.js"></script>
     <script src="/js/cart.js"></script>
     <script src="/js/auth.js"></script>
+    <script>
+        // Override the signup form rendering to include phone number with +260
+        function renderSignupForm() {
+            const authContainer = document.getElementById('auth-container');
+            if (!authContainer) return;
+
+            const signupFormHtml = `
+                <div id="signup-form-wrapper" class="form-container">
+                    <form id="signup-form" class="space-y-6">
+                        <div>
+                            <label for="signup-fullName" class="form-label block text-sm">Full Name</label>
+                            <input type="text" id="signup-fullName" name="fullName" required 
+                                class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400" 
+                                placeholder="Enter your full name">
+                        </div>
+                        <div>
+                            <label for="signup-email" class="form-label block text-sm">Email Address</label>
+                            <input type="email" id="signup-email" name="email" required 
+                                class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400" 
+                                placeholder="Enter your email">
+                        </div>
+                        <div>
+                            <label for="signup-phone" class="form-label block text-sm">Phone Number</label>
+                            <div class="phone-input-group">
+                                <span class="phone-country-code">+260</span>
+                                <input type="tel" id="signup-phone" name="phoneNumber" required 
+                                    class="auth-input phone-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400" 
+                                    placeholder="976123456" 
+                                    pattern="[0-9]{9}" 
+                                    maxlength="9"
+                                    title="Please enter a 9-digit phone number without the country code">
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Enter your 9-digit Zambian phone number (e.g., 976123456)</p>
+                        </div>
+                        <div>
+                            <label for="signup-student-email" class="form-label block text-sm">Student Email</label>
+                            <input type="email" id="signup-student-email" name="studentEmail" required 
+                                class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400" 
+                                placeholder="student@unza.zm">
+                        </div>
+                        <div>
+                            <label for="signup-university" class="form-label block text-sm">University</label>
+                            <select id="signup-university" name="university" required 
+                                class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50">
+                                <option value="">Select your university</option>
+                                <option value="University of Zambia">University of Zambia</option>
+                                <option value="Copperbelt University">Copperbelt University</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="signup-password" class="form-label block text-sm">Password</label>
+                            <div class="relative">
+                                <input type="password" id="signup-password" name="password" required 
+                                    class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400 pr-12" 
+                                    placeholder="Enter your password">
+                                <span class="password-toggle" onclick="togglePassword('signup-password')">
+                                    <i class="fas fa-eye" id="signup-password-toggle"></i>
+                                </span>
+                            </div>
+                            <div id="password-strength" class="strength-meter rounded"></div>
+                            <p class="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+                        </div>
+                        <div>
+                            <label for="signup-confirm-password" class="form-label block text-sm">Confirm Password</label>
+                            <div class="relative">
+                                <input type="password" id="signup-confirm-password" name="confirmPassword" required 
+                                    class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400 pr-12" 
+                                    placeholder="Confirm your password">
+                                <span class="password-toggle" onclick="togglePassword('signup-confirm-password')">
+                                    <i class="fas fa-eye" id="signup-confirm-password-toggle"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <input type="checkbox" id="signup-agreedToTerms" name="agreedToTerms" required 
+                                class="w-4 h-4 text-navy bg-gray-100 border-gray-300 rounded focus:ring-gold mt-1">
+                            <label for="signup-agreedToTerms" class="text-sm text-gray-700">
+                                I agree to the <a href="#" class="text-navy hover:text-gold font-medium">terms and conditions</a>
+                            </label>
+                        </div>
+                        <button type="submit" class="auth-button w-full flex justify-center py-3 px-4 rounded-full text-sm font-bold text-navy transition-all duration-300">
+                            Create Account
+                        </button>
+                    </form>
+                </div>
+            `;
+
+            authContainer.innerHTML = signupFormHtml;
+
+            // Attach event listeners
+            document.getElementById('signup-form')?.addEventListener('submit', handleSignup);
+            
+            // Password strength checker
+            document.getElementById('signup-password')?.addEventListener('input', checkPasswordStrength);
+            
+            // Phone number validation
+            document.getElementById('signup-phone')?.addEventListener('input', validatePhoneNumber);
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const toggle = document.getElementById(inputId + '-toggle');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggle.classList.remove('fa-eye');
+                toggle.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                toggle.classList.remove('fa-eye-slash');
+                toggle.classList.add('fa-eye');
+            }
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('signup-password')?.value;
+            const strengthMeter = document.getElementById('password-strength');
+            
+            if (!password || !strengthMeter) return;
+            
+            let strength = 0;
+            if (password.length >= 6) strength++;
+            if (password.length >= 10) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+            
+            strengthMeter.className = 'strength-meter rounded';
+            if (strength <= 2) {
+                strengthMeter.classList.add('strength-weak');
+            } else if (strength <= 4) {
+                strengthMeter.classList.add('strength-medium');
+            } else {
+                strengthMeter.classList.add('strength-strong');
+            }
+        }
+
+        function validatePhoneNumber() {
+            const phoneInput = document.getElementById('signup-phone');
+            const value = phoneInput?.value;
+            
+            if (value && !/^[0-9]{9}$/.test(value)) {
+                phoneInput.setCustomValidity('Please enter exactly 9 digits');
+            } else {
+                phoneInput.setCustomValidity('');
+            }
+        }
+
+        // Override the renderAuthComponent to show signup form by default
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSignupForm();
+        });
+    </script>
 </body>
 
 </html>
