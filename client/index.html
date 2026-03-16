@@ -254,80 +254,72 @@
             </div>
             <div id="user-info-container" class="v-header-actions">
                 <a href="/pages/login.html" id="login-link"
-                    class="text-white hover:text-gold transition-colors font-medium hidden md:block">Log In</a>
+                    class="text-white hover:text-gold transition-colors font-medium hidden md:flex flex-col items-start leading-tight group">
+                    <span class="text-[10px] text-gray-400 font-normal">Welcome</span>
+                    <div class="flex items-center -mt-0.5">
+                        <span class="text-sm font-semibold">Sign In</span>
+                        <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60 group-hover:rotate-180 transition-transform"></i>
+                    </div>
+                </a>
                 <div id="user-menu" class="relative hidden">
                     <button onclick="toggleUserMenu()"
-                        class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
-                        <span id="user-greeting"></span>
-                        <i class="fas fa-chevron-down text-xs"></i>
+                        class="text-white hover:text-gold transition-colors font-medium flex flex-col items-start leading-tight">
+                        <span id="user-greeting" class="text-[10px] text-gray-400 font-normal"></span>
+                        <div class="flex items-center -mt-0.5">
+                            <span class="text-sm font-semibold">My Account</span>
+                            <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60"></i>
+                        </div>
                     </button>
                     <div id="user-dropdown"
-                        class="absolute right-0 top-8 w-48 bg-navy rounded-lg shadow-xl z-50 py-2 hidden">
-                        <a href="/pages/profile.html"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                            <i class="fas fa-user mr-2"></i>My Profile
-                        </a>
-                        <a href="/pages/dashboard.html"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                            <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
-                        </a>
-                        <a href="/pages/notifications.html"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                            <i class="fas fa-bell mr-2"></i>Notifications
-                        </a>
-                        <a href="/pages/transactions.html"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                            <i class="fas fa-exchange-alt mr-2"></i>My Transactions
-                        </a>
-                        <a href="/pages/reviews.html"
-                            class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                            <i class="fas fa-star mr-2"></i>My Reviews
-                        </a>
-                        <div id="seller-links" class="hidden">
-                            <a href="pages/seller-dashboard.html"
-                                class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                                <i class="fas fa-store mr-2"></i>Seller Panel
-                            </a>
-                            <a href="pages/create-product.html"
-                                class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                                <i class="fas fa-plus mr-2"></i>Create Listing
-                            </a>
+                        class="absolute right-0 top-full mt-2 w-56 bg-navy rounded-xl shadow-2xl z-[60] py-4 text-white hidden border border-gray-800">
+                        <div class="px-4 pb-4 border-b border-gray-800 mb-2">
+                            <a href="/pages/profile.html" class="bg-button-gold text-white text-center py-2 px-4 rounded-lg text-sm block font-semibold hover:bg-gold transition-colors">My Profile</a>
                         </div>
-                        <div id="admin-link" class="hidden">
-                            <a href="/pages/admin-dashboard.html"
-                                class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                                <i class="fas fa-cog mr-2"></i>Admin Panel
+                        <div class="px-2">
+                            <a href="/pages/buyer-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-th-large mr-3 text-gray-400"></i>Dashboard
                             </a>
+                            <a href="/pages/orders.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-shopping-bag mr-3 text-gray-400"></i>My Orders
+                            </a>
+                            <div id="seller-links" class="hidden">
+                                <div class="border-t border-gray-800 my-1"></div>
+                                <a href="/pages/seller-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-green-400">
+                                    <i class="fas fa-store mr-3"></i>Seller Panel
+                                </a>
+                            </div>
+                            <div id="admin-link" class="hidden">
+                                <div class="border-t border-gray-800 my-1"></div>
+                                <a href="/pages/admin-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-red-400">
+                                    <i class="fas fa-cog mr-3"></i>Admin Panel
+                                </a>
+                            </div>
+                            <div class="border-t border-gray-800 my-2"></div>
+                            <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gray-300">
+                                <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+                            </button>
                         </div>
-                        <div class="border-t border-gray-700 my-1"></div>
-                        <button onclick="logout()"
-                            class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors">
-                            <i class="fas fa-sign-out-alt mr-2"></i>Log Out
-                        </button>
                     </div>
                 </div>
-                <a href="/pages/messages.html" class="relative text-white hover:text-gold transition-colors">
-                    <i class="fas fa-envelope text-xl"></i>
-                    <span
-                        class="message-badge-count hidden absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+
+                <a href="/pages/messages.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                    <i class="fas fa-envelope text-lg"></i>
+                    <span class="badge message-badge-count hidden">0</span>
+                    <span class="text-[9px] mt-0.5 font-medium">Messages</span>
                 </a>
-                <a href="/pages/notifications.html" class="relative text-white hover:text-gold transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                    </svg>
-                    <span id="notification-badge-count"
-                        class="hidden absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+
+                <a href="/pages/notifications.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                    <i class="fas fa-bell text-lg"></i>
+                    <span id="notification-badge-count" class="badge hidden">0</span>
+                    <span class="text-[9px] mt-0.5 font-medium">Alerts</span>
                 </a>
-                <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+
+                <a href="/pages/cart.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    <span
-                        class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                    <span class="badge cart-badge-count">0</span>
+                    <span class="text-[9px] mt-0.5 font-medium">Cart</span>
                 </a>
             </div>
         </header>
