@@ -136,6 +136,95 @@
                 display: none !important;
             }
         }
+
+        /* Virtuosa Icon Styles */
+        .virtuosa-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #0A1128 0%, #060A18 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 10px 25px rgba(10, 17, 40, 0.3),
+                0 6px 10px rgba(10, 17, 40, 0.2),
+                inset 0 1px 0 rgba(255, 215, 0, 0.2);
+            position: relative;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .virtuosa-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 15px 35px rgba(10, 17, 40, 0.4),
+                0 8px 15px rgba(10, 17, 40, 0.3),
+                inset 0 1px 0 rgba(255, 215, 0, 0.3);
+        }
+
+        .virtuosa-icon::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #FFD700, #C19A6B, #FFD700);
+            border-radius: 22px;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .virtuosa-text {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFD700, #C19A6B);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .auth-container {
+                margin: 0.5rem;
+                padding: 1.5rem;
+            }
+            
+            .virtuosa-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 15px;
+            }
+            
+            .virtuosa-text {
+                font-size: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5rem !important;
+            }
+            
+            p {
+                font-size: 0.875rem !important;
+            }
+            
+            .auth-input {
+                padding: 0.75rem 1rem !important;
+                font-size: 0.875rem !important;
+            }
+            
+            .auth-button {
+                padding: 0.75rem 1rem !important;
+                font-size: 0.875rem !important;
+            }
+            
+            .form-label {
+                font-size: 0.8rem !important;
+            }
+        }
     </style>
 </head>
 
@@ -416,9 +505,9 @@
         <div class="w-full max-w-md">
             <!-- Logo Section -->
             <div class="text-center mb-8">
-                <a href="../index.html" class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full shadow-lg mb-4">
-                    <span class="text-3xl font-bold text-gold">V</span>
-                </a>
+                <div class="virtuosa-icon mx-auto mb-4">
+                    <span class="virtuosa-text">V</span>
+                </div>
                 <h1 class="text-3xl font-bold text-white mb-2">Welcome Back</h1>
                 <p class="text-gray-300">Sign in to your Virtuosa account</p>
             </div>

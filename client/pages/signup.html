@@ -130,6 +130,129 @@
                 display: none !important;
             }
         }
+
+        /* Virtuosa Icon Styles */
+        .virtuosa-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #0A1128 0%, #060A18 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 10px 25px rgba(10, 17, 40, 0.3),
+                0 6px 10px rgba(10, 17, 40, 0.2),
+                inset 0 1px 0 rgba(255, 215, 0, 0.2);
+            position: relative;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .virtuosa-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 15px 35px rgba(10, 17, 40, 0.4),
+                0 8px 15px rgba(10, 17, 40, 0.3),
+                inset 0 1px 0 rgba(255, 215, 0, 0.3);
+        }
+
+        .virtuosa-icon::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #FFD700, #C19A6B, #FFD700);
+            border-radius: 22px;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .virtuosa-text {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFD700, #C19A6B);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
+        }
+
+        .phone-input-group {
+            position: relative;
+        }
+
+        .phone-country-code {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-weight: 600;
+            background: rgba(229, 231, 235, 0.5);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            pointer-events: none;
+            border: 1px solid #e5e7eb;
+        }
+
+        .phone-input {
+            padding-left: 5.5rem !important;
+        }
+
+        .phone-hint {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .auth-container {
+                margin: 0.5rem;
+                padding: 1.5rem;
+            }
+            
+            .virtuosa-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 15px;
+            }
+            
+            .virtuosa-text {
+                font-size: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5rem !important;
+            }
+            
+            p {
+                font-size: 0.875rem !important;
+            }
+            
+            .auth-input {
+                padding: 0.75rem 1rem !important;
+                font-size: 0.875rem !important;
+            }
+            
+            .auth-button {
+                padding: 0.75rem 1rem !important;
+                font-size: 0.875rem !important;
+            }
+            
+            .form-label {
+                font-size: 0.8rem !important;
+            }
+
+            .phone-country-code {
+                font-size: 0.75rem;
+                padding: 3px 6px;
+            }
+        }
     </style>
 </head>
 
@@ -410,9 +533,9 @@
         <div class="w-full max-w-md">
             <!-- Logo Section -->
             <div class="text-center mb-8">
-                <a href="../index.html" class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full shadow-lg mb-4">
-                    <span class="text-3xl font-bold text-gold">V</span>
-                </a>
+                <div class="virtuosa-icon mx-auto mb-4">
+                    <span class="virtuosa-text">V</span>
+                </div>
                 <h1 class="text-3xl font-bold text-white mb-2">Join Virtuosa</h1>
                 <p class="text-gray-300">Create your account to start trading</p>
             </div>
@@ -468,18 +591,12 @@
                                 <span class="phone-country-code">+260</span>
                                 <input type="tel" id="signup-phone" name="phoneNumber" required 
                                     class="auth-input phone-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400" 
-                                    placeholder="976123456" 
+                                    placeholder="XXX XXX XXX" 
                                     pattern="[0-9]{9}" 
                                     maxlength="9"
-                                    title="Please enter a 9-digit phone number without the country code">
+                                    title="Please enter a 9-digit phone number without country code">
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">Enter your 9-digit Zambian phone number (e.g., 976123456)</p>
-                        </div>
-                        <div>
-                            <label for="signup-student-email" class="form-label block text-sm">Student Email</label>
-                            <input type="email" id="signup-student-email" name="studentEmail" required 
-                                class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400" 
-                                placeholder="student@unza.zm">
+                            <p class="phone-hint">Zambian numbers only (9 digits) - e.g., 976123456</p>
                         </div>
                         <div>
                             <label for="signup-university" class="form-label block text-sm">University</label>
@@ -521,6 +638,59 @@
                             <label for="signup-agreedToTerms" class="text-sm text-gray-700">
                                 I agree to the <a href="#" class="text-navy hover:text-gold font-medium">terms and conditions</a>
                             </label>
+                        </div>
+                        
+                        <!-- Email Verification -->
+                        <div>
+                            <label for="signup-email-verify" class="form-label block text-sm">Verify Email Address</label>
+                            <div class="flex space-x-2">
+                                <input type="email" id="signup-email-verify" name="emailVerify" required 
+                                    class="auth-input flex-1 block px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400" 
+                                    placeholder="Re-enter your email">
+                                <button type="button" id="verify-email-btn" 
+                                    class="px-4 py-3 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors"
+                                    onclick="verifyEmailMatch()">
+                                    Verify
+                                </button>
+                            </div>
+                            <p id="email-verify-message" class="text-xs mt-1 hidden"></p>
+                        </div>
+
+                        <!-- I'm not a robot verification -->
+                        <div>
+                            <label class="form-label block text-sm">Security Verification</label>
+                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" id="not-robot" name="notRobot" required 
+                                        class="w-4 h-4 text-navy bg-gray-100 border-gray-300 rounded focus:ring-gold">
+                                    <label for="not-robot" class="text-sm text-gray-700 flex-1">
+                                        I'm not a robot
+                                    </label>
+                                </div>
+                                <div class="mt-3">
+                                    <p class="text-xs text-gray-600 mb-2">Complete the security check:</p>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-lg">🔒</span>
+                                        <span class="text-sm text-gray-700">Select all images with:</span>
+                                        <span class="font-bold text-navy">Virtuosa Logo</span>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 mt-2">
+                                        <label class="cursor-pointer border-2 border-gray-300 rounded p-2 hover:border-gold transition-colors">
+                                            <input type="checkbox" class="hidden robot-check" data-correct="false">
+                                            <span class="text-2xl">🚗</span>
+                                        </label>
+                                        <label class="cursor-pointer border-2 border-gray-300 rounded p-2 hover:border-gold transition-colors">
+                                            <input type="checkbox" class="hidden robot-check" data-correct="true">
+                                            <span class="text-2xl">V</span>
+                                        </label>
+                                        <label class="cursor-pointer border-2 border-gray-300 rounded p-2 hover:border-gold transition-colors">
+                                            <input type="checkbox" class="hidden robot-check" data-correct="false">
+                                            <span class="text-2xl">⭐</span>
+                                        </label>
+                                    </div>
+                                    <p id="robot-verify-message" class="text-xs mt-2 hidden"></p>
+                                </div>
+                            </div>
                         </div>
                         <button type="submit" class="auth-button w-full flex justify-center py-3 px-4 rounded-full text-sm font-bold text-navy transition-all duration-300">
                             Create Account
@@ -590,9 +760,73 @@
             }
         }
 
+        function verifyEmailMatch() {
+            const email = document.getElementById('signup-email')?.value;
+            const emailVerify = document.getElementById('signup-email-verify')?.value;
+            const message = document.getElementById('email-verify-message');
+            const verifyBtn = document.getElementById('verify-email-btn');
+            
+            if (!email || !emailVerify) {
+                showMessage('Please enter both email fields', true);
+                return;
+            }
+            
+            if (email !== emailVerify) {
+                message.textContent = '❌ Email addresses do not match';
+                message.className = 'text-xs mt-1 text-red-600';
+                verifyBtn.className = 'px-4 py-3 bg-red-200 text-red-700 rounded-lg text-sm font-medium';
+                return;
+            }
+            
+            message.textContent = '✅ Email addresses match!';
+            message.className = 'text-xs mt-1 text-green-600';
+            verifyBtn.className = 'px-4 py-3 bg-green-200 text-green-700 rounded-lg text-sm font-medium';
+        }
+
+        function setupRobotCheck() {
+            const robotChecks = document.querySelectorAll('.robot-check');
+            const message = document.getElementById('robot-verify-message');
+            
+            robotChecks.forEach(check => {
+                check.addEventListener('change', function() {
+                    const selectedCorrect = Array.from(robotChecks)
+                        .filter(c => c.checked && c.dataset.correct === 'true').length;
+                    const selectedIncorrect = Array.from(robotChecks)
+                        .filter(c => c.checked && c.dataset.correct === 'false').length;
+                    
+                    // Update border colors
+                    robotChecks.forEach(c => {
+                        const label = c.parentElement;
+                        if (c.checked) {
+                            if (c.dataset.correct === 'true') {
+                                label.className = 'cursor-pointer border-2 border-green-500 rounded p-2 bg-green-50';
+                            } else {
+                                label.className = 'cursor-pointer border-2 border-red-500 rounded p-2 bg-red-50';
+                            }
+                        } else {
+                            label.className = 'cursor-pointer border-2 border-gray-300 rounded p-2 hover:border-gold transition-colors';
+                        }
+                    });
+                    
+                    // Show verification message
+                    if (selectedCorrect === 1 && selectedIncorrect === 0) {
+                        message.textContent = '✅ Security check passed!';
+                        message.className = 'text-xs mt-2 text-green-600';
+                    } else if (selectedIncorrect > 0) {
+                        message.textContent = '❌ Please select only the correct images';
+                        message.className = 'text-xs mt-2 text-red-600';
+                    } else {
+                        message.textContent = 'Please select the Virtuosa logo';
+                        message.className = 'text-xs mt-2 text-gray-600';
+                    }
+                });
+            });
+        }
+
         // Override the renderAuthComponent to show signup form by default
         document.addEventListener('DOMContentLoaded', () => {
             renderSignupForm();
+            setupRobotCheck();
         });
     </script>
 </body>
