@@ -338,41 +338,94 @@
                         <div id="profile-content" class="space-y-6">
                             <h2 class="text-xl font-semibold text-navy mb-4">Personal Information</h2>
 
+                            <!-- SAFE EDITABLE FIELDS -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-sm font-semibold text-navy mb-2">Full Name</label>
-                                    <p id="profile-name" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2">-</p>
+                                    <input type="text" id="profile-name-edit" name="fullName" 
+                                        class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-navy mb-2">Email Address</label>
-                                    <p id="profile-email" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2">-</p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-navy mb-2">Phone Number</label>
-                                    <p id="profile-phone" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2">-</p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-navy mb-2">Student ID</label>
-                                    <p id="profile-student-id" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2">-</p>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-sm font-semibold text-navy mb-2">University</label>
-                                    <p id="profile-university" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2">-</p>
+                                    <label class="block text-sm font-semibold text-navy mb-2">Bio</label>
+                                    <textarea id="profile-bio-edit" name="bio" rows="3" 
+                                        class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
+                                        placeholder="Tell us about yourself..."></textarea>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-navy mb-2">Campus Location</label>
-                                    <p id="profile-campus" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2">-</p>
+                                    <input type="text" id="profile-campus-edit" name="campusLocation" 
+                                        class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
+                                        placeholder="e.g., Main Campus, East Campus">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-navy mb-2">Year of Study</label>
-                                    <p id="profile-year" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2">-</p>
+                                    <input type="text" id="profile-year-edit" name="yearOfStudy" 
+                                        class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
+                                        placeholder="e.g., 1st Year, 2nd Year">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-navy mb-2">Faculty</label>
-                                    <p id="profile-faculty" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2">-</p>
+                                    <input type="text" id="profile-faculty-edit" name="faculty" 
+                                        class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
+                                        placeholder="e.g., Engineering, Business, Medicine">
+                                </div>
+                            </div>
+
+                            <!-- SECURITY-READONLY FIELDS -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-navy mb-2">Email Address</label>
+                                    <p id="profile-email" class="text-lg text-gray-500 border border-gray-100 rounded-lg px-3 py-2 bg-gray-50">
+                                        <i class="fas fa-lock text-gray-400 mr-2"></i>
+                                        Email cannot be changed for security reasons
+                                    </p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-navy mb-2">Phone Number</label>
+                                    <p id="profile-phone" class="text-lg text-gray-500 border border-gray-100 rounded-lg px-3 py-2 bg-gray-50">
+                                        <i class="fas fa-lock text-gray-400 mr-2"></i>
+                                        Phone number cannot be changed for security reasons
+                                    </p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-navy mb-2">Student Email</label>
+                                    <p id="profile-student-email" class="text-lg text-gray-500 border border-gray-100 rounded-lg px-3 py-2 bg-gray-50">
+                                        <i class="fas fa-lock text-gray-400 mr-2"></i>
+                                        Student email cannot be changed for security reasons
+                                    </p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-navy mb-2">Student ID</label>
+                                    <p id="profile-student-id" class="text-lg text-gray-500 border border-gray-100 rounded-lg px-3 py-2 bg-gray-50">
+                                        <i class="fas fa-lock text-gray-400 mr-2"></i>
+                                        Student ID cannot be changed for security reasons
+                                    </p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-navy mb-2">University</label>
+                                    <p id="profile-university" class="text-lg text-gray-500 border border-gray-100 rounded-lg px-3 py-2 bg-gray-50">
+                                        <i class="fas fa-lock text-gray-400 mr-2"></i>
+                                        University cannot be changed for security reasons
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- SELLER STORE FIELDS (editable for sellers only) -->
+                            <div id="seller-store-fields" class="space-y-6 hidden">
+                                <h2 class="text-xl font-semibold text-navy mb-4">Store Information</h2>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-navy mb-2">Store Name</label>
+                                        <input type="text" id="profile-store-name-edit" name="storeName" 
+                                            class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
+                                            placeholder="Your store name">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-navy mb-2">Store Description</label>
+                                        <textarea id="profile-store-desc-edit" name="storeDescription" rows="3" 
+                                            class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
+                                            placeholder="Describe your store and products"></textarea>
+                                    </div>
                                 </div>
                             </div>
 
@@ -412,6 +465,14 @@
 
                             <!-- Action Buttons -->
                             <div class="mt-8 flex flex-wrap gap-4">
+                                <button id="edit-profile-btn"
+                                    class="inline-block bg-button-gold text-white font-semibold py-3 px-6 rounded-full hover-bg-button-gold transition-colors mr-2">
+                                    <i class="fas fa-edit mr-2"></i>Edit Profile
+                                </button>
+                                <button id="save-profile-btn" style="display: none;"
+                                    class="inline-block bg-green-600 text-white font-semibold py-3 px-6 rounded-full hover:bg-green-700 transition-colors mr-2">
+                                    <i class="fas fa-save mr-2"></i>Save Changes
+                                </button>
                                 <a href="/pages/settings.html"
                                     class="inline-block bg-button-gold text-white font-semibold py-3 px-6 rounded-full hover-bg-button-gold transition-colors">
                                     <i class="fas fa-edit mr-2"></i>Edit Profile
