@@ -19,6 +19,14 @@ function checkAdminAccess() {
     })
         .then(response => {
             if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    // Token expired or invalid - clear and redirect
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    alert('Your session has expired. Please log in again.');
+                    window.location.href = 'login.html';
+                    return;
+                }
                 throw new Error('Not authorized');
             }
             return response.json();
@@ -32,7 +40,12 @@ function checkAdminAccess() {
         })
         .catch(error => {
             console.error('Admin check failed:', error);
-            window.location.href = 'login.html';
+            // Don't redirect immediately on network errors, only on auth errors
+            if (error.message.includes('Failed to fetch') || error.message.includes('Not authorized')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
         });
 }
 
@@ -49,6 +62,14 @@ async function loadUserAnalytics() {
         });
 
         if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                // Token expired - clear and redirect
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                alert('Your session has expired. Please log in again.');
+                window.location.href = 'login.html';
+                return;
+            }
             throw new Error('Failed to load user analytics');
         }
 
@@ -57,6 +78,11 @@ async function loadUserAnalytics() {
         updateAnalyticsCharts(data);
     } catch (error) {
         console.error('Error loading user analytics:', error);
+        // Only redirect on authentication errors, not network errors
+        if (error.message.includes('Your session has expired')) {
+            // Already handled above
+            return;
+        }
         showError('Failed to load user analytics');
         // Load fallback data
         loadFallbackAnalytics();
@@ -249,6 +275,14 @@ async function loadUsers(page = 1) {
         });
 
         if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                // Token expired - clear and redirect
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                alert('Your session has expired. Please log in again.');
+                window.location.href = 'login.html';
+                return;
+            }
             throw new Error('Failed to load users');
         }
 
@@ -257,6 +291,11 @@ async function loadUsers(page = 1) {
         displayPagination(data.pagination);
     } catch (error) {
         console.error('Error loading users:', error);
+        // Only redirect on authentication errors, not network errors
+        if (error.message.includes('Your session has expired')) {
+            // Already handled above
+            return;
+        }
         showError('Failed to load users');
     }
 }

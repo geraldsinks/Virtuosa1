@@ -20,6 +20,14 @@ function checkAdminAccess() {
     })
         .then(response => {
             if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    // Token expired or invalid - clear and redirect
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    alert('Your session has expired. Please log in again.');
+                    window.location.href = 'login.html';
+                    return;
+                }
                 throw new Error('Not authorized');
             }
             return response.json();
@@ -33,7 +41,12 @@ function checkAdminAccess() {
         })
         .catch(error => {
             console.error('Admin check failed:', error);
-            window.location.href = 'login.html';
+            // Don't redirect immediately on network errors, only on auth errors
+            if (error.message.includes('Failed to fetch') || error.message.includes('Not authorized')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
         });
 }
 
@@ -50,6 +63,14 @@ async function loadDashboardData() {
         });
 
         if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                // Token expired - clear and redirect
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                alert('Your session has expired. Please log in again.');
+                window.location.href = 'login.html';
+                return;
+            }
             throw new Error('Failed to load dashboard data');
         }
 
@@ -60,6 +81,11 @@ async function loadDashboardData() {
         updateRecentTransactions(data.recentTransactions);
     } catch (error) {
         console.error('Error loading dashboard data:', error);
+        // Only redirect on authentication errors, not network errors
+        if (error.message.includes('Your session has expired')) {
+            // Already handled above
+            return;
+        }
         showError('Failed to load dashboard data');
     }
 }
