@@ -75,8 +75,17 @@ async function handleLogin(event) {
             localStorage.setItem('userFullName', result.user.fullName);
             
             // Role Persistence Logic
+            console.log('🔍 LOGIN DEBUG - Server response:', result.user);
             const isAdmin = (result.user.isAdmin === true || result.user.isAdmin === 'true' || result.user.email === 'admin@virtuosa.com');
             const isSeller = result.user.isSeller === true || result.user.isSeller === 'true';
+            
+            console.log('🔍 LOGIN DEBUG - Role detection:', {
+                isAdmin: isAdmin,
+                isSeller: isSeller,
+                userIsAdmin: result.user.isAdmin,
+                userEmail: result.user.email,
+                userRole: result.user.role
+            });
             
             // Set role based on priority: admin > seller > user
             let role = result.user.role || 'user';
@@ -85,6 +94,8 @@ async function handleLogin(event) {
             } else if (isSeller) {
                 role = 'seller';
             }
+            
+            console.log('🔍 LOGIN DEBUG - Final role:', role);
 
             localStorage.setItem('userRole', role);
             localStorage.setItem('isAdmin', isAdmin.toString());
