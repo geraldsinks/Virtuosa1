@@ -102,6 +102,8 @@ async function handleLogin(event) {
             localStorage.setItem('isSeller', isSeller.toString());
             
             // Redirect directly to role-specific dashboard (no more universal router)
+            console.log('🔍 LOGIN DEBUG - About to redirect. Check console logs, then refresh to continue.');
+            return; // Temporarily pause redirect
             setTimeout(() => {
                 if (isAdmin) {
                     window.location.href = '/pages/admin-dashboard.html';
