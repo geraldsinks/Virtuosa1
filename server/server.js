@@ -900,6 +900,10 @@ app.post('/api/marketing/assets/upload', authenticateToken, isAdmin, marketingUp
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
+        console.log(' File uploaded to:', req.file.path);
+        console.log(' File filename:', req.file.filename);
+        console.log(' File destination:', req.file.destination);
+
         const asset = new MarketingAsset({
             filename: req.file.filename,
             url: `/uploads/marketing/${req.file.filename}`,
@@ -910,10 +914,11 @@ app.post('/api/marketing/assets/upload', authenticateToken, isAdmin, marketingUp
         });
 
         await asset.save();
+        console.log(' Asset saved to database:', asset);
         res.status(201).json(asset);
     } catch (error) {
         console.error('Asset upload error:', error);
-        res.status(500).json({ message: 'Error uploading asset' });
+        res.status(500).json({ message: 'Upload failed', error: error.message });
     }
 });
 
