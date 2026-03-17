@@ -1,4 +1,6 @@
+console.log('🚀 ADMIN ASSET LIBRARY: Script started');
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log('🚀 ADMIN ASSET LIBRARY: DOM Content Loaded');
     // API_BASE is provided by config.js
     const token = localStorage.getItem('token');
     
