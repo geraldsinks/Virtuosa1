@@ -3347,9 +3347,32 @@ app.put('/api/user/profile', authenticateToken, async (req, res) => {
 
         await user.save();
         res.json({ message: 'Profile updated successfully', user });
-    } catch (error) {
-        console.error('Update profile error:', error);
-        res.status(500).json({ message: 'Server error' });
+    // Configure Multer for profile pictures
+const profilePictureStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = path.join(__dirname, '../client/uploads/profiles');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'profile-' + req.user.userId + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const profilePictureUpload = multer({
+    storage: profilePictureStorage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /jpeg|jpg|png|gif|webp/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+        if (extname && mimetype) {
+            return cb(null, true);
+        }
+        cb(new Error('Only images (jpeg, jpg, png, gif, webp) are allowed'));
     }
 });
 
@@ -3403,35 +3426,6 @@ app.delete('/api/user/profile-picture', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Remove profile picture error:', error);
         res.status(500).json({ message: 'Server error' });
-    }
-});
-
-// Configure Multer for profile pictures
-const profilePictureStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadDir = path.join(__dirname, '../client/uploads/profiles');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'profile-' + req.user.userId + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-});
-
-const profilePictureUpload = multer({
-    storage: profilePictureStorage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = /jpeg|jpg|png|gif|webp/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-        if (extname && mimetype) {
-            return cb(null, true);
-        }
-        cb(new Error('Only images (jpeg, jpg, png, gif, webp) are allowed'));
     }
 });
 
