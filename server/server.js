@@ -16,12 +16,22 @@ const socketIo = require('socket.io');
 require('dotenv').config({ path: path.join(__dirname, 'config/.env') });
 
 // Ensure uploads directories exist on startup
+// Check if we're on Render and use persistent disk path
+const isRender = process.env.RENDER === 'true';
+const basePath = isRender ? '/opt/render/project/src/server' : __dirname;
+
+console.log('🚀 Server starting...');
+console.log('📍 Environment:', isRender ? 'Render' : 'Local');
+console.log('📁 Base path:', basePath);
+
 const uploadDirs = ['uploads', 'uploads/products', 'uploads/marketing', 'uploads/profiles', 'uploads/messages'];
 uploadDirs.forEach(dir => {
-    const fullPath = path.join(__dirname, dir);
+    const fullPath = path.join(basePath, dir);
     if (!fs.existsSync(fullPath)) {
         fs.mkdirSync(fullPath, { recursive: true });
         console.log(`Created directory: ${fullPath}`);
+    } else {
+        console.log(`Directory exists: ${fullPath}`);
     }
 });
 
@@ -40,14 +50,68 @@ app.use(cors( {
 }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../client')));
-// Serve uploads from server directory for better persistence
-app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve uploads from the correct directory based on environment
+const uploadsPath = path.join(basePath, 'uploads');
+console.log('📂 Serving uploads from:', uploadsPath);
+app.use('/api/uploads', express.static(uploadsPath));
 // Fallback to client uploads for backward compatibility
 app.use('/api/client-uploads', express.static(path.join(__dirname, '../client/uploads')));
 
 // Test endpoint
 app.get('/api/auth/test', (req, res) => {
     res.json({ message: 'Server is running!', timestamp: new Date() });
+});
+
+// Debug endpoint to check file existence
+app.get('/api/debug/file/:filename', async (req, res) => {
+    try {
+        const filename = req.params.filename;
+        const filePath = path.join(uploadsPath, 'marketing', filename);
+        const exists = fs.existsSync(filePath);
+        const stats = exists ? fs.statSync(filePath) : null;
+        
+        res.json({
+            filename,
+            filePath,
+            exists,
+            stats: stats ? {
+                size: stats.size,
+                created: stats.birthtime,
+                modified: stats.mtime
+            } : null,
+            uploadsPath,
+            basePath,
+            isRender
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Health check endpoint for uploads
+app.get('/api/health/uploads', (req, res) => {
+    try {
+        const marketingDir = path.join(uploadsPath, 'marketing');
+        const files = fs.existsSync(marketingDir) ? fs.readdirSync(marketingDir) : [];
+        
+        res.json({
+            status: 'ok',
+            uploadsPath,
+            marketingDir,
+            marketingFiles: files.length,
+            files: files.slice(0, 10), // Show first 10 files
+            isRender,
+            basePath
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            status: 'error', 
+            error: error.message,
+            uploadsPath,
+            isRender,
+            basePath
+        });
+    }
 });
 
 // Helper for unique slugs
@@ -837,10 +901,11 @@ mongoose.connection.on('error', (err) => {
 // Configure Multer for product image uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadDir = path.join(__dirname, 'uploads/products');
+        const uploadDir = path.join(basePath, 'uploads/products');
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
+        console.log('📸 Product upload destination:', uploadDir);
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
@@ -866,10 +931,11 @@ const upload = multer({
 // Configure Multer for marketing assets
 const marketingStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadDir = path.join(__dirname, 'uploads/marketing');
+        const uploadDir = path.join(basePath, 'uploads/marketing');
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
+        console.log('🎨 Marketing upload destination:', uploadDir);
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
@@ -895,10 +961,11 @@ const marketingUpload = multer({
 // Configure Multer for profile picture uploads
 const profilePictureStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadDir = path.join(__dirname, 'uploads/profiles');
+        const uploadDir = path.join(basePath, 'uploads/profiles');
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
+        console.log('👤 Profile upload destination:', uploadDir);
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
