@@ -3,11 +3,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
     
     if (!token) {
-        window.location.href = 'login.html';
+        window.location.href = '/pages/login.html';
         return;
     }
 
-    // Check admin access
+    // First check localStorage for admin status (faster, avoids API call if already authed)
+    const isAdmin = localStorage.getItem('isAdmin') === 'true';
+    const isSeller = localStorage.getItem('isSeller') === 'true';
+    
+    if (!isAdmin) {
+        // If not admin based on localStorage, redirect to appropriate dashboard
+        if (isSeller) {
+            window.location.href = '/pages/seller-dashboard.html';
+        } else {
+            window.location.href = '/pages/buyer-dashboard.html';
+        }
+        return;
+    }
+
+    // Verify admin access with API (to ensure token is still valid)
     try {
         const response = await fetch(`${API_BASE}/user/profile`, {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -18,10 +32,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const user = await response.json();
-        // Check if user email matches admin email or role is admin or isAdmin is true
+        // Double-check admin status with server data
         if (user.email !== 'admin@virtuosa.com' && user.role !== 'admin' && user.isAdmin !== 'true' && user.isAdmin !== true) {
             alert('Access denied. Admin privileges required.');
-            window.location.href = 'buyer-dashboard.html';
+            window.location.href = '/pages/buyer-dashboard.html';
             return;
         }
 
@@ -32,7 +46,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (error) {
         console.error('Admin check failed:', error);
-        window.location.href = 'login.html';
+        // If API call fails, redirect to login (token might be expired)
+        window.location.href = '/pages/login.html';
         return;
     }
 
