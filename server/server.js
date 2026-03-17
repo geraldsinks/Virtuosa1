@@ -645,35 +645,21 @@ mongoose.connection.on('disconnected', () => {
 
 mongoose.connection.on('connected', () => {
     console.log('MongoDB connected successfully!');
-    
-    // Seed initial marketing data on first connection
-    seedInitialMarketingData();
 });
 
 // Function to seed initial marketing data
 async function seedInitialMarketingData() {
     try {
-        const AdSlider = mongoose.model('AdSlider', new mongoose.Schema({
-            title: String, subtitle: String, backgroundImage: String, link: String,
-            active: { type: Boolean, default: true }, displayOrder: Number,
-            createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-            createdAt: { type: Date, default: Date.now }, updatedAt: { type: Date, default: Date.now }
-        }));
+        // Wait for database connection if not ready
+        if (mongoose.connection.readyState !== 1) {
+            console.log('Database not connected yet, skipping marketing data seeding');
+            return;
+        }
         
-        const CategoryCard = mongoose.model('CategoryCard', new mongoose.Schema({
-            name: String, title: String, description: String, image: String, link: String,
-            cardType: { type: String, enum: ['square', 'rectangle'] },
-            displayOrder: Number, active: { type: Boolean, default: true },
-            createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-            createdAt: { type: Date, default: Date.now }, updatedAt: { type: Date, default: Date.now }
-        }));
-        
-        const MarketingAsset = mongoose.model('MarketingAsset', new mongoose.Schema({
-            filename: String, url: String, mimetype: String, size: Number, tags: [String],
-            usageCount: { type: Number, default: 0 }, isOptimized: { type: Boolean, default: false },
-            uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-            createdAt: { type: Date, default: Date.now }
-        }));
+        // Use existing models instead of redefining them
+        const AdSlider = mongoose.model('AdSlider');
+        const CategoryCard = mongoose.model('CategoryCard');
+        const MarketingAsset = mongoose.model('MarketingAsset');
 
         // Check if marketing data already exists
         const existingAdSliders = await AdSlider.countDocuments();
@@ -1821,6 +1807,16 @@ const marketingAssetSchema = new mongoose.Schema({
 const MarketingAsset = mongoose.model('MarketingAsset', marketingAssetSchema);
 
 console.log('Marketing models created successfully');
+
+// Seed initial marketing data after models are created (only if connected)
+if (mongoose.connection.readyState === 1) {
+    seedInitialMarketingData();
+} else {
+    // Seed when connection is ready
+    mongoose.connection.once('connected', () => {
+        seedInitialMarketingData();
+    });
+}
 
 // Seller Application Schema (comprehensive Zambian campus marketplace application)
 const sellerApplicationSchema = new mongoose.Schema({

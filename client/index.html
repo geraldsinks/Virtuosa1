@@ -716,9 +716,15 @@
             function renderAdSliders(adSliders) {
                 const activeAdSliders = adSliders.filter(ad => ad.active).sort((a, b) => a.displayOrder - b.displayOrder);
 
-                adCardsWrapper.innerHTML = activeAdSliders.map(ad => `
+                adCardsWrapper.innerHTML = activeAdSliders.map(ad => {
+                    // Handle both absolute and relative URLs
+                    const imageUrl = ad.backgroundImage.startsWith('http') ? 
+                        ad.backgroundImage : 
+                        `https://virtuosa-server.onrender.com${ad.backgroundImage}`;
+                    
+                    return `
                 <div class="ad-card flex-none w-full h-full bg-cover bg-center rounded-lg shadow-lg relative cursor-pointer"
-                 style="background-image: url('https://virtuosa-server.onrender.com${ad.backgroundImage}');"
+                 style="background-image: url('${imageUrl}');"
                  onclick="window.location.href='${ad.link.startsWith('/') ? ad.link : '/' + ad.link}'">
                  <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
                 <div class="text-center">
@@ -726,8 +732,8 @@
                 ${ad.subtitle ? `<p class="text-white text-lg md:text-xl mt-2">${ad.subtitle}</p>` : ''}
                     </div>
                     </div>
-                    </div>
-                `).join('');
+                    </div>`;
+                }).join('');
 
                 // Initialize ad slider if we have ads
                 if (activeAdSliders.length > 0) {
@@ -749,11 +755,16 @@
                 categoryGrid.innerHTML = activeCards.map(card => {
                     const isRectangle = card.cardType === 'rectangle';
                     const cardClass = isRectangle ? 'category-card rectangle-card col-span-full md:col-span-2' : 'category-card square-card';
+                    
+                    // Handle both absolute and relative URLs for images
+                    const imageUrl = card.image && card.image.startsWith('http') ? 
+                        card.image : 
+                        (card.image ? `https://virtuosa-server.onrender.com${card.image}` : `https://placehold.co/400x200?text=${encodeURIComponent(card.title)}`);
 
                   return `
                 <div class="${cardClass}">
                 <div class="overflow-hidden bg-gray-100">
-                <img src="${card.image ? 'https://virtuosa-server.onrender.com' + card.image : 'https://placehold.co/400x200?text=' + encodeURIComponent(card.title)}" 
+                <img src="${imageUrl}" 
                  alt="${card.title}" 
                  class="category-image">
                 </div>
