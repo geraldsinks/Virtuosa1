@@ -889,7 +889,7 @@
 
                         productGrid.innerHTML = products.map(product => {
                     const image = product.images && product.images[0]
-                        ? product.images[0]
+                        ? fixServerUrl(product.images[0])
                         : 'https://placehold.co/600x400?text=No+Image';
                     const badgesHtml = renderBadges(product);
                     const discount = product.originalPrice && product.originalPrice > product.price
@@ -958,7 +958,7 @@
 
                 productList.innerHTML = products.map(product => {
                     const image = product.images && product.images[0]
-                        ? product.images[0]
+                        ? fixServerUrl(product.images[0])
                         : 'https://placehold.co/600x400?text=No+Image';
                     const badgesHtml = renderBadges(product);
                     const discount = product.originalPrice && product.originalPrice > product.price
@@ -1639,6 +1639,13 @@
         });
     </script>
     <script src="../js/config.js"></script>
+    <script>
+        // Helper function to fix URLs to point to server
+        function fixServerUrl(url) {
+            if (!url) return url;
+            return url.startsWith('/') ? `${API_BASE}${url}` : url;
+        }
+    </script>
     <script src="../js/header.js"></script>
     <script src="../js/mobile-header.js"></script>
     <script src="../js/cart.js"></script>

@@ -3,6 +3,15 @@ let currentStep = 1;
 let uploadedImages = [];
 let currentProductId = null;
 
+// Helper function to fix URLs to point to server
+function fixServerUrl(url) {
+    if (!url) return url;
+    return url.startsWith('/') ? `${API_BASE}${url}` : url;
+}
+
+// Make the helper function globally available
+window.fixServerUrl = fixServerUrl;
+
 // Subcategories based on main categories (kept in sync with create-product.html category options)
 const subcategories = {
     'Textbooks': ['Science', 'Mathematics', 'Engineering', 'Business', 'Arts', 'Medicine', 'Law', 'Other'],
@@ -79,7 +88,7 @@ function updateImagePreview() {
         const imageDiv = document.createElement('div');
         imageDiv.className = 'relative group';
         imageDiv.innerHTML = `
-            <img src="${image.url}" alt="${image.name}" class="w-full h-32 object-cover rounded-lg">
+            <img src="${fixServerUrl(image.url)}" alt="${image.name}" class="w-full h-32 object-cover rounded-lg">
             <button type="button" onclick="removeImage(${index})" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
                 <i class="fas fa-times text-xs"></i>
             </button>

@@ -397,15 +397,15 @@
             const mainImage = document.getElementById('main-product-image');
             const images = product.images || [];
             if (images.length > 0) {
-                mainImage.src = images[0];
+                mainImage.src = fixServerUrl(images[0]);
                 
                 const thumbnailContainer = document.getElementById('thumbnail-container');
                 images.forEach((img, idx) => {
                     const thumb = document.createElement('div');
                     thumb.className = `cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${idx === 0 ? 'border-gold' : 'border-transparent hover:border-gray-300'}`;
-                    thumb.innerHTML = `<img src="${img}" class="w-full h-full object-cover">`;
+                    thumb.innerHTML = `<img src="${fixServerUrl(img)}" class="w-full h-full object-cover">`;
                     thumb.onclick = () => {
-                        mainImage.src = img;
+                        mainImage.src = fixServerUrl(img);
                         document.querySelectorAll('#thumbnail-container div').forEach(d => d.classList.remove('border-gold'));
                         thumb.classList.add('border-gold');
                     };
@@ -438,7 +438,7 @@
                         productId: product._id,
                         name: product.name,
                         price: product.price,
-                        image: images[0] || '',
+                        image: fixServerUrl(images[0]) || '',
                         quantity: qty
                     }
                 });
@@ -467,7 +467,14 @@
         }
     </script>
     <script src="../js/config.js"></script>
-    <script src="../js/mobile-header.js"></script>
+    <script>
+        // Helper function to fix URLs to point to server
+        function fixServerUrl(url) {
+            if (!url) return url;
+            return url.startsWith('/') ? `${API_BASE}${url}` : url;
+        }
+    </script>
+    <script src="../js/header.js"></script>
     <script src="../js/cart.js"></script>
     <script src="../js/auth/auth-helper.js"></script>
 </html>

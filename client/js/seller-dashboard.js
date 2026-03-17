@@ -84,6 +84,15 @@ async function checkSellerAccess(token) {
     }
 }
 
+// Helper function to fix URLs to point to server
+function fixServerUrl(url) {
+    if (!url) return url;
+    return url.startsWith('/') ? `${API_BASE}${url}` : url;
+}
+
+// Make the helper function globally available
+window.fixServerUrl = fixServerUrl;
+
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -410,7 +419,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         container.innerHTML = activeListings.map(product => `
             <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 flex flex-col justify-between">
                 <div class="flex items-center space-x-4 mb-4">
-                    <img src="${product.images?.[0] || 'https://placehold.co/100x100?text=No+Image'}" 
+                    <img src="${fixServerUrl(product.images?.[0]) || 'https://placehold.co/100x100?text=No+Image'}" 
                          class="w-16 h-16 rounded-lg object-cover shadow-sm" alt="${product.name}">
                     <div class="flex-1 min-w-0">
                         <h3 class="font-bold text-navy truncate">${product.name}</h3>

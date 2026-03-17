@@ -178,7 +178,7 @@ async function seedMarketingData() {
         const marketingAssets = [
             {
                 filename: 'electronics-banner.jpg',
-                url: '/uploads/marketing/electronics-banner.jpg',
+                url: 'https://placehold.co/600x400/0A1128/FFFFFF?text=Electronics+Banner',
                 mimetype: 'image/jpeg',
                 size: 245760,
                 tags: ['electronics', 'banner', 'promotion'],
@@ -187,7 +187,7 @@ async function seedMarketingData() {
             },
             {
                 filename: 'books-promo.png',
-                url: '/uploads/marketing/books-promo.png',
+                url: 'https://placehold.co/600x400/4ECDC4/FFFFFF?text=Books+Promo',
                 mimetype: 'image/png',
                 size: 184320,
                 tags: ['books', 'education', 'promotion'],

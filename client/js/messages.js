@@ -1,6 +1,15 @@
 // Messages JavaScript
 // API_BASE is provided by config.js
 
+// Helper function to fix URLs to point to server
+function fixServerUrl(url) {
+    if (!url) return url;
+    return url.startsWith('/') ? `${API_BASE}${url}` : url;
+}
+
+// Make the helper function globally available
+window.fixServerUrl = fixServerUrl;
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Messages page loading...');
     
@@ -346,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     ${message.messageType === 'image' ? `
                         <div class="mb-2">
-                            <img src="${message.fileUrl}" class="max-w-full rounded cursor-pointer" onclick="window.open('${message.fileUrl}', '_blank')">
+                            <img src="${fixServerUrl(message.fileUrl)}" class="max-w-full rounded cursor-pointer" onclick="window.open('${fixServerUrl(message.fileUrl)}', '_blank')">
                         </div>
                     ` : ''}
                     

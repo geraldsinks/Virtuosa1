@@ -1,5 +1,14 @@
-// Mobile Header JavaScript for Virtuosa
+// Mobile Header JavaScript
 // Handles mobile menu, search, and responsive functionality
+
+// Helper function to fix URLs to point to server
+function fixServerUrl(url) {
+    if (!url) return url;
+    return url.startsWith('/') ? `${API_BASE}${url}` : url;
+}
+
+// Make the helper function globally available
+window.fixServerUrl = fixServerUrl;
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeMobileHeader();
@@ -148,7 +157,7 @@ function showSearchSuggestions(query) {
             <div class="mobile-search-suggestion-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-b-0" 
                  onclick="selectMobileSearchSuggestion('${product.name}', '${product._id}')">
                 <div class="flex items-center space-x-3">
-                    <img src="${product.image?.startsWith('http') ? product.image : API_BASE.replace('/api', '') + (product.image || '/placeholder-product.jpg')}" 
+                    <img src="${product.image?.startsWith('http') ? product.image : fixServerUrl(product.image || '/placeholder-product.jpg')}" 
                          alt="${product.name}" 
                          class="w-10 h-10 object-cover rounded">
                     <div class="flex-1 min-w-0">

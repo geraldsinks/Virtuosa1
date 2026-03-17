@@ -9,6 +9,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    // Helper function to fix URLs to point to server
+    function fixServerUrl(url) {
+        if (!url) return url;
+        return url.startsWith('/') ? `${API_BASE}${url}` : url;
+    }
+
+    // Make the helper function globally available
+    window.fixServerUrl = fixServerUrl;
+
     console.log('Token found, loading marketing data');
     loadMarketingData();
 });
@@ -415,9 +424,9 @@ function renderAssetLibrary(assets) {
     container.innerHTML = filteredAssets.map(asset => `
         <div class="asset-item" data-asset-id="${asset._id || asset.id}">
             ${asset.mimetype && asset.mimetype.includes('image') ?
-            `<img src="${asset.url}" alt="${asset.filename || asset.name || 'Asset'}" class="w-full h-40 object-cover">` :
+            `<img src="${fixServerUrl(asset.url)}" alt="${asset.filename || asset.name || 'Asset'}" class="w-full h-40 object-cover">` :
             asset.mimetype && asset.mimetype.includes('video') ?
-                `<video src="${asset.url}" class="w-full h-40 object-cover" controls></video>` :
+                `<video src="${fixServerUrl(asset.url)}" class="w-full h-40 object-cover" controls></video>` :
                 `<div class="w-full h-40 bg-gray-200 flex items-center justify-center">
                     <i class="fas fa-file text-3xl text-gray-400"></i>
                 </div>`
@@ -1506,11 +1515,11 @@ function renderAssetSelection(assets, type, id) {
 
     container.innerHTML = filteredAssets.map(asset => `
         <div class="asset-item cursor-pointer border-2 border-gray-200 hover:border-blue-500 rounded-lg overflow-hidden"
-             data-url="${asset.url}">
+             data-url="${fixServerUrl(asset.url)}">
             ${asset.mimetype && asset.mimetype.includes('image') ?
-            `<img src="${asset.url}" alt="${asset.filename || asset.name || 'Asset'}" class="w-full h-24 object-cover">` :
+            `<img src="${fixServerUrl(asset.url)}" alt="${asset.filename || asset.name || 'Asset'}" class="w-full h-24 object-cover">` :
             asset.mimetype && asset.mimetype.includes('video') ?
-                `<video src="${asset.url}" class="w-full h-24 object-cover"></video>` :
+                `<video src="${fixServerUrl(asset.url)}" class="w-full h-24 object-cover"></video>` :
                 `<div class="w-full h-24 bg-gray-200 flex items-center justify-center">
                     <i class="fas fa-file text-2xl text-gray-400"></i>
                 </div>`
@@ -2351,7 +2360,7 @@ function renderBanners(banners) {
                 <div class="flex-1">
                     <h3 class="font-bold text-navy">${banner.title}</h3>
                     <div class="mt-2">
-                        <img src="${banner.imageUrl}" alt="${banner.title}" class="w-32 h-20 object-cover rounded">
+                        <img src="${fixServerUrl(banner.imageUrl)}" alt="${banner.title}" class="w-32 h-20 object-cover rounded">
                     </div>
                 </div>
                 <div class="flex space-x-2 ml-4">

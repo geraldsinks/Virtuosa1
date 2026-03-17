@@ -644,7 +644,191 @@ mongoose.connection.on('disconnected', () => {
 
 mongoose.connection.on('connected', () => {
     console.log('MongoDB connected successfully!');
+    
+    // Seed initial marketing data on first connection
+    seedInitialMarketingData();
 });
+
+// Function to seed initial marketing data
+async function seedInitialMarketingData() {
+    try {
+        const AdSlider = mongoose.model('AdSlider', new mongoose.Schema({
+            title: String, subtitle: String, backgroundImage: String, link: String,
+            active: { type: Boolean, default: true }, displayOrder: Number,
+            createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+            createdAt: { type: Date, default: Date.now }, updatedAt: { type: Date, default: Date.now }
+        }));
+        
+        const CategoryCard = mongoose.model('CategoryCard', new mongoose.Schema({
+            name: String, title: String, description: String, image: String, link: String,
+            cardType: { type: String, enum: ['square', 'rectangle'] },
+            displayOrder: Number, active: { type: Boolean, default: true },
+            createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+            createdAt: { type: Date, default: Date.now }, updatedAt: { type: Date, default: Date.now }
+        }));
+        
+        const MarketingAsset = mongoose.model('MarketingAsset', new mongoose.Schema({
+            filename: String, url: String, mimetype: String, size: Number, tags: [String],
+            usageCount: { type: Number, default: 0 }, isOptimized: { type: Boolean, default: false },
+            uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+            createdAt: { type: Date, default: Date.now }
+        }));
+
+        // Check if marketing data already exists
+        const existingAdSliders = await AdSlider.countDocuments();
+        const existingCategoryCards = await CategoryCard.countDocuments();
+        const existingMarketingAssets = await MarketingAsset.countDocuments();
+
+        if (existingAdSliders === 0) {
+            // Seed Ad Sliders
+            const adSliders = [
+                {
+                    title: 'Get 20% Off Electronics!',
+                    subtitle: 'Limited time offer on all electronics',
+                    backgroundImage: 'https://placehold.co/1200x320/0A1128/FFFFFF?text=Electronics+Sale',
+                    link: '/pages/products.html?category=Electronics',
+                    active: true,
+                    displayOrder: 1
+                },
+                {
+                    title: 'Sell Your Old Study Notes',
+                    subtitle: 'Turn your notes into cash',
+                    backgroundImage: 'https://placehold.co/1200x320/0A1128/FFFFFF?text=Study+Notes',
+                    link: '/pages/seller.html',
+                    active: true,
+                    displayOrder: 2
+                },
+                {
+                    title: 'Books for Every Course',
+                    subtitle: 'Find textbooks and study materials',
+                    backgroundImage: 'https://placehold.co/1200x320/0A1128/FFFFFF?text=Books',
+                    link: '/pages/products.html?category=Books',
+                    active: true,
+                    displayOrder: 3
+                },
+                {
+                    title: 'Find Your Perfect Accessories',
+                    subtitle: 'Fashion and tech accessories',
+                    backgroundImage: 'https://placehold.co/1200x320/0A1128/FFFFFF?text=Accessories',
+                    link: '/pages/products.html?category=Accessories',
+                    active: true,
+                    displayOrder: 4
+                },
+                {
+                    title: 'Limited Time Free Shipping!',
+                    subtitle: 'On orders over ZMW 100',
+                    backgroundImage: 'https://placehold.co/1200x320/0A1128/FFFFFF?text=Free+Shipping',
+                    link: '/pages/products.html',
+                    active: true,
+                    displayOrder: 5
+                }
+            ];
+            
+            await AdSlider.insertMany(adSliders);
+            console.log('🎯 Seeded initial ad sliders');
+        }
+
+        if (existingCategoryCards === 0) {
+            // Seed Category Cards
+            const categoryCards = [
+                {
+                    name: 'Hot Deals',
+                    title: 'Hot Deals',
+                    description: 'Limited time offers and discounts',
+                    image: 'https://placehold.co/400x240/FF6B6B/FFFFFF?text=Hot+Deals',
+                    link: '/pages/products.html?category=Hot Deals',
+                    cardType: 'rectangle',
+                    active: true,
+                    displayOrder: 1
+                },
+                {
+                    name: 'Best Sellers',
+                    title: 'Best Sellers',
+                    description: 'Most popular items on campus',
+                    image: 'https://placehold.co/400x240/4ECDC4/FFFFFF?text=Best+Sellers',
+                    link: '/pages/products.html?category=Best Sellers',
+                    cardType: 'rectangle',
+                    active: true,
+                    displayOrder: 2
+                },
+                {
+                    name: "Men's Clothing",
+                    title: "Men's Clothing",
+                    description: 'Fashion for the modern student',
+                    image: 'https://placehold.co/200x180/45B7D1/FFFFFF?text=Men',
+                    link: '/pages/products.html?category=Men\'s Clothing',
+                    cardType: 'square',
+                    active: true,
+                    displayOrder: 3
+                },
+                {
+                    name: "Women's Clothing",
+                    title: "Women's Clothing",
+                    description: 'Trendy styles for campus life',
+                    image: 'https://placehold.co/200x180/F7DC6F/FFFFFF?text=Women',
+                    link: '/pages/products.html?category=Women\'s Clothing',
+                    cardType: 'square',
+                    active: true,
+                    displayOrder: 4
+                },
+                {
+                    name: 'Shoes',
+                    title: 'Shoes',
+                    description: 'Footwear for every occasion',
+                    image: 'https://placehold.co/200x180/52C41A/FFFFFF?text=Shoes',
+                    link: '/pages/products.html?category=Shoes',
+                    cardType: 'square',
+                    active: true,
+                    displayOrder: 5
+                },
+                {
+                    name: 'Accessories',
+                    title: 'Accessories',
+                    description: 'Complete your look',
+                    image: 'https://placehold.co/200x180/9B59B6/FFFFFF?text=Accessories',
+                    link: '/pages/products.html?category=Accessories',
+                    cardType: 'square',
+                    active: true,
+                    displayOrder: 6
+                }
+            ];
+            
+            await CategoryCard.insertMany(categoryCards);
+            console.log('🎯 Seeded initial category cards');
+        }
+
+        if (existingMarketingAssets === 0) {
+            // Seed Sample Marketing Assets
+            const marketingAssets = [
+                {
+                    filename: 'electronics-banner.jpg',
+                    url: 'https://placehold.co/600x400/0A1128/FFFFFF?text=Electronics+Banner',
+                    mimetype: 'image/jpeg',
+                    size: 245760,
+                    tags: ['electronics', 'banner', 'promotion'],
+                    usageCount: 0,
+                    isOptimized: true
+                },
+                {
+                    filename: 'books-promo.png',
+                    url: 'https://placehold.co/600x400/4ECDC4/FFFFFF?text=Books+Promo',
+                    mimetype: 'image/png',
+                    size: 184320,
+                    tags: ['books', 'education', 'promotion'],
+                    usageCount: 0,
+                    isOptimized: true
+                }
+            ];
+            
+            await MarketingAsset.insertMany(marketingAssets);
+            console.log('🎯 Seeded initial marketing assets');
+        }
+
+        console.log('✅ Marketing data seeding completed');
+    } catch (error) {
+        console.error('❌ Error seeding marketing data:', error);
+    }
+}
 
 mongoose.connection.on('error', (err) => {
     console.error('MongoDB error:', err.message);

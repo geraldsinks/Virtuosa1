@@ -274,7 +274,7 @@ function renderCart() {
     // Render items
     cartItemsContainer.innerHTML = cart.map(item => `
         <div class="flex items-center border-b border-gray-200 py-4 last:border-0 last:pb-0">
-            <img src="${item.image || 'https://placehold.co/100x100?text=Product'}" alt="${item.name}" class="w-20 h-20 object-cover rounded-md">
+            <img src="${fixServerUrl(item.image) || 'https://placehold.co/100x100?text=Product'}" alt="${item.name}" class="w-20 h-20 object-cover rounded-md">
             <div class="ml-4 flex-grow">
                 <h3 class="font-semibold text-navy">${item.name}</h3>
                 <p class="text-sm text-gray-500">${item.category || 'Product'}</p>
@@ -287,12 +287,20 @@ function renderCart() {
             <div class="text-right">
                 <p class="font-bold text-navy">ZMW ${(item.price * item.quantity).toFixed(2)}</p>
                 <button onclick="removeFromCart('${item._id}')" class="text-red-500 text-sm mt-2 hover:text-red-700">Remove</button>
-            </div>
         </div>
     `).join('');
 }
 
-// Initialize on load
+// Cart Management JavaScript
+// Helper function to fix URLs to point to server
+function fixServerUrl(url) {
+    if (!url) return url;
+    return url.startsWith('/') ? `${API_BASE}${url}` : url;
+}
+
+// Make the helper function globally available
+window.fixServerUrl = fixServerUrl;
+
 document.addEventListener('DOMContentLoaded', () => {
     updateCartIcon();
 

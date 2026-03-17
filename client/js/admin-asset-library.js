@@ -7,6 +7,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    // Helper function to fix URLs to point to server
+    function fixServerUrl(url) {
+        if (!url) return url;
+        return url.startsWith('/') ? `${API_BASE}${url}` : url;
+    }
+
+    // Make the helper function globally available
+    window.fixServerUrl = fixServerUrl;
+
     // First check localStorage for admin status (faster, avoids API call if already authed)
     const isAdmin = localStorage.getItem('isAdmin') === 'true';
     const isSeller = localStorage.getItem('isSeller') === 'true';
@@ -163,23 +172,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isVideo = asset.mimetype.startsWith('video/');
             const fileSize = (asset.size / (1024 * 1024)).toFixed(2); // Convert to MB
             
-            // Debug the URL
-            console.log('🔍 Asset URL:', asset.url);
-            console.log('🔍 Full URL would be:', window.location.origin + asset.url);
+            // Fix the URL to point to the server, not the client
+            const serverUrl = fixServerUrl(asset.url);
+            console.log('🔍 Asset URL (original):', asset.url);
+            console.log('🔍 Asset URL (fixed):', serverUrl);
             
             html += `
                 <div class="asset-card bg-white rounded-xl shadow-lg overflow-hidden">
                     <div class="relative">
                         ${isImage ? `
-                            <img src="${asset.url}" alt="${asset.filename}" class="asset-preview" 
-                                 onerror="console.error('Image failed to load:', '${asset.url}'); this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <img src="${serverUrl}" alt="${asset.filename}" class="asset-preview" 
+                                 onerror="console.error('Image failed to load:', '${serverUrl}'); this.style.display='none'; this.nextElementSibling.style.display='flex';">
                             <div style="display:none; background:#f3f4f6; height:200px; align-items:center; justify-content:center; flex-direction:column;">
                                 <i class="fas fa-image text-4xl text-gray-400 mb-2"></i>
                                 <span class="text-sm text-gray-600">Image failed to load</span>
-                                <span class="text-xs text-gray-500">${asset.url}</span>
+                                <span class="text-xs text-gray-500">${serverUrl}</span>
                             </div>
                         ` : isVideo ? `
-                            <video src="${asset.url}" class="asset-preview" controls></video>
+                            <video src="${serverUrl}" class="asset-preview" controls></video>
                         ` : `
                             <div class="asset-preview bg-gray-100 flex items-center justify-center">
                                 <i class="fas fa-file text-4xl text-gray-400"></i>
@@ -187,7 +197,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         `}
                         
                         <div class="asset-actions absolute top-2 right-2 flex space-x-2">
-                            <button onclick="copyAssetUrl('${asset.url}')" 
+                            <button onclick="copyAssetUrl('${serverUrl}')" 
                                     class="bg-white bg-opacity-90 text-navy p-2 rounded-lg hover:bg-opacity-100 transition-all">
                                 <i class="fas fa-copy"></i>
                             </button>
@@ -216,7 +226,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         </div>
                         
                         <div class="text-xs text-gray-400 mt-2 break-all">
-                            URL: ${asset.url}
+                            URL: ${serverUrl}
                         </div>
                     </div>
                 </div>

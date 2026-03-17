@@ -1,5 +1,16 @@
 // Buyer Dashboard JavaScript
 // API_BASE is provided by config.js
+// Helper function to fix URLs to point to server
+function fixServerUrl(url) {
+    if (!url) return url;
+    return url.startsWith('/') ? `${API_BASE}${url}` : url;
+}
+
+// Make the helper function globally available
+window.fixServerUrl = fixServerUrl;
+
+let currentDisputeId = null;
+
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
 
@@ -278,7 +289,7 @@ function createOrderHTML(order) {
             <div class="flex items-center justify-between">
                 <div class="flex-grow">
                     <div class="flex items-center mb-2">
-                        <img src="${order.product?.images?.[0] || 'https://placehold.co/60x60?text=Product'}" 
+                        <img src="${fixServerUrl(order.product?.images?.[0]) || 'https://placehold.co/60x60?text=Product'}" 
                              alt="${order.product?.name || 'Product'}" 
                              class="w-12 h-12 rounded-lg object-cover mr-3">
                         <div>
@@ -345,7 +356,7 @@ function createRecommendationHTML(product) {
     return `
         <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer" onclick="window.location.href='/pages/product-detail.html?id=${product._id}'">
             <div class="flex items-center">
-                <img src="${product.images?.[0] || 'https://placehold.co/60x60?text=Product'}" 
+                <img src="${fixServerUrl(product.images?.[0]) || 'https://placehold.co/60x60?text=Product'}" 
                      alt="${product.name}" 
                      class="w-16 h-16 rounded-lg object-cover mr-3">
                 <div class="flex-grow min-w-0">
