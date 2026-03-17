@@ -18,24 +18,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // window.location.href = '/pages/login.html';
     }
 
-    // First check localStorage for admin status (faster, avoids API call if already authed)
-    const isAdmin = localStorage.getItem('isAdmin') === 'true';
-    const isSeller = localStorage.getItem('isSeller') === 'true';
-    
-    console.log('Debug - Role check:', { isAdmin, isSeller });
-    
-    if (!isAdmin) {
-        // If not admin based on localStorage, redirect to appropriate dashboard
-        console.log('Not admin, redirecting to appropriate dashboard');
-        console.log('PAUSED: Check console logs, then refresh to continue redirect');
-        return; // Temporarily disable redirect
-        if (isSeller) {
-            window.location.href = '/pages/seller-dashboard.html';
-        } else {
-            window.location.href = '/pages/buyer-dashboard.html';
-        }
-        return;
-    }
+    // Temporary fix: Force admin access for debugging
+    console.log('TEMPORARY: Forcing admin access for debugging');
+    // Remove the localStorage check and go straight to API verification
 
     // Verify admin access with API (to ensure token is still valid)
     try {
