@@ -76,8 +76,8 @@ async function handleLogin(event) {
             
             // Role Persistence Logic
             const role = result.user.role || 'user';
-            const isAdmin = (result.user.isAdmin === true || role === 'admin' || result.user.email === 'admin@virtuosa.com');
-            const isSeller = result.user.isSeller === true;
+            const isAdmin = (result.user.isAdmin === true || result.user.isAdmin === 'true' || role === 'admin' || result.user.email === 'admin@virtuosa.com');
+            const isSeller = result.user.isSeller === true || result.user.isSeller === 'true';
 
             localStorage.setItem('userRole', role);
             localStorage.setItem('isAdmin', isAdmin.toString());
