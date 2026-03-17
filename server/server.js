@@ -893,6 +893,35 @@ const marketingUpload = multer({
     }
 });
 
+// Configure Multer for profile picture uploads
+const profilePictureStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = path.join(__dirname, '../client/uploads/profiles');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'profile-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const profilePictureUpload = multer({
+    storage: profilePictureStorage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB for profile pictures
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /jpeg|jpg|png|gif|webp/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+        if (extname && mimetype) {
+            return cb(null, true);
+        }
+        cb(new Error('Only images (jpeg, jpg, png, gif, webp) are allowed for profile pictures'));
+    }
+});
+
 // Marketing Asset Upload Endpoint
 app.post('/api/marketing/assets/upload', authenticateToken, isAdmin, marketingUpload.single('asset'), async (req, res) => {
     try {
