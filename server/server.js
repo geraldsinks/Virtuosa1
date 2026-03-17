@@ -3375,6 +3375,11 @@ const profilePictureUpload = multer({
         cb(new Error('Only images (jpeg, jpg, png, gif, webp) are allowed'));
     }
 });
+} catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ message: 'Server error' });
+}
+});
 
 // Upload profile picture
 app.post('/api/user/profile-picture', authenticateToken, profilePictureUpload.single('profilePicture'), async (req, res) => {
