@@ -76,30 +76,56 @@ async function handleLogin(event) {
             
             // Role Persistence Logic
             console.log('🔍 LOGIN DEBUG - Server response:', result.user);
-            const isAdmin = (result.user.isAdmin === true || result.user.isAdmin === 'true' || result.user.email === 'admin@virtuosa.com');
-            const isSeller = result.user.isSeller === true || result.user.isSeller === 'true';
             
-            console.log('🔍 LOGIN DEBUG - Role detection:', {
-                isAdmin: isAdmin,
-                isSeller: isSeller,
-                userIsAdmin: result.user.isAdmin,
-                userEmail: result.user.email,
-                userRole: result.user.role
-            });
-            
-            // Set role based on priority: admin > seller > user
-            let role = result.user.role || 'user';
-            if (isAdmin) {
-                role = 'admin';
-            } else if (isSeller) {
-                role = 'seller';
+            // The login response doesn't include admin fields, so fetch full profile
+            try {
+                const profileResponse = await fetch(`${API_BASE}/user/profile`, {
+                    headers: { 'Authorization': `Bearer ${result.token}` }
+                });
+                
+                if (profileResponse.ok) {
+                    const fullUserData = await profileResponse.json();
+                    console.log('🔍 LOGIN DEBUG - Full user profile:', fullUserData);
+                    
+                    // Use the full user data for role detection
+                    const isAdmin = (fullUserData.isAdmin === true || fullUserData.isAdmin === 'true' || fullUserData.email === 'admin@virtuosa.com');
+                    const isSeller = fullUserData.isSeller === true || fullUserData.isSeller === 'true';
+                    
+                    console.log('🔍 LOGIN DEBUG - Role detection:', {
+                        isAdmin: isAdmin,
+                        isSeller: isSeller,
+                        userIsAdmin: fullUserData.isAdmin,
+                        userEmail: fullUserData.email,
+                        userRole: fullUserData.role
+                    });
+                    
+                    // Set role based on priority: admin > seller > user
+                    let role = fullUserData.role || 'user';
+                    if (isAdmin) {
+                        role = 'admin';
+                    } else if (isSeller) {
+                        role = 'seller';
+                    }
+                    
+                    console.log('🔍 LOGIN DEBUG - Final role:', role);
+                    
+                    localStorage.setItem('userRole', role);
+                    localStorage.setItem('isAdmin', isAdmin.toString());
+                    localStorage.setItem('isSeller', isSeller.toString());
+                } else {
+                    console.error('Failed to fetch user profile during login');
+                    // Fallback to basic role
+                    localStorage.setItem('userRole', 'user');
+                    localStorage.setItem('isAdmin', 'false');
+                    localStorage.setItem('isSeller', 'false');
+                }
+            } catch (error) {
+                console.error('Error fetching user profile during login:', error);
+                // Fallback to basic role
+                localStorage.setItem('userRole', 'user');
+                localStorage.setItem('isAdmin', 'false');
+                localStorage.setItem('isSeller', 'false');
             }
-            
-            console.log('🔍 LOGIN DEBUG - Final role:', role);
-
-            localStorage.setItem('userRole', role);
-            localStorage.setItem('isAdmin', isAdmin.toString());
-            localStorage.setItem('isSeller', isSeller.toString());
             
             // Redirect directly to role-specific dashboard (no more universal router)
             console.log('🔍 LOGIN DEBUG - About to redirect. Check console logs, then refresh to continue.');
