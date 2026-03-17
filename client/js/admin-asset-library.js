@@ -14,9 +14,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     
     if (!token) {
-        console.log('No token found, redirecting to login');
-        window.location.href = '/pages/login.html';
-        return;
+        console.log('No token found - WOULD REDIRECT TO LOGIN');
+        return; // Temporarily disable redirect
+        // window.location.href = '/pages/login.html';
     }
 
     // First check localStorage for admin status (faster, avoids API call if already authed)
@@ -27,7 +27,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if (!isAdmin) {
         // If not admin based on localStorage, redirect to appropriate dashboard
-        console.log('Not admin, redirecting to appropriate dashboard');
+        console.log('Not admin - WOULD REDIRECT TO APPROPRIATE DASHBOARD');
+        return; // Temporarily disable redirect
         if (isSeller) {
             window.location.href = '/pages/seller-dashboard.html';
         } else {
@@ -51,7 +52,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         // Double-check admin status with server data
         if (user.email !== 'admin@virtuosa.com' && user.role !== 'admin' && user.isAdmin !== 'true' && user.isAdmin !== true) {
-            console.log('Debug - Admin check failed on server data');
+            console.log('Debug - Admin check failed on server data - WOULD REDIRECT TO BUYER DASHBOARD');
+            return; // Temporarily disable redirect
             alert('Access denied. Admin privileges required.');
             window.location.href = '/pages/buyer-dashboard.html';
             return;
@@ -64,6 +66,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (error) {
         console.error('Admin check failed:', error);
+        console.log('WOULD REDIRECT TO LOGIN DUE TO API ERROR');
+        return; // Temporarily disable redirect
         // If API call fails, redirect to login (token might be expired)
         window.location.href = '/pages/login.html';
         return;
