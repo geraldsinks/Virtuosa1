@@ -114,17 +114,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load assets function
     async function loadAssets() {
         try {
+            console.log('🔍 Loading assets from:', `${API_BASE}/marketing/assets`);
             const response = await fetch(`${API_BASE}/marketing/assets`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (response.ok) {
                 assets = await response.json();
+                console.log('🔍 Assets loaded:', assets);
                 filteredAssets = [...assets];
                 renderAssets();
                 updateStats();
             } else {
-                console.error('Failed to load assets:', await response.json());
+                const errorData = await response.json();
+                console.error('Failed to load assets:', errorData);
                 renderAssets([]);
             }
         } catch (error) {
@@ -155,15 +158,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         let html = '';
         filteredAssets.forEach(asset => {
+            console.log('🔍 Rendering asset:', asset);
             const isImage = asset.mimetype.startsWith('image/');
             const isVideo = asset.mimetype.startsWith('video/');
             const fileSize = (asset.size / (1024 * 1024)).toFixed(2); // Convert to MB
+            
+            // Debug the URL
+            console.log('🔍 Asset URL:', asset.url);
+            console.log('🔍 Full URL would be:', window.location.origin + asset.url);
             
             html += `
                 <div class="asset-card bg-white rounded-xl shadow-lg overflow-hidden">
                     <div class="relative">
                         ${isImage ? `
-                            <img src="${asset.url}" alt="${asset.filename}" class="asset-preview">
+                            <img src="${asset.url}" alt="${asset.filename}" class="asset-preview" 
+                                 onerror="console.error('Image failed to load:', '${asset.url}'); this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div style="display:none; background:#f3f4f6; height:200px; align-items:center; justify-content:center; flex-direction:column;">
+                                <i class="fas fa-image text-4xl text-gray-400 mb-2"></i>
+                                <span class="text-sm text-gray-600">Image failed to load</span>
+                                <span class="text-xs text-gray-500">${asset.url}</span>
+                            </div>
                         ` : isVideo ? `
                             <video src="${asset.url}" class="asset-preview" controls></video>
                         ` : `
@@ -199,6 +213,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                         
                         <div class="text-xs text-gray-500">
                             Uploaded ${new Date(asset.createdAt).toLocaleDateString()}
+                        </div>
+                        
+                        <div class="text-xs text-gray-400 mt-2 break-all">
+                            URL: ${asset.url}
                         </div>
                     </div>
                 </div>
@@ -279,25 +297,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Upload file
     async function uploadFile(file, tags) {
+        console.log('🔍 Uploading file:', file.name, 'Tags:', tags);
         const formData = new FormData();
         formData.append('asset', file);
         formData.append('tags', JSON.stringify(tags));
 
         try {
+            console.log('🔍 Upload request to:', `${API_BASE}/marketing/assets/upload`);
             const response = await fetch(`${API_BASE}/marketing/assets/upload`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
             });
 
+            console.log('🔍 Upload response status:', response.status);
+            
             if (response.ok) {
+                const result = await response.json();
+                console.log('🔍 Upload successful:', result);
                 showToast(`${file.name} uploaded successfully!`, 'success');
             } else {
                 const error = await response.json();
+                console.error('🔍 Upload failed:', error);
                 showToast(error.message || 'Failed to upload file', 'error');
             }
         } catch (error) {
-            console.error('Error uploading file:', error);
+            console.error('🔍 Upload error:', error);
             showToast('Failed to upload file', 'error');
         }
     }
