@@ -1,1 +1,5 @@
 server/config/.env 
+
+# Note: For Render deployment, uploads should be stored in persistent disk
+# Local development uploads can be tracked, but large files should be handled carefully
+# server/uploads/ - Uncomment to ignore all uploads if needed 

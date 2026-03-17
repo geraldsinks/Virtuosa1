@@ -15,6 +15,16 @@ const http = require('http');
 const socketIo = require('socket.io');
 require('dotenv').config({ path: path.join(__dirname, 'config/.env') });
 
+// Ensure uploads directories exist on startup
+const uploadDirs = ['uploads', 'uploads/products', 'uploads/marketing', 'uploads/profiles', 'uploads/messages'];
+uploadDirs.forEach(dir => {
+    const fullPath = path.join(__dirname, dir);
+    if (!fs.existsSync(fullPath)) {
+        fs.mkdirSync(fullPath, { recursive: true });
+        console.log(`Created directory: ${fullPath}`);
+    }
+});
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -30,7 +40,10 @@ app.use(cors( {
 }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../client')));
-app.use('/api/uploads', express.static(path.join(__dirname, '../client/uploads')));
+// Serve uploads from server directory for better persistence
+app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
+// Fallback to client uploads for backward compatibility
+app.use('/api/client-uploads', express.static(path.join(__dirname, '../client/uploads')));
 
 // Test endpoint
 app.get('/api/auth/test', (req, res) => {
@@ -824,7 +837,7 @@ mongoose.connection.on('error', (err) => {
 // Configure Multer for product image uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadDir = path.join(__dirname, '../client/uploads/products');
+        const uploadDir = path.join(__dirname, 'uploads/products');
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
@@ -853,7 +866,7 @@ const upload = multer({
 // Configure Multer for marketing assets
 const marketingStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadDir = path.join(__dirname, '../client/uploads/marketing');
+        const uploadDir = path.join(__dirname, 'uploads/marketing');
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
@@ -882,7 +895,7 @@ const marketingUpload = multer({
 // Configure Multer for profile picture uploads
 const profilePictureStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadDir = path.join(__dirname, '../client/uploads/profiles');
+        const uploadDir = path.join(__dirname, 'uploads/profiles');
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
