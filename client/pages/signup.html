@@ -792,7 +792,37 @@
             generateCaptcha();
         }
 
+        let captchaInterval = null;
+
+        function startCaptchaTimer() {
+            // Clear any existing interval
+            if (captchaInterval) {
+                clearInterval(captchaInterval);
+            }
+            
+            let seconds = 30;
+            const timer = document.getElementById('captcha-timer');
+            
+            captchaInterval = setInterval(() => {
+                timer.textContent = `Expires in ${seconds}s`;
+                seconds--;
+                
+                if (seconds < 0) {
+                    clearInterval(captchaInterval);
+                    captchaInterval = null;
+                    timer.textContent = 'Expired';
+                    // Don't auto-refresh - let user click refresh button
+                }
+            }, 1000);
+        }
+
         function generateCaptcha() {
+            // Clear any existing timer
+            if (captchaInterval) {
+                clearInterval(captchaInterval);
+                captchaInterval = null;
+            }
+            
             const challenges = [
                 { target: 'Virtuosa Logo', correct: ['V'], incorrect: ['🚗', '⭐', '📱', '💻', '🏫'] },
                 { target: 'Books', correct: ['📚', '📖'], incorrect: ['🚗', '⭐', '📱', '💻', '🏫', '🎓', '🔔'] },
@@ -832,6 +862,11 @@
             document.querySelectorAll('.captcha-check').forEach(check => {
                 check.addEventListener('change', validateCaptcha);
             });
+            
+            // Reset message and checkbox
+            document.getElementById('robot-verify-message').textContent = '';
+            document.getElementById('robot-verify-message').className = 'text-xs hidden';
+            document.getElementById('not-robot').checked = false;
             
             // Start timer
             startCaptchaTimer();
@@ -877,22 +912,6 @@
                 message.className = 'text-xs mt-2 text-gray-600';
                 document.getElementById('not-robot').checked = false;
             }
-        }
-
-        function startCaptchaTimer() {
-            let seconds = 30;
-            const timer = document.getElementById('captcha-timer');
-            
-            const interval = setInterval(() => {
-                timer.textContent = `Expires in ${seconds}s`;
-                seconds--;
-                
-                if (seconds < 0) {
-                    clearInterval(interval);
-                    timer.textContent = 'Expired';
-                    generateCaptcha();
-                }
-            }, 1000);
         }
 
         // Override the renderAuthComponent to show signup form by default
