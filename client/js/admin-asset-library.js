@@ -1,77 +1,14 @@
 console.log('🚀 ADMIN ASSET LIBRARY: Script started');
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 ADMIN ASSET LIBRARY: DOM Content Loaded');
-    // API_BASE is provided by config.js
-    const token = localStorage.getItem('token');
     
-    // Debug: Log current localStorage values
-    console.log('Debug - localStorage values:', {
-        token: token ? 'exists' : 'missing',
-        isAdmin: localStorage.getItem('isAdmin'),
-        isSeller: localStorage.getItem('isSeller'),
-        userRole: localStorage.getItem('userRole'),
-        userEmail: localStorage.getItem('userEmail')
-    });
+    // TEMPORARY: Clear localStorage to force fresh login
+    console.log('🧹 CLEARING LOCAL STORAGE - Please log in again');
+    localStorage.clear();
     
-    if (!token) {
-        console.log('No token found - WOULD REDIRECT TO LOGIN');
-        return; // Temporarily disable redirect
-        // window.location.href = '/pages/login.html';
-    }
-
-    // First check localStorage for admin status (faster, avoids API call if already authed)
-    const isAdmin = localStorage.getItem('isAdmin') === 'true';
-    const isSeller = localStorage.getItem('isSeller') === 'true';
-    
-    console.log('Debug - Role check:', { isAdmin, isSeller });
-    
-    if (!isAdmin) {
-        // If not admin based on localStorage, redirect to appropriate dashboard
-        console.log('Not admin - WOULD REDIRECT TO APPROPRIATE DASHBOARD');
-        return; // Temporarily disable redirect
-        if (isSeller) {
-            window.location.href = '/pages/seller-dashboard.html';
-        } else {
-            window.location.href = '/pages/buyer-dashboard.html';
-        }
-        return;
-    }
-
-    // Verify admin access with API (to ensure token is still valid)
-    try {
-        const response = await fetch(`${API_BASE}/user/profile`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (!response.ok) {
-            throw new Error('Not authorized');
-        }
-
-        const user = await response.json();
-        console.log('Debug - API user data:', user);
-        
-        // Double-check admin status with server data
-        if (user.email !== 'admin@virtuosa.com' && user.role !== 'admin' && user.isAdmin !== 'true' && user.isAdmin !== true) {
-            console.log('Debug - Admin check failed on server data - WOULD REDIRECT TO BUYER DASHBOARD');
-            return; // Temporarily disable redirect
-            alert('Access denied. Admin privileges required.');
-            window.location.href = '/pages/buyer-dashboard.html';
-            return;
-        }
-
-        // Update user greeting
-        const greetingElement = document.getElementById('user-greeting');
-        if (greetingElement) {
-            greetingElement.textContent = `Hello, ${user.fullName}`;
-        }
-    } catch (error) {
-        console.error('Admin check failed:', error);
-        console.log('WOULD REDIRECT TO LOGIN DUE TO API ERROR');
-        return; // Temporarily disable redirect
-        // If API call fails, redirect to login (token might be expired)
-        window.location.href = '/pages/login.html';
-        return;
-    }
+    // Redirect to login immediately
+    window.location.href = '/pages/login.html';
+    return;
 
     let assets = [];
     let filteredAssets = [];
