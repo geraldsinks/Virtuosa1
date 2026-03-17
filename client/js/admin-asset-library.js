@@ -1,20 +1,8 @@
-console.log('🚀 ADMIN ASSET LIBRARY: Script started');
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 ADMIN ASSET LIBRARY: DOM Content Loaded');
     // API_BASE is provided by config.js
     const token = localStorage.getItem('token');
     
-    // Debug: Log current localStorage values
-    console.log('Debug - localStorage values:', {
-        token: token ? 'exists' : 'missing',
-        isAdmin: localStorage.getItem('isAdmin'),
-        isSeller: localStorage.getItem('isSeller'),
-        userRole: localStorage.getItem('userRole'),
-        userEmail: localStorage.getItem('userEmail')
-    });
-    
     if (!token) {
-        console.log('No token found, redirecting to login');
         window.location.href = '/pages/login.html';
         return;
     }
@@ -23,11 +11,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const isAdmin = localStorage.getItem('isAdmin') === 'true';
     const isSeller = localStorage.getItem('isSeller') === 'true';
     
-    console.log('Debug - Role check:', { isAdmin, isSeller });
-    
     if (!isAdmin) {
         // If not admin based on localStorage, redirect to appropriate dashboard
-        console.log('Not admin, redirecting to appropriate dashboard');
         if (isSeller) {
             window.location.href = '/pages/seller-dashboard.html';
         } else {
@@ -47,11 +32,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const user = await response.json();
-        console.log('Debug - API user data:', user);
         
         // Double-check admin status with server data
         if (user.email !== 'admin@virtuosa.com' && user.role !== 'admin' && user.isAdmin !== 'true' && user.isAdmin !== true) {
-            console.log('Debug - Admin check failed on server data');
             alert('Access denied. Admin privileges required.');
             window.location.href = '/pages/buyer-dashboard.html';
             return;
@@ -62,7 +45,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (greetingElement) {
             greetingElement.textContent = `Hello, ${user.fullName}`;
         }
-        console.log('✅ ADMIN ACCESS GRANTED - Loading asset library...');
     } catch (error) {
         console.error('Admin check failed:', error);
         // If API call fails, redirect to login (token might be expired)

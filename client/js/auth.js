@@ -128,18 +128,16 @@ async function handleLogin(event) {
             }
             
             // Redirect directly to role-specific dashboard (no more universal router)
-            setTimeout(() => {
-                const finalIsAdmin = localStorage.getItem('isAdmin') === 'true';
-                const finalIsSeller = localStorage.getItem('isSeller') === 'true';
-                
-                if (finalIsAdmin) {
-                    window.location.href = '/pages/admin-dashboard.html';
-                } else if (finalIsSeller) {
-                    window.location.href = '/pages/seller-dashboard.html';
-                } else {
-                    window.location.href = '/pages/buyer-dashboard.html';
-                }
-            }, 1000);
+            const finalIsAdmin = localStorage.getItem('isAdmin') === 'true';
+            const finalIsSeller = localStorage.getItem('isSeller') === 'true';
+            
+            if (finalIsAdmin) {
+                window.location.href = '/pages/admin-dashboard.html';
+            } else if (finalIsSeller) {
+                window.location.href = '/pages/seller-dashboard.html';
+            } else {
+                window.location.href = '/pages/buyer-dashboard.html';
+            }
         } else {
             showMessage(result.message || 'Login failed. Please try again.', true);
         }
