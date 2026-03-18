@@ -237,6 +237,8 @@ async function renderCart() {
     if (!cartItemsContainer) return; // Not on the cart page
 
     const cart = await getCart(); // Make sure we await the async function
+    
+    console.log('🛒 Rendering cart with data:', cart);
 
     if (cart.length === 0) {
         cartItemsContainer.innerHTML = '<p class="text-center text-gray-500 py-8">Your cart is empty. <a href="/pages/products.html" class="text-gold font-semibold">Continue shopping</a></p>';
@@ -259,19 +261,19 @@ async function renderCart() {
     // Render items
     cartItemsContainer.innerHTML = cart.map(item => `
         <div class="flex items-center border-b border-gray-200 py-4 last:border-0 last:pb-0">
-            <img src="${fixServerUrl(item.image) || 'https://placehold.co/100x100?text=Product'}" alt="${item.name}" class="w-20 h-20 object-cover rounded-md">
+            <img src="${fixServerUrl(item.image) || 'https://placehold.co/100x100?text=Product'}" alt="${item.name || 'Product'}" class="w-20 h-20 object-cover rounded-md">
             <div class="ml-4 flex-grow">
-                <h3 class="font-semibold text-navy">${item.name || 'Product'}</h3>
-                <p class="text-sm text-gray-500">${item.category || 'Product'}</p>
+                <h3 class="font-semibold text-navy text-lg">${item.name || 'Product'}</h3>
+                <p class="text-sm text-gray-500 mb-2">${item.category || 'Product'}</p>
                 <div class="flex items-center mt-2">
-                    <button onclick="updateQuantity('${item._id}', -1)" class="w-8 h-8 rounded-full bg-gray-200 text-navy font-bold hover:bg-gray-300">-</button>
-                    <span class="mx-3 font-semibold">${item.quantity || 0}</span>
-                    <button onclick="updateQuantity('${item._id}', 1)" class="w-8 h-8 rounded-full bg-gray-200 text-navy font-bold hover:bg-gray-300">+</button>
+                    <button onclick="updateQuantity('${item._id}', -1)" class="w-8 h-8 rounded-full bg-gray-200 text-navy font-bold hover:bg-gray-300 transition-colors">-</button>
+                    <span class="mx-3 font-semibold text-lg">${item.quantity || 0}</span>
+                    <button onclick="updateQuantity('${item._id}', 1)" class="w-8 h-8 rounded-full bg-gray-200 text-navy font-bold hover:bg-gray-300 transition-colors">+</button>
                 </div>
             </div>
             <div class="text-right">
-                <p class="font-bold text-navy">ZMW ${((item.price || 0) * (item.quantity || 0)).toFixed(2)}</p>
-                <button onclick="removeFromCart('${item._id}')" class="text-red-500 text-sm mt-2 hover:text-red-700">Remove</button>
+                <p class="font-bold text-navy text-lg">ZMW ${((item.price || 0) * (item.quantity || 0)).toFixed(2)}</p>
+                <button onclick="removeFromCart('${item._id}')" class="text-red-500 text-sm mt-2 hover:text-red-700 transition-colors">Remove</button>
             </div>
         </div>
     `).join('');
@@ -289,6 +291,8 @@ function showCartBanner(message = 'Item added to cart!') {
     const banner = document.getElementById('cart-banner');
     const bannerMessage = document.getElementById('cart-banner-message');
     
+    console.log('🎯 Showing cart banner:', message);
+    
     if (banner && bannerMessage) {
         bannerMessage.textContent = message;
         banner.classList.remove('hidden');
@@ -299,6 +303,9 @@ function showCartBanner(message = 'Item added to cart!') {
         }, 3000);
     }
 }
+
+// Make showCartBanner globally available
+window.showCartBanner = showCartBanner;
 
 // Initialize cart on page load
 document.addEventListener('DOMContentLoaded', async () => {
