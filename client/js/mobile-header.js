@@ -216,14 +216,21 @@ function selectMobileSearchSuggestion(productName, productId) {
     mobileSearchInput.value = productName;
     hideSearchSuggestions();
     
+    console.log('Mobile search suggestion clicked:', productName);
+    console.log('Current pathname:', window.location.pathname);
+    
     // Build correct path to product-detail.html from any location
     let productDetailPath = 'pages/product-detail.html';
     
-    // If we're in a subdirectory, go up one level
-    if (window.location.pathname.includes('/pages/')) {
-        productDetailPath = '../product-detail.html';
+    // Check if we're in a subdirectory and adjust path accordingly
+    const pathname = window.location.pathname;
+    
+    // If we're already in /pages/ directory, use relative path
+    if (pathname.includes('/pages/')) {
+        productDetailPath = 'product-detail.html';
     }
     
+    console.log('Final mobile suggestion path:', productDetailPath);
     // Redirect to product detail page
     window.location.href = `${productDetailPath}?id=${productId}`;
 }
@@ -233,14 +240,21 @@ function performSearch() {
     const query = mobileSearchInput.value.trim();
     
     if (query) {
-        // Build correct path to products.html from any location
-        let productsPath = 'products.html';
+        console.log('Mobile search for:', query);
+        console.log('Current pathname:', window.location.pathname);
         
-        // If we're in a subdirectory, go up one level
-        if (window.location.pathname.includes('/pages/')) {
-            productsPath = '../products.html';
+        // Build correct path to products.html from any location
+        let productsPath = 'pages/products.html';
+        
+        // Check if we're in a subdirectory and adjust path accordingly
+        const pathname = window.location.pathname;
+        
+        // If we're already in /pages/ directory, use relative path
+        if (pathname.includes('/pages/')) {
+            productsPath = 'products.html';
         }
         
+        console.log('Final mobile search path:', productsPath);
         // Redirect to products page with search query
         window.location.href = `${productsPath}?q=${encodeURIComponent(query)}`;
     }

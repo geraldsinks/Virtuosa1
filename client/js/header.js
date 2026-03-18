@@ -296,6 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!trimmedQuery) return;
 
         console.log('Performing search for:', trimmedQuery);
+        console.log('Current pathname:', window.location.pathname);
 
         // If we're already on the products page, we can update the list dynamically
         // instead of a full page reload if the products.js is set up to listen
@@ -304,14 +305,17 @@ document.addEventListener('DOMContentLoaded', () => {
             window.dispatchEvent(searchEvent);
         } else {
             // Build correct path to products.html from any location
-            let productsPath = 'products.html';
+            let productsPath = 'pages/products.html';
             
-            // If we're in a subdirectory, go up one level
-            if (window.location.pathname.includes('/pages/')) {
-                productsPath = '../products.html';
+            // Check if we're in a subdirectory and adjust path accordingly
+            const pathname = window.location.pathname;
+            
+            // If we're already in /pages/ directory, use relative path
+            if (pathname.includes('/pages/')) {
+                productsPath = 'products.html';
             }
             
-            // Otherwise redirect to products page with search param
+            console.log('Final search path:', productsPath);
             window.location.href = `${productsPath}?q=${encodeURIComponent(trimmedQuery)}`;
         }
     };
@@ -323,19 +327,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!category) return;
 
         console.log('Category clicked:', category);
+        console.log('Current pathname:', window.location.pathname);
 
         if (window.location.pathname.includes('products.html')) {
             const categoryEvent = new CustomEvent('virtuosaCategory', { detail: { category: category } });
             window.dispatchEvent(categoryEvent);
         } else {
             // Build correct path to products.html from any location
-            let productsPath = 'products.html';
+            let productsPath = 'pages/products.html';
             
-            // If we're in a subdirectory, go up one level
-            if (window.location.pathname.includes('/pages/')) {
-                productsPath = '../products.html';
+            // Check if we're in a subdirectory and adjust path accordingly
+            const pathname = window.location.pathname;
+            
+            // If we're already in /pages/ directory, use relative path
+            if (pathname.includes('/pages/')) {
+                productsPath = 'products.html';
             }
             
+            console.log('Final products path:', productsPath);
             window.location.href = `${productsPath}?category=${encodeURIComponent(category)}`;
         }
     };
@@ -475,14 +484,21 @@ document.addEventListener('DOMContentLoaded', () => {
         desktopSearchInput.value = productName;
         hideDesktopSearchSuggestions();
         
+        console.log('Desktop search suggestion clicked:', productName);
+        console.log('Current pathname:', window.location.pathname);
+        
         // Build correct path to product-detail.html from any location
         let productDetailPath = 'pages/product-detail.html';
         
-        // If we're in a subdirectory, go up one level
-        if (window.location.pathname.includes('/pages/')) {
-            productDetailPath = '../product-detail.html';
+        // Check if we're in a subdirectory and adjust path accordingly
+        const pathname = window.location.pathname;
+        
+        // If we're already in /pages/ directory, use relative path
+        if (pathname.includes('/pages/')) {
+            productDetailPath = 'product-detail.html';
         }
         
+        console.log('Final desktop suggestion path:', productDetailPath);
         // Redirect to product detail page
         window.location.href = `${productDetailPath}?id=${productId}`;
     }
