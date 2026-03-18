@@ -353,12 +353,16 @@
                                         <p id="profile-campus" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 bg-white">-</p>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-semibold text-navy mb-2">Year of Study</label>
-                                        <p id="profile-year" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 bg-white">-</p>
+                                        <label class="block text-sm font-semibold text-navy mb-2">University</label>
+                                        <p id="profile-university" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 bg-white">-</p>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-semibold text-navy mb-2">Faculty</label>
-                                        <p id="profile-faculty" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 bg-white">-</p>
+                                        <label class="block text-sm font-semibold text-navy mb-2">Store Name</label>
+                                        <p id="profile-store-name" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 bg-white">-</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-navy mb-2">Store Description</label>
+                                        <p id="profile-store-desc" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 bg-white min-h-[80px]">-</p>
                                     </div>
                                 </div>
                             </div>
@@ -386,16 +390,16 @@
                                             placeholder="e.g., Main Campus, East Campus">
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-semibold text-navy mb-2">Year of Study</label>
-                                        <input type="text" id="profile-year-edit" name="yearOfStudy" 
+                                        <label class="block text-sm font-semibold text-navy mb-2">Store Name</label>
+                                        <input type="text" id="profile-store-name-edit" name="storeName" 
                                             class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-                                            placeholder="e.g., 1st Year, 2nd Year">
+                                            placeholder="Your store name">
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-semibold text-navy mb-2">Faculty</label>
-                                        <input type="text" id="profile-faculty-edit" name="faculty" 
+                                        <label class="block text-sm font-semibold text-navy mb-2">Store Description</label>
+                                        <textarea id="profile-store-desc-edit" name="storeDescription" rows="3" 
                                             class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-                                            placeholder="e.g., Engineering, Business, Medicine">
+                                            placeholder="Describe your store and products"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -424,37 +428,11 @@
                                     </p>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-navy mb-2">Student ID</label>
-                                    <p id="profile-student-id" class="text-lg text-gray-500 border border-gray-100 rounded-lg px-3 py-2 bg-gray-50">
-                                        <i class="fas fa-lock text-gray-400 mr-2"></i>
-                                        Student ID cannot be changed for security reasons
-                                    </p>
-                                </div>
-                                <div>
                                     <label class="block text-sm font-semibold text-navy mb-2">University</label>
                                     <p id="profile-university" class="text-lg text-gray-500 border border-gray-100 rounded-lg px-3 py-2 bg-gray-50">
                                         <i class="fas fa-lock text-gray-400 mr-2"></i>
                                         University cannot be changed for security reasons
                                     </p>
-                                </div>
-                            </div>
-
-                            <!-- SELLER STORE FIELDS (editable for sellers only) -->
-                            <div id="seller-store-fields" class="space-y-6 hidden">
-                                <h2 class="text-xl font-semibold text-navy mb-4">Store Information</h2>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label class="block text-sm font-semibold text-navy mb-2">Store Name</label>
-                                        <input type="text" id="profile-store-name-edit" name="storeName" 
-                                            class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-                                            placeholder="Your store name">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-navy mb-2">Store Description</label>
-                                        <textarea id="profile-store-desc-edit" name="storeDescription" rows="3" 
-                                            class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-                                            placeholder="Describe your store and products"></textarea>
-                                    </div>
                                 </div>
                             </div>
 
@@ -502,10 +480,6 @@
                                     class="inline-block bg-green-600 text-white font-semibold py-3 px-6 rounded-full hover:bg-green-700 transition-colors mr-2">
                                     <i class="fas fa-save mr-2"></i>Save Changes
                                 </button>
-                                <a href="/pages/settings.html"
-                                    class="inline-block bg-button-gold text-white font-semibold py-3 px-6 rounded-full hover-bg-button-gold transition-colors">
-                                    <i class="fas fa-edit mr-2"></i>Edit Profile
-                                </a>
                                 <button id="download-data-btn"
                                         class="inline-block bg-gray-600 text-white font-semibold py-3 px-6 rounded-full hover:bg-gray-700 transition-colors">
                                     <i class="fas fa-download mr-2"></i>Download My Data
@@ -539,11 +513,11 @@
             const profileBio = document.getElementById('profile-bio');
             const profileEmail = document.getElementById('profile-email');
             const profilePhone = document.getElementById('profile-phone');
-            const profileStudentId = document.getElementById('profile-student-id');
+            const profileStudentEmail = document.getElementById('profile-student-email');
             const profileUniversity = document.getElementById('profile-university');
             const profileCampus = document.getElementById('profile-campus');
-            const profileYear = document.getElementById('profile-year');
-            const profileFaculty = document.getElementById('profile-faculty');
+            const profileStoreName = document.getElementById('profile-store-name');
+            const profileStoreDesc = document.getElementById('profile-store-desc');
             const profilePicture = document.getElementById('profile-picture');
             const studentVerified = document.getElementById('student-verified');
             const accountType = document.getElementById('account-type');
@@ -553,8 +527,8 @@
             const profileNameEdit = document.getElementById('profile-name-edit');
             const profileBioEdit = document.getElementById('profile-bio-edit');
             const profileCampusEdit = document.getElementById('profile-campus-edit');
-            const profileYearEdit = document.getElementById('profile-year-edit');
-            const profileFacultyEdit = document.getElementById('profile-faculty-edit');
+            const profileStoreNameEdit = document.getElementById('profile-store-name-edit');
+            const profileStoreDescEdit = document.getElementById('profile-store-desc-edit');
 
             // Display/Edit containers
             const profileDisplay = document.getElementById('profile-display');
@@ -584,18 +558,18 @@
                         profileBio.textContent = userData.bio || '-';
                         profileEmail.textContent = userData.email || '-';
                         profilePhone.textContent = userData.phoneNumber || '-';
-                        profileStudentId.textContent = userData.studentId || '-';
+                        profileStudentEmail.textContent = userData.studentEmail || '-';
                         profileUniversity.textContent = userData.university || '-';
                         profileCampus.textContent = userData.campusLocation || '-';
-                        profileYear.textContent = userData.yearOfStudy || '-';
-                        profileFaculty.textContent = userData.faculty || '-';
+                        profileStoreName.textContent = userData.storeName || '-';
+                        profileStoreDesc.textContent = userData.storeDescription || '-';
 
                         // Update edit form with current values
                         profileNameEdit.value = userData.fullName || '';
                         profileBioEdit.value = userData.bio || '';
                         profileCampusEdit.value = userData.campusLocation || '';
-                        profileYearEdit.value = userData.yearOfStudy || '';
-                        profileFacultyEdit.value = userData.faculty || '';
+                        profileStoreNameEdit.value = userData.storeName || '';
+                        profileStoreDescEdit.value = userData.storeDescription || '';
 
                         // Update profile picture
                         if (userData.profilePicture) {
@@ -732,8 +706,8 @@
                         fullName: profileNameEdit.value,
                         bio: profileBioEdit.value,
                         campusLocation: profileCampusEdit.value,
-                        yearOfStudy: profileYearEdit.value,
-                        faculty: profileFacultyEdit.value
+                        storeName: profileStoreNameEdit.value,
+                        storeDescription: profileStoreDescEdit.value
                     };
 
                     const response = await fetch(`${API_BASE}/user/profile`, {
@@ -752,8 +726,8 @@
                         profileName.textContent = result.user.fullName || '-';
                         profileBio.textContent = result.user.bio || '-';
                         profileCampus.textContent = result.user.campusLocation || '-';
-                        profileYear.textContent = result.user.yearOfStudy || '-';
-                        profileFaculty.textContent = result.user.faculty || '-';
+                        profileStoreName.textContent = result.user.storeName || '-';
+                        profileStoreDesc.textContent = result.user.storeDescription || '-';
 
                         // Switch back to display mode
                         profileDisplay.style.display = 'block';
