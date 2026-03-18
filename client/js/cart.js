@@ -315,8 +315,16 @@ async function renderCart() {
 // Cart Management JavaScript
 // Helper function to fix URLs to point to server
 function fixServerUrl(url) {
-    if (!url) return url;
-    return url.startsWith('/') ? `${API_BASE}${url}` : url;
+    if (!url) return 'https://placehold.co/100x100?text=Product';
+    
+    // If it's already a full URL, return as is
+    if (url.startsWith('http')) return url;
+    
+    // If it starts with /, prepend API_BASE
+    if (url.startsWith('/')) return `${API_BASE}${url}`;
+    
+    // Otherwise, it's a relative path, prepend API_BASE with /
+    return `${API_BASE}/${url}`;
 }
 
 // Show cart banner when items are added
@@ -337,8 +345,12 @@ function showCartBanner(message = 'Item added to cart!') {
     }
 }
 
-// Make showCartBanner globally available
+// Make functions globally available
+window.addToCart = addToCart;
+window.updateQuantity = updateQuantity;
+window.removeFromCart = removeFromCart;
 window.showCartBanner = showCartBanner;
+window.fixServerUrl = fixServerUrl;
 
 // Initialize cart on page load
 document.addEventListener('DOMContentLoaded', async () => {

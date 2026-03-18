@@ -433,17 +433,21 @@
 
             // Add to Cart
             const addToCartBtn = document.getElementById('add-to-cart-btn');
-            addToCartBtn.onclick = () => {
-                const cartEvent = new CustomEvent('addItemToCart', {
-                    detail: {
-                        productId: product._id,
-                        name: product.name,
-                        price: product.price,
-                        image: fixServerUrl(images[0]) || '',
-                        quantity: qty
-                    }
-                });
-                window.dispatchEvent(cartEvent);
+            addToCartBtn.onclick = async () => {
+                const productData = {
+                    _id: product._id,
+                    name: product.name,
+                    price: product.price,
+                    image: images[0] || '',
+                    category: product.category || ''
+                };
+                
+                // Use the same addToCart function as products.html
+                if (typeof addToCart === 'function') {
+                    await addToCart(productData, qty);
+                } else {
+                    console.error('addToCart function not available');
+                }
                 
                 // Visual feedback
                 const originalContent = addToCartBtn.innerHTML;
