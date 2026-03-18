@@ -31,6 +31,8 @@ async function getCart() {
 async function saveCart(cart) {
     const token = localStorage.getItem('token');
     
+    console.log('💾 Saving cart:', cart);
+    
     if (token) {
         // For logged in users, cart is managed on backend
         // Individual operations will sync with backend
@@ -180,34 +182,54 @@ document.addEventListener('click', (e) => {
 });
 
 async function removeFromCart(productId) {
+    console.log('🗑️ Removing item from cart:', productId);
+    
     const cart = await getCart();
     const updatedCart = cart.filter(item => item._id !== productId);
+    
+    console.log('🛒 Cart after removal:', updatedCart);
+    
     await saveCart(updatedCart);
 
     // If we're on the cart page, re-render
     if (window.location.pathname.includes('cart.html')) {
         renderCart();
     }
+    
+    // Update cart icon
+    await updateCartIcon();
 }
 
 async function updateQuantity(productId, delta) {
+    console.log('🔢 Updating quantity:', { productId, delta });
+    
     const cart = await getCart();
     const item = cart.find(item => item._id === productId);
+    
+    console.log('🛒 Found item:', item);
 
     if (item) {
         item.quantity += delta;
+        console.log('🔢 New quantity:', item.quantity);
 
         if (item.quantity <= 0) {
+            console.log('🗑️ Quantity is 0, removing item');
             await removeFromCart(productId);
             return;
         }
 
         await saveCart(cart);
+        console.log('💾 Cart saved with new quantity');
 
         // If we're on the cart page, re-render
         if (window.location.pathname.includes('cart.html')) {
             renderCart();
         }
+        
+        // Update cart icon
+        await updateCartIcon();
+    } else {
+        console.error('❌ Item not found in cart:', productId);
     }
 }
 
