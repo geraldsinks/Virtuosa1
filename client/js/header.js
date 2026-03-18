@@ -415,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="text-sm font-medium text-white truncate">${product.name}</div>
                             <div class="text-xs text-gray-400">${product.category}</div>
                         </div>
-                        <div class="text-sm font-bold text-gold">$${product.price}</div>
+                        <div class="text-sm font-bold text-gold">K${product.price}</div>
                     </div>
                 </div>
             `).join('');

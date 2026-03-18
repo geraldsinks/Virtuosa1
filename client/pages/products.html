@@ -69,6 +69,22 @@
         .hide-scrollbar::-webkit-scrollbar {
             display: none;
         }
+
+        /* Search suggestions positioning */
+        .mobile-search-container,
+        .v-header-search {
+            position: relative;
+        }
+
+        #mobile-search-suggestions,
+        #home-search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 0.25rem;
+            z-index: 50;
+        }
     </style>
 </head>
 
@@ -123,7 +139,7 @@
                     </svg>
                 </button>
                 <!-- Mobile Search Suggestions -->
-                <div id="mobile-search-suggestions" class="absolute mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
+                <div id="mobile-search-suggestions" class="absolute top-full left-0 right-0 mt-1 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
                     <!-- Mobile search suggestions will be inserted here -->
                 </div>
             </div>
@@ -150,7 +166,7 @@
                         <i class="fas fa-search"></i>
                     </button>
                     <!-- Desktop Search Suggestions -->
-                    <div id="desktop-search-suggestions" class="absolute mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
+                    <div id="home-search-suggestions" class="absolute top-full left-0 right-0 mt-1 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
                         <!-- Desktop search suggestions will be inserted here -->
                     </div>
                 </div>
