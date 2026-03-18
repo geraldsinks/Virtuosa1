@@ -404,11 +404,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const suggestions = getDesktopSearchSuggestions(query, window.desktopAllProducts || []);
         
         if (suggestions.length > 0) {
-            desktopSearchSuggestions.innerHTML = suggestions.map(product => `
+            desktopSearchSuggestions.innerHTML = suggestions.map(product => {
+                const imageUrl = product.images && product.images[0] 
+                    ? (product.images[0].startsWith('http') ? product.images[0] : fixServerUrl(product.images[0]))
+                    : 'https://placehold.co/40x40?text=No+Image';
+                
+                return `
                 <div class="desktop-search-suggestion-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-b-0" 
                      onclick="selectDesktopSearchSuggestion('${product.name}', '${product._id}')">
                     <div class="flex items-center space-x-3">
-                        <img src="${product.image?.startsWith('http') ? product.image : fixServerUrl(product.image || '/placeholder-product.jpg')}" 
+                        <img src="${imageUrl}" 
                              alt="${product.name}" 
                              class="w-10 h-10 object-cover rounded">
                         <div class="flex-1 min-w-0">
@@ -418,7 +423,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="text-sm font-bold text-gold">K${product.price}</div>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
             desktopSearchSuggestions.classList.remove('hidden');
         } else {
             desktopSearchSuggestions.innerHTML = `
