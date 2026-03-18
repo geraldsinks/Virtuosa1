@@ -413,8 +413,54 @@ document.addEventListener('DOMContentLoaded', async () => {
     // If we're on the cart page, render it
     if (window.location.pathname.includes('cart.html')) {
         await renderCart();
+        
+        // Setup continue shopping button
+        setupContinueShoppingButton();
     }
 });
+
+// Setup continue shopping button to go to last visited category
+function setupContinueShoppingButton() {
+    const continueBtn = document.getElementById('continue-shopping-button');
+    if (!continueBtn) return;
+    
+    // Get the previous page from sessionStorage (set by cart.js event listener)
+    const previousPage = sessionStorage.getItem('previousPage');
+    
+    console.log('🔙 Previous page:', previousPage);
+    
+    if (previousPage) {
+        // Check if previous page was products.html with a category
+        if (previousPage.includes('products.html')) {
+            const url = new URL(previousPage, window.location.origin);
+            const category = url.searchParams.get('category');
+            
+            if (category) {
+                // Go back to the same category
+                continueBtn.href = `products.html?category=${encodeURIComponent(category)}`;
+                console.log('📂 Continuing to category:', category);
+                return;
+            } else {
+                // Go back to products page
+                continueBtn.href = 'products.html';
+                console.log('📂 Continuing to products page');
+                return;
+            }
+        }
+        
+        // Check if previous page was product-detail.html
+        if (previousPage.includes('product-detail.html')) {
+            // Go back to products page (could be enhanced to get product category)
+            continueBtn.href = 'products.html';
+            console.log('📂 Continuing from product detail to products');
+            return;
+        }
+    }
+    
+    // Default fallback
+    continueBtn.href = 'products.html';
+    console.log('📂 Default: continuing to products page');
+}
 
 // Make the helper function globally available
 window.fixServerUrl = fixServerUrl;
