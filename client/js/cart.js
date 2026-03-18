@@ -61,6 +61,11 @@ async function addToCart(product, quantity = 1) {
             if (response.ok) {
                 showToast(`${product.name} added to cart!`, 'success');
                 await updateCartIcon();
+                
+                // If we're on the cart page, re-render to show the new item
+                if (window.location.pathname.includes('cart.html')) {
+                    setTimeout(() => renderCart(), 100); // Small delay to ensure backend is updated
+                }
             } else {
                 const error = await response.json();
                 showToast(error.message || 'Failed to add to cart', 'error');
@@ -209,41 +214,20 @@ async function updateCartIcon() {
     const cart = await getCart();
     const count = cart.reduce((total, item) => total + item.quantity, 0);
 
-    // More comprehensive selector list for cart badges
-    const cartCountSelectors = [
-        '#cart-count',
-        '.cart-count-badge',
-        '.relative i[data-lucide="shopping-cart"] + span',
-        '.relative svg + span',
-        'a[href*="cart.html"] span',
-        '.fa-shopping-cart + span',
-        '[data-lucide="shopping-cart"] + span'
-    ];
+    // Only update the red cart badge (the one positioned above the cart icon)
+    const cartBadge = document.querySelector('.cart-badge-count');
     
-    cartCountSelectors.forEach(selector => {
-        const elements = document.querySelectorAll(selector);
-        elements.forEach(el => {
-            // Only update if it's a cart badge (check if it's near a cart icon/link)
-            const parent = el.closest('a');
-            const isCartRelated = parent && (
-                parent.href?.includes('cart.html') || 
-                parent.querySelector('[data-lucide="shopping-cart"]') ||
-                parent.querySelector('.fa-shopping-cart')
-            );
-            
-            if (isCartRelated || selector === '#cart-count' || selector === '.cart-count-badge') {
-                el.textContent = count;
-                if (count > 0) {
-                    el.classList.remove('hidden');
-                } else if (count === 0 && !el.classList.contains('always-show')) {
-                    el.classList.add('hidden');
-                }
-            }
-        });
-    });
+    if (cartBadge) {
+        cartBadge.textContent = count;
+        if (count > 0) {
+            cartBadge.classList.remove('hidden');
+        } else {
+            cartBadge.classList.add('hidden');
+        }
+    }
 }
 
-function renderCart() {
+async function renderCart() {
     const cartItemsContainer = document.getElementById('cart-items');
     const subtotalElement = document.getElementById('subtotal');
     const shippingElement = document.getElementById('shipping');
@@ -251,7 +235,7 @@ function renderCart() {
 
     if (!cartItemsContainer) return; // Not on the cart page
 
-    const cart = getCart();
+    const cart = await getCart(); // Make sure we await the async function
 
     if (cart.length === 0) {
         cartItemsContainer.innerHTML = '<p class="text-center text-gray-500 py-8">Your cart is empty. <a href="/pages/products.html" class="text-gold font-semibold">Continue shopping</a></p>';
@@ -298,14 +282,15 @@ function fixServerUrl(url) {
     return url.startsWith('/') ? `${API_BASE}${url}` : url;
 }
 
-// Make the helper function globally available
-window.fixServerUrl = fixServerUrl;
-
+// Initialize cart on page load
 document.addEventListener('DOMContentLoaded', async () => {
     await updateCartIcon();
-
-    // If we're on the cart page
+    
+    // If we're on the cart page, render it
     if (window.location.pathname.includes('cart.html')) {
-        renderCart();
+        await renderCart();
     }
 });
+
+// Make the helper function globally available
+window.fixServerUrl = fixServerUrl;

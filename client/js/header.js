@@ -172,22 +172,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     const conversations = await messagesResponse.json();
                     const unreadMessageCount = conversations.reduce((total, conv) => total + (conv.unreadCount || 0), 0);
 
-                    // Update message badge if it exists (desktop only)
-                    const messageBadges = document.querySelectorAll('.message-badge-count, a[href*="messages.html"] span');
-                    messageBadges.forEach(badge => {
-                        const parent = badge.closest('a');
-                        const isMessageRelated = parent && parent.href?.includes('messages.html');
-                        const isMobileBadge = badge.id === 'mobile-message-badge';
-
-                        if (isMessageRelated || badge.classList.contains('message-badge-count')) {
-                            badge.textContent = unreadMessageCount;
-                            if (unreadMessageCount > 0) {
-                                badge.classList.remove('hidden');
-                            } else {
-                                badge.classList.add('hidden');
-                            }
+                    // Update message badge if it exists
+                    const messageBadge = document.querySelector('.message-badge-count');
+                    if (messageBadge) {
+                        messageBadge.textContent = unreadMessageCount;
+                        if (unreadMessageCount > 0) {
+                            messageBadge.classList.remove('hidden');
+                        } else {
+                            messageBadge.classList.add('hidden');
                         }
-                    });
+                    }
 
                     // Combine message count with notification count for mobile
                     const mobileNotificationBadge = document.getElementById('mobile-notification-badge');

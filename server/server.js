@@ -2199,8 +2199,11 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
-        // Check if email is verified
-        if (!user.isEmailVerified) {
+        // Check if email is verified (handle missing fields gracefully)
+        // For existing users without email verification fields, consider them verified
+        const isEmailVerified = user.isEmailVerified === undefined ? true : user.isEmailVerified;
+        
+        if (!isEmailVerified) {
             return res.status(403).json({ 
                 message: 'Please verify your email address before logging in. Check your inbox for the verification link.',
                 requiresEmailVerification: true
@@ -2232,23 +2235,43 @@ app.post('/api/auth/resend-verification', async (req, res) => {
     }
 
     try {
+        console.log('🔍 Resend verification request for email:', email);
+        
         const user = await User.findOne({ email });
         if (!user) {
+            console.log('❌ User not found for email:', email);
             return res.status(404).json({ message: 'No account found with this email' });
         }
 
-        if (user.isEmailVerified) {
+        console.log('✅ User found:', user.email, 'isEmailVerified:', user.isEmailVerified);
+
+        // Check if user is already verified (handle missing fields gracefully)
+        const isEmailVerified = user.isEmailVerified === undefined ? true : user.isEmailVerified;
+        
+        if (isEmailVerified) {
+            console.log('ℹ️ User already verified');
             return res.status(400).json({ message: 'Email is already verified' });
         }
 
         // Generate new verification token
         const emailVerificationToken = crypto.randomBytes(20).toString('hex');
+        
+        console.log('🔧 Generated verification token');
+        
+        // Update user with verification token (handle missing fields gracefully)
         user.emailVerificationToken = emailVerificationToken;
         user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+        user.isEmailVerified = user.isEmailVerified || false; // Set default if missing
+        
         await user.save();
+        console.log('💾 User saved with verification token');
 
         // Send verification email
         const emailVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/pages/verify-email.html?token=${emailVerificationToken}`;
+        
+        console.log('📧 Sending verification email to:', email);
+        console.log('🔗 Verification link:', emailVerificationLink);
+        
         await transporter.sendMail({
             to: email,
             subject: 'Virtuosa - Verify Your Email',
@@ -2259,10 +2282,43 @@ app.post('/api/auth/resend-verification', async (req, res) => {
             `
         });
 
+        console.log('✅ Verification email sent successfully');
         res.json({ message: 'Verification email sent successfully' });
     } catch (error) {
-        console.error('Resend verification error:', error);
-        res.status(500).json({ message: 'Server error' });
+        console.error('❌ Resend verification error:', error);
+        console.error('Stack trace:', error.stack);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
+// Migration endpoint to update existing users with email verification fields
+app.post('/api/auth/migrate-email-verification', async (req, res) => {
+    try {
+        // Update all users who don't have email verification fields
+        const result = await User.updateMany(
+            { 
+                $or: [
+                    { isEmailVerified: { $exists: false } },
+                    { emailVerificationToken: { $exists: false } },
+                    { emailVerificationExpires: { $exists: false } }
+                ]
+            },
+            { 
+                $set: { 
+                    isEmailVerified: true, // Set existing users as verified
+                    emailVerificationToken: null,
+                    emailVerificationExpires: null
+                }
+            }
+        );
+
+        res.json({ 
+            message: 'Email verification migration completed',
+            updatedCount: result.modifiedCount
+        });
+    } catch (error) {
+        console.error('Migration error:', error);
+        res.status(500).json({ message: 'Migration failed', error: error.message });
     }
 });
 
