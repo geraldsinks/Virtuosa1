@@ -868,12 +868,18 @@ class AdminMassMessaging {
             console.log('📡 Sending message to', this.targetUsers.length, 'users');
             
             // Prepare payload with user IDs
+            const userIds = this.targetUsers.map(user => user.id);
+            console.log('👥 User IDs being sent:', userIds);
+            console.log('👥 User ID types:', userIds.map(id => typeof id));
+            
             const payload = {
                 title: this.messageData.title,
                 content: this.messageData.content,
                 targetType: 'custom',
-                customUserIds: this.targetUsers.map(user => user.id)
+                customUserIds: userIds
             };
+            
+            console.log('📦 Full payload:', payload);
 
             const response = await fetch(`${API_BASE}/admin/messages/send-mass`, {
                 method: 'POST',
