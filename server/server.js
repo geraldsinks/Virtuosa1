@@ -2201,9 +2201,11 @@ app.post('/api/auth/login', async (req, res) => {
 
         // Check if email is verified (handle missing fields gracefully)
         // For existing users without email verification fields, consider them verified
+        // Special case: if the email is the same as EMAIL_USER, consider it verified
         const isEmailVerified = user.isEmailVerified === undefined ? true : user.isEmailVerified;
+        const isSystemEmail = email === process.env.EMAIL_USER;
         
-        if (!isEmailVerified) {
+        if (!isEmailVerified && !isSystemEmail) {
             return res.status(403).json({ 
                 message: 'Please verify your email address before logging in. Check your inbox for the verification link.',
                 requiresEmailVerification: true
@@ -2247,9 +2249,10 @@ app.post('/api/auth/resend-verification', async (req, res) => {
 
         // Check if user is already verified (handle missing fields gracefully)
         const isEmailVerified = user.isEmailVerified === undefined ? true : user.isEmailVerified;
+        const isSystemEmail = email === process.env.EMAIL_USER;
         
-        if (isEmailVerified) {
-            console.log('ℹ️ User already verified');
+        if (isEmailVerified || isSystemEmail) {
+            console.log('ℹ️ User already verified or is system email');
             return res.status(400).json({ message: 'Email is already verified' });
         }
 
@@ -2271,18 +2274,29 @@ app.post('/api/auth/resend-verification', async (req, res) => {
         
         console.log('📧 Sending verification email to:', email);
         console.log('🔗 Verification link:', emailVerificationLink);
-        
-        await transporter.sendMail({
-            to: email,
-            subject: 'Virtuosa - Verify Your Email',
-            html: `
-                <h2>Email Verification Request</h2>
-                <p>You requested a new verification email. Please click <a href="${emailVerificationLink}">here</a> to verify your email address.</p>
-                <p>This link will expire in 24 hours.</p>
-            `
+        console.log('📧 Email config check:', {
+            hasEmailUser: !!process.env.EMAIL_USER,
+            hasEmailPass: !!process.env.EMAIL_PASS,
+            emailUser: process.env.EMAIL_USER
         });
+        
+        try {
+            await transporter.sendMail({
+                to: email,
+                subject: 'Virtuosa - Verify Your Email',
+                html: `
+                    <h2>Email Verification Request</h2>
+                    <p>You requested a new verification email. Please click <a href="${emailVerificationLink}">here</a> to verify your email address.</p>
+                    <p>This link will expire in 24 hours.</p>
+                `
+            });
+            console.log('✅ Verification email sent successfully');
+        } catch (emailError) {
+            console.error('❌ Failed to send verification email:', emailError);
+            // Don't fail the whole request if email sending fails
+            console.log('⚠️ User updated but email sending failed');
+        }
 
-        console.log('✅ Verification email sent successfully');
         res.json({ message: 'Verification email sent successfully' });
     } catch (error) {
         console.error('❌ Resend verification error:', error);
@@ -5331,6 +5345,43 @@ app.get('/api/admin/retention/test', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Test endpoint error:', error);
         res.status(500).json({ message: 'Test failed' });
+    }
+});
+
+// Test email configuration endpoint
+app.post('/api/test/email-config', async (req, res) => {
+    try {
+        console.log('🧪 Testing email configuration...');
+        console.log('📧 Email config:', {
+            user: process.env.EMAIL_USER,
+            hasPass: !!process.env.EMAIL_PASS,
+            frontend: process.env.FRONTEND_URL
+        });
+
+        // Test transporter
+        await transporter.verify();
+        console.log('✅ Transporter verified successfully');
+
+        res.json({ 
+            message: 'Email configuration is working',
+            config: {
+                hasEmailUser: !!process.env.EMAIL_USER,
+                hasEmailPass: !!process.env.EMAIL_PASS,
+                hasFrontendUrl: !!process.env.FRONTEND_URL,
+                emailUser: process.env.EMAIL_USER
+            }
+        });
+    } catch (error) {
+        console.error('❌ Email config test failed:', error);
+        res.status(500).json({ 
+            message: 'Email configuration test failed', 
+            error: error.message,
+            config: {
+                hasEmailUser: !!process.env.EMAIL_USER,
+                hasEmailPass: !!process.env.EMAIL_PASS,
+                hasFrontendUrl: !!process.env.FRONTEND_URL
+            }
+        });
     }
 });
 
