@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudinary Upload Demo - Virtuosa</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .upload-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            transition: border-color 0.3s;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: #007bff;
+            background-color: #f0f8ff;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #007bff;
+            width: 0%;
+            transition: width 0.3s;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            font-size: 12px;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f5e8;
+            border-radius: 4px;
+            word-break: break-all;
+        }
+        
+        .error {
+            background-color: #ffe8e8;
+            color: #d00;
+        }
+        
+        input[type="file"] {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+        }
+        
+        img {
+            max-width: 200px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cloudinary Upload Demo - Virtuosa</h1>
+    <p>This demo shows how to upload files to Cloudinary through your Virtuosa backend.</p>
+
+    <!-- Product Images Upload -->
+    <div class="upload-section">
+        <h2>📦 Product Images Upload</h2>
+        <p>Upload multiple product images (max 5 files)</p>
+        <input type="file" id="product-images" multiple accept="image/*">
+        <button onclick="uploadProductImages()">Upload Product Images</button>
+        <div id="product-result"></div>
+    </div>
+
+    <!-- Marketing Asset Upload -->
+    <div class="upload-section">
+        <h2>🎨 Marketing Asset Upload</h2>
+        <p>Upload marketing assets (images or videos)</p>
+        <input type="file" id="marketing-asset" accept="image/*,video/*">
+        <input type="text" id="marketing-tags" placeholder="Tags (comma separated)" value="banner,promotion">
+        <button onclick="uploadMarketingAsset()">Upload Marketing Asset</button>
+        <div id="marketing-result"></div>
+    </div>
+
+    <!-- Profile Picture Upload -->
+    <div class="upload-section">
+        <h2>👤 Profile Picture Upload</h2>
+        <p>Upload a profile picture</p>
+        <input type="file" id="profile-picture" accept="image/*">
+        <button onclick="uploadProfilePicture()">Upload Profile Picture</button>
+        <div id="profile-result"></div>
+        <img id="profile-preview" style="display:none;">
+    </div>
+
+    <!-- Message File Upload -->
+    <div class="upload-section">
+        <h2>💬 Message File Upload</h2>
+        <p>Upload files for messaging</p>
+        <input type="file" id="message-file" accept="image/*,application/pdf,.doc,.docx">
+        <button onclick="uploadMessageFile()">Upload Message File</button>
+        <div id="message-result"></div>
+    </div>
+
+    <!-- Drag and Drop Demo -->
+    <div class="upload-section">
+        <h2>🎯 Drag and Drop Upload</h2>
+        <p>Drag and drop files here for product upload</p>
+        <div id="drop-zone" class="drop-zone">
+            <p>Drag and drop files here or click to select</p>
+            <input type="file" id="drop-zone-input" multiple accept="image/*" style="display:none;">
+        </div>
+        <div id="drop-result"></div>
+    </div>
+
+    <!-- Upload with Progress -->
+    <div class="upload-section">
+        <h2>📊 Upload with Progress Tracking</h2>
+        <p>Upload a large file with progress indicator</p>
+        <input type="file" id="progress-file" accept="image/*">
+        <button onclick="uploadWithProgress()">Upload with Progress</button>
+        <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill">0%</div>
+        </div>
+        <div id="progress-result"></div>
+    </div>
+
+    <!-- Include the upload functions -->
+    <script src="cloudinary-upload-examples.js"></script>
+    <script>
+        // Mock auth token for demo (in real app, this would come from login)
+        localStorage.setItem('authToken', 'demo-token');
+
+        // Product images upload handler
+        async function uploadProductImages() {
+            const fileInput = document.getElementById('product-images');
+            const resultDiv = document.getElementById('product-result');
+            
+            if (fileInput.files.length === 0) {
+                showResult(resultDiv, 'Please select at least one image', true);
+                return;
+            }
+
+            try {
+                // Note: This is a simplified example. In reality, you'd need to 
+                // include all product data (name, description, price, etc.)
+                const files = Array.from(fileInput.files);
+                const formData = new FormData();
+                
+                files.forEach(file => {
+                    formData.append('images', file);
+                });
+                
+                // Add minimal required fields for demo
+                formData.append('name', 'Demo Product');
+                formData.append('description', 'Demo product uploaded via Cloudinary');
+                formData.append('price', '99.99');
+                formData.append('condition', 'New');
+                formData.append('category', 'Electronics');
+
+                const response = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Upload failed: ${response.statusText}`);
+                }
+
+                const product = await response.json();
+                showResult(resultDiv, `✅ Product uploaded successfully!<br>Cloudinary URLs: ${product.images.join('<br>')}`);
+                
+            } catch (error) {
+                showResult(resultDiv, `❌ Upload failed: ${error.message}`, true);
+            }
+        }
+
+        // Marketing asset upload handler
+        async function uploadMarketingAsset() {
+            const fileInput = document.getElementById('marketing-asset');
+            const tagsInput = document.getElementById('marketing-tags');
+            const resultDiv = document.getElementById('marketing-result');
+            
+            if (!fileInput.files[0]) {
+                showResult(resultDiv, 'Please select a file', true);
+                return;
+            }
+
+            try {
+                const file = fileInput.files[0];
+                const tags = tagsInput.value.split(',').map(tag => tag.trim());
+                
+                const formData = new FormData();
+                formData.append('asset', file);
+                formData.append('tags', JSON.stringify(tags));
+
+                const response = await fetch('/api/marketing/assets/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Upload failed: ${response.statusText}`);
+                }
+
+                const asset = await response.json();
+                showResult(resultDiv, `✅ Marketing asset uploaded successfully!<br>Cloudinary URL: <a href="${asset.url}" target="_blank">${asset.url}</a>`);
+                
+            } catch (error) {
+                showResult(resultDiv, `❌ Upload failed: ${error.message}`, true);
+            }
+        }
+
+        // Profile picture upload handler
+        async function uploadProfilePicture() {
+            const fileInput = document.getElementById('profile-picture');
+            const resultDiv = document.getElementById('profile-result');
+            const preview = document.getElementById('profile-preview');
+            
+            if (!fileInput.files[0]) {
+                showResult(resultDiv, 'Please select a profile picture', true);
+                return;
+            }
+
+            try {
+                const file = fileInput.files[0];
+                const formData = new FormData();
+                formData.append('profilePicture', file);
+
+                const response = await fetch('/api/user/profile-picture', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Upload failed: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                showResult(resultDiv, `✅ Profile picture updated successfully!<br>Cloudinary URL: <a href="${result.profilePicture}" target="_blank">${result.profilePicture}</a>`);
+                
+                // Show preview
+                preview.src = result.profilePicture;
+                preview.style.display = 'block';
+                
+            } catch (error) {
+                showResult(resultDiv, `❌ Upload failed: ${error.message}`, true);
+            }
+        }
+
+        // Message file upload handler
+        async function uploadMessageFile() {
+            const fileInput = document.getElementById('message-file');
+            const resultDiv = document.getElementById('message-result');
+            
+            if (!fileInput.files[0]) {
+                showResult(resultDiv, 'Please select a file', true);
+                return;
+            }
+
+            try {
+                const file = fileInput.files[0];
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('/api/messages/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Upload failed: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                const preview = result.messageType === 'image' 
+                    ? `<img src="${result.fileUrl}" alt="${result.fileName}">`
+                    : `<a href="${result.fileUrl}" target="_blank">${result.fileName}</a>`;
+                    
+                showResult(resultDiv, `✅ File uploaded successfully!<br>Cloudinary URL: <a href="${result.fileUrl}" target="_blank">${result.fileUrl}</a><br>${preview}`);
+                
+            } catch (error) {
+                showResult(resultDiv, `❌ Upload failed: ${error.message}`, true);
+            }
+        }
+
+        // Upload with progress handler
+        function uploadWithProgress() {
+            const fileInput = document.getElementById('progress-file');
+            const resultDiv = document.getElementById('progress-result');
+            const progressFill = document.getElementById('progress-fill');
+            
+            if (!fileInput.files[0]) {
+                showResult(resultDiv, 'Please select a file', true);
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const xhr = new XMLHttpRequest();
+            const formData = new FormData();
+            formData.append('profilePicture', file);
+
+            // Track progress
+            xhr.upload.addEventListener('progress', (e) => {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    progressFill.style.width = percentComplete + '%';
+                    progressFill.textContent = Math.round(percentComplete) + '%';
+                }
+            });
+
+            xhr.addEventListener('load', () => {
+                if (xhr.status === 200 || xhr.status === 201) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        showResult(resultDiv, `✅ Upload completed successfully!<br>Cloudinary URL: <a href="${response.profilePicture}" target="_blank">${response.profilePicture}</a>`);
+                    } catch (error) {
+                        showResult(resultDiv, '❌ Invalid response from server', true);
+                    }
+                } else {
+                    showResult(resultDiv, `❌ Upload failed: ${xhr.statusText}`, true);
+                }
+                // Reset progress
+                progressFill.style.width = '0%';
+                progressFill.textContent = '0%';
+            });
+
+            xhr.addEventListener('error', () => {
+                showResult(resultDiv, '❌ Network error during upload', true);
+                progressFill.style.width = '0%';
+                progressFill.textContent = '0%';
+            });
+
+            xhr.open('POST', '/api/user/profile-picture');
+            xhr.setRequestHeader('Authorization', `Bearer ${getAuthToken()}`);
+            xhr.send(formData);
+        }
+
+        // Helper function to show results
+        function showResult(element, message, isError = false) {
+            element.innerHTML = message;
+            element.className = isError ? 'result error' : 'result';
+        }
+
+        // Setup drag and drop
+        const dropZone = document.getElementById('drop-zone');
+        const dropZoneInput = document.getElementById('drop-zone-input');
+
+        dropZone.addEventListener('click', () => dropZoneInput.click());
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.remove('drag-over');
+            });
+        });
+
+        dropZone.addEventListener('drop', async (e) => {
+            const files = e.dataTransfer.files;
+            const resultDiv = document.getElementById('drop-result');
+            
+            if (files.length > 0) {
+                try {
+                    const formData = new FormData();
+                    formData.append('images', files[0]);
+                    formData.append('name', 'Drag & Drop Product');
+                    formData.append('description', 'Product uploaded via drag and drop');
+                    formData.append('price', '149.99');
+                    formData.append('condition', 'Like New');
+                    formData.append('category', 'Books');
+
+                    const response = await fetch('/api/products', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${getAuthToken()}`
+                        },
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Upload failed: ${response.statusText}`);
+                    }
+
+                    const product = await response.json();
+                    showResult(resultDiv, `✅ File uploaded via drag and drop!<br>Cloudinary URL: ${product.images[0]}`);
+                    
+                } catch (error) {
+                    showResult(resultDiv, `❌ Upload failed: ${error.message}`, true);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

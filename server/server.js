@@ -13,6 +13,8 @@ const multer = require('multer');
 const fs = require('fs');
 const http = require('http');
 const socketIo = require('socket.io');
+const cloudinary = require('./config/cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 require('dotenv').config({ path: path.join(__dirname, 'config/.env') });
 
 // Ensure uploads directories exist on startup
@@ -898,94 +900,78 @@ mongoose.connection.on('error', (err) => {
     console.error('MongoDB error:', err.message);
 });
 
-// Configure Multer for product image uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadDir = path.join(basePath, 'uploads/products');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        console.log('📸 Product upload destination:', uploadDir);
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'product-' + uniqueSuffix + path.extname(file.originalname));
-    }
+// Configure Multer for product image uploads using Cloudinary
+const productStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'virtuosa/products',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    transformation: [{ width: 1200, height: 1200, crop: 'limit' }]
+  }
 });
 
 const upload = multer({
-    storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = /jpeg|jpg|png|gif|webp/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-        if (extname && mimetype) {
-            return cb(null, true);
-        }
-        cb(new Error('Only images (jpeg, jpg, png, gif, webp) are allowed'));
+  storage: productStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only JPEG, JPG, PNG, and WebP images are allowed'));
     }
+  }
 });
 
-// Configure Multer for marketing assets
-const marketingStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadDir = path.join(basePath, 'uploads/marketing');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        console.log('🎨 Marketing upload destination:', uploadDir);
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'marketing-' + uniqueSuffix + path.extname(file.originalname));
-    }
+// Configure Multer for marketing assets using Cloudinary
+const marketingStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'virtuosa/marketing',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'webm'],
+    resource_type: 'auto'
+  }
 });
 
 const marketingUpload = multer({
-    storage: marketingStorage,
-    limits: { fileSize: 15 * 1024 * 1024 }, // 15MB for marketing assets
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = /jpeg|jpg|png|gif|webp|mp4|webm/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-        if (extname && mimetype) {
-            return cb(null, true);
-        }
-        cb(new Error('Only images and videos are allowed for marketing assets'));
+  storage: marketingStorage,
+  limits: { fileSize: 15 * 1024 * 1024 }, // 15MB for marketing assets
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp|mp4|webm/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname && mimetype) {
+      return cb(null, true);
     }
+    cb(new Error('Only images and videos are allowed for marketing assets'));
+  }
 });
 
-// Configure Multer for profile picture uploads
-const profilePictureStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadDir = path.join(basePath, 'uploads/profiles');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        console.log('👤 Profile upload destination:', uploadDir);
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'profile-' + uniqueSuffix + path.extname(file.originalname));
-    }
+// Configure Multer for profile picture uploads using Cloudinary
+const profilePictureStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'virtuosa/profiles',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    transformation: [{ width: 500, height: 500, crop: 'limit' }]
+  }
 });
 
 const profilePictureUpload = multer({
-    storage: profilePictureStorage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB for profile pictures
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = /jpeg|jpg|png|gif|webp/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-        if (extname && mimetype) {
-            return cb(null, true);
-        }
-        cb(new Error('Only images (jpeg, jpg, png, gif, webp) are allowed for profile pictures'));
+  storage: profilePictureStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB for profile pictures
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname && mimetype) {
+      return cb(null, true);
     }
+    cb(new Error('Only images (jpeg, jpg, png, gif, webp) are allowed for profile pictures'));
+  }
 });
 
 // Marketing Asset Upload Endpoint
@@ -995,13 +981,11 @@ app.post('/api/marketing/assets/upload', authenticateToken, isAdmin, marketingUp
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        console.log(' File uploaded to:', req.file.path);
-        console.log(' File filename:', req.file.filename);
-        console.log(' File destination:', req.file.destination);
+        console.log('✅ File uploaded to Cloudinary:', req.file.path);
 
         const asset = new MarketingAsset({
-            filename: req.file.filename,
-            url: `/uploads/marketing/${req.file.filename}`,
+            filename: req.file.originalname,
+            url: req.file.path, // Cloudinary URL
             mimetype: req.file.mimetype,
             size: req.file.size,
             uploadedBy: req.user.userId,
@@ -1009,10 +993,10 @@ app.post('/api/marketing/assets/upload', authenticateToken, isAdmin, marketingUp
         });
 
         await asset.save();
-        console.log(' Asset saved to database:', asset);
+        console.log('✅ Asset saved to database with Cloudinary URL:', asset);
         res.status(201).json(asset);
     } catch (error) {
-        console.error('Asset upload error:', error);
+        console.error('❌ Asset upload error:', error);
         res.status(500).json({ message: 'Upload failed', error: error.message });
     }
 });
@@ -2411,8 +2395,8 @@ app.post('/api/products', authenticateToken, upload.array('images', 5), async (r
             return res.status(400).json({ message: 'Required fields missing' });
         }
 
-        // Map images to URLs
-        const imageUrls = req.files ? req.files.map(file => `/uploads/products/${file.filename}`) : [];
+        // Map images to Cloudinary URLs
+        const imageUrls = req.files ? req.files.map(file => file.path) : [];
 
         // Map delivery options
         const deliveryOptions = [];
@@ -3625,8 +3609,8 @@ app.post('/api/user/profile-picture', authenticateToken, profilePictureUpload.si
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        // Update user profile picture URL
-        user.profilePicture = `/uploads/profiles/${req.file.filename}`;
+        // Update user profile picture URL with Cloudinary URL
+        user.profilePicture = req.file.path;
         await user.save();
 
         res.json({
@@ -4443,7 +4427,7 @@ app.post('/api/messages/upload', authenticateToken, upload.single('file'), async
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        const fileUrl = `/uploads/messages/${req.file.filename}`;
+        const fileUrl = req.file.path; // Cloudinary URL
 
         res.json({
             fileUrl,
