@@ -421,6 +421,14 @@
             </div>
         </div>
 
+        <!-- Stats Refresh Button -->
+        <div class="flex justify-end mb-8">
+            <button id="refresh-stats" class="btn-secondary px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                <span>Refresh Stats</span>
+            </button>
+        </div>
+
         <!-- Retention Configuration -->
         <div class="glass-effect rounded-xl p-6 shadow-lg mb-8">
             <div class="flex items-center justify-between mb-6">
@@ -428,10 +436,16 @@
                     <i data-lucide="settings" class="w-5 h-5 mr-2"></i>
                     Retention Configuration
                 </h2>
-                <button id="add-config" class="btn-primary px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
-                    <span>Add Configuration</span>
-                </button>
+                <div class="flex items-center space-x-4">
+                    <button id="run-cleanup" class="btn-secondary px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <span>Run Cleanup</span>
+                    </button>
+                    <button id="add-config" class="btn-primary px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Add Configuration</span>
+                    </button>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -618,6 +632,7 @@
     </div>
 
     <script src="../js/config.js"></script>
+    <script src="../js/auth-helper.js"></script>
     <script src="../js/admin-retention.js"></script>
     <script src="../js/mobile-menu.js"></script>
     <script src="../js/cart.js"></script>
