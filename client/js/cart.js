@@ -60,6 +60,7 @@ async function addToCart(product, quantity = 1) {
 
             if (response.ok) {
                 showToast(`${product.name} added to cart!`, 'success');
+                showCartBanner(`${product.name} added to cart!`);
                 await updateCartIcon();
                 
                 // If we're on the cart page, re-render to show the new item
@@ -246,9 +247,9 @@ async function renderCart() {
     }
 
     // Calculate totals
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    // Simple flat shipping logic for demo
-    const shipping = 50.00;
+    const subtotal = cart.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 0)), 0);
+    // No shipping for now - as requested
+    const shipping = 0;
     const total = subtotal + shipping;
 
     if (subtotalElement) subtotalElement.textContent = `ZMW ${subtotal.toFixed(2)}`;
@@ -260,17 +261,18 @@ async function renderCart() {
         <div class="flex items-center border-b border-gray-200 py-4 last:border-0 last:pb-0">
             <img src="${fixServerUrl(item.image) || 'https://placehold.co/100x100?text=Product'}" alt="${item.name}" class="w-20 h-20 object-cover rounded-md">
             <div class="ml-4 flex-grow">
-                <h3 class="font-semibold text-navy">${item.name}</h3>
+                <h3 class="font-semibold text-navy">${item.name || 'Product'}</h3>
                 <p class="text-sm text-gray-500">${item.category || 'Product'}</p>
                 <div class="flex items-center mt-2">
                     <button onclick="updateQuantity('${item._id}', -1)" class="w-8 h-8 rounded-full bg-gray-200 text-navy font-bold hover:bg-gray-300">-</button>
-                    <span class="mx-3 font-semibold">${item.quantity}</span>
+                    <span class="mx-3 font-semibold">${item.quantity || 0}</span>
                     <button onclick="updateQuantity('${item._id}', 1)" class="w-8 h-8 rounded-full bg-gray-200 text-navy font-bold hover:bg-gray-300">+</button>
                 </div>
             </div>
             <div class="text-right">
-                <p class="font-bold text-navy">ZMW ${(item.price * item.quantity).toFixed(2)}</p>
+                <p class="font-bold text-navy">ZMW ${((item.price || 0) * (item.quantity || 0)).toFixed(2)}</p>
                 <button onclick="removeFromCart('${item._id}')" class="text-red-500 text-sm mt-2 hover:text-red-700">Remove</button>
+            </div>
         </div>
     `).join('');
 }
@@ -280,6 +282,22 @@ async function renderCart() {
 function fixServerUrl(url) {
     if (!url) return url;
     return url.startsWith('/') ? `${API_BASE}${url}` : url;
+}
+
+// Show cart banner when items are added
+function showCartBanner(message = 'Item added to cart!') {
+    const banner = document.getElementById('cart-banner');
+    const bannerMessage = document.getElementById('cart-banner-message');
+    
+    if (banner && bannerMessage) {
+        bannerMessage.textContent = message;
+        banner.classList.remove('hidden');
+        
+        // Hide banner after 3 seconds
+        setTimeout(() => {
+            banner.classList.add('hidden');
+        }, 3000);
+    }
 }
 
 // Initialize cart on page load

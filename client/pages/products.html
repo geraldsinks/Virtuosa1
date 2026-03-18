@@ -693,47 +693,27 @@
                                     </div>
                                     <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">${product.condition}</span>
                                 </div>
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="flex items-center gap-1">
-                                        <i class="fas fa-map-marker-alt text-gray-400 w-4 h-4"></i>
-                                        <span class="text-xs text-gray-600">${product.campusLocation || 'On campus'}</span>
-                                    </div>
-                                    <div class="flex items-center gap-1">
-                                        <i class="fas fa-star text-yellow-400 w-4 h-4"></i>
-                                        <span class="text-xs text-gray-600">${product.sellerRating || '5.0'}</span>
-                                    </div>
-                                </div>
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="flex items-center gap-2">
-                                        <img src="https://placehold.co/32x32?text=${(product.sellerName || 'S')[0]}" 
-                                             alt="${product.sellerName || 'Seller'}" 
-                                             class="w-8 h-8 rounded-full object-cover">
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-900">${product.sellerName || 'Campus Seller'}</p>
-                                            <p class="text-xs text-gray-500">${product.totalSellerReviews || 0} reviews</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button class="w-full bg-button-gold text-white font-semibold py-2 px-4 rounded-lg hover-bg-button-gold transition-colors js-add-to-cart"
-                                        data-item-id="${product._id}"
-                                        data-item-name="${product.name}"
-                                        data-item-price="${product.price}"
-                                        data-item-image="${product.images?.[0] || ''}"
-                                        data-item-category="${product.category || ''}">
+                        </div>
+                        <div class="text-right">
+                            <p class="text-2xl font-bold text-gold">ZMW ${(product.price || 0).toFixed(2)}</p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-4">
+                                <a href="product-detail.html?id=${product._id}" class="text-gold hover:text-gold-600 text-sm font-medium">View Details</a>
+                                <button class="w-full bg-button-gold text-white font-semibold py-2 px-4 rounded-lg hover:bg-button-gold transition-colors js-add-to-cart"
+                                    data-item-id="${product._id}"
+                                    data-item-name="${product.name}"
+                                    data-item-price="${product.price}"
+                                    data-item-image="${product.images?.[0] || ''}"
+                                    data-item-category="${product.category || ''}">
                                     Add to Cart
                                 </button>
-                            </div>
-                        </div>
+                    </div>
                     `;
                 }).join('');
-
-                // Reinitialize icons
-                if (window.lucide) {
-                    window.lucide.createIcons();
-                }
-
-                updateResultsSummary();
+                
                 updateFilterBadges();
+                updateResultsSummary();
             }
 
             function updateResultsSummary() {

@@ -285,6 +285,10 @@
 
     <main class="flex-grow py-8">
         <div class="container mx-auto px-4">
+            <div id="cart-banner" class="hidden bg-green-500 text-white p-4 rounded-lg mb-6 text-center">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span id="cart-banner-message">Item added to cart!</span>
+            </div>
             <h1 class="text-3xl font-bold text-navy mb-6">Shopping Cart</h1>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2">
@@ -300,10 +304,6 @@
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Subtotal:</span>
                                 <span class="font-semibold text-navy" id="subtotal">ZMW 0.00</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Shipping:</span>
-                                <span class="font-semibold text-navy" id="shipping">ZMW 0.00</span>
                             </div>
                             <div class="flex justify-between border-t border-gray-200 pt-3">
                                 <span class="font-bold text-navy">Total:</span>
