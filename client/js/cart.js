@@ -4,28 +4,37 @@
 // Initialize cart from localStorage (fallback) and sync with backend
 async function getCart() {
     const token = localStorage.getItem('token');
-    if (!token) {
-        // Fallback to localStorage for non-logged in users
-        const cart = localStorage.getItem('virtuosa_cart');
-        return cart ? JSON.parse(cart) : [];
-    }
-
-    try {
-        const response = await fetch(`${API_BASE}/cart`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            return data.items || [];
+    
+    // Always prioritize localStorage for immediate operations
+    const localCart = localStorage.getItem('virtuosa_cart');
+    if (localCart) {
+        try {
+            const cart = JSON.parse(localCart);
+            console.log('📦 Cart from localStorage:', cart);
+            return cart;
+        } catch (error) {
+            console.error('Error parsing localStorage cart:', error);
         }
-    } catch (error) {
-        console.error('Error fetching cart from backend:', error);
+    }
+    
+    // Fallback to backend if no localStorage
+    if (token) {
+        try {
+            const response = await fetch(`${API_BASE}/cart`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('📦 Cart from backend:', data);
+                return data.items || [];
+            }
+        } catch (error) {
+            console.error('Error fetching cart from backend:', error);
+        }
     }
 
-    // Fallback to localStorage
-    const cart = localStorage.getItem('virtuosa_cart');
-    return cart ? JSON.parse(cart) : [];
+    return [];
 }
 
 async function saveCart(cart) {
@@ -34,13 +43,28 @@ async function saveCart(cart) {
     console.log('💾 Saving cart:', cart);
     
     if (token) {
-        // For logged in users, cart is managed on backend
-        // Individual operations will sync with backend
-        await updateCartIcon();
-        return;
+        // For logged in users, try to sync with backend but also save to localStorage as backup
+        try {
+            const response = await fetch(`${API_BASE}/cart`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ items: cart })
+            });
+            
+            if (response.ok) {
+                console.log('✅ Cart synced to backend');
+            } else {
+                console.warn('⚠️ Backend sync failed, using localStorage');
+            }
+        } catch (error) {
+            console.error('❌ Backend sync error:', error);
+        }
     }
 
-    // For non-logged in users, save to localStorage
+    // Always save to localStorage as backup/primary storage
     localStorage.setItem('virtuosa_cart', JSON.stringify(cart));
     await updateCartIcon();
 }
@@ -289,11 +313,14 @@ async function renderCart() {
         const product = item.product || item;
         const productId = item._id || product._id;
         
-        console.log('📦 Rendering item:', { item, product, productId });
+        // Get image from product.images array or product.image
+        const imageUrl = product.images?.[0] || product.image || '';
+        
+        console.log('📦 Rendering item:', { item, product, productId, imageUrl });
         
         return `
         <div class="flex items-center border-b border-gray-200 py-4 last:border-0 last:pb-0">
-            <img src="${fixServerUrl(product.image) || 'https://placehold.co/100x100?text=Product'}" alt="${product.name || 'Product'}" class="w-20 h-20 object-cover rounded-md">
+            <img src="${fixServerUrl(imageUrl) || 'https://placehold.co/100x100?text=Product'}" alt="${product.name || 'Product'}" class="w-20 h-20 object-cover rounded-md">
             <div class="ml-4 flex-grow">
                 <h3 class="font-semibold text-navy text-lg">${product.name || 'Product'}</h3>
                 <p class="text-sm text-gray-500 mb-2">${product.category || 'Product'}</p>
