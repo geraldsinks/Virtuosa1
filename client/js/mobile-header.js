@@ -140,7 +140,8 @@ async function loadProductsForSearch() {
     try {
         const response = await fetch(`${API_BASE}/products`);
         if (response.ok) {
-            window.mobileAllProducts = await response.json();
+            const data = await response.json();
+            window.mobileAllProducts = data.products || [];
         }
     } catch (error) {
         console.error('Error loading products for mobile search:', error);
@@ -203,18 +204,16 @@ function selectMobileSearchSuggestion(productName, productId) {
     hideSearchSuggestions();
     
     // Redirect to product detail page
-    window.location.href = `/pages/product-detail.html?id=${productId}`;
+    window.location.href = `pages/product-detail.html?id=${productId}`;
 }
 
 function performSearch() {
     const mobileSearchInput = document.getElementById('mobile-search-input');
     const query = mobileSearchInput.value.trim();
     
-    if (query && window.performSearch) {
-        window.performSearch(query);
-    } else if (query) {
-        // Fallback if header.js not loaded for some reason
-        window.location.href = `/pages/products.html?q=${encodeURIComponent(query)}`;
+    if (query) {
+        // Redirect to products page with search query
+        window.location.href = `pages/products.html?q=${encodeURIComponent(query)}`;
     }
 }
 

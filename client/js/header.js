@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.dispatchEvent(searchEvent);
         } else {
             // Otherwise redirect to products page with search param
-            window.location.href = `/pages/products.html?q=${encodeURIComponent(trimmedQuery)}`;
+            window.location.href = `pages/products.html?q=${encodeURIComponent(trimmedQuery)}`;
         }
     };
 
@@ -317,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const categoryEvent = new CustomEvent('virtuosaCategory', { detail: { category: category } });
             window.dispatchEvent(categoryEvent);
         } else {
-            window.location.href = `/pages/products.html?category=${encodeURIComponent(category)}`;
+            window.location.href = `pages/products.html?category=${encodeURIComponent(category)}`;
         }
     };
 
