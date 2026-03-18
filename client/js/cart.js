@@ -72,6 +72,8 @@ async function saveCart(cart) {
 async function addToCart(product, quantity = 1) {
     const token = localStorage.getItem('token');
     
+    console.log('🛒 Adding to cart:', { product, quantity, hasToken: !!token });
+    
     if (token) {
         // Add to backend cart
         try {
@@ -85,20 +87,41 @@ async function addToCart(product, quantity = 1) {
             });
 
             if (response.ok) {
+                console.log('✅ Added to backend cart');
+                
+                // Also update localStorage for immediate display
+                const cart = await getCart();
+                const existingItem = cart.find(item => item._id === product._id);
+
+                if (existingItem) {
+                    existingItem.quantity += quantity;
+                } else {
+                    cart.push({
+                        product: product,
+                        quantity: quantity,
+                        _id: product._id,
+                        addedAt: new Date().toISOString()
+                    });
+                }
+
+                await saveCart(cart);
+                console.log('💾 Updated localStorage cart');
+                
                 showToast(`${product.name} added to cart!`, 'success');
                 showCartBanner(`${product.name} added to cart!`);
                 await updateCartIcon();
                 
                 // If we're on the cart page, re-render to show the new item
                 if (window.location.pathname.includes('cart.html')) {
-                    setTimeout(() => renderCart(), 100); // Small delay to ensure backend is updated
+                    setTimeout(() => renderCart(), 100);
                 }
             } else {
                 const error = await response.json();
+                console.error('❌ Backend add to cart failed:', error);
                 showToast(error.message || 'Failed to add to cart', 'error');
             }
         } catch (error) {
-            console.error('Error adding to cart:', error);
+            console.error('❌ Error adding to cart:', error);
             showToast('Failed to add to cart', 'error');
         }
     } else {
@@ -110,13 +133,17 @@ async function addToCart(product, quantity = 1) {
             existingItem.quantity += quantity;
         } else {
             cart.push({
-                ...product,
-                quantity: quantity
+                product: product,
+                quantity: quantity,
+                _id: product._id,
+                addedAt: new Date().toISOString()
             });
         }
 
         await saveCart(cart);
+        console.log('💾 Saved to localStorage cart');
         showToast(`${product.name} added to cart!`, 'success');
+        showCartBanner(`${product.name} added to cart!`);
     }
 }
 
