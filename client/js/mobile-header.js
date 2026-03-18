@@ -134,6 +134,13 @@ function initializeMobileSearch() {
             hideSearchSuggestions();
         }
     });
+    
+    // Prevent input from losing focus when clicking suggestions
+    if (mobileSearchSuggestions) {
+        mobileSearchSuggestions.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+        });
+    }
 }
 
 async function loadProductsForSearch() {

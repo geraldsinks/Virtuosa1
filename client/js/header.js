@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuToggle = document.getElementById('menu-toggle');
     const categoriesDropdown = document.getElementById('categories-dropdown');
 
+    // Initialize desktop search
+    initializeDesktopSearch();
+
     async function updateUserUI() {
         const userFullName = localStorage.getItem('userFullName');
         const userEmail = localStorage.getItem('userEmail');
@@ -342,4 +345,115 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // Desktop Search Initialization
+    function initializeDesktopSearch() {
+        const desktopSearchInput = document.getElementById('home-search-input');
+        const desktopSearchButton = document.getElementById('home-search-button');
+        const desktopSearchSuggestions = document.getElementById('home-search-suggestions');
+        
+        if (!desktopSearchInput || !desktopSearchSuggestions) return;
+        
+        let searchTimeout;
+        let allProducts = [];
+        
+        // Load products for search suggestions
+        loadProductsForDesktopSearch();
+        
+        // Search input events
+        desktopSearchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            
+            if (query.length >= 2) {
+                searchTimeout = setTimeout(() => {
+                    showDesktopSearchSuggestions(query);
+                }, 300);
+            } else {
+                hideDesktopSearchSuggestions();
+            }
+        });
+        
+        // Keep focus on input when clicking suggestions
+        desktopSearchSuggestions.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+        });
+        
+        // Click outside to close suggestions
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.v-header-search')) {
+                hideDesktopSearchSuggestions();
+            }
+        });
+    }
+    
+    async function loadProductsForDesktopSearch() {
+        try {
+            const response = await fetch(`${API_BASE}/products`);
+            if (response.ok) {
+                const data = await response.json();
+                window.desktopAllProducts = data.products || [];
+            }
+        } catch (error) {
+            console.error('Error loading products for desktop search:', error);
+            window.desktopAllProducts = [];
+        }
+    }
+    
+    function showDesktopSearchSuggestions(query) {
+        const desktopSearchSuggestions = document.getElementById('home-search-suggestions');
+        const suggestions = getDesktopSearchSuggestions(query, window.desktopAllProducts || []);
+        
+        if (suggestions.length > 0) {
+            desktopSearchSuggestions.innerHTML = suggestions.map(product => `
+                <div class="desktop-search-suggestion-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-b-0" 
+                     onclick="selectDesktopSearchSuggestion('${product.name}', '${product._id}')">
+                    <div class="flex items-center space-x-3">
+                        <img src="${product.image?.startsWith('http') ? product.image : fixServerUrl(product.image || '/placeholder-product.jpg')}" 
+                             alt="${product.name}" 
+                             class="w-10 h-10 object-cover rounded">
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-medium text-white truncate">${product.name}</div>
+                            <div class="text-xs text-gray-400">${product.category}</div>
+                        </div>
+                        <div class="text-sm font-bold text-gold">$${product.price}</div>
+                    </div>
+                </div>
+            `).join('');
+            desktopSearchSuggestions.classList.remove('hidden');
+        } else {
+            desktopSearchSuggestions.innerHTML = `
+                <div class="px-4 py-3 text-gray-400 text-sm">
+                    No products found for "${query}"
+                </div>
+            `;
+            desktopSearchSuggestions.classList.remove('hidden');
+        }
+    }
+    
+    function hideDesktopSearchSuggestions() {
+        const desktopSearchSuggestions = document.getElementById('home-search-suggestions');
+        if (desktopSearchSuggestions) {
+            desktopSearchSuggestions.classList.add('hidden');
+        }
+    }
+    
+    function getDesktopSearchSuggestions(query, products) {
+        const lowerQuery = query.toLowerCase();
+        return products
+            .filter(product => 
+                product.name.toLowerCase().includes(lowerQuery) ||
+                product.category.toLowerCase().includes(lowerQuery) ||
+                product.description.toLowerCase().includes(lowerQuery)
+            )
+            .slice(0, 5); // Limit to 5 suggestions
+    }
+    
+    function selectDesktopSearchSuggestion(productName, productId) {
+        const desktopSearchInput = document.getElementById('home-search-input');
+        desktopSearchInput.value = productName;
+        hideDesktopSearchSuggestions();
+        
+        // Redirect to product detail page
+        window.location.href = `pages/product-detail.html?id=${productId}`;
+    }
 });
