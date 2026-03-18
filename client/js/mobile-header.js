@@ -216,8 +216,16 @@ function selectMobileSearchSuggestion(productName, productId) {
     mobileSearchInput.value = productName;
     hideSearchSuggestions();
     
+    // Build correct path to product-detail.html from any location
+    let productDetailPath = 'pages/product-detail.html';
+    
+    // If we're in a subdirectory, go up one level
+    if (window.location.pathname.includes('/pages/')) {
+        productDetailPath = '../product-detail.html';
+    }
+    
     // Redirect to product detail page
-    window.location.href = `pages/product-detail.html?id=${productId}`;
+    window.location.href = `${productDetailPath}?id=${productId}`;
 }
 
 function performSearch() {
@@ -225,8 +233,16 @@ function performSearch() {
     const query = mobileSearchInput.value.trim();
     
     if (query) {
+        // Build correct path to products.html from any location
+        let productsPath = 'products.html';
+        
+        // If we're in a subdirectory, go up one level
+        if (window.location.pathname.includes('/pages/')) {
+            productsPath = '../products.html';
+        }
+        
         // Redirect to products page with search query
-        window.location.href = `pages/products.html?q=${encodeURIComponent(query)}`;
+        window.location.href = `${productsPath}?q=${encodeURIComponent(query)}`;
     }
 }
 

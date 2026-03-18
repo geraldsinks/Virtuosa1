@@ -303,8 +303,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const searchEvent = new CustomEvent('virtuosaSearch', { detail: { query: trimmedQuery } });
             window.dispatchEvent(searchEvent);
         } else {
+            // Build correct path to products.html from any location
+            let productsPath = 'products.html';
+            
+            // If we're in a subdirectory, go up one level
+            if (window.location.pathname.includes('/pages/')) {
+                productsPath = '../products.html';
+            }
+            
             // Otherwise redirect to products page with search param
-            window.location.href = `pages/products.html?q=${encodeURIComponent(trimmedQuery)}`;
+            window.location.href = `${productsPath}?q=${encodeURIComponent(trimmedQuery)}`;
         }
     };
 
@@ -320,7 +328,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const categoryEvent = new CustomEvent('virtuosaCategory', { detail: { category: category } });
             window.dispatchEvent(categoryEvent);
         } else {
-            window.location.href = `pages/products.html?category=${encodeURIComponent(category)}`;
+            // Build correct path to products.html from any location
+            let productsPath = 'products.html';
+            
+            // If we're in a subdirectory, go up one level
+            if (window.location.pathname.includes('/pages/')) {
+                productsPath = '../products.html';
+            }
+            
+            window.location.href = `${productsPath}?category=${encodeURIComponent(category)}`;
         }
     };
 
@@ -459,7 +475,15 @@ document.addEventListener('DOMContentLoaded', () => {
         desktopSearchInput.value = productName;
         hideDesktopSearchSuggestions();
         
+        // Build correct path to product-detail.html from any location
+        let productDetailPath = 'pages/product-detail.html';
+        
+        // If we're in a subdirectory, go up one level
+        if (window.location.pathname.includes('/pages/')) {
+            productDetailPath = '../product-detail.html';
+        }
+        
         // Redirect to product detail page
-        window.location.href = `pages/product-detail.html?id=${productId}`;
+        window.location.href = `${productDetailPath}?id=${productId}`;
     }
 });
