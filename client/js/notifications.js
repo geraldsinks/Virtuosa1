@@ -9,6 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // API_BASE is provided by config.js
     const container = document.getElementById('notifications-container');
 
+    // Only proceed if the container exists (for pages that have notifications)
+    if (!container) {
+        console.log('Notifications container not found, skipping notifications load');
+        return;
+    }
+
     async function loadNotifications() {
         try {
             const response = await fetch(`${API_BASE}/notifications`, {
