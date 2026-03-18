@@ -740,9 +740,7 @@
                                     <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">${product.condition}</span>
                                 </div>
                                 <div class="flex justify-between items-center mt-4">
-                                    <a href="product-detail.html?id=${product._id}" 
-                                       onclick="console.log('🔗 Clicking View Details for product:', '${product._id}'); return true;"
-                                       class="text-gold hover:text-gold-600 text-sm font-medium">View Details</a>
+                                    <a href="product-detail.html?id=${product._id}" class="text-gold hover:text-gold-600 text-sm font-medium">View Details</a>
                                     <button class="w-full bg-button-gold text-white font-semibold py-2 px-4 rounded-lg hover-bg-button-gold transition-colors js-add-to-cart"
                                         data-item-id="${product._id}"
                                         data-item-name="${product.name}"
