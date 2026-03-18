@@ -68,7 +68,7 @@
             }
             
             // Ensure URL is absolute using API_BASE
-            const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
+            const fullUrl = url.startsWith('http') ? url : url.startsWith('/api/') ? `${API_BASE.replace('/api', '')}${url}` : `${API_BASE}${url}`;
             
             const authOptions = {
                 ...options,
