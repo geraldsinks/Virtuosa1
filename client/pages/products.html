@@ -731,30 +731,27 @@
                                 <div class="flex items-center justify-between mb-3">
                                     <div>
                                         <div class="flex items-center gap-2">
-                                            <span class="text-xl font-bold text-navy">K${product.price}</span>
+                                            <span class="text-xl font-bold text-navy">ZMW ${(product.price || 0).toFixed(2)}</span>
                                             ${product.originalPrice && product.originalPrice > product.price ? `
-                                                <span class="text-xs text-gray-400 line-through">K${product.originalPrice}</span>
+                                                <span class="text-xs text-gray-400 line-through">ZMW ${product.originalPrice.toFixed(2)}</span>
                                             ` : ''}
                                         </div>
                                     </div>
                                     <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">${product.condition}</span>
                                 </div>
+                                <div class="flex justify-between items-center mt-4">
+                                    <a href="product-detail.html?id=${product._id}" class="text-gold hover:text-gold-600 text-sm font-medium">View Details</a>
+                                    <button class="w-full bg-button-gold text-white font-semibold py-2 px-4 rounded-lg hover-bg-button-gold transition-colors js-add-to-cart"
+                                        data-item-id="${product._id}"
+                                        data-item-name="${product.name}"
+                                        data-item-price="${product.price}"
+                                        data-item-image="${product.images?.[0] || ''}"
+                                        data-item-category="${product.category || ''}">
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <p class="text-2xl font-bold text-gold">ZMW ${(product.price || 0).toFixed(2)}</p>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-center mt-4">
-                                <a href="product-detail.html?id=${product._id}" class="text-gold hover:text-gold-600 text-sm font-medium">View Details</a>
-                                <button class="w-full bg-button-gold text-white font-semibold py-2 px-4 rounded-lg hover:bg-button-gold transition-colors js-add-to-cart"
-                                    data-item-id="${product._id}"
-                                    data-item-name="${product.name}"
-                                    data-item-price="${product.price}"
-                                    data-item-image="${product.images?.[0] || ''}"
-                                    data-item-category="${product.category || ''}">
-                                    Add to Cart
-                                </button>
-                    </div>
                     `;
                 }).join('');
                 

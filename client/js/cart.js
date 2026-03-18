@@ -271,7 +271,10 @@ async function renderCart() {
     }
 
     // Calculate totals
-    const subtotal = cart.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 0)), 0);
+    const subtotal = cart.reduce((sum, item) => {
+        const product = item.product || item;
+        return sum + ((product.price || 0) * (item.quantity || 0));
+    }, 0);
     // No shipping for now - as requested
     const shipping = 0;
     const total = subtotal + shipping;
@@ -281,24 +284,32 @@ async function renderCart() {
     if (totalElement) totalElement.textContent = `ZMW ${total.toFixed(2)}`;
 
     // Render items
-    cartItemsContainer.innerHTML = cart.map(item => `
+    cartItemsContainer.innerHTML = cart.map(item => {
+        // Extract product data from nested structure
+        const product = item.product || item;
+        const productId = item._id || product._id;
+        
+        console.log('📦 Rendering item:', { item, product, productId });
+        
+        return `
         <div class="flex items-center border-b border-gray-200 py-4 last:border-0 last:pb-0">
-            <img src="${fixServerUrl(item.image) || 'https://placehold.co/100x100?text=Product'}" alt="${item.name || 'Product'}" class="w-20 h-20 object-cover rounded-md">
+            <img src="${fixServerUrl(product.image) || 'https://placehold.co/100x100?text=Product'}" alt="${product.name || 'Product'}" class="w-20 h-20 object-cover rounded-md">
             <div class="ml-4 flex-grow">
-                <h3 class="font-semibold text-navy text-lg">${item.name || 'Product'}</h3>
-                <p class="text-sm text-gray-500 mb-2">${item.category || 'Product'}</p>
+                <h3 class="font-semibold text-navy text-lg">${product.name || 'Product'}</h3>
+                <p class="text-sm text-gray-500 mb-2">${product.category || 'Product'}</p>
                 <div class="flex items-center mt-2">
-                    <button onclick="updateQuantity('${item._id}', -1)" class="w-8 h-8 rounded-full bg-gray-200 text-navy font-bold hover:bg-gray-300 transition-colors">-</button>
+                    <button onclick="updateQuantity('${productId}', -1)" class="w-8 h-8 rounded-full bg-gray-200 text-navy font-bold hover:bg-gray-300 transition-colors">-</button>
                     <span class="mx-3 font-semibold text-lg">${item.quantity || 0}</span>
-                    <button onclick="updateQuantity('${item._id}', 1)" class="w-8 h-8 rounded-full bg-gray-200 text-navy font-bold hover:bg-gray-300 transition-colors">+</button>
+                    <button onclick="updateQuantity('${productId}', 1)" class="w-8 h-8 rounded-full bg-gray-200 text-navy font-bold hover:bg-gray-300 transition-colors">+</button>
                 </div>
             </div>
             <div class="text-right">
-                <p class="font-bold text-navy text-lg">ZMW ${((item.price || 0) * (item.quantity || 0)).toFixed(2)}</p>
-                <button onclick="removeFromCart('${item._id}')" class="text-red-500 text-sm mt-2 hover:text-red-700 transition-colors">Remove</button>
+                <p class="font-bold text-navy text-lg">ZMW ${((product.price || 0) * (item.quantity || 0)).toFixed(2)}</p>
+                <button onclick="removeFromCart('${productId}')" class="text-red-500 text-sm mt-2 hover:text-red-700 transition-colors">Remove</button>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 // Cart Management JavaScript
