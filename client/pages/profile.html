@@ -342,10 +342,6 @@
                                 <h2 class="text-xl font-semibold text-navy mb-4">Personal Information</h2>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="block text-sm font-semibold text-navy mb-2">Full Name</label>
-                                        <p id="profile-name" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 bg-white">-</p>
-                                    </div>
-                                    <div>
                                         <label class="block text-sm font-semibold text-navy mb-2">Bio</label>
                                         <p id="profile-bio" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 bg-white min-h-[80px]">-</p>
                                     </div>
@@ -366,11 +362,6 @@
                                 <!-- SAFE EDITABLE FIELDS -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label class="block text-sm font-semibold text-navy mb-2">Full Name</label>
-                                        <input type="text" id="profile-name-edit" name="fullName" 
-                                            class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white">
-                                    </div>
-                                    <div>
                                         <label class="block text-sm font-semibold text-navy mb-2">Bio</label>
                                         <textarea id="profile-bio-edit" name="bio" rows="3" 
                                             class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
@@ -387,6 +378,13 @@
 
                             <!-- SECURITY-READONLY FIELDS -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-navy mb-2">Full Name</label>
+                                    <p id="profile-name" class="text-lg text-gray-500 border border-gray-100 rounded-lg px-3 py-2 bg-gray-50">
+                                        <i class="fas fa-lock text-gray-400 mr-2"></i>
+                                        Full name cannot be changed for security reasons
+                                    </p>
+                                </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-navy mb-2">Email Address</label>
                                     <p id="profile-email" class="text-lg text-gray-500 border border-gray-100 rounded-lg px-3 py-2 bg-gray-50">
@@ -503,7 +501,6 @@
             const memberSince = document.getElementById('member-since');
 
             // Edit form elements
-            const profileNameEdit = document.getElementById('profile-name-edit');
             const profileBioEdit = document.getElementById('profile-bio-edit');
             const profileCampusEdit = document.getElementById('profile-campus-edit');
 
@@ -523,12 +520,16 @@
 
             async function loadProfileData() {
                 try {
+                    console.log('Loading profile data...');
                     const response = await fetch(`${API_BASE}/user/profile`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
 
+                    console.log('Profile response status:', response.status);
+
                     if (response.ok) {
                         const userData = await response.json();
+                        console.log('User data received:', userData);
 
                         // Update profile information display
                         profileName.textContent = userData.fullName || '-';
@@ -540,17 +541,19 @@
                         profileCampus.textContent = userData.campusLocation || '-';
 
                         // Update edit form with current values
-                        profileNameEdit.value = userData.fullName || '';
                         profileBioEdit.value = userData.bio || '';
                         profileCampusEdit.value = userData.campusLocation || '';
 
                         // Update profile picture
+                        console.log('Profile picture from DB:', userData.profilePicture);
                         if (userData.profilePicture) {
                             profilePicture.src = userData.profilePicture;
                             removePictureBtn.classList.remove('hidden');
+                            console.log('Profile picture set to:', userData.profilePicture);
                         } else {
                             profilePicture.src = 'https://placehold.co/120x120?text=No+Photo';
                             removePictureBtn.classList.add('hidden');
+                            console.log('No profile picture found, using placeholder');
                         }
 
                         // Update account status
@@ -676,7 +679,6 @@
                 try {
                     // Get updated values
                     const updatedData = {
-                        fullName: profileNameEdit.value,
                         bio: profileBioEdit.value,
                         campusLocation: profileCampusEdit.value
                     };
@@ -694,7 +696,6 @@
                         const result = await response.json();
                         
                         // Update display with new values
-                        profileName.textContent = result.user.fullName || '-';
                         profileBio.textContent = result.user.bio || '-';
                         profileCampus.textContent = result.user.campusLocation || '-';
 
@@ -770,7 +771,7 @@
         };
 
         // Load profile data on page load
-            await loadProfileData();
+        await loadProfileData();
         });
 
         // Toast notification function
