@@ -511,8 +511,14 @@ class AdminMassMessaging {
             
             // Map targetType to userType (API expects userType)
             const userType = this.messageData.targetType || 'all';
+            console.log('🎯 Current targetType:', this.messageData.targetType);
+            console.log('🎯 Mapped userType:', userType);
+            
             if (userType !== 'all') {
                 queryParams.set('userType', userType);
+                console.log('📝 Added userType parameter:', userType);
+            } else {
+                console.log('📝 No userType filter - getting all users');
             }
             
             // Add verifiedOnly filter if verification is set
