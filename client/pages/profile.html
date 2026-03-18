@@ -336,38 +336,67 @@
 
                         <!-- Profile Information -->
                         <div id="profile-content" class="space-y-6">
-                            <h2 class="text-xl font-semibold text-navy mb-4">Personal Information</h2>
+                            <!-- Profile Display Section (read-only view) -->
+                            <div id="profile-display" class="space-y-6">
+                                <h2 class="text-xl font-semibold text-navy mb-4">Personal Information</h2>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-navy mb-2">Full Name</label>
+                                        <p id="profile-name" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 bg-white">-</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-navy mb-2">Bio</label>
+                                        <p id="profile-bio" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 bg-white min-h-[80px]">-</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-navy mb-2">Campus Location</label>
+                                        <p id="profile-campus" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 bg-white">-</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-navy mb-2">Year of Study</label>
+                                        <p id="profile-year" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 bg-white">-</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-navy mb-2">Faculty</label>
+                                        <p id="profile-faculty" class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 bg-white">-</p>
+                                    </div>
+                                </div>
+                            </div>
 
-                            <!-- SAFE EDITABLE FIELDS -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-sm font-semibold text-navy mb-2">Full Name</label>
-                                    <input type="text" id="profile-name-edit" name="fullName" 
-                                        class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-navy mb-2">Bio</label>
-                                    <textarea id="profile-bio-edit" name="bio" rows="3" 
-                                        class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-                                        placeholder="Tell us about yourself..."></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-navy mb-2">Campus Location</label>
-                                    <input type="text" id="profile-campus-edit" name="campusLocation" 
-                                        class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-                                        placeholder="e.g., Main Campus, East Campus">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-navy mb-2">Year of Study</label>
-                                    <input type="text" id="profile-year-edit" name="yearOfStudy" 
-                                        class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-                                        placeholder="e.g., 1st Year, 2nd Year">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-navy mb-2">Faculty</label>
-                                    <input type="text" id="profile-faculty-edit" name="faculty" 
-                                        class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
-                                        placeholder="e.g., Engineering, Business, Medicine">
+                            <!-- Profile Edit Section (hidden by default) -->
+                            <div id="profile-edit" class="space-y-6" style="display: none;">
+                                <h2 class="text-xl font-semibold text-navy mb-4">Edit Personal Information</h2>
+                                <!-- SAFE EDITABLE FIELDS -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-navy mb-2">Full Name</label>
+                                        <input type="text" id="profile-name-edit" name="fullName" 
+                                            class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-navy mb-2">Bio</label>
+                                        <textarea id="profile-bio-edit" name="bio" rows="3" 
+                                            class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
+                                            placeholder="Tell us about yourself..."></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-navy mb-2">Campus Location</label>
+                                        <input type="text" id="profile-campus-edit" name="campusLocation" 
+                                            class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
+                                            placeholder="e.g., Main Campus, East Campus">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-navy mb-2">Year of Study</label>
+                                        <input type="text" id="profile-year-edit" name="yearOfStudy" 
+                                            class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
+                                            placeholder="e.g., 1st Year, 2nd Year">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-navy mb-2">Faculty</label>
+                                        <input type="text" id="profile-faculty-edit" name="faculty" 
+                                            class="text-lg text-gray-700 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold bg-white"
+                                            placeholder="e.g., Engineering, Business, Medicine">
+                                    </div>
                                 </div>
                             </div>
 
@@ -507,6 +536,7 @@
 
             // Profile elements
             const profileName = document.getElementById('profile-name');
+            const profileBio = document.getElementById('profile-bio');
             const profileEmail = document.getElementById('profile-email');
             const profilePhone = document.getElementById('profile-phone');
             const profileStudentId = document.getElementById('profile-student-id');
@@ -518,6 +548,21 @@
             const studentVerified = document.getElementById('student-verified');
             const accountType = document.getElementById('account-type');
             const memberSince = document.getElementById('member-since');
+
+            // Edit form elements
+            const profileNameEdit = document.getElementById('profile-name-edit');
+            const profileBioEdit = document.getElementById('profile-bio-edit');
+            const profileCampusEdit = document.getElementById('profile-campus-edit');
+            const profileYearEdit = document.getElementById('profile-year-edit');
+            const profileFacultyEdit = document.getElementById('profile-faculty-edit');
+
+            // Display/Edit containers
+            const profileDisplay = document.getElementById('profile-display');
+            const profileEdit = document.getElementById('profile-edit');
+
+            // Buttons
+            const editProfileBtn = document.getElementById('edit-profile-btn');
+            const saveProfileBtn = document.getElementById('save-profile-btn');
 
             // Profile picture elements
             const uploadPictureBtn = document.getElementById('upload-picture-btn');
@@ -534,8 +579,9 @@
                     if (response.ok) {
                         const userData = await response.json();
 
-                        // Update profile information
+                        // Update profile information display
                         profileName.textContent = userData.fullName || '-';
+                        profileBio.textContent = userData.bio || '-';
                         profileEmail.textContent = userData.email || '-';
                         profilePhone.textContent = userData.phoneNumber || '-';
                         profileStudentId.textContent = userData.studentId || '-';
@@ -543,6 +589,13 @@
                         profileCampus.textContent = userData.campusLocation || '-';
                         profileYear.textContent = userData.yearOfStudy || '-';
                         profileFaculty.textContent = userData.faculty || '-';
+
+                        // Update edit form with current values
+                        profileNameEdit.value = userData.fullName || '';
+                        profileBioEdit.value = userData.bio || '';
+                        profileCampusEdit.value = userData.campusLocation || '';
+                        profileYearEdit.value = userData.yearOfStudy || '';
+                        profileFacultyEdit.value = userData.faculty || '';
 
                         // Update profile picture
                         if (userData.profilePicture) {
@@ -659,6 +712,65 @@
                 } catch (error) {
                     console.error('Remove picture error:', error);
                     showToast('Failed to remove profile picture', 'error');
+                }
+            });
+
+            // Edit profile functionality
+            editProfileBtn.addEventListener('click', () => {
+                // Switch to edit mode
+                profileDisplay.style.display = 'none';
+                profileEdit.style.display = 'block';
+                editProfileBtn.style.display = 'none';
+                saveProfileBtn.style.display = 'inline-block';
+            });
+
+            // Save profile functionality
+            saveProfileBtn.addEventListener('click', async () => {
+                try {
+                    // Get updated values
+                    const updatedData = {
+                        fullName: profileNameEdit.value,
+                        bio: profileBioEdit.value,
+                        campusLocation: profileCampusEdit.value,
+                        yearOfStudy: profileYearEdit.value,
+                        faculty: profileFacultyEdit.value
+                    };
+
+                    const response = await fetch(`${API_BASE}/user/profile`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(updatedData)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        
+                        // Update display with new values
+                        profileName.textContent = result.user.fullName || '-';
+                        profileBio.textContent = result.user.bio || '-';
+                        profileCampus.textContent = result.user.campusLocation || '-';
+                        profileYear.textContent = result.user.yearOfStudy || '-';
+                        profileFaculty.textContent = result.user.faculty || '-';
+
+                        // Switch back to display mode
+                        profileDisplay.style.display = 'block';
+                        profileEdit.style.display = 'none';
+                        editProfileBtn.style.display = 'inline-block';
+                        saveProfileBtn.style.display = 'none';
+
+                        // Update header greeting
+                        updateUserUI(result.user);
+
+                        showToast('Profile updated successfully!', 'success');
+                    } else {
+                        throw new Error('Failed to update profile');
+                    }
+                } catch (error) {
+                    console.error('Save profile error:', error);
+                    showToast('Failed to update profile', 'error');
                 }
             });
 
