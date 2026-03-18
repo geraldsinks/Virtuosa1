@@ -856,6 +856,30 @@ html[data-v-bp="wide"] {
     color: var(--gold);
 }
 
+/* Search suggestions positioning - Global fix for all pages */
+.mobile-search-container,
+.v-header-search {
+    position: relative;
+}
+
+#mobile-search-suggestions,
+#home-search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 0.5rem;
+    z-index: 50;
+    transform: translateY(0);
+}
+
+/* Desktop specific positioning */
+.v-header-search #home-search-suggestions {
+    margin-top: 0.75rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
 .nav-row-2-container {
     display: flex;
     align-items: center;
