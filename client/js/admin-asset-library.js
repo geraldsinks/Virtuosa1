@@ -321,19 +321,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             console.log('🔍 Upload response status:', response.status);
+            console.log('🔍 Response headers:', response.headers);
+            
+            // Get response text first to check if it's HTML
+            const responseText = await response.text();
+            console.log('🔍 Response text:', responseText.substring(0, 200));
             
             if (response.ok) {
-                const result = await response.json();
-                console.log('🔍 Upload successful:', result);
-                showToast(`${file.name} uploaded successfully!`, 'success');
+                try {
+                    const result = JSON.parse(responseText);
+                    console.log('🔍 Upload successful:', result);
+                    showToast(`${file.name} uploaded successfully!`, 'success');
+                } catch (parseError) {
+                    console.error('🔍 Failed to parse response:', parseError);
+                    showToast('Upload succeeded but response format is invalid', 'warning');
+                }
             } else {
-                const error = await response.json();
-                console.error('🔍 Upload failed:', error);
-                showToast(error.message || 'Failed to upload file', 'error');
+                // Try to parse as JSON first, fallback to text
+                let error;
+                try {
+                    error = JSON.parse(responseText);
+                    console.error('🔍 Upload failed (JSON):', error);
+                    showToast(error.message || 'Failed to upload file', 'error');
+                } catch (parseError) {
+                    console.error('🔍 Upload failed (HTML):', responseText);
+                    showToast(`Upload failed: Server returned ${response.status} error`, 'error');
+                }
             }
         } catch (error) {
             console.error('🔍 Upload error:', error);
-            showToast('Failed to upload file', 'error');
+            showToast('Failed to upload file - ' + error.message, 'error');
         }
     }
 

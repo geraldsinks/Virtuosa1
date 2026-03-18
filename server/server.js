@@ -977,6 +977,15 @@ const profilePictureUpload = multer({
 // Marketing Asset Upload Endpoint
 app.post('/api/marketing/assets/upload', authenticateToken, isAdmin, marketingUpload.single('asset'), async (req, res) => {
     try {
+        console.log('🔍 Marketing upload request received');
+        console.log('🔍 File:', req.file);
+        console.log('🔍 Body:', req.body);
+        console.log('🔍 Cloudinary config check:', {
+            cloud_name: !!process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: !!process.env.CLOUDINARY_API_KEY,
+            api_secret: !!process.env.CLOUDINARY_API_SECRET
+        });
+
         if (!req.file) {
             return res.status(400).json({ message: 'No file uploaded' });
         }
@@ -997,7 +1006,14 @@ app.post('/api/marketing/assets/upload', authenticateToken, isAdmin, marketingUp
         res.status(201).json(asset);
     } catch (error) {
         console.error('❌ Asset upload error:', error);
-        res.status(500).json({ message: 'Upload failed', error: error.message });
+        console.error('❌ Error stack:', error.stack);
+        
+        // Send more detailed error info
+        res.status(500).json({ 
+            message: 'Upload failed', 
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 
