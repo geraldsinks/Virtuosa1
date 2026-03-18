@@ -1,4 +1,5 @@
 // admin-seller-applications.js — Admin review logic for seller applications
+const API_BASE = "https://virtuosa-server.onrender.com/api";
 
 let currentPage = 1;
 let rejectingAppId = null;
@@ -29,7 +30,7 @@ async function loadApplications() {
     if (university) params.append('university', university);
 
     try {
-        const response = await fetch(`/api/admin/seller-applications?${params}`, {
+        const response = await fetch(`${API_BASE}/admin/seller-applications?${params}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -56,9 +57,9 @@ async function loadStats() {
     try {
         // Load counts for each status
         const [pending, approved, rejected] = await Promise.all([
-            fetch('/api/admin/seller-applications?status=Pending&limit=1', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
-            fetch('/api/admin/seller-applications?status=Approved&limit=1', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
-            fetch('/api/admin/seller-applications?status=Rejected&limit=1', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json())
+            fetch(`${API_BASE}/admin/seller-applications?status=Pending&limit=1`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
+            fetch(`${API_BASE}/admin/seller-applications?status=Approved&limit=1`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
+            fetch(`${API_BASE}/admin/seller-applications?status=Rejected&limit=1`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json())
         ]);
 
         const p = pending.pagination?.total || 0;
@@ -260,7 +261,7 @@ window.approveApplication = async function (id) {
 
     const token = localStorage.getItem('token');
     try {
-        const response = await fetch(`/api/admin/seller-applications/${id}/approve`, {
+        const response = await fetch(`${API_BASE}/admin/seller-applications/${id}/approve`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -311,7 +312,7 @@ window.confirmReject = async function () {
 
     const token = localStorage.getItem('token');
     try {
-        const response = await fetch(`/api/admin/seller-applications/${rejectingAppId}/reject`, {
+        const response = await fetch(`${API_BASE}/admin/seller-applications/${rejectingAppId}/reject`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
