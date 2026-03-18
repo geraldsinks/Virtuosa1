@@ -283,7 +283,7 @@
             }
 
             try {
-                const response = await fetch(`/api/seller/shop/${identifier}`);
+                const response = await fetch(`${API_BASE}/seller/shop/${identifier}`);
                 if (!response.ok) {
                     throw new Error('Shop not found');
                 }

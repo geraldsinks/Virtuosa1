@@ -51,22 +51,30 @@ async function checkSellerAccess(token) {
         });
 
         if (!response.ok) {
-            throw new Error('Not authorized');
+            let errorMessage = 'Not authorized';
+            if (response.status === 401) {
+                errorMessage = 'Session expired. Please log in again.';
+            } else if (response.status === 403) {
+                errorMessage = 'Access denied. Please verify your credentials.';
+            }
+            throw new Error(errorMessage);
         }
 
         const user = await response.json();
         
         // Check if user is seller or admin
         if (!user.isSeller && !user.isAdmin) {
-            alert('Access denied. Seller or admin privileges required.');
-            window.location.href = '/pages/buyer-dashboard.html';
+            showMessage('Access denied. Seller or admin privileges required.', true);
+            setTimeout(() => {
+                window.location.href = '/pages/buyer-dashboard.html';
+            }, 2000);
             return;
         }
 
         // Check admin role and update UI
         const isAdmin = user.isAdmin === true || user.isAdmin === 'true' || user.role === 'admin' || user.email === 'admin@virtuosa.com';
         if (isAdmin) {
-            const dropdownAdminLink = document.getElementById('dropdown-admin-link');
+            const dropdownAdminLink = document.getElementById('admin-link');
             const desktopAdminLink = document.getElementById('desktop-admin-link');
             
             if (dropdownAdminLink) {
@@ -77,9 +85,25 @@ async function checkSellerAccess(token) {
                 desktopAdminLink.style.display = 'flex';
             }
         }
+
+        // Update seller links in mobile menu
+        const mobileSellerSection = document.getElementById('mobile-seller-section');
+        if (mobileSellerSection && user.isSeller) {
+            mobileSellerSection.style.display = 'block';
+        }
+
+        // Update seller links in desktop menu
+        const sellerLinks = document.getElementById('seller-links');
+        if (sellerLinks && user.isSeller) {
+            sellerLinks.classList.remove('hidden');
+        }
+        
     } catch (error) {
         console.error('Seller check failed:', error);
-        window.location.href = '/pages/login.html';
+        showMessage(error.message || 'Authentication failed', true);
+        setTimeout(() => {
+            window.location.href = '/pages/login.html';
+        }, 2000);
         return;
     }
 }
@@ -100,6 +124,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    // Debug: Log token and API base
+    console.log('🔍 Debug - Token exists:', !!token);
+    console.log('🔍 Debug - Token length:', token?.length);
+    console.log('🔍 Debug - API_BASE:', API_BASE);
+
     // Initialize Lucide icons
     if (window.lucide) {
         window.lucide.createIcons();
@@ -110,6 +139,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Check seller access
     await checkSellerAccess(token);
+
+    // Test API connectivity first
+    try {
+        const testResponse = await fetch(`${API_BASE}/auth/test`);
+        if (testResponse.ok) {
+            console.log('✅ API connectivity test passed');
+        } else {
+            console.warn('⚠️ API connectivity test failed');
+        }
+    } catch (error) {
+        console.error('❌ API connectivity test error:', error);
+        showMessage('Unable to connect to server. Please check your internet connection.', true);
+        return;
+    }
 
     // Load dashboard data
     await loadDashboardData();
@@ -127,7 +170,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to load dashboard data');
+                const errorData = await response.json().catch(() => ({}));
+                let errorMessage = 'Failed to load dashboard data';
+                
+                if (response.status === 401) {
+                    errorMessage = 'Session expired. Please log in again.';
+                    setTimeout(() => {
+                        window.location.href = '/pages/login.html';
+                    }, 2000);
+                } else if (response.status === 403) {
+                    errorMessage = 'Seller access required. Please verify your seller account.';
+                } else if (errorData.message) {
+                    errorMessage = errorData.message;
+                }
+                
+                throw new Error(errorMessage);
             }
 
             dashboardData = await response.json();
@@ -135,7 +192,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             initializeCharts();
         } catch (error) {
             console.error('Error loading dashboard:', error);
-            showMessage('Error loading dashboard data', true);
+            showMessage(error.message || 'Error loading dashboard data', true);
+            
+            // Hide loading indicators
+            const loadingElements = document.querySelectorAll('.animate-pulse');
+            loadingElements.forEach(el => el.classList.remove('animate-pulse'));
+            
+            // Show error state in dashboard sections
+            const errorContainer = document.getElementById('recent-transactions');
+            if (errorContainer) {
+                errorContainer.innerHTML = `
+                    <div class="text-center py-8">
+                        <i data-lucide="alert-circle" class="w-12 h-12 text-red-200 mx-auto mb-3"></i>
+                        <p class="text-red-500 font-medium">Unable to load dashboard data</p>
+                        <p class="text-gray-500 text-sm mt-1">${error.message}</p>
+                        <button onclick="loadDashboardData()" class="mt-3 px-4 py-2 bg-gold text-navy rounded-lg text-sm font-semibold hover:bg-yellow-400 transition-colors">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
         }
     }
 
