@@ -868,7 +868,7 @@ class AdminMassMessaging {
                 userIds: this.targetUsers.map(user => user.id)
             };
 
-            const response = await fetch(`${API_BASE}/admin/messages/mass-send`, {
+            const response = await fetch(`${API_BASE}/admin/messages/send-mass`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${this.token}`,
