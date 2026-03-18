@@ -34,13 +34,13 @@ async function saveCart(cart) {
     if (token) {
         // For logged in users, cart is managed on backend
         // Individual operations will sync with backend
-        updateCartIcon();
+        await updateCartIcon();
         return;
     }
 
     // For non-logged in users, save to localStorage
     localStorage.setItem('virtuosa_cart', JSON.stringify(cart));
-    updateCartIcon();
+    await updateCartIcon();
 }
 
 async function addToCart(product, quantity = 1) {
@@ -60,7 +60,7 @@ async function addToCart(product, quantity = 1) {
 
             if (response.ok) {
                 showToast(`${product.name} added to cart!`, 'success');
-                updateCartIcon();
+                await updateCartIcon();
             } else {
                 const error = await response.json();
                 showToast(error.message || 'Failed to add to cart', 'error');
@@ -173,10 +173,10 @@ document.addEventListener('click', (e) => {
     }
 });
 
-function removeFromCart(productId) {
-    const cart = getCart();
+async function removeFromCart(productId) {
+    const cart = await getCart();
     const updatedCart = cart.filter(item => item._id !== productId);
-    saveCart(updatedCart);
+    await saveCart(updatedCart);
 
     // If we're on the cart page, re-render
     if (window.location.pathname.includes('cart.html')) {
@@ -184,19 +184,19 @@ function removeFromCart(productId) {
     }
 }
 
-function updateQuantity(productId, delta) {
-    const cart = getCart();
+async function updateQuantity(productId, delta) {
+    const cart = await getCart();
     const item = cart.find(item => item._id === productId);
 
     if (item) {
         item.quantity += delta;
 
         if (item.quantity <= 0) {
-            removeFromCart(productId);
+            await removeFromCart(productId);
             return;
         }
 
-        saveCart(cart);
+        await saveCart(cart);
 
         // If we're on the cart page, re-render
         if (window.location.pathname.includes('cart.html')) {
@@ -205,8 +205,8 @@ function updateQuantity(productId, delta) {
     }
 }
 
-function updateCartIcon() {
-    const cart = getCart();
+async function updateCartIcon() {
+    const cart = await getCart();
     const count = cart.reduce((total, item) => total + item.quantity, 0);
 
     // More comprehensive selector list for cart badges
@@ -301,8 +301,8 @@ function fixServerUrl(url) {
 // Make the helper function globally available
 window.fixServerUrl = fixServerUrl;
 
-document.addEventListener('DOMContentLoaded', () => {
-    updateCartIcon();
+document.addEventListener('DOMContentLoaded', async () => {
+    await updateCartIcon();
 
     // If we're on the cart page
     if (window.location.pathname.includes('cart.html')) {

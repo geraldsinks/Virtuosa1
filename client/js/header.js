@@ -108,8 +108,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         // Find the logout button to insert before
                         const logoutBtn = userDropdown.querySelector('button[onclick*="logout"]');
-                        if (logoutBtn) {
-                            userDropdown.insertBefore(messagesLink, logoutBtn.previousElementSibling || logoutBtn);
+                        if (logoutBtn && userDropdown.contains(logoutBtn)) {
+                            userDropdown.insertBefore(messagesLink, logoutBtn);
                         } else {
                             userDropdown.appendChild(messagesLink);
                         }

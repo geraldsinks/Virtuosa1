@@ -1,6 +1,8 @@
 // Seller Dashboard JavaScript
 // API_BASE is provided by config.js
 
+let salesChart = null; // Global variable to store chart instance
+
 // Initialize user menu
 function initializeUserMenu(token) {
     // Show user menu and hide login link
@@ -665,7 +667,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const salesData = Object.values(revenueByDay);
         const hasData = salesData.some(v => v > 0);
 
-        if (salesChart) {
+        if (salesChart && typeof salesChart.destroy === 'function') {
             salesChart.destroy();
         }
 
