@@ -67,6 +67,9 @@
                 throw new Error('No authentication token available');
             }
             
+            // Ensure URL is absolute using API_BASE
+            const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
+            
             const authOptions = {
                 ...options,
                 headers: {
@@ -75,7 +78,7 @@
                 }
             };
             
-            return fetch(url, authOptions);
+            return fetch(fullUrl, authOptions);
         }
     };
 
