@@ -491,6 +491,7 @@
     <footer class="bg-navy text-gray-400 p-4 text-center shadow-inner mt-auto">
         &copy; 2025 Virtuosa. All rights reserved.
     </footer>
+    <script src="../js/config.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('token');
@@ -610,7 +611,7 @@
                     const formData = new FormData();
                     formData.append('profilePicture', file);
 
-                    const response = await fetch('/api/user/profile-picture', {
+                    const response = await fetch(`${API_BASE}/user/profile-picture`, {
                         method: 'POST',
                         headers: { 'Authorization': `Bearer ${token}` },
                         body: formData
@@ -618,7 +619,7 @@
 
                     if (response.ok) {
                         const result = await response.json();
-                        profilePicture.src = result.profilePictureUrl;
+                        profilePicture.src = result.profilePicture;
                         removePictureBtn.classList.remove('hidden');
                         showToast('Profile picture updated successfully!', 'success');
                     } else {
@@ -643,7 +644,7 @@
                 if (!confirm('Are you sure you want to remove your profile picture?')) return;
 
                 try {
-                    const response = await fetch('/api/user/profile-picture', {
+                    const response = await fetch(`${API_BASE}/user/profile-picture`, {
                         method: 'DELETE',
                         headers: { 'Authorization': `Bearer ${token}` }
                     });

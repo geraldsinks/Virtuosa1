@@ -124,8 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Define startChat function BEFORE calling it
-    window.startChat = async (recipientId, recipientName) => {
-        console.log('🚀 startChat called with:', { recipientId, recipientName });
+    window.startChat = async (recipientId, recipientName, recipientProfilePicture) => {
+        console.log('🚀 startChat called with:', { recipientId, recipientName, recipientProfilePicture });
         
         currentRecipientId = recipientId;
         activeConversationId = recipientId;
@@ -147,7 +147,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (recipientName) {
             document.getElementById('recipient-name').textContent = recipientName;
-            document.getElementById('recipient-avatar').textContent = recipientName.charAt(0);
+            
+            // Update avatar with profile picture or initial
+            const avatarElement = document.getElementById('recipient-avatar');
+            if (recipientProfilePicture) {
+                avatarElement.innerHTML = `<img src="${fixServerUrl(recipientProfilePicture)}" class="w-full h-full rounded-full object-cover">`;
+            } else {
+                avatarElement.textContent = recipientName.charAt(0);
+            }
         }
 
         await loadMessages();
@@ -163,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // IMMEDIATELY show chat area if we have recipientId
     if (currentRecipientId && chatArea) {
         console.log('🚀 AUTO-OPENING CHAT for recipient:', currentRecipientId);
-        startChat(currentRecipientId, 'User');
+        startChat(currentRecipientId, 'User', '');
     }
 
     // Initialize Socket.io if authenticated
@@ -509,11 +516,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         conversationList.innerHTML = conversations.map(c => `
-            <div onclick="startChat('${c._id}', '${c.user.fullName}')" 
+            <div onclick="startChat('${c._id}', '${c.user.fullName}', '${c.user.profilePicture || ''}')" 
                  class="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors flex items-center gap-3 ${activeConversationId === c._id ? 'bg-orange-50' : ''}"
                  data-user-id="${c._id}">
-                <div class="w-12 h-12 rounded-full bg-gold bg-opacity-10 flex items-center justify-center font-bold text-gold relative">
-                    ${c.user.fullName.charAt(0)}
+                <div class="w-12 h-12 rounded-full bg-gold bg-opacity-10 flex items-center justify-center font-bold text-gold relative overflow-hidden">
+                    ${c.user.profilePicture ? 
+                        `<img src="${fixServerUrl(c.user.profilePicture)}" class="w-full h-full rounded-full object-cover">` : 
+                        c.user.fullName.charAt(0)
+                    }
                     <span class="online-status absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${false ? 'bg-green-500' : 'bg-gray-300'}"></span>
                 </div>
                 <div class="flex-grow min-w-0">
