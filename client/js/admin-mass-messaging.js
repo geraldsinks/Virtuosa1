@@ -868,7 +868,16 @@ class AdminMassMessaging {
             console.log('📡 Sending message to', this.targetUsers.length, 'users');
             
             // Prepare payload with user IDs
-            const userIds = this.targetUsers.map(user => user.id);
+            console.log('🔍 Target users objects:', this.targetUsers);
+            console.log('🔍 First user object:', this.targetUsers[0]);
+            console.log('🔍 First user object keys:', Object.keys(this.targetUsers[0] || {}));
+            
+            const userIds = this.targetUsers.map(user => {
+                console.log('🔍 Processing user:', user);
+                console.log('🔍 User keys:', Object.keys(user));
+                return user.id || user._id || user.userId;
+            });
+            
             console.log('👥 User IDs being sent:', userIds);
             console.log('👥 User ID types:', userIds.map(id => typeof id));
             
