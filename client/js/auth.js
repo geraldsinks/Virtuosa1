@@ -99,30 +99,33 @@ async function handleLogin(event) {
                         userRole: fullUserData.role
                     });
                     
-                    // Set role based on priority: admin > seller > user
-                    let role = fullUserData.role || 'user';
-                    if (isAdmin) {
-                        role = 'admin';
-                    } else if (isSeller) {
-                        role = 'seller';
-                    }
-                    
-                    console.log('🔍 LOGIN DEBUG - Final role:', role);
-                    
-                    localStorage.setItem('userRole', role);
+                    // Store role information
                     localStorage.setItem('isAdmin', isAdmin.toString());
                     localStorage.setItem('isSeller', isSeller.toString());
                 } else {
-                    console.error('Failed to fetch user profile during login');
-                    // Fallback to basic role
-                    localStorage.setItem('userRole', 'user');
+                    console.warn('Could not fetch user profile:', profileResponse);
+                    // Fallback: store default values
                     localStorage.setItem('isAdmin', 'false');
                     localStorage.setItem('isSeller', 'false');
                 }
-            } catch (error) {
-                console.error('Error fetching user profile during login:', error);
-                // Fallback to basic role
-                localStorage.setItem('userRole', 'user');
+                
+                // Redirect to appropriate dashboard
+                setTimeout(() => {
+                    const isAdmin = localStorage.getItem('isAdmin') === 'true';
+                    const isSeller = localStorage.getItem('isSeller') === 'true';
+                    
+                    if (isAdmin) {
+                        window.location.href = '/pages/admin-dashboard.html';
+                    } else if (isSeller) {
+                        window.location.href = '/pages/seller-dashboard.html';
+                    } else {
+                        window.location.href = '/pages/buyer-dashboard.html';
+                    }
+                }, 1500);
+                localStorage.setItem('isSeller', 'false');
+            } catch (profileError) {
+                console.warn('Could not fetch user profile:', profileError);
+                // Fallback: store default values
                 localStorage.setItem('isAdmin', 'false');
                 localStorage.setItem('isSeller', 'false');
             }
@@ -139,11 +142,43 @@ async function handleLogin(event) {
                 window.location.href = '/pages/buyer-dashboard.html';
             }
         } else {
-            showMessage(result.message || 'Login failed. Please try again.', true);
+            // Handle specific error for email verification
+            if (result.requiresEmailVerification) {
+                showMessage(result.message, true);
+                // Show option to resend verification email
+                setTimeout(() => {
+                    if (confirm('Would you like us to resend the verification email?')) {
+                        resendVerificationEmail(email);
+                    }
+                }, 2000);
+            } else {
+                showMessage(result.message || 'Login failed', true);
+            }
         }
     } catch (error) {
         console.error('Error during login:', error);
         showMessage('An error occurred during login. Please try again later.', true);
+    }
+}
+
+async function resendVerificationEmail(email) {
+    try {
+        const response = await fetch(`${API_BASE}/auth/resend-verification`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+            showMessage('Verification email sent! Please check your inbox.');
+        } else {
+            showMessage(result.message || 'Failed to send verification email', true);
+        }
+    } catch (error) {
+        console.error('Resend verification error:', error);
+        showMessage('Failed to send verification email. Please try again.', true);
     }
 }
 
@@ -374,10 +409,35 @@ function renderAuthComponent(type) {
         </div>
     `;
 
+    const resetPasswordFormHtml = `
+        <div id="reset-form-wrapper" class="form-container">
+            <form id="reset-form" class="space-y-6">
+                <div>
+                    <label for="reset-password" class="form-label block text-sm">New Password</label>
+                    <input type="password" id="reset-password" name="password" required 
+                        class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400" 
+                        placeholder="Enter your new password">
+                </div>
+                <div>
+                    <label for="reset-confirm-password" class="form-label block text-sm">Confirm New Password</label>
+                    <input type="password" id="reset-confirm-password" name="confirmPassword" required 
+                        class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400" 
+                        placeholder="Confirm your new password">
+                </div>
+                <button type="submit" class="auth-button w-full flex justify-center py-3 px-4 rounded-full text-sm font-bold text-navy transition-all duration-300">
+                    Reset Password
+                </button>
+                <div class="text-center">
+                    <a href="#" id="switch-to-login-from-reset" class="text-sm text-navy hover:text-gold transition-colors duration-200">Back to Login</a>
+                </div>
+            </form>
+        </div>
+    `;
+
     const urlParams = new URLSearchParams(window.location.search);
     const resetToken = urlParams.get('token');
     
-    authContainer.innerHTML = resetToken ? '<!-- Reset form handled separately -->' : (type === 'login' ? loginFormHtml : type === 'forgot' ? forgotPasswordFormHtml : signupFormHtml);
+    authContainer.innerHTML = resetToken ? resetPasswordFormHtml : (type === 'login' ? loginFormHtml : type === 'forgot' ? forgotPasswordFormHtml : signupFormHtml);
 
     // Attach Event Listeners
     if (type === 'login') {
@@ -390,6 +450,9 @@ function renderAuthComponent(type) {
     } else if (type === 'forgot') {
         document.getElementById('switch-to-login-from-forgot')?.addEventListener('click', (e) => { e.preventDefault(); renderAuthComponent('login'); });
         document.getElementById('forgot-form')?.addEventListener('submit', handleForgotPassword);
+    } else if (type === 'reset') {
+        document.getElementById('switch-to-login-from-reset')?.addEventListener('click', (e) => { e.preventDefault(); renderAuthComponent('login'); });
+        document.getElementById('reset-form')?.addEventListener('submit', handleResetPassword);
     }
 }
 

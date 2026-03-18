@@ -537,7 +537,24 @@
     <script src="/js/header.js"></script>
     <script src="/js/mobile-header.js"></script>
     <script src="/js/cart.js"></script>
-    <script src="/js/auth.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        // Handle URL parameters for verification status
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const verified = urlParams.get('verified');
+            const verification = urlParams.get('verification');
+            
+            if (verified === 'email') {
+                showMessage('Email verified successfully! You can now log in.');
+            } else if (verified === 'true') {
+                showMessage('Account verified successfully! You can now log in.');
+            } else if (verification === 'error') {
+                showMessage('Verification link is invalid or expired. Please try again.', true);
+            }
+        });
+    </script>
 </body>
 
 </html>

@@ -1334,6 +1334,11 @@ const userSchema = new mongoose.Schema({
     studentVerificationToken: String,
     studentVerificationExpires: Date,
 
+    // Email verification
+    isEmailVerified: { type: Boolean, default: false },
+    emailVerificationToken: String,
+    emailVerificationExpires: Date,
+
     // User roles
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     isAdmin: { type: mongoose.Schema.Types.Mixed, default: false },
@@ -2069,6 +2074,7 @@ app.post('/api/auth/signup', async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+        const emailVerificationToken = crypto.randomBytes(20).toString('hex');
         const verificationToken = crypto.randomBytes(20).toString('hex');
 
         const user = new User({
@@ -2079,31 +2085,72 @@ app.post('/api/auth/signup', async (req, res) => {
             phoneNumber,
             studentEmail,
             agreedToTerms,
+            emailVerificationToken,
+            emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
             studentVerificationToken: verificationToken,
             studentVerificationExpires: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
         });
 
         await user.save();
 
-        // Send verification email
-        const verificationLink = `http://localhost:5000/api/auth/verify-student/${verificationToken}`;
+        // Send email verification email
+        const emailVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/pages/verify-email.html?token=${emailVerificationToken}`;
+        await transporter.sendMail({
+            to: email,
+            subject: 'Virtuosa - Verify Your Email',
+            html: `
+                <h2>Welcome to Virtuosa!</h2>
+                <p>Thank you for signing up. Please click <a href="${emailVerificationLink}">here</a> to verify your email address.</p>
+                <p>This link will expire in 24 hours.</p>
+                <p>After verifying your email, you'll also need to verify your student status.</p>
+            `
+        });
+
+        // Send student verification email
+        const studentVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/api/auth/verify-student/${verificationToken}`;
         await transporter.sendMail({
             to: studentEmail,
             subject: 'Virtuosa Student Verification',
             html: `
                 <h2>Verify Your Student Status</h2>
-                <p>Click <a href="${verificationLink}">here</a> to verify your student email.</p>
+                <p>Click <a href="${studentVerificationLink}">here</a> to verify your student email.</p>
                 <p>This link will expire in 24 hours.</p>
             `
         });
 
         res.status(201).json({
             success: true,
-            message: 'Account created successfully! Please check your student email for verification.'
+            message: 'Account created successfully! Please check your email for verification instructions.'
         });
     } catch (error) {
         console.error('Signup error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// Email verification endpoint
+app.get('/api/auth/verify-email/:token', async (req, res) => {
+    const { token } = req.params;
+
+    try {
+        const user = await User.findOne({
+            emailVerificationToken: token,
+            emailVerificationExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.redirect('/pages/login.html?verification=error');
+        }
+
+        user.isEmailVerified = true;
+        user.emailVerificationToken = undefined;
+        user.emailVerificationExpires = undefined;
+        await user.save();
+
+        res.redirect('/pages/login.html?verified=email');
+    } catch (error) {
+        console.error('Email verification error:', error);
+        res.redirect('/pages/login.html?verification=error');
     }
 });
 
@@ -2152,13 +2199,69 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
+        // Check if email is verified
+        if (!user.isEmailVerified) {
+            return res.status(403).json({ 
+                message: 'Please verify your email address before logging in. Check your inbox for the verification link.',
+                requiresEmailVerification: true
+            });
+        }
+
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.json({
             token,
-            user: { email: user.email, fullName: user.fullName }
+            user: { 
+                email: user.email, 
+                fullName: user.fullName,
+                isEmailVerified: user.isEmailVerified,
+                isStudentVerified: user.isStudentVerified
+            }
         });
     } catch (error) {
         console.error('Login error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Resend verification email endpoint
+app.post('/api/auth/resend-verification', async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
+    }
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'No account found with this email' });
+        }
+
+        if (user.isEmailVerified) {
+            return res.status(400).json({ message: 'Email is already verified' });
+        }
+
+        // Generate new verification token
+        const emailVerificationToken = crypto.randomBytes(20).toString('hex');
+        user.emailVerificationToken = emailVerificationToken;
+        user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+        await user.save();
+
+        // Send verification email
+        const emailVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/pages/verify-email.html?token=${emailVerificationToken}`;
+        await transporter.sendMail({
+            to: email,
+            subject: 'Virtuosa - Verify Your Email',
+            html: `
+                <h2>Email Verification Request</h2>
+                <p>You requested a new verification email. Please click <a href="${emailVerificationLink}">here</a> to verify your email address.</p>
+                <p>This link will expire in 24 hours.</p>
+            `
+        });
+
+        res.json({ message: 'Verification email sent successfully' });
+    } catch (error) {
+        console.error('Resend verification error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -2182,7 +2285,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         user.resetPasswordExpires = Date.now() + 3600000;
         await user.save();
 
-        const resetLink = `http://localhost:5000/pages/login.html?token=${token}`;
+        const resetLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/pages/login.html?token=${token}`;
         await transporter.sendMail({
             to: email,
             subject: 'Virtuosa Password Reset',
@@ -5172,6 +5275,47 @@ app.get('/api/admin/retention/test', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Test endpoint error:', error);
         res.status(500).json({ message: 'Test failed' });
+    }
+});
+
+// Test email endpoint
+app.post('/api/test/email', async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+
+        console.log('🧪 Testing email configuration...');
+        console.log('📧 Email config:', {
+            user: process.env.EMAIL_USER,
+            pass: !!process.env.EMAIL_PASS,
+            frontend: process.env.FRONTEND_URL
+        });
+
+        await transporter.sendMail({
+            to: email,
+            subject: 'Virtuosa - Email Configuration Test',
+            html: `
+                <h2>Email Configuration Test</h2>
+                <p>This is a test email to verify the email configuration is working on Render.</p>
+                <p>Timestamp: ${new Date().toISOString()}</p>
+                <p>Frontend URL: ${process.env.FRONTEND_URL || 'Not set'}</p>
+            `
+        });
+
+        res.json({ message: 'Test email sent successfully' });
+    } catch (error) {
+        console.error('Email test error:', error);
+        res.status(500).json({ 
+            message: 'Email test failed', 
+            error: error.message,
+            config: {
+                hasEmailUser: !!process.env.EMAIL_USER,
+                hasEmailPass: !!process.env.EMAIL_PASS,
+                hasFrontendUrl: !!process.env.FRONTEND_URL
+            }
+        });
     }
 });
 
