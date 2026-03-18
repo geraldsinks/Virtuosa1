@@ -1,5 +1,4 @@
 // admin-seller-applications.js — Admin review logic for seller applications
-const API_BASE = "https://virtuosa-server.onrender.com/api";
 
 let currentPage = 1;
 let rejectingAppId = null;

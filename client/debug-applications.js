@@ -52,8 +52,9 @@ if (window.location.pathname.includes('admin-seller-applications.html')) {
                 if (sellerType) params.append('sellerType', sellerType);
                 if (university) params.append('university', university);
                 
-                const apiUrl = `/api/admin/seller-applications?${params}`;
+                const apiUrl = `${API_BASE}/admin/seller-applications?${params}`;
                 console.log('🔗 API URL:', apiUrl);
+                console.log('🔗 Full URL:', apiUrl.startsWith('http') ? apiUrl : window.location.origin + apiUrl);
                 
                 const response = await fetch(apiUrl, {
                     headers: { 'Authorization': `Bearer ${token}` }
