@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Secure Transactions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .security-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .security-feature {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            background: white;
+        }
+
+        .security-feature:hover {
+            border-color: #FFD700;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .security-icon {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 32px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .protection-level {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .level-high {
+            background: linear-gradient(90deg, #10b981, #059669);
+            color: white;
+        }
+
+        .level-medium {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .level-essential {
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #FFD700, #C19A6B);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: #FFD700;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #FFD700;
+        }
+
+        .verification-badge {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border: 2px solid #22c55e;
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .encryption-info {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .fraud-prevention {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 0.75rem 0;
+            display: flex;
+            align-items: flex-start;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .checklist li:last-child {
+            border-bottom: none;
+        }
+
+        .checklist li::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid #22c55e;
+            border-radius: 12px;
+            padding: 1rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="/index.html" class="hover:text-gold transition-colors">Home</a>
+                    <a href="/pages/products.html" class="hover:text-gold transition-colors">Products</a>
+                    <a href="/pages/seller.html" class="hover:text-gold transition-colors">Sell</a>
+                    <a href="/pages/login.html" class="hover:text-gold transition-colors">Sign In</a>
+                </nav>
+                <button class="md:hidden" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Page Header -->
+            <div class="text-center mb-10">
+                <h1 class="text-4xl md:text-5xl font-bold text-navy mb-4">Secure Transactions</h1>
+                <p class="text-gray-600 text-lg">Your safety is our priority. Learn how we protect every transaction.</p>
+            </div>
+
+            <!-- Security Overview -->
+            <div class="mb-12">
+                <div class="security-container rounded-xl p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                        <div>
+                            <div class="text-4xl font-bold text-green-600 mb-2">256-bit</div>
+                            <div class="text-gray-600">SSL Encryption</div>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-bold text-blue-600 mb-2">100%</div>
+                            <div class="text-gray-600">Payment Protection</div>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-bold text-purple-600 mb-2">24/7</div>
+                            <div class="text-gray-600">Fraud Monitoring</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Features -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Multi-Layer Security Protection</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- SSL Encryption -->
+                    <div class="security-feature rounded-xl p-6">
+                        <div class="security-icon bg-blue-100 text-blue-600">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3">SSL Encryption</h3>
+                        <p class="text-gray-600 mb-4">All data transmitted between your device and our servers is encrypted using industry-standard 256-bit SSL technology.</p>
+                        <div class="protection-level level-high">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            High Protection
+                        </div>
+                    </div>
+
+                    <!-- Identity Verification -->
+                    <div class="security-feature rounded-xl p-6">
+                        <div class="security-icon bg-green-100 text-green-600">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3">Identity Verification</h3>
+                        <p class="text-gray-600 mb-4">All users undergo identity verification using student email addresses and government-issued ID verification.</p>
+                        <div class="protection-level level-high">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            High Protection
+                        </div>
+                    </div>
+
+                    <!-- Secure Payment Processing -->
+                    <div class="security-feature rounded-xl p-6">
+                        <div class="security-icon bg-purple-100 text-purple-600">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3">Secure Payment Processing</h3>
+                        <p class="text-gray-600 mb-4">Payment processing through PCI-DSS compliant partners with tokenization to protect card details.</p>
+                        <div class="protection-level level-high">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            High Protection
+                        </div>
+                    </div>
+
+                    <!-- Fraud Detection -->
+                    <div class="security-feature rounded-xl p-6">
+                        <div class="security-icon bg-yellow-100 text-yellow-600">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3">Fraud Detection</h3>
+                        <p class="text-gray-600 mb-4">AI-powered fraud detection system monitors transactions 24/7 for suspicious activities.</p>
+                        <div class="protection-level level-medium">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            Medium Protection
+                        </div>
+                    </div>
+
+                    <!-- Dispute Resolution -->
+                    <div class="security-feature rounded-xl p-6">
+                        <div class="security-icon bg-red-100 text-red-600">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3">Dispute Resolution</h3>
+                        <p class="text-gray-600 mb-4">Fair and transparent dispute resolution process with mediation from our support team.</p>
+                        <div class="protection-level level-essential">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            Essential Protection
+                        </div>
+                    </div>
+
+                    <!-- Account Security -->
+                    <div class="security-feature rounded-xl p-6">
+                        <div class="security-icon bg-indigo-100 text-indigo-600">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3">Account Security</h3>
+                        <p class="text-gray-600 mb-4">Two-factor authentication, secure password requirements, and session management.</p>
+                        <div class="protection-level level-high">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            High Protection
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction Process -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">How We Secure Your Transactions</h2>
+                <div class="security-container rounded-xl p-8">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">1. User Verification</h3>
+                            <p class="text-gray-600">Both buyers and sellers must complete identity verification before participating in transactions.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">2. Secure Listing</h3>
+                            <p class="text-gray-600">Product listings are reviewed for authenticity and compliance with our guidelines.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">3. Protected Payment</h3>
+                            <p class="text-gray-600">Payments are processed securely and held in escrow until both parties confirm transaction completion.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">4. Safe Exchange</h3>
+                            <p class="text-gray-600">We facilitate safe pickup/delivery options and provide guidelines for secure in-person meetings.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">5. Confirmation & Release</h3>
+                            <p class="text-gray-600">Once both parties confirm successful exchange, funds are released to the seller.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">6. Ongoing Support</h3>
+                            <p class="text-gray-600">24/7 support available for any issues or disputes that may arise.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Best Practices -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Security Best Practices</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Buyer Tips -->
+                    <div class="security-container rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-navy mb-4 flex items-center">
+                            <i class="fas fa-shopping-cart text-gold mr-3"></i>
+                            For Buyers
+                        </h3>
+                        <ul class="checklist text-gray-700">
+                            <li>Always verify the seller's profile and ratings before purchasing</li>
+                            <li>Use our secure messaging system for all communications</li>
+                            <li>Never share personal financial information directly with sellers</li>
+                            <li>Meet in public places for in-person exchanges</li>
+                            <li>Inspect items carefully before confirming receipt</li>
+                            <li>Keep records of all transactions and communications</li>
+                            <li>Report suspicious activity immediately</li>
+                        </ul>
+                    </div>
+
+                    <!-- Seller Tips -->
+                    <div class="security-container rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-navy mb-4 flex items-center">
+                            <i class="fas fa-store text-gold mr-3"></i>
+                            For Sellers
+                        </h3>
+                        <ul class="checklist text-gray-700">
+                            <li>Provide accurate descriptions and clear photos of items</li>
+                            <li>Respond promptly to buyer questions and messages</li>
+                            <li>Use our platform for all payment processing</li>
+                            <li>Meet in safe, public locations for exchanges</li>
+                            <li>Keep proof of shipment for delivered items</li>
+                            <li>Maintain good communication throughout the process</li>
+                            <li>Build your reputation through positive reviews</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Information Boxes -->
+            <div class="mb-12">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Verification Info -->
+                    <div class="verification-badge">
+                        <h3 class="text-lg font-bold text-green-800 mb-3 flex items-center">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            Verified Users Only
+                        </h3>
+                        <p class="text-green-700 text-sm">All users must verify their student status and identity before buying or selling on our platform.</p>
+                    </div>
+
+                    <!-- Encryption Info -->
+                    <div class="encryption-info">
+                        <h3 class="text-lg font-bold text-blue-800 mb-3 flex items-center">
+                            <i class="fas fa-lock mr-2"></i>
+                            End-to-End Encryption
+                        </h3>
+                        <p class="text-blue-700 text-sm">Your data and payment information are encrypted using the same security standards as major banks.</p>
+                    </div>
+
+                    <!-- Fraud Prevention -->
+                    <div class="fraud-prevention">
+                        <h3 class="text-lg font-bold text-yellow-800 mb-3 flex items-center">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            Fraud Prevention
+                        </h3>
+                        <p class="text-yellow-700 text-sm">Our AI system monitors for suspicious patterns and prevents fraudulent activities before they happen.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warning Section -->
+            <div class="mb-12">
+                <div class="warning-box">
+                    <h3 class="text-lg font-bold text-red-800 mb-3 flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Important Security Warnings
+                    </h3>
+                    <ul class="space-y-2 text-red-700">
+                        <li>• Never share your password or financial details with anyone</li>
+                        <li>• Avoid transactions outside our secure platform</li>
+                        <li>• Be cautious of deals that seem too good to be true</li>
+                        <li>• Report users who ask for payment via wire transfer or gift cards</li>
+                        <li>• Never meet buyers/sellers in private or isolated locations</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tips Section -->
+            <div class="mb-12">
+                <div class="tip-box">
+                    <h3 class="text-lg font-bold text-green-800 mb-3 flex items-center">
+                        <i class="fas fa-lightbulb mr-2"></i>
+                        Pro Tips for Secure Trading
+                    </h3>
+                    <ul class="space-y-2 text-green-700">
+                        <li>• Enable two-factor authentication on your account</li>
+                        <li>• Use strong, unique passwords for your account</li>
+                        <li>• Regularly review your transaction history</li>
+                        <li>• Keep your app and browser updated</li>
+                        <li>• Trust your instincts - if something feels wrong, report it</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Contact Support -->
+            <div class="text-center bg-gold rounded-xl p-8">
+                <h2 class="text-2xl font-bold text-navy mb-4">Security Concerns? We're Here to Help</h2>
+                <p class="text-navy mb-6">If you encounter any security issues or suspect fraudulent activity, contact us immediately</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/pages/contact-support.html" class="bg-navy text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-envelope mr-2"></i>Report Security Issue
+                    </a>
+                    <a href="/pages/live-chat.html" class="bg-white text-navy border-2 border-navy px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-comments mr-2"></i>Emergency Chat
+                    </a>
+                </div>
+                <div class="mt-6">
+                    <p class="text-navy font-semibold">Emergency Security Hotline: 1-800-SECURE</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-auto">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">About Us</h3>
+                <p class="text-sm">Virtuosa is a student trading platform connecting buyers and sellers for books, electronics, and more. Join our community to trade smarter!</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Become a Seller</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/seller.html" class="hover:text-gold transition-colors">Start Selling</a></li>
+                    <li><a href="/pages/seller.html" class="hover:text-gold transition-colors">Seller Guide</a></li>
+                    <li><a href="/pages/seller.html" class="hover:text-gold transition-colors">Seller Benefits</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Payments</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/payment-options.html" class="hover:text-gold transition-colors">Payment Options</a></li>
+                    <li><a href="/pages/secure-transactions.html" class="hover:text-gold transition-colors">Secure Transactions</a></li>
+                    <li><a href="/pages/refund-policy.html" class="hover:text-gold transition-colors">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Help and Contact</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/faq.html" class="hover:text-gold transition-colors">FAQ</a></li>
+                    <li><a href="/pages/contact-support.html" class="hover:text-gold transition-colors">Contact Support</a></li>
+                    <li><a href="/pages/live-chat.html" class="hover:text-gold transition-colors">Live Chat</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Follow Us</h3>
+                <div class="flex space-x-4">
+                    <a href="https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://x.com" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-x-twitter fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 text-center text-sm">
+            &copy; 2025 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="/js/config.js"></script>
+    <script>
+        function toggleMobileMenu() {
+            // Mobile menu toggle functionality
+            console.log('Mobile menu toggle');
+        }
+    </script>
+</body>
+
+</html>

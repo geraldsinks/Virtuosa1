@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Contact Support</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .contact-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .contact-input {
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .contact-input:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+            background: white;
+        }
+
+        .contact-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .submit-button {
+            transition: all 0.3s ease-in-out;
+            background: linear-gradient(90deg, #FFD700, #C19A6B);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-button:hover {
+            background: linear-gradient(90deg, #C19A6B, #FFD700);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .support-option {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .support-option:hover {
+            border-color: #FFD700;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .urgency-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .urgency-high {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .urgency-medium {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .urgency-low {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="/index.html" class="hover:text-gold transition-colors">Home</a>
+                    <a href="/pages/products.html" class="hover:text-gold transition-colors">Products</a>
+                    <a href="/pages/seller.html" class="hover:text-gold transition-colors">Sell</a>
+                    <a href="/pages/login.html" class="hover:text-gold transition-colors">Sign In</a>
+                </nav>
+                <button class="md:hidden" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Page Header -->
+            <div class="text-center mb-10">
+                <h1 class="text-4xl md:text-5xl font-bold text-navy mb-4">Contact Support</h1>
+                <p class="text-gray-600 text-lg">We're here to help you with any questions or concerns</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Contact Form -->
+                <div class="lg:col-span-2">
+                    <div class="contact-container rounded-xl p-8">
+                        <h2 class="text-2xl font-bold text-navy mb-6 flex items-center">
+                            <i class="fas fa-envelope text-gold mr-3"></i>
+                            Send us a Message
+                        </h2>
+
+                        <form id="contact-form">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
+                                    <input type="text" name="firstName" required
+                                           class="contact-input w-full px-4 py-3 rounded-lg focus:outline-none"
+                                           placeholder="John">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
+                                    <input type="text" name="lastName" required
+                                           class="contact-input w-full px-4 py-3 rounded-lg focus:outline-none"
+                                           placeholder="Doe">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+                                    <input type="email" name="email" required
+                                           class="contact-input w-full px-4 py-3 rounded-lg focus:outline-none"
+                                           placeholder="john.doe@university.edu">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                    <input type="tel" name="phone"
+                                           class="contact-input w-full px-4 py-3 rounded-lg focus:outline-none"
+                                           placeholder="+1 (555) 123-4567">
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
+                                <select name="subject" required
+                                        class="contact-input w-full px-4 py-3 rounded-lg focus:outline-none">
+                                    <option value="">Select a topic</option>
+                                    <option value="account">Account Issues</option>
+                                    <option value="payment">Payment Problems</option>
+                                    <option value="listing">Product Listing Help</option>
+                                    <option value="transaction">Transaction Disputes</option>
+                                    <option value="technical">Technical Support</option>
+                                    <option value="safety">Safety & Security</option>
+                                    <option value="feedback">Feedback & Suggestions</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Order ID (if applicable)</label>
+                                <input type="text" name="orderId"
+                                       class="contact-input w-full px-4 py-3 rounded-lg focus:outline-none"
+                                       placeholder="ORD-123456">
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Message *</label>
+                                <textarea name="message" required
+                                          class="contact-input contact-textarea w-full px-4 py-3 rounded-lg focus:outline-none"
+                                          placeholder="Please describe your issue or question in detail..."></textarea>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Priority Level</label>
+                                <div class="flex flex-wrap gap-3">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="priority" value="low" class="mr-2" checked>
+                                        <span class="urgency-badge urgency-low">Low</span>
+                                    </label>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="priority" value="medium" class="mr-2">
+                                        <span class="urgency-badge urgency-medium">Medium</span>
+                                    </label>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="priority" value="high" class="mr-2">
+                                        <span class="urgency-badge urgency-high">High</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="attachments" class="mr-2">
+                                    <span class="text-sm text-gray-700">I would like to attach screenshots or files</span>
+                                </label>
+                                <div id="attachment-section" class="mt-3 hidden">
+                                    <input type="file" name="files" multiple accept="image/*,.pdf,.doc,.docx"
+                                           class="contact-input w-full px-4 py-3 rounded-lg focus:outline-none">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="submit-button w-full py-3 px-6 rounded-lg text-navy font-semibold">
+                                <i class="fas fa-paper-plane mr-2"></i>
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Quick Support Options -->
+                <div class="lg:col-span-1">
+                    <div class="space-y-6">
+                        <!-- Quick Links -->
+                        <div class="contact-container rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-navy mb-4 flex items-center">
+                                <i class="fas fa-bolt text-gold mr-2"></i>
+                                Quick Help
+                            </h3>
+                            <div class="space-y-3">
+                                <a href="/pages/faq.html" class="support-option block p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-question-circle text-gold mr-3"></i>
+                                        <div>
+                                            <div class="font-semibold text-gray-800">FAQ</div>
+                                            <div class="text-sm text-gray-600">Find quick answers</div>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a href="/pages/live-chat.html" class="support-option block p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-comments text-gold mr-3"></i>
+                                        <div>
+                                            <div class="font-semibold text-gray-800">Live Chat</div>
+                                            <div class="text-sm text-gray-600">Chat with support</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="contact-container rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-navy mb-4 flex items-center">
+                                <i class="fas fa-info-circle text-gold mr-2"></i>
+                                Contact Information
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <i class="fas fa-envelope text-gold mr-3 mt-1"></i>
+                                    <div>
+                                        <div class="font-semibold text-gray-800">Email</div>
+                                        <div class="text-sm text-gray-600">support@virtuosa.com</div>
+                                        <div class="text-xs text-gray-500">Response within 24 hours</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <i class="fas fa-phone text-gold mr-3 mt-1"></i>
+                                    <div>
+                                        <div class="font-semibold text-gray-800">Phone</div>
+                                        <div class="text-sm text-gray-600">1-800-VIRTUOSA</div>
+                                        <div class="text-xs text-gray-500">Mon-Fri, 9AM-6PM EST</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <i class="fas fa-clock text-gold mr-3 mt-1"></i>
+                                    <div>
+                                        <div class="font-semibold text-gray-800">Response Times</div>
+                                        <div class="text-sm text-gray-600">High Priority: 2-4 hours</div>
+                                        <div class="text-sm text-gray-600">Medium Priority: 12-24 hours</div>
+                                        <div class="text-sm text-gray-600">Low Priority: 24-48 hours</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Emergency Support -->
+                        <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-red-800 mb-3 flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                Emergency Support
+                            </h3>
+                            <p class="text-sm text-red-700 mb-4">
+                                For urgent safety concerns, fraudulent activity, or immediate account issues:
+                            </p>
+                            <div class="space-y-2">
+                                <div class="flex items-center">
+                                    <i class="fas fa-phone-alt text-red-600 mr-2"></i>
+                                    <span class="text-sm font-semibold text-red-800">Emergency: 1-800-URGENT</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-shield-alt text-red-600 mr-2"></i>
+                                    <span class="text-sm font-semibold text-red-800">Security: security@virtuosa.com</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Message (hidden by default) -->
+            <div id="success-message" class="hidden mt-8 bg-green-50 border border-green-200 rounded-xl p-6">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-green-600 text-2xl mr-4"></i>
+                    <div>
+                        <h3 class="text-lg font-semibold text-green-800">Message Sent Successfully!</h3>
+                        <p class="text-green-700">Thank you for contacting us. We'll get back to you within the specified response time.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-auto">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">About Us</h3>
+                <p class="text-sm">Virtuosa is a student trading platform connecting buyers and sellers for books, electronics, and more. Join our community to trade smarter!</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Become a Seller</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/seller.html" class="hover:text-gold transition-colors">Start Selling</a></li>
+                    <li><a href="/pages/seller.html" class="hover:text-gold transition-colors">Seller Guide</a></li>
+                    <li><a href="/pages/seller.html" class="hover:text-gold transition-colors">Seller Benefits</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Payments</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/payment-options.html" class="hover:text-gold transition-colors">Payment Options</a></li>
+                    <li><a href="/pages/secure-transactions.html" class="hover:text-gold transition-colors">Secure Transactions</a></li>
+                    <li><a href="/pages/refund-policy.html" class="hover:text-gold transition-colors">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Help and Contact</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/faq.html" class="hover:text-gold transition-colors">FAQ</a></li>
+                    <li><a href="/pages/contact-support.html" class="hover:text-gold transition-colors">Contact Support</a></li>
+                    <li><a href="/pages/live-chat.html" class="hover:text-gold transition-colors">Live Chat</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Follow Us</h3>
+                <div class="flex space-x-4">
+                    <a href="https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://x.com" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-x-twitter fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 text-center text-sm">
+            &copy; 2025 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="/js/config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form submission
+            const contactForm = document.getElementById('contact-form');
+            const successMessage = document.getElementById('success-message');
+            const attachmentCheckbox = document.querySelector('input[name="attachments"]');
+            const attachmentSection = document.getElementById('attachment-section');
+
+            // Toggle attachment section
+            attachmentCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    attachmentSection.classList.remove('hidden');
+                } else {
+                    attachmentSection.classList.add('hidden');
+                }
+            });
+
+            // Handle form submission
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form data
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData);
+                
+                // Validate form
+                if (!data.firstName || !data.lastName || !data.email || !data.subject || !data.message) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+
+                // Validate email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(data.email)) {
+                    alert('Please enter a valid email address.');
+                    return;
+                }
+
+                // Simulate form submission (in real app, this would be an API call)
+                console.log('Form submitted:', data);
+                
+                // Show success message
+                successMessage.classList.remove('hidden');
+                
+                // Reset form
+                this.reset();
+                attachmentSection.classList.add('hidden');
+                
+                // Scroll to success message
+                successMessage.scrollIntoView({ behavior: 'smooth' });
+                
+                // Hide success message after 10 seconds
+                setTimeout(() => {
+                    successMessage.classList.add('hidden');
+                }, 10000);
+            });
+        });
+
+        function toggleMobileMenu() {
+            // Mobile menu toggle functionality
+            console.log('Mobile menu toggle');
+        }
+    </script>
+</body>
+
+</html>

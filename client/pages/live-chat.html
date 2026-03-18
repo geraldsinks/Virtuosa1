@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Live Chat Support</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .chat-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .chat-window {
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #f9fafb;
+        }
+
+        .chat-input-container {
+            padding: 1rem;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .chat-input {
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+            background: white;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.support {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(90deg, #FFD700, #C19A6B);
+            color: #0A1128;
+            border-bottom-right-radius: 0.25rem;
+        }
+
+        .message.support .message-bubble {
+            background: #e5e7eb;
+            color: #374151;
+            border-bottom-left-radius: 0.25rem;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0 0.5rem;
+        }
+
+        .message.user .message-avatar {
+            background: #FFD700;
+            color: #0A1128;
+            order: 2;
+        }
+
+        .message.support .message-avatar {
+            background: #0A1128;
+            color: white;
+            order: 1;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: #e5e7eb;
+            border-radius: 1rem;
+            border-bottom-left-radius: 0.25rem;
+            max-width: 100px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #6b7280;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .quick-reply {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 9999px;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.875rem;
+        }
+
+        .quick-reply:hover {
+            background: #FFD700;
+            border-color: #FFD700;
+            color: #0A1128;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .status-online {
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        .status-away {
+            background: #f59e0b;
+        }
+
+        .status-offline {
+            background: #6b7280;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .chat-info-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #0ea5e9;
+        }
+
+        .wait-time {
+            background: linear-gradient(90deg, #10b981, #059669);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="/index.html" class="hover:text-gold transition-colors">Home</a>
+                    <a href="/pages/products.html" class="hover:text-gold transition-colors">Products</a>
+                    <a href="/pages/seller.html" class="hover:text-gold transition-colors">Sell</a>
+                    <a href="/pages/login.html" class="hover:text-gold transition-colors">Sign In</a>
+                </nav>
+                <button class="md:hidden" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Page Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl md:text-5xl font-bold text-navy mb-4">Live Chat Support</h1>
+                <p class="text-gray-600 text-lg">Get instant help from our support team</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <!-- Chat Area -->
+                <div class="lg:col-span-3">
+                    <div class="chat-container rounded-xl overflow-hidden">
+                        <!-- Chat Header -->
+                        <div class="bg-navy text-white p-4 flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="status-indicator status-online"></div>
+                                <div>
+                                    <h3 class="font-semibold">Support Team</h3>
+                                    <p class="text-sm text-gray-300">Online - Ready to help</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <span class="wait-time">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    < 2 min wait
+                                </span>
+                                <button onclick="endChat()" class="text-gray-300 hover:text-white transition-colors">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Chat Messages -->
+                        <div class="chat-window">
+                            <div id="chat-messages" class="chat-messages">
+                                <!-- Welcome Message -->
+                                <div class="message support">
+                                    <div class="message-avatar">
+                                        <i class="fas fa-headset"></i>
+                                    </div>
+                                    <div class="message-bubble">
+                                        <p>👋 Welcome to Virtuosa Live Chat! I'm here to help you with any questions or concerns.</p>
+                                        <p class="text-sm mt-2 opacity-75">How can I assist you today?</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Replies -->
+                            <div id="quick-replies" class="p-3 bg-gray-50 border-t border-gray-200">
+                                <div class="flex flex-wrap">
+                                    <button class="quick-reply" onclick="sendQuickReply('Where is my order?')">
+                                        📦 Where is my order?
+                                    </button>
+                                    <button class="quick-reply" onclick="sendQuickReply('How do I return an item?')">
+                                        🔄 How do I return an item?
+                                    </button>
+                                    <button class="quick-reply" onclick="sendQuickReply('Payment issue')">
+                                        💳 Payment issue
+                                    </button>
+                                    <button class="quick-reply" onclick="sendQuickReply('Account problem')">
+                                        👤 Account problem
+                                    </button>
+                                    <button class="quick-reply" onclick="sendQuickReply('Seller verification')">
+                                        ✅ Seller verification
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Chat Input -->
+                            <div class="chat-input-container">
+                                <form id="chat-form" class="flex items-center space-x-3">
+                                    <button type="button" class="text-gray-400 hover:text-gray-600 transition-colors">
+                                        <i class="fas fa-paperclip"></i>
+                                    </button>
+                                    <input 
+                                        type="text" 
+                                        id="chat-input"
+                                        placeholder="Type your message..."
+                                        class="chat-input flex-grow px-4 py-2 rounded-full focus:outline-none"
+                                        autocomplete="off"
+                                    >
+                                    <button type="submit" class="bg-gold text-navy px-4 py-2 rounded-full hover:bg-yellow-500 transition-colors">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
+                    <div class="space-y-6">
+                        <!-- Chat Info -->
+                        <div class="chat-info-card rounded-xl p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4 flex items-center">
+                                <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                                Chat Information
+                            </h3>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Chat ID:</span>
+                                    <span class="font-mono text-gray-800">#CHAT-20250319-001</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Started:</span>
+                                    <span class="text-gray-800">Just now</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Agent:</span>
+                                    <span class="text-gray-800">Support Team</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Status:</span>
+                                    <span class="text-green-600 font-semibold">Active</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Support Hours -->
+                        <div class="chat-container rounded-xl p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4 flex items-center">
+                                <i class="fas fa-clock text-gold mr-2"></i>
+                                Support Hours
+                            </h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Monday - Friday:</span>
+                                    <span class="text-gray-800">9:00 AM - 8:00 PM</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Saturday:</span>
+                                    <span class="text-gray-800">10:00 AM - 6:00 PM</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Sunday:</span>
+                                    <span class="text-gray-800">12:00 PM - 4:00 PM</span>
+                                </div>
+                                <div class="mt-4 p-3 bg-yellow-50 rounded-lg">
+                                    <p class="text-xs text-yellow-800">
+                                        <i class="fas fa-lightbulb mr-1"></i>
+                                        Average response time: under 2 minutes during business hours
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alternative Support -->
+                        <div class="chat-container rounded-xl p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4 flex items-center">
+                                <i class="fas fa-life-ring text-gold mr-2"></i>
+                                Other Support Options
+                            </h3>
+                            <div class="space-y-3">
+                                <a href="/pages/faq.html" class="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-question-circle text-gold mr-3"></i>
+                                        <div>
+                                            <div class="font-semibold text-gray-800">FAQ</div>
+                                            <div class="text-xs text-gray-600">Find quick answers</div>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a href="/pages/contact-support.html" class="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-envelope text-gold mr-3"></i>
+                                        <div>
+                                            <div class="font-semibold text-gray-800">Email Support</div>
+                                            <div class="text-xs text-gray-600">24-48 hour response</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Emergency Contact -->
+                        <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+                            <h3 class="text-lg font-bold text-red-800 mb-3 flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                Emergency
+                            </h3>
+                            <p class="text-sm text-red-700 mb-3">
+                                For urgent safety or security issues:
+                            </p>
+                            <div class="space-y-2">
+                                <div class="flex items-center">
+                                    <i class="fas fa-phone-alt text-red-600 mr-2"></i>
+                                    <span class="text-sm font-semibold text-red-800">1-800-URGENT</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-auto">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">About Us</h3>
+                <p class="text-sm">Virtuosa is a student trading platform connecting buyers and sellers for books, electronics, and more. Join our community to trade smarter!</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Become a Seller</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/seller.html" class="hover:text-gold transition-colors">Start Selling</a></li>
+                    <li><a href="/pages/seller.html" class="hover:text-gold transition-colors">Seller Guide</a></li>
+                    <li><a href="/pages/seller.html" class="hover:text-gold transition-colors">Seller Benefits</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Payments</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/payment-options.html" class="hover:text-gold transition-colors">Payment Options</a></li>
+                    <li><a href="/pages/secure-transactions.html" class="hover:text-gold transition-colors">Secure Transactions</a></li>
+                    <li><a href="/pages/refund-policy.html" class="hover:text-gold transition-colors">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Help and Contact</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/faq.html" class="hover:text-gold transition-colors">FAQ</a></li>
+                    <li><a href="/pages/contact-support.html" class="hover:text-gold transition-colors">Contact Support</a></li>
+                    <li><a href="/pages/live-chat.html" class="hover:text-gold transition-colors">Live Chat</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Follow Us</h3>
+                <div class="flex space-x-4">
+                    <a href="https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://x.com" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-x-twitter fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 text-center text-sm">
+            &copy; 2025 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="/js/config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatForm = document.getElementById('chat-form');
+            const chatInput = document.getElementById('chat-input');
+            const chatMessages = document.getElementById('chat-messages');
+            
+            let isTyping = false;
+            let messageCount = 1;
+
+            // Handle form submission
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const message = chatInput.value.trim();
+                
+                if (message) {
+                    sendMessage(message);
+                    chatInput.value = '';
+                }
+            });
+
+            // Send message function
+            function sendMessage(message, isUser = true) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user' : 'support'}`;
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'message-avatar';
+                avatar.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-headset"></i>';
+                
+                const bubble = document.createElement('div');
+                bubble.className = 'message-bubble';
+                bubble.innerHTML = `<p>${escapeHtml(message)}</p>`;
+                
+                if (isUser) {
+                    messageDiv.appendChild(bubble);
+                    messageDiv.appendChild(avatar);
+                } else {
+                    messageDiv.appendChild(avatar);
+                    messageDiv.appendChild(bubble);
+                }
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                if (isUser) {
+                    // Simulate support response
+                    showTypingIndicator();
+                    setTimeout(() => {
+                        hideTypingIndicator();
+                        generateSupportResponse(message);
+                    }, 2000 + Math.random() * 2000);
+                }
+            }
+
+            // Send quick reply
+            window.sendQuickReply = function(message) {
+                sendMessage(message, true);
+            };
+
+            // Generate support response
+            function generateSupportResponse(userMessage) {
+                const responses = [
+                    "I understand your concern. Let me help you with that.",
+                    "Thank you for reaching out. I'm looking into this for you.",
+                    "I can definitely assist you with this issue.",
+                    "Let me check the details for you right away.",
+                    "I see what you're referring to. Here's what I can do to help..."
+                ];
+                
+                const specificResponses = {
+                    'order': "I can help you track your order. Could you please provide your order ID?",
+                    'return': "I'd be happy to help you with a return. Our return policy allows returns within 30 days of purchase.",
+                    'payment': "I understand you're having payment issues. Let me check your transaction history.",
+                    'account': "I can help with account problems. What specific issue are you experiencing?",
+                    'verification': "Seller verification typically takes 2-3 business days. I can check your status for you."
+                };
+                
+                let response = responses[Math.floor(Math.random() * responses.length)];
+                
+                // Check for specific keywords
+                for (const [keyword, specificResponse] of Object.entries(specificResponses)) {
+                    if (userMessage.toLowerCase().includes(keyword)) {
+                        response = specificResponse;
+                        break;
+                    }
+                }
+                
+                sendMessage(response, false);
+            }
+
+            // Show typing indicator
+            function showTypingIndicator() {
+                if (isTyping) return;
+                
+                isTyping = true;
+                const typingDiv = document.createElement('div');
+                typingDiv.id = 'typing-indicator';
+                typingDiv.className = 'message support';
+                typingDiv.innerHTML = `
+                    <div class="message-avatar">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Hide typing indicator
+            function hideTypingIndicator() {
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                isTyping = false;
+            }
+
+            // Escape HTML to prevent XSS
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // End chat function
+            window.endChat = function() {
+                if (confirm('Are you sure you want to end this chat session?')) {
+                    sendMessage('Thank you for chatting with us! Have a great day!', false);
+                    setTimeout(() => {
+                        alert('Chat session ended. You can start a new chat anytime.');
+                        window.location.href = '/pages/contact-support.html';
+                    }, 2000);
+                }
+            };
+
+            // Auto-focus input
+            chatInput.focus();
+        });
+
+        function toggleMobileMenu() {
+            // Mobile menu toggle functionality
+            console.log('Mobile menu toggle');
+        }
+    </script>
+</body>
+
+</html>
