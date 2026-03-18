@@ -1,6 +1,13 @@
 // Debug script for seller applications loading
 console.log('=== Debug Seller Applications Loading ===');
 
+// Check if API_BASE is available
+if (typeof API_BASE !== 'undefined') {
+    console.log('✅ API_BASE found:', API_BASE);
+} else {
+    console.log('❌ API_BASE not found');
+}
+
 // Check if we're on the correct page
 if (window.location.pathname.includes('admin-seller-applications.html')) {
     console.log('✅ Correct page detected');
