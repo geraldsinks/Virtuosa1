@@ -871,7 +871,8 @@ class AdminMassMessaging {
             const payload = {
                 title: this.messageData.title,
                 content: this.messageData.content,
-                userIds: this.targetUsers.map(user => user.id)
+                targetType: 'custom',
+                customUserIds: this.targetUsers.map(user => user.id)
             };
 
             const response = await fetch(`${API_BASE}/admin/messages/send-mass`, {
