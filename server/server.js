@@ -2043,68 +2043,35 @@ const subscriptionSchema = new mongoose.Schema({
 const Subscription = mongoose.model('Subscription', subscriptionSchema);
 console.log('Subscription model created successfully');
 
-// Nodemailer setup with multiple fallback configurations
-const primaryTransporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // Use SSL
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    pool: false,
-    connectionTimeout: 20000, // 20 seconds
-    greetingTimeout: 8000, // 8 seconds
-    socketTimeout: 20000, // 20 seconds
-    tls: {
-        rejectUnauthorized: false
-    },
-    debug: false,
-    logger: false
+// Simplified Gmail transporter configuration
+const gmailTransporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // Must be false for 587
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false // Helps bypass potential certificate issues on Render
+  }
 });
 
-const secondaryTransporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // Use TLS
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    pool: false,
-    connectionTimeout: 15000, // 15 seconds
-    greetingTimeout: 5000, // 5 seconds
-    socketTimeout: 15000, // 15 seconds
-    tls: {
-        rejectUnauthorized: false
-    },
-    debug: false,
-    logger: false
+// Alternative: Try using Mailtrap or other service as fallback
+const fallbackTransporter = nodemailer.createTransport({
+  host: 'smtp.mailtrap.io',
+  port: 2525,
+  auth: {
+    user: process.env.MAILTRAP_USER || 'your-mailtrap-user',
+    pass: process.env.MAILTRAP_PASS || 'your-mailtrap-pass'
+  }
 });
 
-const tertiaryTransporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    pool: false,
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 3000, // 3 seconds
-    socketTimeout: 10000, // 10 seconds
-    tls: {
-        rejectUnauthorized: false
-    },
-    debug: false,
-    logger: false
-});
-
-// Verify all transporter configurations on startup
+// Verify transporter configurations on startup
 const verifyTransporters = async () => {
     const transporters = [
-        { name: 'Primary (SSL)', transporter: primaryTransporter },
-        { name: 'Secondary (TLS)', transporter: secondaryTransporter },
-        { name: 'Tertiary (Service)', transporter: tertiaryTransporter }
+        { name: 'Gmail (Simple)', transporter: gmailTransporter },
+        { name: 'Mailtrap (Fallback)', transporter: fallbackTransporter }
     ];
     
     for (const { name, transporter } of transporters) {
@@ -2457,9 +2424,8 @@ app.post('/api/auth/resend-verification', async (req, res) => {
         
         try {
             const transporters = [
-                { name: 'Primary (SSL)', transporter: primaryTransporter },
-                { name: 'Secondary (TLS)', transporter: secondaryTransporter },
-                { name: 'Tertiary (Service)', transporter: tertiaryTransporter }
+                { name: 'Gmail (Simple)', transporter: gmailTransporter },
+                { name: 'Mailtrap (Fallback)', transporter: fallbackTransporter }
             ];
             
             for (let i = 0; i < transporters.length; i++) {
