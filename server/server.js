@@ -2153,6 +2153,7 @@ app.post('/api/admin/send-queued-emails', async (req, res) => {
             if (!email.sent) {
                 try {
                     await productionTransporter.sendMail({
+                        from: 'noreply@virtuosazm.com',
                         to: email.to,
                         subject: email.subject,
                         html: email.html
@@ -2240,6 +2241,7 @@ app.post('/api/auth/signup', async (req, res) => {
         
         try {
             const emailResult = await transporter.sendMail({
+                from: 'noreply@virtuosazm.com',
                 to: normalizedEmail,
                 subject: 'Virtuosa - Verify Your Email',
                 html: `
@@ -2254,10 +2256,11 @@ app.post('/api/auth/signup', async (req, res) => {
             console.log('📧 Email result:', emailResult);
             
             // Send student verification email
-            const studentVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/api/auth/verify-student/${verificationToken}`;
+            const studentVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosazm.com'}/api/auth/verify-student/${verificationToken}`;
             
             try {
                 const studentEmailResult = await transporter.sendMail({
+                    from: 'noreply@virtuosazm.com',
                     to: normalizedStudentEmail,
                     subject: 'Virtuosa Student Verification',
                     html: `
@@ -2539,6 +2542,7 @@ app.post('/api/auth/resend-verification', async (req, res) => {
                 console.log(`📧 Sending email using Brevo transporter to:`, normalizedEmail);
                 
                 const result = await productionTransporter.sendMail({
+                    from: 'noreply@virtuosazm.com', // Proper from address
                     to: normalizedEmail,
                     subject: 'Virtuosa - Verify Your Email',
                     html: `
@@ -2663,8 +2667,9 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         user.resetPasswordExpires = Date.now() + 3600000;
         await user.save();
 
-        const resetLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/pages/login.html?token=${token}`;
+        const resetLink = `${process.env.FRONTEND_URL || 'https://virtuosazm.com'}/pages/login.html?token=${token}`;
         await transporter.sendMail({
+            from: 'noreply@virtuosazm.com',
             to: email,
             subject: 'Virtuosa Password Reset',
             html: `
