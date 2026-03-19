@@ -2043,22 +2043,43 @@ const subscriptionSchema = new mongoose.Schema({
 const Subscription = mongoose.model('Subscription', subscriptionSchema);
 console.log('Subscription model created successfully');
 
-// Nodemailer setup with enhanced configuration and alternative service
+// Nodemailer setup with alternative SMTP configuration
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // Use TLS
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
     pool: false, // Disable pooling for better reliability
-    connectionTimeout: 120000, // 2 minutes connection timeout
-    greetingTimeout: 60000, // 1 minute greeting timeout
-    socketTimeout: 120000, // 2 minutes socket timeout
+    connectionTimeout: 30000, // 30 seconds connection timeout
+    greetingTimeout: 10000, // 10 seconds greeting timeout
+    socketTimeout: 30000, // 30 seconds socket timeout
     tls: {
-        rejectUnauthorized: false
+        rejectUnauthorized: false,
+        minVersion: 'TLSv1.2'
     },
     debug: true, // Enable debugging for email issues
     logger: true // Enable detailed logging
+});
+
+// Backup transporter using different configuration
+const backupTransporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    },
+    pool: false,
+    connectionTimeout: 15000, // Shorter timeout for backup
+    greetingTimeout: 5000,
+    socketTimeout: 15000,
+    tls: {
+        rejectUnauthorized: false
+    },
+    debug: false,
+    logger: false
 });
 
 // Verify transporter configuration on startup
@@ -2399,11 +2420,16 @@ app.post('/api/auth/resend-verification', async (req, res) => {
         
         try {
             let retryCount = 0;
-            const maxRetries = 3;
+            const maxRetries = 2; // Reduced retries since we have backup
             
-            const sendEmail = async () => {
+            const sendEmail = async (useBackup = false) => {
                 try {
-                    const result = await transporter.sendMail({
+                    const currentTransporter = useBackup ? backupTransporter : transporter;
+                    const transporterName = useBackup ? 'Backup' : 'Primary';
+                    
+                    console.log(`📧 Using ${transporterName} transporter to send email to:`, normalizedEmail);
+                    
+                    const result = await currentTransporter.sendMail({
                         to: normalizedEmail,
                         subject: 'Virtuosa - Verify Your Email',
                         html: `
@@ -2413,7 +2439,7 @@ app.post('/api/auth/resend-verification', async (req, res) => {
                         `
                     });
                     
-                    console.log('✅ Verification email sent successfully to:', normalizedEmail);
+                    console.log(`✅ Verification email sent successfully using ${transporterName} transporter to:`, normalizedEmail);
                     console.log('📧 Email result:', result);
                     
                     res.json({ 
@@ -2421,14 +2447,18 @@ app.post('/api/auth/resend-verification', async (req, res) => {
                     });
                 } catch (error) {
                     retryCount++;
-                    console.error(`❌ Email send attempt ${retryCount} failed:`, error);
+                    console.error(`❌ ${useBackup ? 'Backup' : 'Primary'} email send attempt ${retryCount} failed:`, error);
                     
-                    if (retryCount < maxRetries) {
-                        console.log(`🔄 Retrying email send... Attempt ${retryCount + 1}/${maxRetries}`);
-                        // Wait 2 seconds before retry
-                        setTimeout(sendEmail, 2000);
+                    if (retryCount < maxRetries && !useBackup) {
+                        console.log(`🔄 Retrying with primary transporter... Attempt ${retryCount + 1}/${maxRetries}`);
+                        // Wait 1 second before retry
+                        setTimeout(() => sendEmail(false), 1000);
+                    } else if (!useBackup) {
+                        console.log('🔄 Switching to backup transporter...');
+                        // Try backup transporter
+                        setTimeout(() => sendEmail(true), 1000);
                     } else {
-                        console.error('❌ All email attempts failed');
+                        console.error('❌ Both primary and backup email attempts failed');
                         res.status(500).json({ 
                             message: 'Failed to send verification email. Please check your email address or contact support at virtuosa@gmail.com.',
                             error: 'Email sending failed',
