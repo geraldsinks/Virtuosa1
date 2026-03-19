@@ -1717,63 +1717,19 @@ function addScrollToInputFunctionality(messageContainer, inputArea) {
             }, 500);
         }, 100);
     });
-    }
     
-    function addScrollToInputFunctionality(messageContainer, inputArea) {
-        if (!messageContainer || !inputArea) return;
-        
-        // Add automatic input widget
-        const inputWidget = document.createElement('button');
-        inputWidget.id = 'auto-input-widget';
-        inputWidget.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 2.59 5.14L12 22l-6.59-3.72L2 14.14l5-4.87 3.09-6.26L12 2z"/>
-            </svg>
-        `;
-        inputWidget.style.cssText = `
-            position: fixed;
-            bottom: 100px;
-            right: 16px;
-            width: 44px;
-            height: 44px;
-            background: #0A1128;
-            color: #FFD700;
-            border: none;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            z-index: 50;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        `;
-        
-        document.body.appendChild(inputWidget);
-        
-        // Show/hide input widget based on scroll position
-        const updateInputWidget = () => {
-            const scrollTop = messageContainer.scrollTop;
-            const scrollHeight = messageContainer.scrollHeight;
-            const clientHeight = messageContainer.clientHeight;
-            const isAtBottom = scrollTop + clientHeight >= scrollHeight - 50;
-            
-            if (isAtBottom) {
-                inputWidget.style.opacity = '0';
-                inputWidget.style.transform = 'translateY(20px)';
-                inputWidget.style.pointerEvents = 'none';
-            } else {
-                inputWidget.style.opacity = '1';
-                inputWidget.style.transform = 'translateY(0)';
-                inputWidget.style.pointerEvents = 'auto';
-            }
-        };
-        
-        // Auto input functionality
-        inputWidget.addEventListener('click', () => {
-            console.log('Auto input widget clicked');
+    // Listen for scroll events
+    messageContainer.addEventListener('scroll', updateInputWidget);
+    
+    // Initial check
+    updateInputWidget();
+    
+    // Also add keyboard shortcut
+    document.addEventListener('keydown', (e) => {
+        // Ctrl/Cmd + Down arrow triggers auto input
+        if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowDown') {
+            e.preventDefault();
+            console.log('Keyboard shortcut triggered');
             
             // First scroll to bottom of message container
             if (messageContainer) {
@@ -1783,11 +1739,8 @@ function addScrollToInputFunctionality(messageContainer, inputArea) {
             // Then scroll input area into view with better positioning
             setTimeout(() => {
                 if (inputArea) {
-                    // Get input area position
                     const inputRect = inputArea.getBoundingClientRect();
                     const viewportHeight = window.innerHeight;
-                    
-                    // Calculate scroll position to show input field with some padding
                     const targetScrollY = window.pageYOffset + inputRect.top - (viewportHeight - inputRect.height - 100);
                     
                     window.scrollTo({
@@ -1812,114 +1765,61 @@ function addScrollToInputFunctionality(messageContainer, inputArea) {
                             navigator.virtualKeyboard.show();
                         }
                         
-                        console.log('Input field focused and keyboard triggered');
+                        console.log('Input field focused and keyboard triggered via keyboard');
                     }
                 }, 500);
             }, 100);
-        });
-        
-        // Listen for scroll events
-        messageContainer.addEventListener('scroll', updateInputWidget);
-        
-        // Initial check
-        updateInputWidget();
-        
-        // Also add keyboard shortcut
-        document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + Down arrow triggers auto input
-            if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowDown') {
-                e.preventDefault();
-                console.log('Keyboard shortcut triggered');
-                
-                // First scroll to bottom of message container
-                if (messageContainer) {
-                    messageContainer.scrollTop = messageContainer.scrollHeight;
-                }
-                
-                // Then scroll input area into view with better positioning
-                setTimeout(() => {
-                    if (inputArea) {
-                        const inputRect = inputArea.getBoundingClientRect();
-                        const viewportHeight = window.innerHeight;
-                        const targetScrollY = window.pageYOffset + inputRect.top - (viewportHeight - inputRect.height - 100);
-                        
-                        window.scrollTo({
-                            top: targetScrollY,
-                            behavior: 'smooth'
-                        });
-                    }
-                    
-                    // Focus input field and open keyboard after scrolling
-                    setTimeout(() => {
-                        const messageInput = document.getElementById('message-input');
-                        if (messageInput) {
-                            messageInput.focus();
-                            
-                            // Trigger keyboard on mobile
-                            if (messageInput.scrollIntoView) {
-                                messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            }
-                            
-                            // Force keyboard to show on mobile
-                            if ('virtualKeyboard' in navigator) {
-                                navigator.virtualKeyboard.show();
-                            }
-                            
-                            console.log('Input field focused and keyboard triggered via keyboard');
-                        }
-                    }, 500);
-                }, 100);
-            }
-        });
-        
-        // Auto-trigger when user scrolls up significantly
-        let scrollTimeout;
-        messageContainer.addEventListener('scroll', () => {
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                const scrollTop = messageContainer.scrollTop;
-                const scrollHeight = messageContainer.scrollHeight;
-                const clientHeight = messageContainer.clientHeight;
-                const scrollPercentage = scrollTop / (scrollHeight - clientHeight);
-                
-                // Auto-trigger input if user scrolls up more than 30%
-                if (scrollPercentage < 0.7) {
-                    console.log('Auto-triggering input due to scroll up');
-                    
-                    // Scroll to bottom and focus input
-                    messageContainer.scrollTop = messageContainer.scrollHeight;
-                    
-                    setTimeout(() => {
-                        const messageInput = document.getElementById('message-input');
-                        if (messageInput) {
-                            messageInput.focus();
-                            
-                            // Trigger keyboard on mobile
-                            if (messageInput.scrollIntoView) {
-                                messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            }
-                            
-                            // Force keyboard to show on mobile
-                            if ('virtualKeyboard' in navigator) {
-                                navigator.virtualKeyboard.show();
-                            }
-                        }
-                    }, 300);
-                }
-            }, 1000); // Wait 1 second after scroll stops
-        });
-    }
-    
-    function handleSwipeGesture(startY, endY) {
-        const swipeThreshold = 50;
-        const deltaY = startY - endY;
-        
-        // Handle vertical swipes for scrolling
-        if (Math.abs(deltaY) > swipeThreshold) {
-            // Allow natural scrolling behavior
-            return;
         }
+    });
+    
+    // Auto-trigger when user scrolls up significantly
+    let scrollTimeout;
+    messageContainer.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            const scrollTop = messageContainer.scrollTop;
+            const scrollHeight = messageContainer.scrollHeight;
+            const clientHeight = messageContainer.clientHeight;
+            const scrollPercentage = scrollTop / (scrollHeight - clientHeight);
+            
+            // Auto-trigger input if user scrolls up more than 30%
+            if (scrollPercentage < 0.7) {
+                console.log('Auto-triggering input due to scroll up');
+                
+                // Scroll to bottom and focus input
+                messageContainer.scrollTop = messageContainer.scrollHeight;
+                
+                setTimeout(() => {
+                    const messageInput = document.getElementById('message-input');
+                    if (messageInput) {
+                        messageInput.focus();
+                        
+                        // Trigger keyboard on mobile
+                        if (messageInput.scrollIntoView) {
+                            messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        
+                        // Force keyboard to show on mobile
+                        if ('virtualKeyboard' in navigator) {
+                            navigator.virtualKeyboard.show();
+                        }
+                    }
+                }, 300);
+            }
+        }, 1000); // Wait 1 second after scroll stops
+    });
+}
+
+function handleSwipeGesture(startY, endY) {
+    const swipeThreshold = 50;
+    const deltaY = startY - endY;
+    
+    // Handle vertical swipes for scrolling
+    if (Math.abs(deltaY) > swipeThreshold) {
+        // Allow natural scrolling behavior
+        return;
     }
+}
 
     console.log('Messages initialization complete');
 });
