@@ -1369,6 +1369,9 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 messageContainer.scrollTop = messageContainer.scrollHeight;
             }, 500);
+            
+            // Add scroll to input functionality
+            addScrollToInputFunctionality(messageContainer, inputArea);
         }
         
         if (conversationList) {
@@ -1439,6 +1442,117 @@ document.addEventListener('DOMContentLoaded', () => {
             touchEndY = e.changedTouches[0].screenY;
             handleSwipeGesture(touchStartY, touchEndY);
         }, { passive: true });
+    }
+    
+    function addScrollToInputFunctionality(messageContainer, inputArea) {
+        if (!messageContainer || !inputArea) return;
+        
+        // Add scroll indicator button
+        const scrollIndicator = document.createElement('button');
+        scrollIndicator.id = 'scroll-to-input-btn';
+        scrollIndicator.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m7 15 5 5 5-5"/>
+                <path d="m7 9 5-5 5 5"/>
+            </svg>
+        `;
+        scrollIndicator.style.cssText = `
+            position: fixed;
+            bottom: 100px;
+            right: 16px;
+            width: 44px;
+            height: 44px;
+            background: #0A1128;
+            color: #FFD700;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            z-index: 50;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        `;
+        
+        document.body.appendChild(scrollIndicator);
+        
+        // Show/hide scroll indicator based on scroll position
+        const updateScrollIndicator = () => {
+            const scrollTop = messageContainer.scrollTop;
+            const scrollHeight = messageContainer.scrollHeight;
+            const clientHeight = messageContainer.clientHeight;
+            const isAtBottom = scrollTop + clientHeight >= scrollHeight - 50;
+            
+            if (isAtBottom) {
+                scrollIndicator.style.opacity = '0';
+                scrollIndicator.style.transform = 'translateY(20px)';
+                scrollIndicator.style.pointerEvents = 'none';
+            } else {
+                scrollIndicator.style.opacity = '1';
+                scrollIndicator.style.transform = 'translateY(0)';
+                scrollIndicator.style.pointerEvents = 'auto';
+            }
+        };
+        
+        // Scroll to input functionality
+        scrollIndicator.addEventListener('click', () => {
+            inputArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            
+            // Focus the input field after scrolling
+            setTimeout(() => {
+                const messageInput = document.getElementById('message-input');
+                if (messageInput) {
+                    messageInput.focus();
+                }
+            }, 500);
+        });
+        
+        // Listen for scroll events
+        messageContainer.addEventListener('scroll', updateScrollIndicator);
+        
+        // Initial check
+        updateScrollIndicator();
+        
+        // Also add keyboard shortcut
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + Down arrow scrolls to input
+            if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowDown') {
+                e.preventDefault();
+                inputArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                
+                setTimeout(() => {
+                    const messageInput = document.getElementById('message-input');
+                    if (messageInput) {
+                        messageInput.focus();
+                    }
+                }, 500);
+            }
+        });
+        
+        // Add double-tap to scroll to input
+        let lastTap = 0;
+        messageContainer.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            
+            if (tapLength < 500 && tapLength > 0) {
+                // Double tap detected
+                e.preventDefault();
+                inputArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                
+                setTimeout(() => {
+                    const messageInput = document.getElementById('message-input');
+                    if (messageInput) {
+                        messageInput.focus();
+                    }
+                }, 500);
+            }
+            
+            lastTap = currentTime;
+        });
     }
     
     function handleSwipeGesture(startY, endY) {
