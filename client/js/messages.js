@@ -1447,45 +1447,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function addScrollToInputFunctionality(messageContainer, inputArea) {
         if (!messageContainer || !inputArea) return;
         
-        // Add double-tap message indicator
-        const doubleTapMessage = document.createElement('div');
-        doubleTapMessage.id = 'double-tap-message';
-        doubleTapMessage.innerHTML = 'Double tap to type';
-        doubleTapMessage.style.cssText = `
-            position: absolute;
-            bottom: 90px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(10, 17, 40, 0.9);
-            color: #FFD700;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 500;
-            z-index: 45;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-            white-space: nowrap;
-        `;
-        
-        // Add message to chat area
-        const chatArea = document.getElementById('chat-area');
-        if (chatArea) {
-            chatArea.style.position = 'relative';
-            chatArea.appendChild(doubleTapMessage);
-        }
-        
-        // Add scroll indicator button
-        const scrollIndicator = document.createElement('button');
-        scrollIndicator.id = 'scroll-to-input-btn';
-        scrollIndicator.innerHTML = `
+        // Add automatic input widget
+        const inputWidget = document.createElement('button');
+        inputWidget.id = 'auto-input-widget';
+        inputWidget.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m7 15 5 5 5-5"/>
-                <path d="m7 9 5-5 5 5"/>
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 2.59 5.14L12 22l-6.59-3.72L2 14.14l5-4.87 3.09-6.26L12 2z"/>
             </svg>
         `;
-        scrollIndicator.style.cssText = `
+        inputWidget.style.cssText = `
             position: fixed;
             bottom: 100px;
             right: 16px;
@@ -1506,31 +1476,29 @@ document.addEventListener('DOMContentLoaded', () => {
             cursor: pointer;
         `;
         
-        document.body.appendChild(scrollIndicator);
+        document.body.appendChild(inputWidget);
         
-        // Show/hide scroll indicator and double-tap message based on scroll position
-        const updateScrollIndicator = () => {
+        // Show/hide input widget based on scroll position
+        const updateInputWidget = () => {
             const scrollTop = messageContainer.scrollTop;
             const scrollHeight = messageContainer.scrollHeight;
             const clientHeight = messageContainer.clientHeight;
             const isAtBottom = scrollTop + clientHeight >= scrollHeight - 50;
             
             if (isAtBottom) {
-                scrollIndicator.style.opacity = '0';
-                scrollIndicator.style.transform = 'translateY(20px)';
-                scrollIndicator.style.pointerEvents = 'none';
-                doubleTapMessage.style.opacity = '0';
+                inputWidget.style.opacity = '0';
+                inputWidget.style.transform = 'translateY(20px)';
+                inputWidget.style.pointerEvents = 'none';
             } else {
-                scrollIndicator.style.opacity = '1';
-                scrollIndicator.style.transform = 'translateY(0)';
-                scrollIndicator.style.pointerEvents = 'auto';
-                doubleTapMessage.style.opacity = '1';
+                inputWidget.style.opacity = '1';
+                inputWidget.style.transform = 'translateY(0)';
+                inputWidget.style.pointerEvents = 'auto';
             }
         };
         
-        // Scroll to input functionality
-        scrollIndicator.addEventListener('click', () => {
-            console.log('Scroll to input clicked');
+        // Auto input functionality
+        inputWidget.addEventListener('click', () => {
+            console.log('Auto input widget clicked');
             
             // First scroll to bottom of message container
             if (messageContainer) {
@@ -1553,26 +1521,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
                 
-                // Focus input field after scrolling
+                // Focus input field and open keyboard after scrolling
                 setTimeout(() => {
                     const messageInput = document.getElementById('message-input');
                     if (messageInput) {
                         messageInput.focus();
-                        console.log('Input field focused');
+                        
+                        // Trigger keyboard on mobile
+                        if (messageInput.scrollIntoView) {
+                            messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        
+                        // Force keyboard to show on mobile
+                        if ('virtualKeyboard' in navigator) {
+                            navigator.virtualKeyboard.show();
+                        }
+                        
+                        console.log('Input field focused and keyboard triggered');
                     }
-                }, 300);
+                }, 500);
             }, 100);
         });
         
         // Listen for scroll events
-        messageContainer.addEventListener('scroll', updateScrollIndicator);
+        messageContainer.addEventListener('scroll', updateInputWidget);
         
         // Initial check
-        updateScrollIndicator();
+        updateInputWidget();
         
         // Also add keyboard shortcut
         document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + Down arrow scrolls to input
+            // Ctrl/Cmd + Down arrow triggers auto input
             if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowDown') {
                 e.preventDefault();
                 console.log('Keyboard shortcut triggered');
@@ -1595,59 +1574,64 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                     }
                     
-                    // Focus input field after scrolling
+                    // Focus input field and open keyboard after scrolling
                     setTimeout(() => {
                         const messageInput = document.getElementById('message-input');
                         if (messageInput) {
                             messageInput.focus();
-                            console.log('Input field focused via keyboard');
+                            
+                            // Trigger keyboard on mobile
+                            if (messageInput.scrollIntoView) {
+                                messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                            
+                            // Force keyboard to show on mobile
+                            if ('virtualKeyboard' in navigator) {
+                                navigator.virtualKeyboard.show();
+                            }
+                            
+                            console.log('Input field focused and keyboard triggered via keyboard');
                         }
-                    }, 300);
+                    }, 500);
                 }, 100);
             }
         });
         
-        // Add double-tap to scroll to input
-        let lastTap = 0;
-        messageContainer.addEventListener('touchend', (e) => {
-            const currentTime = new Date().getTime();
-            const tapLength = currentTime - lastTap;
-            
-            if (tapLength < 500 && tapLength > 0) {
-                // Double tap detected
-                e.preventDefault();
-                console.log('Double tap detected');
+        // Auto-trigger when user scrolls up significantly
+        let scrollTimeout;
+        messageContainer.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const scrollTop = messageContainer.scrollTop;
+                const scrollHeight = messageContainer.scrollHeight;
+                const clientHeight = messageContainer.clientHeight;
+                const scrollPercentage = scrollTop / (scrollHeight - clientHeight);
                 
-                // First scroll to bottom of message container
-                if (messageContainer) {
-                    messageContainer.scrollTop = messageContainer.scrollHeight;
-                }
-                
-                // Then scroll input area into view with better positioning
-                setTimeout(() => {
-                    if (inputArea) {
-                        const inputRect = inputArea.getBoundingClientRect();
-                        const viewportHeight = window.innerHeight;
-                        const targetScrollY = window.pageYOffset + inputRect.top - (viewportHeight - inputRect.height - 100);
-                        
-                        window.scrollTo({
-                            top: targetScrollY,
-                            behavior: 'smooth'
-                        });
-                    }
+                // Auto-trigger input if user scrolls up more than 30%
+                if (scrollPercentage < 0.7) {
+                    console.log('Auto-triggering input due to scroll up');
                     
-                    // Focus input field after scrolling
+                    // Scroll to bottom and focus input
+                    messageContainer.scrollTop = messageContainer.scrollHeight;
+                    
                     setTimeout(() => {
                         const messageInput = document.getElementById('message-input');
                         if (messageInput) {
                             messageInput.focus();
-                            console.log('Input field focused via double tap');
+                            
+                            // Trigger keyboard on mobile
+                            if (messageInput.scrollIntoView) {
+                                messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                            
+                            // Force keyboard to show on mobile
+                            if ('virtualKeyboard' in navigator) {
+                                navigator.virtualKeyboard.show();
+                            }
                         }
                     }, 300);
-                }, 100);
-            }
-            
-            lastTap = currentTime;
+                }
+            }, 1000); // Wait 1 second after scroll stops
         });
     }
     
