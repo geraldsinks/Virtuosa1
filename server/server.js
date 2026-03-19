@@ -2051,16 +2051,18 @@ const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASS
     },
     pool: true, // Use connection pooling
-    maxConnections: 3,
-    maxMessages: 50,
-    rateDelta: 2000, // 2 seconds delay between emails
-    rateLimit: 2, // Max 2 emails per second
-    connectionTimeout: 30000, // 30 seconds connection timeout
-    greetingTimeout: 15000, // 15 seconds greeting timeout
-    socketTimeout: 30000, // 30 seconds socket timeout
+    maxConnections: 2, // Reduced to prevent overwhelming
+    maxMessages: 10, // Reduced for better reliability
+    rateDelta: 5000, // 5 seconds delay between emails
+    rateLimit: 1, // Max 1 email per 5 seconds
+    connectionTimeout: 60000, // 60 seconds connection timeout
+    greetingTimeout: 30000, // 30 seconds greeting timeout
+    socketTimeout: 60000, // 60 seconds socket timeout
     tls: {
         rejectUnauthorized: false
-    }
+    },
+    debug: false, // Set to true for debugging email issues
+    logger: false // Set to true for detailed logging
 });
 
 // Verify transporter configuration on startup
@@ -2080,15 +2082,19 @@ app.post('/api/auth/signup', async (req, res) => {
         return res.status(400).json({ success: false, message: 'All fields are required' });
     }
 
+    // Normalize emails to lowercase
+    const normalizedEmail = email.toLowerCase();
+    const normalizedStudentEmail = studentEmail.toLowerCase();
+
     // Validate student email domain
     const validStudentDomains = ['unza.zm', 'cbu.ac.zm', 'student.unza.zm', 'student.cbu.ac.zm'];
-    const studentEmailDomain = studentEmail.split('@')[1];
+    const studentEmailDomain = normalizedStudentEmail.split('@')[1];
     if (!validStudentDomains.includes(studentEmailDomain)) {
         return res.status(400).json({ success: false, message: 'Invalid student email domain' });
     }
 
     try {
-        const existingUser = await User.findOne({ $or: [{ email }, { studentEmail }] });
+        const existingUser = await User.findOne({ $or: [{ email: normalizedEmail }, { studentEmail: normalizedStudentEmail }] });
         if (existingUser) {
             return res.status(400).json({ success: false, message: 'Email already exists' });
         }
@@ -2099,11 +2105,11 @@ app.post('/api/auth/signup', async (req, res) => {
 
         const user = new User({
             fullName,
-            email,
+            email: normalizedEmail,
             password: hashedPassword,
             university,
             phoneNumber,
-            studentEmail,
+            studentEmail: normalizedStudentEmail,
             agreedToTerms,
             emailVerificationToken,
             emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
@@ -2247,8 +2253,11 @@ app.post('/api/auth/login', async (req, res) => {
         return res.status(400).json({ message: 'Email and password are required' });
     }
 
+    // Normalize email to lowercase
+    const normalizedEmail = email.toLowerCase();
+
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: normalizedEmail });
         if (!user) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
@@ -2295,12 +2304,15 @@ app.post('/api/auth/resend-verification', async (req, res) => {
         return res.status(400).json({ message: 'Email is required' });
     }
 
+    // Normalize email to lowercase
+    const normalizedEmail = email.toLowerCase();
+
     try {
-        console.log('🔍 Resend verification request for email:', email);
+        console.log('🔍 Resend verification request for email:', normalizedEmail);
         
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: normalizedEmail });
         if (!user) {
-            console.log('❌ User not found for email:', email);
+            console.log('❌ User not found for email:', normalizedEmail);
             return res.status(404).json({ message: 'No account found with this email' });
         }
 
@@ -2308,7 +2320,7 @@ app.post('/api/auth/resend-verification', async (req, res) => {
 
         // Check if user is already verified (handle missing fields gracefully)
         const isEmailVerified = user.isEmailVerified === undefined ? true : user.isEmailVerified;
-        const isSystemEmail = email === process.env.EMAIL_USER;
+        const isSystemEmail = normalizedEmail === process.env.EMAIL_USER?.toLowerCase();
         
         if (isEmailVerified || isSystemEmail) {
             console.log('ℹ️ User already verified or is system email');
@@ -2331,7 +2343,7 @@ app.post('/api/auth/resend-verification', async (req, res) => {
         // Send verification email
         const emailVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/pages/verify-email.html?token=${emailVerificationToken}`;
         
-        console.log('📧 Sending verification email to:', email);
+        console.log('📧 Sending verification email to:', normalizedEmail);
         console.log('🔗 Verification link:', emailVerificationLink);
         console.log('📧 Email config check:', {
             hasEmailUser: !!process.env.EMAIL_USER,
@@ -2341,7 +2353,7 @@ app.post('/api/auth/resend-verification', async (req, res) => {
         
         try {
             await transporter.sendMail({
-                to: email,
+                to: normalizedEmail,
                 subject: 'Virtuosa - Verify Your Email',
                 html: `
                     <h2>Email Verification Request</h2>
@@ -2350,7 +2362,7 @@ app.post('/api/auth/resend-verification', async (req, res) => {
                 `
             });
             
-            console.log('✅ Verification email sent successfully to:', email);
+            console.log('✅ Verification email sent successfully to:', normalizedEmail);
             
             res.json({ 
                 message: 'Verification email sent successfully. Please check your inbox (including spam folder).' 
@@ -2416,8 +2428,11 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         return res.status(400).json({ message: 'Email is required' });
     }
 
+    // Normalize email to lowercase
+    const normalizedEmail = email.toLowerCase();
+
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: normalizedEmail });
         if (!user) {
             return res.status(400).json({ message: 'No user found with this email' });
         }
@@ -2511,10 +2526,13 @@ app.post('/api/auth/manual-verify', async (req, res) => {
         return res.status(400).json({ message: 'Email is required' });
     }
 
+    // Normalize email to lowercase
+    const normalizedEmail = email.toLowerCase();
+
     try {
-        console.log('🔓 Manual verification request for:', email);
+        console.log('🔓 Manual verification request for:', normalizedEmail);
         
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: normalizedEmail });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -2527,7 +2545,7 @@ app.post('/api/auth/manual-verify', async (req, res) => {
         user.manualVerificationExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
         await user.save();
 
-        console.log('✅ Manual verification code generated for:', email);
+        console.log('✅ Manual verification code generated for:', normalizedEmail);
 
         res.json({ 
             success: true, 
@@ -2549,11 +2567,14 @@ app.post('/api/auth/confirm-manual-verify', async (req, res) => {
         return res.status(400).json({ message: 'Email and verification code are required' });
     }
 
+    // Normalize email to lowercase
+    const normalizedEmail = email.toLowerCase();
+
     try {
-        console.log('🔓 Manual verification confirmation for:', email, 'code:', verificationCode);
+        console.log('🔓 Manual verification confirmation for:', normalizedEmail, 'code:', verificationCode);
         
         const user = await User.findOne({ 
-            email,
+            email: normalizedEmail,
             manualVerificationCode: verificationCode,
             manualVerificationExpires: { $gt: Date.now() }
         });
