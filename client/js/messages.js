@@ -1337,111 +1337,386 @@ document.addEventListener('DOMContentLoaded', () => {
         const chatArea = document.getElementById('chat-area');
         const inputArea = document.getElementById('input-area');
         
-        // Prevent body scroll, allow individual containers to scroll
+        // Prevent body scroll completely on mobile
         document.body.style.overflow = 'hidden';
         document.body.style.position = 'fixed';
+        document.body.style.height = '100vh';
+        document.body.style.width = '100vw';
         document.body.style.overscrollBehavior = 'none';
+        document.body.style.touchAction = 'none';
         
-        // Enable touch scrolling for message containers with improved behavior
-        if (messageContainer) {
-            messageContainer.style.overflowY = 'auto';
-            messageContainer.style.webkitOverflowScrolling = 'touch';
-            messageContainer.style.overscrollBehavior = 'contain';
-            
-            // Add padding to bottom to ensure last message is visible
-            messageContainer.style.paddingBottom = '20px';
-            
-            // Improved scroll prevention - only prevent at very edges
-            messageContainer.addEventListener('touchmove', function(e) {
-                const scrollTop = messageContainer.scrollTop;
-                const scrollHeight = messageContainer.scrollHeight;
-                const clientHeight = messageContainer.clientHeight;
-                const tolerance = 5; // Small tolerance for natural scrolling
-                
-                // Only prevent elastic scrolling at extreme edges
-                if ((scrollTop <= tolerance && e.deltaY < 0) || 
-                    (scrollTop + clientHeight >= scrollHeight - tolerance && e.deltaY > 0)) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-            
-            // Auto-scroll to bottom on load
-            setTimeout(() => {
-                messageContainer.scrollTop = messageContainer.scrollHeight;
-            }, 500);
-            
-            // Add scroll to input functionality
-            addScrollToInputFunctionality(messageContainer, inputArea);
+        // Ensure chat area takes full height
+        if (chatArea) {
+            chatArea.style.height = '100vh';
+            chatArea.style.overflow = 'hidden';
         }
         
-        if (conversationList) {
-            conversationList.style.overflowY = 'auto';
-            conversationList.style.webkitOverflowScrolling = 'touch';
-            conversationList.style.overscrollBehavior = 'contain';
-            
-            // Improved scroll prevention for conversation list
-            conversationList.addEventListener('touchmove', function(e) {
-                const scrollTop = conversationList.scrollTop;
-                const scrollHeight = conversationList.scrollHeight;
-                const clientHeight = conversationList.clientHeight;
-                const tolerance = 5;
-                
-                if ((scrollTop <= tolerance && e.deltaY < 0) || 
-                    (scrollTop + clientHeight >= scrollHeight - tolerance && e.deltaY > 0)) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-        }
-        
-        // Fix mobile menu scrolling
-        if (mobileMenu) {
-            mobileMenu.style.overscrollBehavior = 'contain';
-            
-            mobileMenu.addEventListener('touchmove', function(e) {
-                const scrollTop = mobileMenu.scrollTop;
-                const scrollHeight = mobileMenu.scrollHeight;
-                const clientHeight = mobileMenu.clientHeight;
-                const tolerance = 5;
-                
-                if ((scrollTop <= tolerance && e.deltaY < 0) || 
-                    (scrollTop + clientHeight >= scrollHeight - tolerance && e.deltaY > 0)) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-        }
-        
-        // Ensure input area is accessible
-        if (inputArea && chatArea) {
-            // Make sure chat area layout allows input area to be visible
-            chatArea.style.display = 'flex';
-            chatArea.style.flexDirection = 'column';
-            
-            // Add scroll to input functionality
-            const scrollToInput = () => {
+        // Handle message container scrolling
+
+function observeNewMessages() {
+    const messageContainer = document.getElementById('message-container');
+    if (!messageContainer) return;
+    
+    // Create a MutationObserver to watch for new messages
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                // Auto-scroll to bottom when new messages are added
                 setTimeout(() => {
-                    inputArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    messageContainer.scrollTop = messageContainer.scrollHeight;
                 }, 100);
-            };
-            
-            // Auto-scroll to input when focusing
-            const messageInput = document.getElementById('message-input');
-            if (messageInput) {
-                messageInput.addEventListener('focus', scrollToInput);
             }
+        });
+    });
+    
+    observer.observe(messageContainer, {
+        childList: true,
+        subtree: true
+    });
+}
+
+function fixMobileScrolling() {
+    const messageContainer = document.getElementById('message-container');
+    const conversationList = document.getElementById('conversation-list');
+    const mobileMenu = document.querySelector('.mobile-menu-content');
+    const chatArea = document.getElementById('chat-area');
+    const inputArea = document.getElementById('input-area');
+    
+    // Prevent body scroll completely on mobile
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.height = '100vh';
+    document.body.style.width = '100vw';
+    document.body.style.overscrollBehavior = 'none';
+    document.body.style.touchAction = 'none';
+    
+    // Ensure chat area takes full height
+    if (chatArea) {
+        chatArea.style.height = '100vh';
+        chatArea.style.overflow = 'hidden';
+    }
+    
+    // Handle message container scrolling
+    if (messageContainer) {
+        messageContainer.style.overflowY = 'auto';
+        messageContainer.style.webkitOverflowScrolling = 'touch';
+        messageContainer.style.overscrollBehavior = 'contain';
+        messageContainer.style.position = 'relative';
+        messageContainer.style.height = '100%';
+        messageContainer.style.paddingBottom = '20px';
+        
+        // Remove any existing listeners
+        if (messageContainer._touchStartHandler) {
+            messageContainer.removeEventListener('touchstart', messageContainer._touchStartHandler);
+        }
+        if (messageContainer._touchMoveHandler) {
+            messageContainer.removeEventListener('touchmove', messageContainer._touchMoveHandler);
         }
         
-        // Handle touch events for swipe gestures
-        let touchStartY = 0;
-        let touchEndY = 0;
+        // Touch start handler
+        const touchStartHandler = function(e) {
+            this._startY = e.touches[0].pageY;
+            this._startX = e.touches[0].pageX;
+            this._isScrolling = false;
+        };
         
-        document.addEventListener('touchstart', (e) => {
-            touchStartY = e.changedTouches[0].screenY;
-        }, { passive: true });
+        // Touch move handler with improved elastic prevention
+        const touchMoveHandler = function(e) {
+            if (!this._startY) return;
+            
+            const currentY = e.touches[0].pageY;
+            const currentX = e.touches[0].pageX;
+            const deltaY = this._startY - currentY;
+            const deltaX = Math.abs(this._startX - currentX);
+            
+            // Determine if this is primarily vertical scrolling
+            if (!this._isScrolling && Math.abs(deltaY) > 10) {
+                this._isScrolling = true;
+                this._isVertical = Math.abs(deltaY) > deltaX;
+            }
+            
+            // Only handle vertical scrolling in message container
+            if (!this._isVertical) return;
+            
+            const scrollTop = this.scrollTop;
+            const scrollHeight = this.scrollHeight;
+            const clientHeight = this.clientHeight;
+            
+            // Define boundary tolerance
+            const tolerance = 5;
+            const isAtTop = scrollTop <= tolerance;
+            const isAtBottom = scrollTop + clientHeight >= scrollHeight - tolerance;
+            
+            // Prevent elastic scrolling at boundaries
+            if ((isAtTop && deltaY < 0) || (isAtBottom && deltaY > 0)) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+            
+            // Allow normal scrolling within content
+            return true;
+        };
         
-        document.addEventListener('touchend', (e) => {
-            touchEndY = e.changedTouches[0].screenY;
-            handleSwipeGesture(touchStartY, touchEndY);
-        }, { passive: true });
+        messageContainer.addEventListener('touchstart', touchStartHandler, { passive: true });
+        messageContainer.addEventListener('touchmove', touchMoveHandler, { passive: false });
+        
+        // Store handlers for cleanup
+        messageContainer._touchStartHandler = touchStartHandler;
+        messageContainer._touchMoveHandler = touchMoveHandler;
+        
+        // Auto-scroll to bottom on load
+        setTimeout(() => {
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }, 500);
+        
+        // Add scroll to input functionality
+        addScrollToInputFunctionality(messageContainer, inputArea);
+    }
+    
+    // Handle conversation list scrolling
+    if (conversationList) {
+        conversationList.style.overflowY = 'auto';
+        conversationList.style.webkitOverflowScrolling = 'touch';
+        conversationList.style.overscrollBehavior = 'contain';
+        conversationList.style.position = 'relative';
+        conversationList.style.height = '100%';
+        
+        // Remove existing listeners
+        if (conversationList._touchStartHandler) {
+            conversationList.removeEventListener('touchstart', conversationList._touchStartHandler);
+        }
+        if (conversationList._touchMoveHandler) {
+            conversationList.removeEventListener('touchmove', conversationList._touchMoveHandler);
+        }
+        
+        const touchStartHandler = function(e) {
+            this._startY = e.touches[0].pageY;
+            this._startX = e.touches[0].pageX;
+            this._isScrolling = false;
+        };
+        
+        const touchMoveHandler = function(e) {
+            if (!this._startY) return;
+            
+            const currentY = e.touches[0].pageY;
+            const currentX = e.touches[0].pageX;
+            const deltaY = this._startY - currentY;
+            const deltaX = Math.abs(this._startX - currentX);
+            
+            if (!this._isScrolling && Math.abs(deltaY) > 10) {
+                this._isScrolling = true;
+                this._isVertical = Math.abs(deltaY) > deltaX;
+            }
+            
+            if (!this._isVertical) return;
+            
+            const scrollTop = this.scrollTop;
+            const scrollHeight = this.scrollHeight;
+            const clientHeight = this.clientHeight;
+            const tolerance = 5;
+            
+            const isAtTop = scrollTop <= tolerance;
+            const isAtBottom = scrollTop + clientHeight >= scrollHeight - tolerance;
+            
+            if ((isAtTop && deltaY < 0) || (isAtBottom && deltaY > 0)) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+            
+            return true;
+        };
+        
+        conversationList.addEventListener('touchstart', touchStartHandler, { passive: true });
+        conversationList.addEventListener('touchmove', touchMoveHandler, { passive: false });
+        
+        conversationList._touchStartHandler = touchStartHandler;
+        conversationList._touchMoveHandler = touchMoveHandler;
+    }
+    
+    // Handle mobile menu scrolling
+    if (mobileMenu) {
+        mobileMenu.style.overflowY = 'auto';
+        mobileMenu.style.webkitOverflowScrolling = 'touch';
+        mobileMenu.style.overscrollBehavior = 'contain';
+        
+        if (mobileMenu._touchStartHandler) {
+            mobileMenu.removeEventListener('touchstart', mobileMenu._touchStartHandler);
+        }
+        if (mobileMenu._touchMoveHandler) {
+            mobileMenu.removeEventListener('touchmove', mobileMenu._touchMoveHandler);
+        }
+        
+        const touchStartHandler = function(e) {
+            this._startY = e.touches[0].pageY;
+            this._startX = e.touches[0].pageX;
+            this._isScrolling = false;
+        };
+        
+        const touchMoveHandler = function(e) {
+            if (!this._startY) return;
+            
+            const currentY = e.touches[0].pageY;
+            const currentX = e.touches[0].pageX;
+            const deltaY = this._startY - currentY;
+            const deltaX = Math.abs(this._startX - currentX);
+            
+            if (!this._isScrolling && Math.abs(deltaY) > 10) {
+                this._isScrolling = true;
+                this._isVertical = Math.abs(deltaY) > deltaX;
+            }
+            
+            if (!this._isVertical) return;
+            
+            const scrollTop = this.scrollTop;
+            const scrollHeight = this.scrollHeight;
+            const clientHeight = this.clientHeight;
+            const tolerance = 5;
+            
+            const isAtTop = scrollTop <= tolerance;
+            const isAtBottom = scrollTop + clientHeight >= scrollHeight - tolerance;
+            
+            if ((isAtTop && deltaY < 0) || (isAtBottom && deltaY > 0)) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+            
+            return true;
+        };
+        
+        mobileMenu.addEventListener('touchstart', touchStartHandler, { passive: true });
+        mobileMenu.addEventListener('touchmove', touchMoveHandler, { passive: false });
+        
+        mobileMenu._touchStartHandler = touchStartHandler;
+        mobileMenu._touchMoveHandler = touchMoveHandler;
+    }
+    
+    // Ensure input area is accessible
+    if (inputArea && chatArea) {
+        chatArea.style.display = 'flex';
+        chatArea.style.flexDirection = 'column';
+        
+        const scrollToInput = () => {
+            setTimeout(() => {
+                inputArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 100);
+        };
+        
+        const messageInput = document.getElementById('message-input');
+        if (messageInput) {
+            messageInput.addEventListener('focus', scrollToInput);
+        }
+    }
+    
+    // Prevent default touch behavior on document
+    document.addEventListener('touchmove', function(e) {
+        // Only prevent if not inside a scrollable container
+        if (!e.target.closest('#message-container, #conversation-list, .mobile-menu-content')) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+}
+
+function addScrollToInputFunctionality(messageContainer, inputArea) {
+    if (!messageContainer || !inputArea) return;
+    
+    // Add automatic input widget
+    const inputWidget = document.createElement('button');
+    inputWidget.id = 'auto-input-widget';
+    inputWidget.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 2.59 5.14L12 22l-6.59-3.72L2 14.14l5-4.87 3.09-6.26L12 2z"/>
+        </svg>
+    `;
+    inputWidget.style.cssText = `
+        position: fixed;
+        bottom: 100px;
+        right: 16px;
+        width: 44px;
+        height: 44px;
+        background: #0A1128;
+        color: #FFD700;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        z-index: 50;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    `;
+    
+    document.body.appendChild(inputWidget);
+    
+    // Show/hide input widget based on scroll position
+    const updateInputWidget = () => {
+        const scrollTop = messageContainer.scrollTop;
+        const scrollHeight = messageContainer.scrollHeight;
+        const clientHeight = messageContainer.clientHeight;
+        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 50;
+        
+        if (isAtBottom) {
+            inputWidget.style.opacity = '0';
+            inputWidget.style.transform = 'translateY(20px)';
+            inputWidget.style.pointerEvents = 'none';
+        } else {
+            inputWidget.style.opacity = '1';
+            inputWidget.style.transform = 'translateY(0)';
+            inputWidget.style.pointerEvents = 'auto';
+        }
+    };
+    
+    // Auto input functionality
+    inputWidget.addEventListener('click', () => {
+        console.log('Auto input widget clicked');
+        
+        // First scroll to bottom of message container
+        if (messageContainer) {
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+        
+        // Then scroll input area into view with better positioning
+        setTimeout(() => {
+            if (inputArea) {
+                // Get input area position
+                const inputRect = inputArea.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+                
+                // Calculate scroll position to show input field with some padding
+                const targetScrollY = window.pageYOffset + inputRect.top - (viewportHeight - inputRect.height - 100);
+                
+                window.scrollTo({
+                    top: targetScrollY,
+                    behavior: 'smooth'
+                });
+            }
+            
+            // Focus input field and open keyboard after scrolling
+            setTimeout(() => {
+                const messageInput = document.getElementById('message-input');
+                if (messageInput) {
+                    messageInput.focus();
+                    
+                    // Trigger keyboard on mobile
+                    if (messageInput.scrollIntoView) {
+                        messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    
+                    // Force keyboard to show on mobile
+                    if ('virtualKeyboard' in navigator) {
+                        navigator.virtualKeyboard.show();
+                    }
+                    
+                    console.log('Input field focused and keyboard triggered');
+                }
+            }, 500);
+        }, 100);
+    });
     }
     
     function addScrollToInputFunctionality(messageContainer, inputArea) {
