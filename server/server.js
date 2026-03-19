@@ -41,12 +41,12 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: ["https://virtuosa1.vercel.app", "http://localhost:5500"],
+        origin: ["https://virtuosazm.com", "https://virtuosa1.vercel.app", "http://localhost:5500"],
         methods: ["GET", "POST"]
     }
 });
 app.use(cors( {
-    origin: ["https://virtuosa1.vercel.app", "http://localhost:5500"],
+    origin: ["https://virtuosazm.com", "https://virtuosa1.vercel.app", "http://localhost:5500"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
@@ -2043,14 +2043,14 @@ const subscriptionSchema = new mongoose.Schema({
 const Subscription = mongoose.model('Subscription', subscriptionSchema);
 console.log('Subscription model created successfully');
 
-// Production-ready email configuration for Render Startup Tier
+// Production-ready Brevo email configuration for Render Startup Tier
 const productionTransporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: 'smtp-relay.brevo.com',
     port: 587,
     secure: false, // Must be false for 587
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: 'a56cc6001@smtp-brevo.com',
+        pass: 'r2EO1DYfKJCc8vQw'
     },
     tls: {
         rejectUnauthorized: false // Helps bypass potential certificate issues
@@ -2061,6 +2061,11 @@ const productionTransporter = nodemailer.createTransport({
     rateDelta: 1000,
     rateLimit: 5
 });
+
+// Environment-based configuration
+const isProduction = process.env.NODE_ENV === 'production';
+const isRenderFreeTier = process.env.RENDER === 'true' && !process.env.RENDER_SERVICE_ID;
+const isProductionReady = !isRenderFreeTier;
 
 // Temporary fallback for Free Tier (stores emails for later sending)
 const emailQueue = [];
@@ -2101,19 +2106,21 @@ const verifyTransporters = async () => {
     }
     
     try {
+        console.log('🔧 Verifying Brevo SMTP configuration...');
         await new Promise((resolve, reject) => {
             productionTransporter.verify((error, success) => {
                 if (error) {
-                    console.log('❌ Production transporter configuration error:', error.message);
+                    console.log('❌ Brevo transporter configuration error:', error.message);
                     resolve(false);
                 } else {
-                    console.log('✅ Production transporter is ready to send messages');
+                    console.log('✅ Brevo transporter is ready to send messages');
+                    console.log('📧 Email service: Brevo (smtp-relay.brevo.com:587)');
                     resolve(true);
                 }
             });
         });
     } catch (error) {
-        console.log('❌ Production transporter verification failed:', error.message);
+        console.log('❌ Brevo transporter verification failed:', error.message);
     }
 };
 
@@ -2496,7 +2503,7 @@ app.post('/api/auth/resend-verification', async (req, res) => {
         console.log('💾 User saved with verification token');
 
         // Send verification email
-        const emailVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/pages/verify-email.html?token=${emailVerificationToken}`;
+        const emailVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosazm.com'}/pages/verify-email.html?token=${emailVerificationToken}`;
         
         console.log('📧 Sending verification email to:', normalizedEmail);
         console.log('🔗 Verification link:', emailVerificationLink);
@@ -2519,6 +2526,7 @@ app.post('/api/auth/resend-verification', async (req, res) => {
                         <h2>Email Verification Request</h2>
                         <p>You requested a new verification email. Please click <a href="${emailVerificationLink}">here</a> to verify your email address.</p>
                         <p>This link will expire in 24 hours.</p>
+                        <p>Best regards,<br>The Virtuosa Team</p>
                     `,
                     verificationLink: emailVerificationLink
                 });
@@ -2530,28 +2538,53 @@ app.post('/api/auth/resend-verification', async (req, res) => {
                 });
             }
             
-            // Production tier - send email immediately
+            // Production tier - send email immediately using Brevo
             try {
-                console.log(`📧 Sending email using production transporter to:`, normalizedEmail);
+                console.log(`📧 Sending email using Brevo transporter to:`, normalizedEmail);
                 
                 const result = await productionTransporter.sendMail({
                     to: normalizedEmail,
                     subject: 'Virtuosa - Verify Your Email',
                     html: `
-                        <h2>Email Verification Request</h2>
-                        <p>You requested a new verification email. Please click <a href="${emailVerificationLink}">here</a> to verify your email address.</p>
-                        <p>This link will expire in 24 hours.</p>
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; text-align: center;">
+                                <h1 style="color: white; margin: 0; font-size: 24px;">Virtuosa</h1>
+                                <p style="color: #f0f0f0; margin: 5px 0 0;">Zambia's Premier Student Marketplace</p>
+                            </div>
+                            <div style="background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                <h2 style="color: #333; margin-top: 0;">Email Verification Request</h2>
+                                <p style="color: #666; line-height: 1.6;">Thank you for joining Virtuosa! Please click the button below to verify your email address and complete your registration.</p>
+                                <div style="text-align: center; margin: 30px 0;">
+                                    <a href="${emailVerificationLink}" 
+                                       style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                              color: white; 
+                                              padding: 15px 30px; 
+                                              text-decoration: none; 
+                                              border-radius: 25px; 
+                                              font-weight: bold;
+                                              display: inline-block;
+                                              box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                                        Verify Email Address
+                                    </a>
+                                </div>
+                                <p style="color: #999; font-size: 14px; text-align: center;">This link will expire in 24 hours.</p>
+                                <p style="color: #666; font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                                    If you didn't request this verification, please ignore this email.<br>
+                                    Visit us at <a href="https://virtuosazm.com" style="color: #667eea;">virtuosazm.com</a>
+                                </p>
+                            </div>
+                        </div>
                     `
                 });
                 
-                console.log(`✅ Verification email sent successfully to:`, normalizedEmail);
+                console.log(`✅ Verification email sent successfully via Brevo to:`, normalizedEmail);
                 console.log('📧 Email result:', result);
                 
                 return res.json({ 
                     message: 'Verification email sent successfully. Please check your inbox (including spam folder).' 
                 });
             } catch (error) {
-                console.error(`❌ Production transporter failed:`, error.message);
+                console.error(`❌ Brevo transporter failed:`, error.message);
                 
                 return res.status(500).json({ 
                     message: 'Failed to send verification email. Please check your email address or contact support at virtuosa@gmail.com.',
