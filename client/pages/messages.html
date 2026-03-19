@@ -291,17 +291,18 @@
             
             /* Fix message container scrolling - prevent elastic behavior */
             .mobile-message-container {
-                height: calc(100vh - 240px); /* Account for header + input area */
+                height: calc(100vh - 280px); /* Account for header (60px) + chat header (60px) + input area (160px) */
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 padding: 12px;
                 overscroll-behavior: contain; /* Prevent elastic scrolling */
                 position: relative;
+                margin-bottom: 0; /* Remove any bottom margin */
             }
             
             /* Fix conversation list scrolling */
             #conversation-list {
-                height: calc(100vh - 140px); /* Account for header + sidebar header */
+                height: calc(100vh - 140px); /* Account for header (60px) + sidebar header (80px) */
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 overscroll-behavior: contain; /* Prevent elastic scrolling */
@@ -329,15 +330,33 @@
                 left: 0;
             }
             
-            /* Make input area always visible */
+            /* Make input area always visible and properly positioned */
             .mobile-input-area {
                 position: sticky;
                 bottom: 0;
                 background: white;
                 border-top: 1px solid #e5e7eb;
-                padding: 12px;
+                padding: 12px 0; /* Reduced padding */
                 z-index: 10;
-                min-height: 120px; /* Ensure enough space for search + input */
+                min-height: 160px; /* Ensure enough space for search + input + buttons */
+                overscroll-behavior: contain;
+                margin-top: auto; /* Push to bottom */
+                flex-shrink: 0; /* Prevent shrinking */
+            }
+            
+            /* Ensure chat area has proper flex layout */
+            #chat-area {
+                display: flex;
+                flex-direction: column;
+                height: calc(100vh - 60px);
+                margin-top: 60px;
+            }
+            
+            /* Ensure message container grows properly */
+            #message-container {
+                flex-grow: 1;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
                 overscroll-behavior: contain;
             }
             

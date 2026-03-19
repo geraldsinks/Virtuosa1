@@ -1245,11 +1245,25 @@ document.addEventListener('DOMContentLoaded', () => {
         // Handle mobile menu button
         const menuButton = document.getElementById('mobile-menu-button');
         if (menuButton) {
-            menuButton.addEventListener('click', () => {
+            menuButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Menu button clicked');
+                
                 if (mobileMenu) {
-                    mobileMenu.classList.toggle('active');
-                    if (mobileMenuOverlay) {
-                        mobileMenuOverlay.classList.toggle('hidden');
+                    const isActive = mobileMenu.classList.contains('active');
+                    console.log('Menu active state:', isActive);
+                    
+                    if (isActive) {
+                        mobileMenu.classList.remove('active');
+                        if (mobileMenuOverlay) {
+                            mobileMenuOverlay.classList.add('hidden');
+                        }
+                    } else {
+                        mobileMenu.classList.add('active');
+                        if (mobileMenuOverlay) {
+                            mobileMenuOverlay.classList.remove('hidden');
+                        }
                     }
                 }
             });
@@ -1257,7 +1271,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Handle menu overlay click
         if (mobileMenuOverlay) {
-            mobileMenuOverlay.addEventListener('click', () => {
+            mobileMenuOverlay.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Overlay clicked');
+                
                 if (mobileMenu) {
                     mobileMenu.classList.remove('active');
                     mobileMenuOverlay.classList.add('hidden');
@@ -1330,30 +1348,41 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageContainer = document.getElementById('message-container');
         const conversationList = document.getElementById('conversation-list');
         const mobileMenu = document.querySelector('.mobile-menu-content');
+        const chatArea = document.getElementById('chat-area');
+        const inputArea = document.getElementById('input-area');
         
         // Prevent body scroll, allow individual containers to scroll
         document.body.style.overflow = 'hidden';
         document.body.style.position = 'fixed';
         document.body.style.overscrollBehavior = 'none';
         
-        // Enable touch scrolling for message containers with elastic scroll prevention
+        // Enable touch scrolling for message containers with improved behavior
         if (messageContainer) {
             messageContainer.style.overflowY = 'auto';
             messageContainer.style.webkitOverflowScrolling = 'touch';
             messageContainer.style.overscrollBehavior = 'contain';
             
-            // Prevent elastic scroll bounce
+            // Add padding to bottom to ensure last message is visible
+            messageContainer.style.paddingBottom = '20px';
+            
+            // Improved scroll prevention - only prevent at very edges
             messageContainer.addEventListener('touchmove', function(e) {
                 const scrollTop = messageContainer.scrollTop;
                 const scrollHeight = messageContainer.scrollHeight;
                 const clientHeight = messageContainer.clientHeight;
+                const tolerance = 5; // Small tolerance for natural scrolling
                 
-                // Prevent elastic scrolling at top and bottom
-                if ((scrollTop === 0 && e.deltaY < 0) || 
-                    (scrollTop + clientHeight >= scrollHeight && e.deltaY > 0)) {
+                // Only prevent elastic scrolling at extreme edges
+                if ((scrollTop <= tolerance && e.deltaY < 0) || 
+                    (scrollTop + clientHeight >= scrollHeight - tolerance && e.deltaY > 0)) {
                     e.preventDefault();
                 }
             }, { passive: false });
+            
+            // Auto-scroll to bottom on load
+            setTimeout(() => {
+                messageContainer.scrollTop = messageContainer.scrollHeight;
+            }, 500);
         }
         
         if (conversationList) {
@@ -1361,15 +1390,15 @@ document.addEventListener('DOMContentLoaded', () => {
             conversationList.style.webkitOverflowScrolling = 'touch';
             conversationList.style.overscrollBehavior = 'contain';
             
-            // Prevent elastic scroll bounce for conversation list
+            // Improved scroll prevention for conversation list
             conversationList.addEventListener('touchmove', function(e) {
                 const scrollTop = conversationList.scrollTop;
                 const scrollHeight = conversationList.scrollHeight;
                 const clientHeight = conversationList.clientHeight;
+                const tolerance = 5;
                 
-                // Prevent elastic scrolling at top and bottom
-                if ((scrollTop === 0 && e.deltaY < 0) || 
-                    (scrollTop + clientHeight >= scrollHeight && e.deltaY > 0)) {
+                if ((scrollTop <= tolerance && e.deltaY < 0) || 
+                    (scrollTop + clientHeight >= scrollHeight - tolerance && e.deltaY > 0)) {
                     e.preventDefault();
                 }
             }, { passive: false });
@@ -1383,16 +1412,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 const scrollTop = mobileMenu.scrollTop;
                 const scrollHeight = mobileMenu.scrollHeight;
                 const clientHeight = mobileMenu.clientHeight;
+                const tolerance = 5;
                 
-                // Prevent elastic scrolling at top and bottom
-                if ((scrollTop === 0 && e.deltaY < 0) || 
-                    (scrollTop + clientHeight >= scrollHeight && e.deltaY > 0)) {
+                if ((scrollTop <= tolerance && e.deltaY < 0) || 
+                    (scrollTop + clientHeight >= scrollHeight - tolerance && e.deltaY > 0)) {
                     e.preventDefault();
                 }
             }, { passive: false });
         }
         
-        // Handle touch events to prevent conflicts
+        // Ensure input area is accessible
+        if (inputArea && chatArea) {
+            // Make sure the chat area layout allows input area to be visible
+            chatArea.style.display = 'flex';
+            chatArea.style.flexDirection = 'column';
+            
+            // Add scroll to input functionality
+            const scrollToInput = () => {
+                setTimeout(() => {
+                    inputArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                }, 100);
+            };
+            
+            // Auto-scroll to input when focusing
+            const messageInput = document.getElementById('message-input');
+            if (messageInput) {
+                messageInput.addEventListener('focus', scrollToInput);
+            }
+            
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('focus', scrollToInput);
+            }
+        }
+        
+        // Handle touch events for swipe gestures
         let touchStartY = 0;
         let touchEndY = 0;
         
