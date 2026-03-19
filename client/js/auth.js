@@ -166,16 +166,17 @@ async function handleLogin(event) {
 
 async function resendVerificationEmail(email) {
     try {
-        const response = await fetch(`${API_BASE}/auth/resend-verification`, {
+        const response = await fetch(`${BASE_API_URL}/resend-verification`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email })
         });
 
         const result = await response.json();
-        
+        console.log('Resend verification response:', result);
+
         if (response.ok) {
-            showMessage('Verification email sent! Please check your inbox.');
+            showMessage('Verification email sent! Please check your inbox (including spam folder).');
         } else {
             showMessage(result.message || 'Failed to send verification email', true);
         }
