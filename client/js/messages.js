@@ -1,6 +1,13 @@
 // Messages JavaScript
 // API_BASE is provided by config.js
 
+// HTML Sanitization function to prevent XSS
+function sanitizeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 // Helper function to fix URLs to point to server
 function fixServerUrl(url) {
     if (!url) return url;
@@ -49,9 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Fix userId if it's undefined - try to get from token
     if (!userId && token) {
-        console.log('🔍 Attempting to parse token...');
-        console.log('Token length:', token.length);
-        console.log('Token parts:', token.split('.').length);
+        console.log('🔍 Attempting to extract user ID from token...');
         
         try {
             const parts = token.split('.');
@@ -60,33 +65,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             const base64Url = parts[1];
-            console.log('Base64URL payload:', base64Url.substring(0, 50) + '...');
             
             const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
             const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
             const decoded = JSON.parse(jsonPayload);
-            
-            console.log('✅ Successfully decoded token:', decoded);
             
             // Try different possible userId field names
             userId = decoded.userId || decoded.id || decoded._id || decoded.sub;
             
             if (userId) {
                 localStorage.setItem('userId', userId);
-                console.log('✅ Extracted userId from token:', userId);
+                console.log('✅ User ID extracted and stored');
             } else {
-                console.error('❌ No userId field found in token. Available fields:', Object.keys(decoded));
+                console.error('❌ No userId field found in token');
             }
             
         } catch (e) {
-            console.error('❌ Error parsing token for userId:', e);
-            console.log('Token structure:', token.split('.').map((part, i) => `Part ${i}: ${part.substring(0, 50)}...`).join(' | '));
+            console.error('❌ Error parsing token for userId:', e.message);
             
             // As a fallback, try to get userId from the first message sender
             console.log('🔄 Attempting fallback method...');
         }
     } else if (userId && userId !== 'undefined') {
-        console.log('✅ Using stored userId:', userId);
+        console.log('✅ Using stored userId');
     } else {
         console.error('❌ No userId available and no token to parse');
     }
@@ -103,10 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const orderId = urlParams.get('order');
         console.log('Starting chat with seller about order:', { sellerId, orderId });
         
-        // Set a timeout to ensure conversations are loaded first
-        setTimeout(() => {
-            startChat(sellerId, 'Seller', '', orderId);
-        }, 1000);
+        // Wait for conversations to load before starting chat
+        startChatAfterConversationsLoad(sellerId, orderId);
     }
     
     console.log('URL parameters:', { currentRecipientId, currentProductId });
@@ -223,6 +222,26 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.log('No token - proceeding without Socket.io');
     }
+
+    // Cleanup function to prevent memory leaks
+    function cleanup() {
+        if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+        }
+        if (typingTimeout) {
+            clearTimeout(typingTimeout);
+            typingTimeout = null;
+        }
+        if (socket) {
+            socket.disconnect();
+            socket = null;
+        }
+    }
+
+    // Add cleanup on page unload
+    window.addEventListener('beforeunload', cleanup);
+    window.addEventListener('pagehide', cleanup);
 
     function initializeSocket() {
         try {
@@ -364,6 +383,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load initial data
     loadConversations();
 
+    // Helper function to start chat after conversations are loaded
+    async function startChatAfterConversationsLoad(sellerId, orderId) {
+        try {
+            // Wait for conversations to load
+            await loadConversations();
+            console.log('Conversations loaded, starting chat...');
+            
+            // Now start the chat with proper context
+            startChat(sellerId, 'Seller', '', orderId);
+        } catch (error) {
+            console.error('Error starting chat after conversations load:', error);
+            // Fallback: start chat anyway if conversations loading fails
+            startChat(sellerId, 'Seller', '', orderId);
+        }
+    }
+
         // Helper functions for real-time updates
     function addMessageToUI(message) {
         const isMine = message.sender === userId;
@@ -382,44 +417,44 @@ document.addEventListener('DOMContentLoaded', () => {
         const mobileMessageClass = window.innerWidth < 768 ? 'mobile-message-bubble' : '';
         
         return `
-            <div class="flex ${isMine ? 'justify-end' : 'justify-start'} message-bubble ${mobileMessageClass}" data-message-id="${message._id}">
+            <div class="flex ${isMine ? 'justify-end' : 'justify-start'} message-bubble ${mobileMessageClass}" data-message-id="${sanitizeHTML(message._id)}">
                 <div class="max-w-[75%] md:max-w-[75%] max-mobile-w-[85%] p-3 md:p-3 p-4 rounded-2xl text-sm md:text-sm text-base shadow-sm ${messageClass} relative group message-content">
                     ${message.replyTo ? `
                         <div class="mb-2 p-2 bg-black bg-opacity-10 rounded text-xs md:text-xs opacity-70 mobile-reply-bubble">
-                            <p class="font-semibold">Replying to: ${message.replyTo.content.substring(0, 50)}...</p>
+                            <p class="font-semibold">Replying to: ${sanitizeHTML(message.replyTo.content.substring(0, 50))}...</p>
                         </div>
                     ` : ''}
                     
                     ${message.product ? `
-                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded-lg flex items-center gap-2 cursor-pointer mobile-product-bubble" onclick="window.location.href='/pages/product-detail.html?id=${message.product._id}'">
-                            <img src="${message.product.images?.[0]}" class="w-8 h-8 md:w-8 md:h-8 w-10 h-10 rounded object-cover">
+                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded-lg flex items-center gap-2 cursor-pointer mobile-product-bubble" onclick="window.location.href='/pages/product-detail.html?id=${sanitizeHTML(message.product._id)}'">
+                            <img src="${sanitizeHTML(fixServerUrl(message.product.images?.[0]))}" class="w-8 h-8 md:w-8 md:h-8 w-10 h-10 rounded object-cover">
                             <div class="min-w-0">
-                                <p class="text-[10px] md:text-[10px] text-xs font-bold truncate">${message.product.name}</p>
-                                <p class="text-[10px] md:text-[10px] text-xs opacity-70">ZMW ${message.product.price}</p>
+                                <p class="text-[10px] md:text-[10px] text-xs font-bold truncate">${sanitizeHTML(message.product.name)}</p>
+                                <p class="text-[10px] md:text-[10px] text-xs opacity-70">ZMW ${sanitizeHTML(message.product.price)}</p>
                             </div>
                         </div>
                     ` : ''}
                     
                     ${message.messageType === 'image' ? `
                         <div class="mb-2 mobile-image-bubble">
-                            <img src="${fixServerUrl(message.fileUrl)}" class="max-w-full rounded cursor-pointer mobile-message-image" onclick="window.open('${fixServerUrl(message.fileUrl)}', '_blank')">
+                            <img src="${sanitizeHTML(fixServerUrl(message.fileUrl))}" class="max-w-full rounded cursor-pointer mobile-message-image" onclick="window.open('${sanitizeHTML(fixServerUrl(message.fileUrl))}', '_blank')">
                         </div>
                     ` : ''}
                     
                     ${message.messageType === 'file' ? `
-                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded flex items-center gap-2 cursor-pointer mobile-file-bubble" onclick="window.open('${message.fileUrl}', '_blank')">
+                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded flex items-center gap-2 cursor-pointer mobile-file-bubble" onclick="window.open('${sanitizeHTML(message.fileUrl)}', '_blank')">
                             <svg class="w-4 h-4 md:w-4 md:h-4 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
                                 <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 102 0V3h4v1a1 1 0 102 0V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
                             </svg>
                             <div class="min-w-0">
-                                <p class="text-[10px] md:text-[10px] text-xs font-bold truncate">${message.fileName}</p>
+                                <p class="text-[10px] md:text-[10px] text-xs font-bold truncate">${sanitizeHTML(message.fileName)}</p>
                                 <p class="text-[10px] md:text-[10px] text-xs opacity-70">${formatFileSize(message.fileSize)}</p>
                             </div>
                         </div>
                     ` : ''}
                     
-                    <p class="break-words mobile-message-text">${message.content}</p>
+                    <p class="break-words mobile-message-text">${sanitizeHTML(message.content)}</p>
                     
                     <div class="flex items-center justify-between mt-2 md:mt-1 mobile-message-meta">
                         <span class="text-[10px] md:text-[10px] text-xs opacity-50 mobile-message-time">${formatTime(message.createdAt)}</span>

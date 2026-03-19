@@ -7,6 +7,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadCartItems();
     renderOrderSummary();
     loadUserData();
+    
+    // Retry failed orders if connection is restored
+    if (navigator.onLine) {
+        setTimeout(retryFailedOrders, 2000); // Wait 2 seconds before retrying
+    }
+    
+    // Listen for connection changes
+    window.addEventListener('online', () => {
+        console.log('🌐 Connection restored, retrying failed orders...');
+        setTimeout(retryFailedOrders, 1000);
+    });
 });
 
 // Load cart items from localStorage
@@ -118,14 +129,33 @@ function loadUserData() {
 // Place cash on delivery order
 async function placeCashOnDeliveryOrder() {
     const placeOrderBtn = document.getElementById('place-order-btn');
+    
+    // Check if button exists
+    if (!placeOrderBtn) {
+        console.error('❌ Place order button not found');
+        return;
+    }
+    
     const originalText = placeOrderBtn.textContent;
     
     try {
+        // Validate form elements exist
+        const nameElement = document.getElementById('delivery-name');
+        const phoneElement = document.getElementById('delivery-phone');
+        const addressElement = document.getElementById('delivery-address');
+        const instructionsElement = document.getElementById('delivery-instructions');
+        
+        if (!nameElement || !phoneElement || !addressElement) {
+            console.error('❌ Required form elements not found');
+            alert('Form error. Please refresh the page and try again.');
+            return;
+        }
+        
         // Validate form
-        const deliveryName = document.getElementById('delivery-name').value.trim();
-        const deliveryPhone = document.getElementById('delivery-phone').value.trim();
-        const deliveryAddress = document.getElementById('delivery-address').value.trim();
-        const deliveryInstructions = document.getElementById('delivery-instructions').value.trim();
+        const deliveryName = nameElement.value.trim();
+        const deliveryPhone = phoneElement.value.trim();
+        const deliveryAddress = addressElement.value.trim();
+        const deliveryInstructions = instructionsElement ? instructionsElement.value.trim() : '';
 
         if (!deliveryName || !deliveryPhone || !deliveryAddress) {
             alert('Please fill in all required delivery information.');
@@ -133,7 +163,8 @@ async function placeCashOnDeliveryOrder() {
         }
 
         if (cartItems.length === 0) {
-            alert('Your cart is empty.');
+            alert('Your cart is empty. Please add items before placing an order.');
+            window.location.href = 'cart.html';
             return;
         }
 
@@ -150,11 +181,21 @@ async function placeCashOnDeliveryOrder() {
 
         // Prepare order data
         orderData = {
-            items: cartItems.map(item => ({
-                productId: item._id || item.product._id,
-                quantity: item.quantity,
-                price: (item.product || item).price
-            })),
+            items: cartItems.map(item => {
+                const product = item.product || item;
+                const productId = item._id || product._id;
+                
+                if (!productId) {
+                    console.error('❌ Invalid item structure - missing product ID:', item);
+                    throw new Error('Invalid item data: missing product ID');
+                }
+                
+                return {
+                    productId: productId,
+                    quantity: item.quantity || 1,
+                    price: product.price || 0
+                };
+            }),
             deliveryInfo: {
                 name: deliveryName,
                 phone: deliveryPhone,
@@ -198,12 +239,35 @@ async function placeCashOnDeliveryOrder() {
         } else {
             const error = await response.json();
             console.error('❌ Order placement failed:', error);
-            alert(error.message || 'Failed to place order. Please try again.');
+            
+            // Handle different types of errors with appropriate user feedback
+            if (response.status === 401) {
+                alert('Your session has expired. Please log in again.');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            } else if (response.status === 400) {
+                alert(error.message || 'Invalid order data. Please check your information and try again.');
+            } else if (response.status >= 500) {
+                alert('Server error. Your order has been saved locally and will be submitted when connection is restored.');
+                // Save order to localStorage for retry
+                saveOrderForRetry(orderData);
+            } else {
+                alert(error.message || 'Failed to place order. Please try again.');
+            }
         }
 
     } catch (error) {
         console.error('❌ Error placing order:', error);
-        alert('An error occurred while placing your order. Please try again.');
+        
+        // Handle network errors specifically
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            alert('Network error. Your order has been saved locally and will be submitted when connection is restored.');
+            // Save order to localStorage for retry
+            saveOrderForRetry(orderData);
+        } else {
+            alert('An error occurred while placing your order. Please try again.');
+        }
     } finally {
         // Restore button state
         placeOrderBtn.textContent = originalText;
@@ -275,5 +339,62 @@ function fixServerUrl(url) {
     return `${API_BASE}/${url}`;
 }
 
+// Save order for retry when API fails
+function saveOrderForRetry(orderData) {
+    try {
+        const existingRetryOrders = JSON.parse(localStorage.getItem('retryOrders') || '[]');
+        existingRetryOrders.push({
+            ...orderData,
+            timestamp: new Date().toISOString(),
+            retryCount: 0
+        });
+        localStorage.setItem('retryOrders', JSON.stringify(existingRetryOrders));
+        console.log('💾 Order saved for retry:', orderData);
+    } catch (error) {
+        console.error('❌ Error saving order for retry:', error);
+    }
+}
+
+// Retry failed orders when connection is restored
+async function retryFailedOrders() {
+    try {
+        const retryOrders = JSON.parse(localStorage.getItem('retryOrders') || '[]');
+        const token = localStorage.getItem('token');
+        
+        if (!token || retryOrders.length === 0) {
+            return;
+        }
+        
+        console.log('🔄 Retrying failed orders:', retryOrders.length);
+        
+        for (const order of retryOrders) {
+            try {
+                const response = await fetch(`${API_BASE}/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(order)
+                });
+                
+                if (response.ok) {
+                    console.log('✅ Retry successful for order:', order);
+                    // Remove from retry list
+                    const updatedRetryOrders = retryOrders.filter(o => o.timestamp !== order.timestamp);
+                    localStorage.setItem('retryOrders', JSON.stringify(updatedRetryOrders));
+                } else {
+                    console.warn('⚠️ Retry failed for order:', order);
+                }
+            } catch (error) {
+                console.error('❌ Error retrying order:', error);
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error in retryFailedOrders:', error);
+    }
+}
+
 // Make functions globally available
 window.placeCashOnDeliveryOrder = placeCashOnDeliveryOrder;
+window.retryFailedOrders = retryFailedOrders;

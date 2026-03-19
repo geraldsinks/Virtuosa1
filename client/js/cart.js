@@ -1,6 +1,12 @@
 // Cart Logic for Virtuosa
 // API_BASE is provided by config.js
 
+// Cart operation lock to prevent race conditions
+let cartOperationLock = false;
+
+// Cache DOM elements for performance
+let cartItemsContainer, subtotalElement, totalElement;
+
 // Initialize cart with proper priority: Backend > LocalStorage
 async function getCart() {
     const token = localStorage.getItem('token');
@@ -69,8 +75,9 @@ async function saveCart(cart) {
             }
         } catch (error) {
             console.error('❌ Backend sync error:', error);
-            // Fallback to localStorage only
+            // Fallback to localStorage only, but notify user
             localStorage.setItem('virtuosa_cart', JSON.stringify(cart));
+            showToast('Cart saved locally. Changes will sync when connection is restored.', 'info');
         }
     } else {
         // For guest users, only use localStorage
@@ -82,9 +89,18 @@ async function saveCart(cart) {
 }
 
 async function addToCart(product, quantity = 1) {
-    const token = localStorage.getItem('token');
+    // Prevent concurrent cart operations
+    if (cartOperationLock) {
+        console.log('🔄 Cart operation in progress, please wait...');
+        return;
+    }
     
-    console.log('🛒 Adding to cart:', { product, quantity, hasToken: !!token });
+    cartOperationLock = true;
+    
+    try {
+        const token = localStorage.getItem('token');
+        
+        console.log('🛒 Adding to cart:', { product, quantity, hasToken: !!token });
     
     if (token) {
         // Add to backend cart
@@ -136,8 +152,8 @@ async function addToCart(product, quantity = 1) {
                 await saveCart(cart);
                 console.log('💾 Saved to localStorage as fallback');
                 
-                showToast(`${product.name} added to cart!`, 'success');
-                showCartBanner(`${product.name} added to cart!`);
+                showToast(`${product.name} added to cart! (Saved locally)`, 'success');
+                showCartBanner(`${product.name} added to cart! (Saved locally)`);
                 await updateCartIcon();
                 
                 // If we're on the cart page, re-render to show the new item
@@ -167,8 +183,8 @@ async function addToCart(product, quantity = 1) {
             await saveCart(cart);
             console.log('💾 Saved to localStorage as fallback');
             
-            showToast(`${product.name} added to cart!`, 'success');
-            showCartBanner(`${product.name} added to cart!`);
+            showToast(`${product.name} added to cart! (Offline mode)`, 'success');
+            showCartBanner(`${product.name} added to cart! (Offline mode)`);
             await updateCartIcon();
             
             // If we're on the cart page, re-render to show the new item
@@ -196,6 +212,14 @@ async function addToCart(product, quantity = 1) {
         console.log('💾 Saved to localStorage cart');
         showToast(`${product.name} added to cart!`, 'success');
         showCartBanner(`${product.name} added to cart!`);
+    }
+    
+    } catch (error) {
+        console.error('❌ Error adding to cart:', error);
+        showToast('Failed to add item to cart', 'error');
+    } finally {
+        // Always release the lock
+        cartOperationLock = false;
     }
 }
 
@@ -285,7 +309,16 @@ document.addEventListener('click', (e) => {
 });
 
 async function removeFromCart(productId) {
-    console.log('🗑️ Removing item from cart:', productId);
+    // Prevent concurrent cart operations
+    if (cartOperationLock) {
+        console.log('🔄 Cart operation in progress, please wait...');
+        return;
+    }
+    
+    cartOperationLock = true;
+    
+    try {
+        console.log('🗑️ Removing item from cart:', productId);
     
     const token = localStorage.getItem('token');
     
@@ -326,10 +359,27 @@ async function removeFromCart(productId) {
     
     // Update cart icon
     await updateCartIcon();
+    
+    } catch (error) {
+        console.error('❌ Error removing from cart:', error);
+        showToast('Failed to remove item from cart', 'error');
+    } finally {
+        // Always release the lock
+        cartOperationLock = false;
+    }
 }
 
 async function updateQuantity(productId, delta) {
-    console.log('🔢 Updating quantity:', { productId, delta });
+    // Prevent concurrent cart operations
+    if (cartOperationLock) {
+        console.log('🔄 Cart operation in progress, please wait...');
+        return;
+    }
+    
+    cartOperationLock = true;
+    
+    try {
+        console.log('🔢 Updating quantity:', { productId, delta });
     
     const token = localStorage.getItem('token');
     const cart = await getCart();
@@ -383,6 +433,15 @@ async function updateQuantity(productId, delta) {
         await updateCartIcon();
     } else {
         console.error('❌ Item not found in cart:', productId);
+        showToast('Item not found in cart', 'error');
+    }
+    
+    } catch (error) {
+        console.error('❌ Error updating quantity:', error);
+        showToast('Failed to update quantity', 'error');
+    } finally {
+        // Always release the lock
+        cartOperationLock = false;
     }
 }
 
@@ -404,9 +463,10 @@ async function updateCartIcon() {
 }
 
 async function renderCart() {
-    const cartItemsContainer = document.getElementById('cart-items');
-    const subtotalElement = document.getElementById('subtotal');
-    const totalElement = document.getElementById('total');
+    // Use cached elements or get them if not cached
+    if (!cartItemsContainer) cartItemsContainer = document.getElementById('cart-items');
+    if (!subtotalElement) subtotalElement = document.getElementById('subtotal');
+    if (!totalElement) totalElement = document.getElementById('total');
 
     if (!cartItemsContainer) return; // Not on the cart page
 
