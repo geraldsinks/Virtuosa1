@@ -165,38 +165,40 @@
 
             /* Mobile input area */
             .mobile-input-area {
-                padding: 12px;
+                padding: 8px; /* Reduced padding */
                 background: white;
                 border-top: 1px solid #e5e7eb;
                 position: sticky;
                 bottom: 0;
                 z-index: 20;
+                min-height: 120px; /* Reduced height */
             }
 
             /* Mobile input field enhancements */
             .mobile-input-area #message-input {
                 font-size: 16px; /* Prevents zoom on iOS */
-                padding: 12px 16px;
-                min-height: 44px;
-                border-radius: 22px;
+                padding: 8px 12px; /* Reduced padding */
+                min-height: 36px; /* Reduced height */
+                border-radius: 18px; /* Smaller radius */
             }
 
             /* Mobile input buttons */
             .mobile-input-area .mobile-touch-button {
-                min-width: 44px;
-                min-height: 44px;
-                border-radius: 22px;
+                min-width: 36px; /* Reduced */
+                min-height: 36px; /* Reduced */
+                border-radius: 18px; /* Smaller radius */
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                padding: 6px; /* Reduced padding */
             }
 
             /* Mobile send button */
             .mobile-input-area button[type="submit"] {
-                min-width: 44px;
-                min-height: 44px;
-                border-radius: 22px;
-                padding: 12px;
+                min-width: 36px; /* Reduced */
+                min-height: 36px; /* Reduced */
+                border-radius: 18px; /* Smaller radius */
+                padding: 8px; /* Reduced padding */
             }
 
             /* Mobile search input */
@@ -291,7 +293,7 @@
             
             /* Fix message container scrolling - prevent elastic behavior */
             .mobile-message-container {
-                height: calc(100vh - 280px); /* Account for header (60px) + chat header (60px) + input area (160px) */
+                height: calc(100vh - 240px); /* Account for header (60px) + chat header (60px) + input area (120px) */
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 padding: 12px;
@@ -337,12 +339,49 @@
                 bottom: 0;
                 background: white;
                 border-top: 1px solid #e5e7eb;
-                padding: 12px 0; /* Reduced padding */
+                padding: 8px 0; /* Reduced padding */
                 z-index: 10;
-                min-height: 160px; /* Ensure enough space for search + input + buttons */
+                min-height: 120px; /* Reduced height */
                 overscroll-behavior: contain;
                 margin-top: auto; /* Push to bottom */
                 flex-shrink: 0; /* Prevent shrinking */
+            }
+            
+            /* Compressed mobile input form */
+            .mobile-input-area #message-form {
+                gap: 8px; /* Reduced gap */
+                padding: 0 8px; /* Reduced horizontal padding */
+            }
+            
+            /* Smaller mobile touch buttons */
+            .mobile-input-area .mobile-touch-button {
+                min-width: 36px; /* Reduced from 44px */
+                min-height: 36px; /* Reduced from 44px */
+                padding: 6px; /* Reduced padding */
+            }
+            
+            /* Compressed message input */
+            .mobile-input-area #message-input {
+                font-size: 16px; /* Keep readable */
+                padding: 8px 12px; /* Reduced padding */
+                min-height: 36px; /* Reduced height */
+                border-radius: 18px; /* Smaller radius */
+                flex-grow: 1;
+            }
+            
+            /* Smaller send button */
+            .mobile-input-area button[type="submit"] {
+                min-width: 36px; /* Reduced from 44px */
+                min-height: 36px; /* Reduced from 44px */
+                padding: 8px; /* Reduced padding */
+                border-radius: 18px; /* Smaller radius */
+            }
+            
+            /* Adjust icons for smaller buttons */
+            .mobile-input-area .mobile-touch-button i,
+            .mobile-input-area button[type="submit"] i {
+                width: 16px; /* Smaller icons */
+                height: 16px;
             }
             
             /* Ensure chat area has proper flex layout */
