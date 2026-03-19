@@ -2257,8 +2257,13 @@ app.post('/api/auth/login', async (req, res) => {
     const normalizedEmail = email.toLowerCase();
 
     try {
+        console.log('🔍 Login attempt for email:', normalizedEmail);
+        
         const user = await User.findOne({ email: normalizedEmail });
+        console.log('🔍 User query result:', user ? 'User found' : 'User not found');
+        
         if (!user) {
+            console.log('❌ Login failed - User not found for email:', normalizedEmail);
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
@@ -2271,7 +2276,7 @@ app.post('/api/auth/login', async (req, res) => {
         // For existing users without email verification fields, consider them verified
         // Special case: if the email is the same as EMAIL_USER, consider it verified
         const isEmailVerified = user.isEmailVerified === undefined ? true : user.isEmailVerified;
-        const isSystemEmail = email === process.env.EMAIL_USER;
+        const isSystemEmail = normalizedEmail === process.env.EMAIL_USER?.toLowerCase();
         
         if (!isEmailVerified && !isSystemEmail) {
             return res.status(403).json({ 
@@ -2293,6 +2298,51 @@ app.post('/api/auth/login', async (req, res) => {
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Test endpoint to check if email exists (temporary for debugging)
+app.post('/api/auth/check-email', async (req, res) => {
+    const { email } = req.body;
+    
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
+    }
+
+    // Normalize email to lowercase
+    const normalizedEmail = email.toLowerCase();
+
+    try {
+        console.log('🔍 Checking email existence:', normalizedEmail);
+        
+        const user = await User.findOne({ email: normalizedEmail });
+        
+        if (user) {
+            console.log('✅ User found:', {
+                id: user._id,
+                email: user.email,
+                isEmailVerified: user.isEmailVerified,
+                isStudentVerified: user.isStudentVerified,
+                fullName: user.fullName
+            });
+            
+            res.json({ 
+                exists: true,
+                user: {
+                    id: user._id,
+                    email: user.email,
+                    isEmailVerified: user.isEmailVerified,
+                    isStudentVerified: user.isStudentVerified,
+                    fullName: user.fullName
+                }
+            });
+        } else {
+            console.log('❌ User not found for email:', normalizedEmail);
+            res.json({ exists: false, message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('❌ Check email error:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
 
