@@ -506,7 +506,10 @@ function renderAuthComponent(type) {
     if (!authContainer) return;
 
     const loginFormHtml = `
-        <div id="login-form-wrapper" class="form-container">
+        <div id="login-form-wrapper" class="form-container p-8 rounded-2xl w-full max-w-md mx-auto text-gray-800">
+            <div class="text-center mb-6">
+                <h2 class="text-4xl font-bold text-navy">Welcome Back</h2>
+            </div>
             <form id="login-form" class="space-y-6">
                 <div>
                     <label for="login-email" class="form-label block text-sm">Email Address</label>
@@ -602,7 +605,10 @@ function renderAuthComponent(type) {
     `;
 
     const forgotPasswordFormHtml = `
-        <div id="forgot-form-wrapper" class="form-container">
+        <div id="forgot-form-wrapper" class="form-container p-8 rounded-2xl w-full max-w-md mx-auto text-gray-800">
+            <div class="text-center mb-6">
+                <h2 class="text-4xl font-bold text-navy">Reset Password</h2>
+            </div>
             <form id="forgot-form" class="space-y-6">
                 <div>
                     <label for="forgot-email" class="form-label block text-sm">Email Address</label>
