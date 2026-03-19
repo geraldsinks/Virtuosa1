@@ -2043,7 +2043,7 @@ const subscriptionSchema = new mongoose.Schema({
 const Subscription = mongoose.model('Subscription', subscriptionSchema);
 console.log('Subscription model created successfully');
 
-// Nodemailer setup with enhanced configuration and fallback
+// Nodemailer setup with enhanced configuration and alternative service
 const transporter = nodemailer.createTransporter({
     service: 'gmail',
     auth: {
@@ -2051,18 +2051,16 @@ const transporter = nodemailer.createTransporter({
         pass: process.env.EMAIL_PASS
     },
     pool: true, // Use connection pooling
-    maxConnections: 5,
-    maxMessages: 100,
-    rateDelta: 1000, // 1 second delay between emails
-    rateLimit: 5, // Max 5 emails per second
-    connectionTimeout: 60000, // 60 seconds connection timeout
-    greetingTimeout: 30000, // 30 seconds greeting timeout
-    socketTimeout: 60000, // 60 seconds socket timeout
+    maxConnections: 3,
+    maxMessages: 50,
+    rateDelta: 2000, // 2 seconds delay between emails
+    rateLimit: 2, // Max 2 emails per second
+    connectionTimeout: 30000, // 30 seconds connection timeout
+    greetingTimeout: 15000, // 15 seconds greeting timeout
+    socketTimeout: 30000, // 30 seconds socket timeout
     tls: {
         rejectUnauthorized: false
-    },
-    // Add retry logic
-    debug: process.env.NODE_ENV === 'development'
+    }
 });
 
 // Verify transporter configuration on startup
@@ -2477,6 +2475,32 @@ app.post('/api/auth/reset-password/:token', async (req, res) => {
         console.error('Reset password error:', error);
         res.status(500).json({ message: 'Server error' });
     }
+});
+
+// Enhanced error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Global error:', err);
+    
+    // Ensure we always send JSON, never HTML
+    if (err) {
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+        });
+    } else {
+        next();
+    }
+});
+
+// Simple test endpoint to verify JSON responses
+app.get('/api/test/json', (req, res) => {
+    res.json({
+        success: true,
+        message: 'JSON response test successful',
+        timestamp: new Date().toISOString(),
+        server: 'Virtuosa API'
+    });
 });
 
 // Manual verification code endpoint (temporary workaround)
