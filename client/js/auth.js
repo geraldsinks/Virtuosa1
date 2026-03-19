@@ -148,10 +148,14 @@ async function handleLogin(event) {
             // Handle specific error for email verification
             if (result.requiresEmailVerification) {
                 showMessage(result.message, true);
-                // Show option to resend verification email
+                // Show options for verification
                 setTimeout(() => {
-                    if (confirm('Would you like us to resend the verification email?')) {
+                    const choice = confirm('Email verification required!\n\nOptions:\n1. OK - Resend verification email\n2. Cancel - Use manual verification code');
+                    if (choice) {
                         resendVerificationEmail(email);
+                    } else {
+                        // Use manual verification
+                        requestManualVerificationCode(email);
                     }
                 }, 2000);
             } else {
@@ -183,6 +187,69 @@ async function resendVerificationEmail(email) {
     } catch (error) {
         console.error('Resend verification error:', error);
         showMessage('Failed to send verification email. Please try again.', true);
+    }
+}
+
+async function requestManualVerificationCode(email) {
+    try {
+        showMessage('Requesting manual verification code...');
+        
+        const response = await fetch(`${BASE_API_URL}/manual-verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        const result = await response.json();
+        console.log('Manual verification response:', result);
+
+        if (response.ok) {
+            const code = result.verificationCode;
+            const expiresIn = result.expiresIn;
+            
+            showMessage(`Verification code: ${code}\nThis code expires in ${expiresIn} minutes. Please save it.`, false);
+            
+            // Show input dialog to enter the code
+            setTimeout(() => {
+                const userCode = prompt(`Enter verification code (expires in ${expiresIn} minutes):`);
+                if (userCode) {
+                    confirmManualVerificationCode(email, userCode);
+                }
+            }, 1000);
+        } else {
+            showMessage(result.message || 'Failed to generate verification code', true);
+        }
+    } catch (error) {
+        console.error('Manual verification request error:', error);
+        showMessage('Failed to request verification code. Please try again.', true);
+    }
+}
+
+async function confirmManualVerificationCode(email, verificationCode) {
+    try {
+        showMessage('Confirming verification code...');
+        
+        const response = await fetch(`${BASE_API_URL}/confirm-manual-verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, verificationCode })
+        });
+
+        const result = await response.json();
+        console.log('Manual verification confirmation response:', result);
+
+        if (response.ok) {
+            showMessage('Email verified successfully! You can now login.', false);
+            setTimeout(() => {
+                document.getElementById('login-email').value = email;
+                document.getElementById('login-password-input').focus();
+            }, 2000);
+        } else {
+            showMessage(result.message || 'Failed to verify code', true);
+        }
+    } catch (error) {
+        console.error('Manual verification confirmation error:', error);
+        showMessage('Failed to confirm verification code. Please try again.', true);
     }
 }
 

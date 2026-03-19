@@ -2043,12 +2043,34 @@ const subscriptionSchema = new mongoose.Schema({
 const Subscription = mongoose.model('Subscription', subscriptionSchema);
 console.log('Subscription model created successfully');
 
-// Nodemailer setup
-const transporter = nodemailer.createTransport({
+// Nodemailer setup with enhanced configuration and fallback
+const transporter = nodemailer.createTransporter({
     service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
+    },
+    pool: true, // Use connection pooling
+    maxConnections: 5,
+    maxMessages: 100,
+    rateDelta: 1000, // 1 second delay between emails
+    rateLimit: 5, // Max 5 emails per second
+    connectionTimeout: 60000, // 60 seconds connection timeout
+    greetingTimeout: 30000, // 30 seconds greeting timeout
+    socketTimeout: 60000, // 60 seconds socket timeout
+    tls: {
+        rejectUnauthorized: false
+    },
+    // Add retry logic
+    debug: process.env.NODE_ENV === 'development'
+});
+
+// Verify transporter configuration on startup
+transporter.verify((error, success) => {
+    if (error) {
+        console.error('❌ Email transporter configuration error:', error);
+    } else {
+        console.log('✅ Email transporter is ready to send messages');
     }
 });
 
@@ -2453,6 +2475,83 @@ app.post('/api/auth/reset-password/:token', async (req, res) => {
         res.json({ message: 'Password reset successfully' });
     } catch (error) {
         console.error('Reset password error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Manual verification code endpoint (temporary workaround)
+app.post('/api/auth/manual-verify', async (req, res) => {
+    const { email } = req.body;
+    
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
+    }
+
+    try {
+        console.log('🔓 Manual verification request for:', email);
+        
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Generate verification code
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // Store code temporarily (5 minutes expiry)
+        user.manualVerificationCode = verificationCode;
+        user.manualVerificationExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+        await user.save();
+
+        console.log('✅ Manual verification code generated for:', email);
+
+        res.json({ 
+            success: true, 
+            message: `Verification code: ${verificationCode}. This code will expire in 5 minutes. Use this code to verify your email.`,
+            verificationCode: verificationCode,
+            expiresIn: 5
+        });
+    } catch (error) {
+        console.error('❌ Manual verification error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Manual verification code confirmation endpoint
+app.post('/api/auth/confirm-manual-verify', async (req, res) => {
+    const { email, verificationCode } = req.body;
+    
+    if (!email || !verificationCode) {
+        return res.status(400).json({ message: 'Email and verification code are required' });
+    }
+
+    try {
+        console.log('🔓 Manual verification confirmation for:', email, 'code:', verificationCode);
+        
+        const user = await User.findOne({ 
+            email,
+            manualVerificationCode: verificationCode,
+            manualVerificationExpires: { $gt: Date.now() }
+        });
+        
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired verification code' });
+        }
+
+        // Mark user as verified
+        user.isEmailVerified = true;
+        user.manualVerificationCode = undefined;
+        user.manualVerificationExpires = undefined;
+        await user.save();
+
+        console.log('✅ Manual verification confirmed for:', email);
+
+        res.json({ 
+            success: true, 
+            message: 'Email verified successfully! You can now login.' 
+        });
+    } catch (error) {
+        console.error('❌ Manual verification confirmation error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
