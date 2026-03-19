@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtuosa - Live Chat Support</title>
+    <title>Virtuosa - Support Center (AI Assistant & Live Chat)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,6 +12,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    
+    <!-- Brevo Conversations {literal} -->
+    <script>
+        (function(d, w, c) {
+            w.BrevoConversationsID = '69bbeb8b6c3245cfb90cfcf6';
+            w[c] = w[c] || function() {
+                (w[c].q = w[c].q || []).push(arguments);
+            };
+            var s = d.createElement('script');
+            s.async = true;
+            s.src = 'https://conversations-widget.brevo.com/brevo-conversations.js';
+            if (d.head) d.head.appendChild(s);
+        })(document, window, 'BrevoConversations');
+    </script>
+    <!-- /Brevo Conversations {/literal} -->
+    
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
@@ -239,8 +255,16 @@
         <div class="max-w-6xl mx-auto">
             <!-- Page Header -->
             <div class="text-center mb-8">
-                <h1 class="text-4xl md:text-5xl font-bold text-navy mb-4">Live Chat Support</h1>
-                <p class="text-gray-600 text-lg">Get instant help from our support team</p>
+                <h1 class="text-4xl md:text-5xl font-bold text-navy mb-4">Virtuosa Support Center</h1>
+                <p class="text-gray-600 text-lg">Get instant help from our AI Assistant or connect with live human support</p>
+                <div class="mt-4 flex justify-center space-x-4">
+                    <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-semibold">
+                        🤖 AI Assistant Available 24/7
+                    </div>
+                    <div class="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold">
+                        💬 Live Human Support via Brevo Widget
+                    </div>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -252,14 +276,14 @@
                             <div class="flex items-center">
                                 <div class="status-indicator status-online"></div>
                                 <div>
-                                    <h3 class="font-semibold">Support Team</h3>
-                                    <p class="text-sm text-gray-300">Online - Ready to help</p>
+                                    <h3 class="font-semibold">Virtuosa Assistant (AI Bot)</h3>
+                                    <p class="text-sm text-gray-300">AI Assistant - Instant responses</p>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-3">
                                 <span class="wait-time">
-                                    <i class="fas fa-clock mr-1"></i>
-                                    < 2 min wait
+                                    <i class="fas fa-robot mr-1"></i>
+                                    Instant replies
                                 </span>
                                 <button onclick="endChat()" class="text-gray-300 hover:text-white transition-colors">
                                     <i class="fas fa-times"></i>
@@ -273,11 +297,11 @@
                                 <!-- Welcome Message -->
                                 <div class="message support">
                                     <div class="message-avatar">
-                                        <i class="fas fa-headset"></i>
+                                        <i class="fas fa-robot"></i>
                                     </div>
                                     <div class="message-bubble">
-                                        <p>👋 Welcome to Virtuosa Live Chat! I'm here to help you with any questions or concerns.</p>
-                                        <p class="text-sm mt-2 opacity-75">How can I assist you today?</p>
+                                        <p>🤖 Welcome to Virtuosa AI Assistant! I'm a bot designed to help you with common questions about our platform.</p>
+                                        <p class="text-sm mt-2 opacity-75">For live human support, use the Brevo chat widget on this page. How can I assist you today?</p>
                                     </div>
                                 </div>
                             </div>
@@ -328,6 +352,38 @@
                 <!-- Sidebar -->
                 <div class="lg:col-span-1">
                     <div class="space-y-6">
+                        <!-- Live Chat Widget Notice -->
+                        <div class="bg-gradient-to-r from-blue-50 to-green-50 border-2 border-blue-300 rounded-xl p-6">
+                            <h3 class="text-lg font-bold text-navy mb-3 flex items-center">
+                                <i class="fas fa-comments text-blue-600 mr-2"></i>
+                                Live Human Support
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="bg-white rounded-lg p-3 border border-blue-200">
+                                    <p class="text-sm text-gray-700 mb-2">
+                                        <strong>🤖 Current Chat:</strong> AI Assistant (Bot)
+                                    </p>
+                                    <p class="text-xs text-gray-600">
+                                        Instant automated responses to common questions
+                                    </p>
+                                </div>
+                                <div class="bg-green-100 rounded-lg p-3 border border-green-300">
+                                    <p class="text-sm text-green-800 mb-2">
+                                        <strong>💬 Live Chat:</strong> Brevo Widget
+                                    </p>
+                                    <p class="text-xs text-green-700">
+                                        Chat with real human support agents via the Brevo chat widget
+                                    </p>
+                                </div>
+                                <div class="text-center pt-2">
+                                    <div class="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        Look for the Brevo chat widget on this page
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Chat Info -->
                         <div class="chat-info-card rounded-xl p-6">
                             <h3 class="text-lg font-bold text-navy mb-4 flex items-center">

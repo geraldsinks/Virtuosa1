@@ -336,73 +336,79 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageHtml = createMessageHTML(message, isMine);
         messageContainer.insertAdjacentHTML('beforeend', messageHtml);
         messageContainer.scrollTop = messageContainer.scrollHeight;
+        
+        // Mobile: Add haptic feedback if available
+        if (window.innerWidth < 768 && navigator.vibrate) {
+            navigator.vibrate(50); // Light vibration for new message
+        }
     }
 
     function createMessageHTML(message, isMine) {
         const messageClass = isMine ? 'bg-navy text-white rounded-tr-none' : 'bg-white text-navy rounded-tl-none border border-gray-100';
+        const mobileMessageClass = window.innerWidth < 768 ? 'mobile-message-bubble' : '';
         
         return `
-            <div class="flex ${isMine ? 'justify-end' : 'justify-start'} message-bubble" data-message-id="${message._id}">
-                <div class="max-w-[75%] p-3 rounded-2xl text-sm shadow-sm ${messageClass} relative group">
+            <div class="flex ${isMine ? 'justify-end' : 'justify-start'} message-bubble ${mobileMessageClass}" data-message-id="${message._id}">
+                <div class="max-w-[75%] md:max-w-[75%] max-mobile-w-[85%] p-3 md:p-3 p-4 rounded-2xl text-sm md:text-sm text-base shadow-sm ${messageClass} relative group message-content">
                     ${message.replyTo ? `
-                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded text-xs opacity-70">
+                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded text-xs md:text-xs opacity-70 mobile-reply-bubble">
                             <p class="font-semibold">Replying to: ${message.replyTo.content.substring(0, 50)}...</p>
                         </div>
                     ` : ''}
                     
                     ${message.product ? `
-                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded-lg flex items-center gap-2 cursor-pointer" onclick="window.location.href='/pages/product-detail.html?id=${message.product._id}'">
-                            <img src="${message.product.images?.[0]}" class="w-8 h-8 rounded object-cover">
+                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded-lg flex items-center gap-2 cursor-pointer mobile-product-bubble" onclick="window.location.href='/pages/product-detail.html?id=${message.product._id}'">
+                            <img src="${message.product.images?.[0]}" class="w-8 h-8 md:w-8 md:h-8 w-10 h-10 rounded object-cover">
                             <div class="min-w-0">
-                                <p class="text-[10px] font-bold truncate">${message.product.name}</p>
-                                <p class="text-[10px] opacity-70">ZMW ${message.product.price}</p>
+                                <p class="text-[10px] md:text-[10px] text-xs font-bold truncate">${message.product.name}</p>
+                                <p class="text-[10px] md:text-[10px] text-xs opacity-70">ZMW ${message.product.price}</p>
                             </div>
                         </div>
                     ` : ''}
                     
                     ${message.messageType === 'image' ? `
-                        <div class="mb-2">
-                            <img src="${fixServerUrl(message.fileUrl)}" class="max-w-full rounded cursor-pointer" onclick="window.open('${fixServerUrl(message.fileUrl)}', '_blank')">
+                        <div class="mb-2 mobile-image-bubble">
+                            <img src="${fixServerUrl(message.fileUrl)}" class="max-w-full rounded cursor-pointer mobile-message-image" onclick="window.open('${fixServerUrl(message.fileUrl)}', '_blank')">
                         </div>
                     ` : ''}
                     
                     ${message.messageType === 'file' ? `
-                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded flex items-center gap-2 cursor-pointer" onclick="window.open('${message.fileUrl}', '_blank')">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded flex items-center gap-2 cursor-pointer mobile-file-bubble" onclick="window.open('${message.fileUrl}', '_blank')">
+                            <svg class="w-4 h-4 md:w-4 md:h-4 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
                                 <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 102 0V3h4v1a1 1 0 102 0V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
                             </svg>
                             <div class="min-w-0">
-                                <p class="text-[10px] font-bold truncate">${message.fileName}</p>
-                                <p class="text-[10px] opacity-70">${formatFileSize(message.fileSize)}</p>
+                                <p class="text-[10px] md:text-[10px] text-xs font-bold truncate">${message.fileName}</p>
+                                <p class="text-[10px] md:text-[10px] text-xs opacity-70">${formatFileSize(message.fileSize)}</p>
                             </div>
                         </div>
                     ` : ''}
                     
-                    <p class="break-words">${message.content}</p>
+                    <p class="break-words mobile-message-text">${message.content}</p>
                     
-                    <div class="flex items-center justify-between mt-1">
-                        <span class="text-[10px] opacity-50">${formatTime(message.createdAt)}</span>
+                    <div class="flex items-center justify-between mt-2 md:mt-1 mobile-message-meta">
+                        <span class="text-[10px] md:text-[10px] text-xs opacity-50 mobile-message-time">${formatTime(message.createdAt)}</span>
                         <div class="flex items-center gap-1">
-                            ${message.isEdited ? '<span class="text-[8px] opacity-50 italic">edited</span>' : ''}
+                            ${message.isEdited ? '<span class="text-[8px] md:text-[8px] text-xs opacity-50 italic mobile-message-edited">edited</span>' : ''}
                             ${isMine ? `
-                                <span class="text-[10px] opacity-50 message-status" data-message-id="${message._id}">${message.status === 'read' ? '✓✓' : message.status === 'delivered' ? '✓' : ''}</span>
+                                <span class="text-[10px] md:text-[10px] text-xs opacity-50 message-status mobile-message-status" data-message-id="${message._id}">${message.status === 'read' ? '✓✓' : message.status === 'delivered' ? '✓' : ''}</span>
                             ` : ''}
                         </div>
                     </div>
                     
                     ${message.reactions && message.reactions.length > 0 ? `
-                        <div class="flex flex-wrap gap-1 mt-2 message-reactions" data-message-id="${message._id}">
+                        <div class="flex flex-wrap gap-1 mt-2 md:mt-2 message-reactions mobile-message-reactions" data-message-id="${message._id}">
                             ${message.reactions.map(r => `
-                                <span class="text-xs bg-black bg-opacity-10 px-1 rounded cursor-pointer hover:bg-opacity-20" onclick="addReaction('${message._id}', '${r.emoji}')">${r.emoji}</span>
+                                <span class="text-xs md:text-xs text-sm bg-black bg-opacity-10 px-1 md:px-1 px-2 py-1 rounded cursor-pointer hover:bg-opacity-20 mobile-reaction" onclick="addReaction('${message._id}', '${r.emoji}')">${r.emoji}</span>
                             `).join('')}
                         </div>
                     ` : ''}
                     
                     ${!message.isDeleted && isMine ? `
-                        <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                            <button onclick="editMessage('${message._id}', '${message.content.replace(/'/g, "\\'")}')" class="text-xs bg-black bg-opacity-20 rounded px-1 hover:bg-opacity-30">✏️</button>
-                            <button onclick="deleteMessage('${message._id}')" class="text-xs bg-black bg-opacity-20 rounded px-1 hover:bg-opacity-30">🗑️</button>
+                        <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 mobile-message-actions">
+                            <button onclick="editMessage('${message._id}', '${message.content.replace(/'/g, "\\'")}')" class="text-xs md:text-xs text-sm bg-black bg-opacity-20 rounded px-1 md:px-1 px-2 py-1 hover:bg-opacity-30 mobile-action-button">✏️</button>
+                            <button onclick="deleteMessage('${message._id}')" class="text-xs md:text-xs text-sm bg-black bg-opacity-20 rounded px-1 md:px-1 px-2 py-1 hover:bg-opacity-30 mobile-action-button">🗑️</button>
                         </div>
                     ` : ''}
                 </div>
@@ -517,27 +523,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
         conversationList.innerHTML = conversations.map(c => `
             <div onclick="startChat('${c._id}', '${c.user.fullName}', '${c.user.profilePicture || ''}')" 
-                 class="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors flex items-center gap-3 ${activeConversationId === c._id ? 'bg-orange-50' : ''}"
+                 class="conversation-list-item p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors flex items-center gap-3 ${activeConversationId === c._id ? 'bg-orange-50' : ''} mobile-conversation-item"
                  data-user-id="${c._id}">
-                <div class="w-12 h-12 rounded-full bg-gold bg-opacity-10 flex items-center justify-center font-bold text-gold relative overflow-hidden">
+                <div class="w-12 h-12 md:w-12 md:h-12 w-14 h-14 rounded-full bg-gold bg-opacity-10 flex items-center justify-center font-bold text-gold relative overflow-hidden mobile-avatar">
                     ${c.user.profilePicture ? 
                         `<img src="${fixServerUrl(c.user.profilePicture)}" class="w-full h-full rounded-full object-cover">` : 
                         c.user.fullName.charAt(0)
                     }
-                    <span class="online-status absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${false ? 'bg-green-500' : 'bg-gray-300'}"></span>
+                    <span class="online-status absolute bottom-0 right-0 w-3 h-3 md:w-3 md:h-3 w-4 h-4 rounded-full border-2 border-white ${false ? 'bg-green-500' : 'bg-gray-300'} mobile-online-indicator"></span>
                 </div>
-                <div class="flex-grow min-w-0">
-                    <div class="flex justify-between items-center mb-1">
-                        <h4 class="font-bold text-navy truncate">${c.user.fullName}</h4>
-                        <span class="text-[10px] text-gray-400">${formatTime(c.createdAt)}</span>
+                <div class="flex-grow min-w-0 mobile-conversation-content">
+                    <div class="flex justify-between items-center mb-1 mobile-conversation-header">
+                        <h4 class="font-bold text-navy truncate mobile-conversation-name">${c.user.fullName}</h4>
+                        <span class="text-[10px] md:text-[10px] text-xs text-gray-400 mobile-conversation-time">${formatTime(c.createdAt)}</span>
                     </div>
-                    <p class="text-xs text-gray-500 truncate">${c.lastMessage}</p>
+                    <p class="text-xs md:text-xs text-sm text-gray-500 truncate mobile-conversation-message">${c.lastMessage}</p>
                 </div>
-                ${c.unreadCount > 0 ? `<span class="bg-gold text-navy text-[10px] font-bold px-2 py-0.5 rounded-full">${c.unreadCount}</span>` : ''}
+                ${c.unreadCount > 0 ? `<span class="bg-gold text-navy text-[10px] md:text-[10px] text-xs font-bold px-2 py-0.5 md:px-2 md:py-0.5 px-3 py-1 rounded-full mobile-unread-badge">${c.unreadCount}</span>` : ''}
             </div>
         `);
 
         if (window.lucide) window.lucide.createIcons();
+        
+        // Add mobile-specific conversation list enhancements
+        if (window.innerWidth < 768) {
+            enhanceMobileConversationList();
+        }
+    }
+
+    function enhanceMobileConversationList() {
+        // Add touch feedback for conversation items
+        const conversationItems = document.querySelectorAll('.mobile-conversation-item');
+        
+        conversationItems.forEach(item => {
+            item.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.98)';
+                this.style.transition = 'transform 0.1s ease';
+            });
+            
+            item.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+            
+            // Add swipe-to-delete functionality (optional)
+            let startX = 0;
+            let currentX = 0;
+            
+            item.addEventListener('touchstart', function(e) {
+                startX = e.touches[0].clientX;
+            }, { passive: true });
+            
+            item.addEventListener('touchmove', function(e) {
+                currentX = e.touches[0].clientX;
+                const diffX = startX - currentX;
+                
+                if (diffX > 50) { // Swipe left threshold
+                    this.style.transform = `translateX(-${diffX}px)`;
+                }
+            }, { passive: true });
+            
+            item.addEventListener('touchend', function() {
+                const diffX = startX - currentX;
+                
+                if (diffX > 100) { // Confirm swipe threshold
+                    // Could add swipe-to-delete functionality here
+                    console.log('Swipe to delete detected');
+                }
+                
+                this.style.transform = 'translateX(0)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+        });
     }
 
     function showDemoConversations() {
@@ -743,6 +799,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             messageInput.value = '';
             stopTyping();
+            
+            // Mobile: Focus back to input and scroll to bottom
+            if (window.innerWidth < 768) {
+                setTimeout(() => {
+                    messageInput.focus();
+                    messageContainer.scrollTop = messageContainer.scrollHeight;
+                }, 100);
+            }
         } else {
             // Fallback to HTTP
             try {
@@ -764,6 +828,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     loadMessages();
                     loadConversations();
                     stopTyping();
+                    
+                    // Mobile: Focus back to input and scroll to bottom
+                    if (window.innerWidth < 768) {
+                        setTimeout(() => {
+                            messageInput.focus();
+                            messageContainer.scrollTop = messageContainer.scrollHeight;
+                        }, 100);
+                    }
                 } else {
                     alert('Failed to send message');
                 }
@@ -773,6 +845,82 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     };
+
+    // Mobile-specific input enhancements
+    if (window.innerWidth < 768) {
+        // Prevent zoom on focus for iOS
+        messageInput.addEventListener('touchstart', function(e) {
+            this.style.fontSize = '16px';
+        });
+
+        // Handle keyboard appearance/disappearance
+        let originalViewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => {
+                const currentHeight = window.visualViewport.height;
+                const heightDiff = originalViewportHeight - currentHeight;
+                
+                if (heightDiff > 150) { // Keyboard is likely visible
+                    // Adjust chat container height
+                    const chatArea = document.getElementById('chat-area');
+                    if (chatArea) {
+                        chatArea.style.height = `calc(100vh - ${currentHeight + 100}px)`;
+                    }
+                    
+                    // Scroll to bottom
+                    setTimeout(() => {
+                        if (messageContainer) {
+                            messageContainer.scrollTop = messageContainer.scrollHeight;
+                        }
+                    }, 300);
+                } else { // Keyboard is hidden
+                    // Reset chat container height
+                    const chatArea = document.getElementById('chat-area');
+                    if (chatArea) {
+                        chatArea.style.height = '';
+                    }
+                }
+            });
+        }
+
+        // Handle input focus on mobile
+        messageInput.addEventListener('focus', () => {
+            // Scroll to bottom when input is focused
+            setTimeout(() => {
+                if (messageContainer) {
+                    messageContainer.scrollTop = messageContainer.scrollHeight;
+                }
+            }, 300);
+        });
+
+        // Add touch-friendly emoji picker positioning
+        if (emojiButton && emojiPicker) {
+            emojiButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                const rect = emojiButton.getBoundingClientRect();
+                const pickerHeight = 200; // Approximate height of emoji picker
+                
+                // Position emoji picker above the input area on mobile
+                emojiPicker.style.bottom = '60px';
+                emojiPicker.style.left = '12px';
+                emojiPicker.style.right = '12px';
+                emojiPicker.style.position = 'fixed';
+                emojiPicker.classList.toggle('hidden');
+            });
+        }
+
+        // Mobile file input handling
+        const fileButton = document.getElementById('file-button');
+        const fileInput = document.getElementById('file-input');
+        
+        if (fileButton && fileInput) {
+            fileButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                fileInput.click();
+            });
+        }
+    }
 
     // Typing indicator
     messageInput?.addEventListener('input', () => {
@@ -806,8 +954,159 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sidebar) {
             sidebar.classList.remove('hidden');
             if (chatArea) chatArea.classList.add('hidden');
+            
+            // Mobile: Add slide-in animation
+            if (window.innerWidth < 768) {
+                sidebar.style.transform = 'translateX(0)';
+                sidebar.style.transition = 'transform 0.3s ease';
+            }
         }
     };
+
+    // Mobile gesture support
+    function initializeMobileGestures() {
+        if (window.innerWidth >= 768) return;
+        
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+        
+        const chatAreaElement = document.getElementById('chat-area');
+        const sidebarElement = document.getElementById('sidebar');
+        
+        if (chatAreaElement) {
+            chatAreaElement.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+            }, { passive: true });
+            
+            chatAreaElement.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                touchEndY = e.changedTouches[0].screenY;
+                handleSwipeGesture();
+            }, { passive: true });
+        }
+        
+        function handleSwipeGesture() {
+            const swipeThreshold = 50;
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = Math.abs(touchEndY - touchStartY);
+            
+            // Only handle horizontal swipes with minimal vertical movement
+            if (Math.abs(deltaX) > swipeThreshold && deltaY < 100) {
+                if (deltaX > 0) {
+                    // Swipe right - show sidebar
+                    showSidebar();
+                    if (navigator.vibrate) {
+                        navigator.vibrate(30);
+                    }
+                }
+            }
+        }
+        
+        // Pull-to-refresh for conversation list
+        let pullStartY = 0;
+        let isPulling = false;
+        
+        if (conversationList) {
+            conversationList.addEventListener('touchstart', function(e) {
+                if (conversationList.scrollTop === 0) {
+                    pullStartY = e.touches[0].screenY;
+                    isPulling = true;
+                }
+            }, { passive: true });
+            
+            conversationList.addEventListener('touchmove', function(e) {
+                if (!isPulling) return;
+                
+                const currentY = e.touches[0].screenY;
+                const pullDistance = currentY - pullStartY;
+                
+                if (pullDistance > 0 && pullDistance < 150) {
+                    conversationList.style.transform = `translateY(${pullDistance * 0.5}px)`;
+                }
+            }, { passive: true });
+            
+            conversationList.addEventListener('touchend', function(e) {
+                if (!isPulling) return;
+                
+                const currentY = e.changedTouches[0].screenY;
+                const pullDistance = currentY - pullStartY;
+                
+                conversationList.style.transform = '';
+                conversationList.style.transition = 'transform 0.3s ease';
+                
+                if (pullDistance > 100) {
+                    // Refresh conversations
+                    loadConversations();
+                    if (navigator.vibrate) {
+                        navigator.vibrate([50, 50, 50]);
+                    }
+                }
+                
+                setTimeout(() => {
+                    conversationList.style.transition = '';
+                    isPulling = false;
+                }, 300);
+            }, { passive: true });
+        }
+    }
+
+    // Mobile navigation improvements
+    function enhanceMobileNavigation() {
+        // Add back button functionality for mobile
+        const backButton = document.querySelector('[onclick="showSidebar()"]');
+        if (backButton && window.innerWidth < 768) {
+            backButton.addEventListener('click', function() {
+                // Add haptic feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate(30);
+                }
+            });
+        }
+        
+        // Optimize scrolling performance
+        if (messageContainer) {
+            messageContainer.style.overflowScrolling = 'touch';
+            messageContainer.style.webkitOverflowScrolling = 'touch';
+        }
+        
+        if (conversationList) {
+            conversationList.style.overflowScrolling = 'touch';
+            conversationList.style.webkitOverflowScrolling = 'touch';
+        }
+    }
+
+    // Initialize mobile enhancements
+    if (window.innerWidth < 768) {
+        initializeMobileGestures();
+        enhanceMobileNavigation();
+    }
+
+    // Handle orientation changes
+    window.addEventListener('orientationchange', function() {
+        setTimeout(() => {
+            if (window.innerWidth < 768) {
+                initializeMobileGestures();
+                enhanceMobileNavigation();
+            }
+            
+            // Adjust chat container height after orientation change
+            if (messageContainer) {
+                messageContainer.scrollTop = messageContainer.scrollHeight;
+            }
+        }, 500);
+    });
+
+    // Handle resize events
+    window.addEventListener('resize', function() {
+        // Re-initialize mobile features if crossing breakpoint
+        if (window.innerWidth < 768) {
+            initializeMobileGestures();
+            enhanceMobileNavigation();
+        }
+    });
 
     window.addReactionToInput = (emoji) => {
         if (messageInput) {

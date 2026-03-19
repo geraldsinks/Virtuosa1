@@ -32,20 +32,356 @@
         }
 
         .chat-container {
-            height: calc(100vh - 80px);
+            height: calc(100vh - 140px);
         }
 
         .conversation-list {
             border-right: 1px solid #e5e7eb;
         }
 
+        /* Mobile-specific improvements */
         @media (max-width: 768px) {
+            .chat-container {
+                height: calc(100vh - 120px);
+            }
+
             .mobile-hidden {
                 display: none;
             }
 
             .mobile-full {
                 width: 100%;
+                height: 100%;
+            }
+
+            /* Mobile conversation list */
+            .conversation-list-item {
+                min-height: 72px;
+                padding: 12px 16px;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .mobile-conversation-item {
+                min-height: 80px;
+                padding: 16px;
+                border-bottom: 1px solid #f3f4f6;
+                transition: all 0.2s ease;
+            }
+
+            .mobile-conversation-item:active {
+                background-color: #f9fafb;
+                transform: scale(0.98);
+            }
+
+            .mobile-avatar {
+                width: 56px;
+                height: 56px;
+                flex-shrink: 0;
+            }
+
+            .mobile-online-indicator {
+                width: 16px;
+                height: 16px;
+                border-width: 3px;
+            }
+
+            .mobile-conversation-content {
+                flex-grow: 1;
+                min-width: 0;
+                margin-left: 12px;
+            }
+
+            .mobile-conversation-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 4px;
+            }
+
+            .mobile-conversation-name {
+                font-size: 16px;
+                font-weight: 600;
+                color: #1f2937;
+            }
+
+            .mobile-conversation-time {
+                font-size: 12px;
+                color: #9ca3af;
+                flex-shrink: 0;
+                margin-left: 8px;
+            }
+
+            .mobile-conversation-message {
+                font-size: 14px;
+                color: #6b7280;
+                line-height: 1.4;
+            }
+
+            .mobile-unread-badge {
+                min-width: 24px;
+                height: 24px;
+                font-size: 12px;
+                font-weight: 600;
+                margin-left: 8px;
+            }
+
+            /* Conversation list scroll optimization */
+            #conversation-list {
+                -webkit-overflow-scrolling: touch;
+                scroll-behavior: smooth;
+            }
+
+            /* Pull-to-refresh indicator */
+            .conversation-list-pull-refresh {
+                height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #f9fafb;
+                color: #6b7280;
+                font-size: 14px;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .conversation-list-pull-refresh.active {
+                opacity: 1;
+            }
+
+            /* Mobile message bubbles */
+            .message-bubble {
+                max-width: 85% !important;
+                margin: 8px 0;
+            }
+
+            /* Mobile input area */
+            .mobile-input-area {
+                padding: 12px;
+                background: white;
+                border-top: 1px solid #e5e7eb;
+                position: sticky;
+                bottom: 0;
+                z-index: 20;
+            }
+
+            /* Mobile input field enhancements */
+            .mobile-input-area #message-input {
+                font-size: 16px; /* Prevents zoom on iOS */
+                padding: 12px 16px;
+                min-height: 44px;
+                border-radius: 22px;
+            }
+
+            /* Mobile input buttons */
+            .mobile-input-area .mobile-touch-button {
+                min-width: 44px;
+                min-height: 44px;
+                border-radius: 22px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* Mobile send button */
+            .mobile-input-area button[type="submit"] {
+                min-width: 44px;
+                min-height: 44px;
+                border-radius: 22px;
+                padding: 12px;
+            }
+
+            /* Mobile search input */
+            .mobile-input-area #search-input {
+                font-size: 16px;
+                padding: 10px 12px;
+                min-height: 40px;
+                border-radius: 20px;
+            }
+
+            /* Emoji picker mobile optimization */
+            .mobile-input-area #emoji-picker {
+                bottom: 60px;
+                left: 12px;
+                right: 12px;
+                max-width: none;
+                position: fixed;
+            }
+
+            .mobile-input-area #emoji-picker button {
+                min-width: 40px;
+                min-height: 40px;
+                font-size: 18px;
+                padding: 8px;
+            }
+
+            /* File input mobile optimization */
+            .mobile-input-area #file-input {
+                min-width: 44px;
+                min-height: 44px;
+            }
+
+            /* Typing indicator mobile */
+            .mobile-input-area #typing-indicator {
+                font-size: 12px;
+                padding: 8px 16px;
+            }
+
+            /* Mobile chat header */
+            .mobile-chat-header {
+                padding: 12px 16px;
+                min-height: 60px;
+            }
+
+            /* Mobile message container */
+            .mobile-message-container {
+                padding: 12px;
+                min-height: calc(100vh - 240px);
+            }
+
+            /* Touch-friendly buttons */
+            .mobile-touch-button {
+                min-width: 44px;
+                min-height: 44px;
+                padding: 8px;
+            }
+
+            /* Safe area for notched phones */
+            .safe-area-bottom {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .chat-container {
+                height: calc(100vh - 100px);
+            }
+
+            .message-bubble {
+                max-width: 90% !important;
+                font-size: 14px;
+            }
+
+            .mobile-message-container {
+                padding: 8px;
+            }
+
+            /* Enhanced mobile message styles */
+            .mobile-message-bubble {
+                margin: 12px 0;
+            }
+
+            .mobile-message-bubble .message-content {
+                padding: 16px;
+                font-size: 16px;
+                line-height: 1.5;
+            }
+
+            .mobile-message-text {
+                font-size: 16px;
+                line-height: 1.5;
+                margin: 8px 0;
+            }
+
+            .mobile-message-meta {
+                margin-top: 12px;
+                font-size: 12px;
+            }
+
+            .mobile-message-time {
+                font-size: 12px;
+            }
+
+            .mobile-message-status {
+                font-size: 12px;
+            }
+
+            .mobile-message-edited {
+                font-size: 10px;
+            }
+
+            .mobile-message-reactions {
+                margin-top: 12px;
+            }
+
+            .mobile-reaction {
+                font-size: 16px;
+                padding: 4px 8px;
+                margin: 2px;
+            }
+
+            .mobile-message-actions {
+                top: 8px;
+                right: 8px;
+            }
+
+            .mobile-action-button {
+                font-size: 14px;
+                padding: 6px 10px;
+                min-width: 36px;
+                min-height: 36px;
+            }
+
+            .mobile-reply-bubble {
+                padding: 12px;
+                margin-bottom: 12px;
+                font-size: 12px;
+            }
+
+            .mobile-product-bubble {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+
+            .mobile-product-bubble img {
+                width: 48px;
+                height: 48px;
+            }
+
+            .mobile-product-bubble p {
+                font-size: 12px;
+            }
+
+            .mobile-image-bubble img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 8px;
+            }
+
+            .mobile-file-bubble {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+
+            .mobile-file-bubble svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .mobile-file-bubble p {
+                font-size: 12px;
+            }
+
+            /* Touch-friendly hover states */
+            .mobile-message-bubble:active {
+                transform: scale(0.98);
+                transition: transform 0.1s ease;
+            }
+
+            .mobile-reaction:active {
+                transform: scale(0.9);
+                transition: transform 0.1s ease;
+            }
+
+            .mobile-action-button:active {
+                transform: scale(0.95);
+                transition: transform 0.1s ease;
+            }
+
+            /* Improve tap targets */
+            .mobile-touch-target {
+                min-height: 44px;
+                min-width: 44px;
             }
         }
     </style>
@@ -272,8 +608,8 @@
     <main class="flex-grow flex overflow-hidden">
         <div class="container mx-auto flex h-full bg-white shadow-xl">
             <!-- Conversations Sidebar -->
-            <div id="sidebar" class="w-full md:w-1/3 flex flex-col border-r border-gray-100">
-                <div class="p-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+            <div id="sidebar" class="w-full md:w-1/3 flex flex-col border-r border-gray-100 mobile-full">
+                <div class="p-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between mobile-chat-header">
                     <h2 class="text-xl font-bold text-navy">Messages</h2>
                     <i data-lucide="message-square" class="text-gold w-5 h-5"></i>
                 </div>
@@ -286,12 +622,12 @@
             </div>
 
             <!-- Chat Space -->
-            <div id="chat-area" class="hidden md:flex flex-col flex-grow bg-white">
+            <div id="chat-area" class="hidden md:flex flex-col flex-grow bg-white mobile-full">
                 <!-- Chat Header -->
                 <div id="chat-header"
-                    class="p-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
+                    class="p-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10 mobile-chat-header">
                     <div class="flex items-center gap-3">
-                        <button onclick="showSidebar()" class="md:hidden p-2 hover:bg-gray-100 rounded-full">
+                        <button onclick="showSidebar()" class="md:hidden mobile-touch-button p-2 hover:bg-gray-100 rounded-full">
                             <i data-lucide="arrow-left" class="w-5 h-5"></i>
                         </button>
                         <div id="recipient-avatar"
@@ -303,15 +639,15 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button class="p-2 hover:bg-gray-100 rounded-lg text-gray-400"><i data-lucide="phone"
+                        <button class="mobile-touch-button p-2 hover:bg-gray-100 rounded-lg text-gray-400"><i data-lucide="phone"
                                 class="w-5 h-5"></i></button>
-                        <button class="p-2 hover:bg-gray-100 rounded-lg text-gray-400"><i data-lucide="more-vertical"
+                        <button class="mobile-touch-button p-2 hover:bg-gray-100 rounded-lg text-gray-400"><i data-lucide="more-vertical"
                                 class="w-5 h-5"></i></button>
                     </div>
                 </div>
 
                 <!-- Messages -->
-                <div id="message-container" class="flex-grow overflow-y-auto p-4 space-y-4 bg-gray-50 bg-opacity-50">
+                <div id="message-container" class="flex-grow overflow-y-auto mobile-message-container space-y-4 bg-gray-50 bg-opacity-50">
                     <div class="flex flex-col items-center justify-center h-full text-gray-400">
                         <i data-lucide="send" class="w-12 h-12 mb-4 opacity-20"></i>
                         <p>Your messages will appear here</p>
@@ -319,30 +655,30 @@
                 </div>
 
                 <!-- Input Area -->
-                <div id="input-area" class="p-4 bg-white border-t border-gray-100">
+                <div id="input-area" class="mobile-input-area bg-white border-t border-gray-100 safe-area-bottom">
                     <!-- Typing Indicator -->
-                    <div id="typing-indicator" class="hidden text-xs text-gray-500 mb-2 italic">
+                    <div id="typing-indicator" class="hidden text-xs text-gray-500 mb-2 italic px-4">
                         Someone is typing...
                     </div>
                     
                     <!-- Search Bar -->
-                    <div class="mb-3">
+                    <div class="mb-3 px-4">
                         <input type="text" id="search-input" placeholder="Search messages..." 
                                class="w-full py-2 px-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold border-none text-sm">
                     </div>
                     
-                    <form id="message-form" class="flex items-center gap-2">
-                        <button type="button" id="file-button" class="p-2 hover:bg-gray-100 rounded-lg text-gray-400 relative">
+                    <form id="message-form" class="flex items-center gap-2 px-4 pb-2">
+                        <button type="button" id="file-button" class="mobile-touch-button hover:bg-gray-100 rounded-lg text-gray-400 relative">
                             <i data-lucide="paperclip" class="w-6 h-6"></i>
                             <input type="file" id="file-input" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*,application/pdf,.doc,.docx,.txt">
                         </button>
-                        <button type="button" id="emoji-button" class="p-2 hover:bg-gray-100 rounded-lg text-gray-400">
+                        <button type="button" id="emoji-button" class="mobile-touch-button hover:bg-gray-100 rounded-lg text-gray-400">
                             <i data-lucide="smile" class="w-6 h-6"></i>
                         </button>
                         <input type="text" id="message-input" placeholder="Type a message..."
                             class="flex-grow py-3 px-4 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold border-none text-sm">
                         <button type="submit"
-                            class="bg-navy text-gold p-3 rounded-xl hover:bg-opacity-90 transition-all shadow-md">
+                            class="bg-navy text-gold mobile-touch-button rounded-xl hover:bg-opacity-90 transition-all shadow-md">
                             <i data-lucide="send" class="w-5 h-5"></i>
                         </button>
                     </form>
