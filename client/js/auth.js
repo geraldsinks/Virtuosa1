@@ -506,10 +506,6 @@ function renderAuthComponent(type) {
     if (!authContainer) return;
 
     const loginFormHtml = `
-        <div id="login-form-wrapper" class="form-container p-8 rounded-2xl w-full max-w-md mx-auto text-gray-800">
-            <div class="text-center mb-6">
-                <h2 class="text-4xl font-bold text-navy">Welcome Back</h2>
-            </div>
             <form id="login-form" class="space-y-6">
                 <div>
                     <label for="login-email" class="form-label block text-sm">Email Address</label>
@@ -537,7 +533,6 @@ function renderAuthComponent(type) {
                     <a href="#" id="switch-to-signup" class="font-bold text-navy hover:text-gold transition-colors duration-200">Sign Up</a>
                 </p>
             </form>
-        </div>
     `;
 
     const signupFormHtml = `
@@ -591,7 +586,7 @@ function renderAuthComponent(type) {
                 </div>
                 <div class="flex items-center space-x-2">
                     <input type="checkbox" id="signup-agreedToTerms" name="agreedToTerms" required class="w-4 h-4 text-navy bg-gray-100 border-gray-300 rounded focus:ring-gold">
-                    <label for="signup-agreedToTerms" class="text-sm text-gray-700">I agree to the <a href="terms.html" target="_blank" class="text-navy hover:text-gold font-medium">Terms and Conditions</a></label>
+                    <label for="signup-agreedToTerms" class="text-sm text-gray-700">I agree to the <a href="pages/terms.html" target="_blank" class="text-navy hover:text-gold font-medium">Terms and Conditions</a></label>
                 </div>
                 <button type="submit" class="auth-button w-full flex justify-center py-3 px-4 rounded-full text-sm font-bold text-navy transition-all duration-300 transform hover:scale-105">
                     Create Account
