@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtuosa - Shopping Cart</title>
+    <title>Cash on Delivery - Virtuosa</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
@@ -23,12 +23,46 @@
         body {
             font-family: 'Montserrat', sans-serif;
         }
+        
+        .delivery-card {
+            transition: all 0.3s ease;
+        }
+        
+        .delivery-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-slide-in {
+            animation: slideIn 0.5s ease forwards;
+        }
+        
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
     </style>
 </head>
 
-<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
-    
-    <!-- Mobile Header Structure (320px-480px) -->
+<body class="bg-gray-50 antialiased">
+    <!-- Standard Navigation -->
     <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
         <!-- Row 1: Utilities and Branding -->
         <div class="v-container mobile-header-row-1">
@@ -157,36 +191,6 @@
                 </div>
             </div>
         </div>
-
-        <nav class="desktop-only bg-dark-navy text-white shadow-sm py-1.5 px-6 md:px-12 z-40 border-t border-gray-800">
-            <div class="container mx-auto nav-row-2-container">
-                <!-- Desktop "Explore" Menu Trigger -->
-                <button id="desktop-explore-menu" onclick="window.openMobileMenu()" class="flex items-center text-white hover:text-gold px-3 py-1 rounded-full border border-gray-700 hover:border-gold transition-all mr-6 group shrink-0">
-                    <i class="fas fa-bars mr-2 group-hover:scale-110 transition-transform"></i>
-                    <span class="font-bold text-[10px] uppercase tracking-wider">Explore</span>
-                </button>
-
-                <!-- Category Menu -->
-                <div class="flex items-center space-x-6 overflow-x-auto hide-scrollbar py-1">
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="nav-category-item">Hot Deals</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="nav-category-item">Best Sellers</a>
-                    <a href="seller.html" class="nav-category-item text-gold">Sell Items</a>
-                    <div class="h-4 w-[1px] bg-gray-700 mx-2 shrink-0"></div>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="nav-category-item">Electronics</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="nav-category-item">Computers & Software</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="nav-category-item">Services</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="nav-category-item">Watches & Jewellery</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="nav-category-item">Men's Clothing</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="nav-category-item">Women's Clothing</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="nav-category-item">Shoes</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="nav-category-item">Accessories</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="nav-category-item">Personal Care & Beauty</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="nav-category-item">Food & Beverages</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="nav-category-item">Sports & Outdoors</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="nav-category-item">Home & Living</a>
-                </div>
-            </div>
-        </nav>
     </header>
 
     <!-- Mobile Navigation Menu Overlay -->
@@ -200,139 +204,69 @@
                 </svg>
             </button>
         </div>
-
-        <div class="mobile-menu-section">
-            <div class="mobile-menu-title">Account</div>
-            <a href="login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
-                <i class="fas fa-sign-in-alt"></i>
-                <span id="mobile-menu-sign-text">Sign In</span>
-            </a>
-            <a href="profile.html" class="mobile-menu-link">
-                <i class="fas fa-user"></i>
-                <span>My Profile</span>
-            </a>
-            <a href="buyer-dashboard.html" class="mobile-menu-link">
-                <i class="fas fa-tachometer-alt"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="orders.html" class="mobile-menu-link">
-                <i class="fas fa-shopping-bag"></i>
-                <span>My Orders</span>
-            </a>
-            <a href="transactions.html" class="mobile-menu-link">
-                <i class="fas fa-exchange-alt"></i>
-                <span>Transactions</span>
-            </a>
-            <a href="reviews.html" class="mobile-menu-link">
-                <i class="fas fa-star"></i>
-                <span>My Reviews</span>
-            </a>
-        </div>
-
-        <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
-            <div class="mobile-menu-title">Seller Tools</div>
-            <a href="seller-dashboard.html" class="mobile-menu-link">
-                <i class="fas fa-store"></i>
-                <span>Seller Dashboard</span>
-            </a>
-            <a href="create-product.html" class="mobile-menu-link">
-                <i class="fas fa-plus-circle"></i>
-                <span>Add Product</span>
-            </a>
-            <a href="seller-analytics.html" class="mobile-menu-link">
-                <i class="fas fa-chart-line"></i>
-                <span>Analytics</span>
-            </a>
-            <a href="seller-orders.html" class="mobile-menu-link">
-                <i class="fas fa-box"></i>
-                <span>Orders</span>
-            </a>
-        </div>
-
-        <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
-            <div class="mobile-menu-title">Admin Panel</div>
-            <a href="admin-dashboard.html" class="mobile-menu-link">
-                <i class="fas fa-cog"></i>
-                <span>Admin Dashboard</span>
-            </a>
-            <a href="admin-seller-applications.html" class="mobile-menu-link">
-                <i class="fas fa-user-check"></i>
-                <span>Seller Applications</span>
-            </a>
-            <a href="admin-mass-messaging.html" class="mobile-menu-link">
-                <i class="fas fa-bullhorn"></i>
-                <span>Mass Messaging</span>
-            </a>
-            <a href="admin-retention.html" class="mobile-menu-link">
-                <i class="fas fa-chart-line"></i>
-                <span>Retention</span>
-            </a>
-        </div>
-
-        <div class="mobile-menu-section">
-            <div class="mobile-menu-title">Shopping</div>
-            <a href="cart.html" class="mobile-menu-link">
-                <i class="fas fa-shopping-cart"></i>
-                <span>Shopping Cart</span>
-            </a>
-            <a href="products.html?category=Hot%20Deals" class="mobile-menu-link">
-                <i class="fas fa-fire"></i>
-                <span>Hot Deals</span>
-            </a>
-            <a href="products.html?category=Best%20Sellers" class="mobile-menu-link">
-                <i class="fas fa-crown"></i>
-                <span>Best Sellers</span>
-            </a>
-            <a href="seller.html" class="mobile-menu-link">
-                <i class="fas fa-store"></i>
-                <span>Become a Seller</span>
-            </a>
-        </div>
     </div>
-
 
     <main class="flex-grow py-8">
         <div class="container mx-auto px-4">
             <!-- Header & Reassurance Banner -->
             <div class="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6 mb-8">
                 <div class="text-center">
-                    <h1 class="text-3xl font-bold text-navy mb-3">You're Almost Home.</h1>
+                    <h1 class="text-3xl font-bold text-navy mb-3">Cash on Delivery</h1>
                     <div class="flex justify-center items-center space-x-6 text-sm text-gray-700">
                         <div class="flex items-center">
-                            <i class="fas fa-lock text-green-600 mr-2"></i>
-                            <span>Secured with Bank-Level Encryption</span>
+                            <i class="fas fa-handshake text-green-600 mr-2"></i>
+                            <span>Pay When You Receive</span>
                         </div>
                         <div class="flex items-center">
-                            <i class="fas fa-truck text-blue-600 mr-2"></i>
-                            <span>30-Day Guaranteed Arrival Window</span>
+                            <i class="fas fa-shield-alt text-blue-600 mr-2"></i>
+                            <span>Secure Transactions</span>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Order Summary -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Multi-Category Product Review List -->
                 <div class="lg:col-span-2">
                     <div class="bg-white rounded-lg shadow-lg p-6">
-                        <div id="cart-items">
-                            <p class="text-center text-gray-500 py-8">Your selections are empty. <a href="products.html"
-                                    class="text-gold font-semibold">Continue exploring</a></p>
+                        <h2 class="text-xl font-bold text-navy mb-6">Order Summary</h2>
+                        <div id="order-items" class="space-y-4">
+                            <!-- Items will be populated here -->
+                        </div>
+                        
+                        <!-- Delivery Information -->
+                        <div class="mt-8 border-t pt-6">
+                            <h3 class="text-lg font-semibold text-navy mb-4">Delivery Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                    <input type="text" id="delivery-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                    <input type="tel" id="delivery-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Delivery Address</label>
+                                    <textarea id="delivery-address" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"></textarea>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Delivery Instructions (Optional)</label>
+                                    <input type="text" id="delivery-instructions" placeholder="e.g., Leave at the gate, call before delivery" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Re-framed Grand Total Summary & Payment Method -->
+                <!-- Order Details & Action -->
                 <div class="lg:col-span-1">
                     <div class="bg-white rounded-lg shadow-lg p-6 h-fit sticky top-20">
-                        <!-- Total Value Summary -->
                         <h2 class="text-xl font-bold text-navy mb-4">Final Invoice</h2>
                         <div class="space-y-3 border-t border-gray-200 pt-4">
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Total Value of Selections:</span>
                                 <span class="font-semibold text-navy" id="subtotal">ZMW 0.00</span>
-                            </div>
-                            <div class="text-xs text-gray-500 mt-2">
-                                Includes all Taxes, Fees, and your 30-Day Guaranteed Arrival Protection
                             </div>
                             <div class="flex justify-between border-t border-gray-200 pt-3">
                                 <span class="font-bold text-navy">Final Invoice:</span>
@@ -340,73 +274,38 @@
                             </div>
                         </div>
 
-                        <!-- Fulfillment Method Selection -->
-                        <div class="mt-6 pt-6 border-t border-gray-200">
-                            <h3 class="text-lg font-semibold text-navy mb-4">Select Your Fulfillment Method</h3>
-                            <div class="space-y-3">
-                                <!-- Mobile Money Card -->
-                                <div class="border border-gray-200 rounded-lg p-4 hover:border-gold hover:shadow-md transition-all cursor-pointer" onclick="selectFulfillmentMethod('mobile-money')">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <h4 class="font-semibold text-navy mb-2">Mobile Money</h4>
-                                            <div class="flex items-center space-x-3">
-                                                <img src="https://res.cloudinary.com/dfruk0ufj/image/upload/v1773956210/virtuosa/marketing/nj94slxos41pgfdjzgsa.png" alt="Airtel Money" class="w-8 h-8 object-contain">
-                                                <img src="https://res.cloudinary.com/dfruk0ufj/image/upload/v1773956207/virtuosa/marketing/rmnzc4a5qskahm0u7rbc.webp" alt="MTN Money" class="w-8 h-8 object-contain">
-                                            </div>
-                                        </div>
-                                        <i class="fas fa-chevron-right text-gray-400"></i>
-                                    </div>
-                                </div>
-
-                                <!-- Cash on Delivery Card -->
-                                <div class="border border-gray-200 rounded-lg p-4 hover:border-gold hover:shadow-md transition-all cursor-pointer" onclick="selectFulfillmentMethod('cash-on-delivery')">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <h4 class="font-semibold text-navy">Cash on Delivery</h4>
-                                            <p class="text-sm text-gray-600">Pay when your items arrive</p>
-                                        </div>
-                                        <i class="fas fa-chevron-right text-gray-400"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Anti-Guilt Final Action Buttons -->
+                        <!-- Action Button -->
                         <div class="mt-6 space-y-3">
-                            <button id="finalize-selection-btn" onclick="finalizeSelection()" 
+                            <button id="place-order-btn" onclick="placeCashOnDeliveryOrder()" 
                                 class="w-full bg-gradient-to-r from-gold to-yellow-600 text-white font-bold py-3 px-4 rounded-full hover:from-gold hover:to-yellow-700 transition-all transform hover:scale-105 shadow-lg">
-                                FINALIZE MY SELECTION
-                            </button>
-                            <button id="get-delivered-btn" onclick="getItDelivered()" 
-                                class="w-full bg-navy text-white font-semibold py-2 px-4 rounded-full hover:bg-dark-navy transition-colors">
-                                GET IT DELIVERED
+                                PLACE ORDER - CASH ON DELIVERY
                             </button>
                         </div>
 
-                        <!-- Final Safety Net Microcopy -->
+                        <!-- Safety Net Microcopy -->
                         <div class="mt-4 text-center text-xs text-gray-600">
                             <i class="fas fa-shield-alt text-green-600 mr-1"></i>
-                            We will send your arrival confirmation and secure tracking link immediately.
+                            Order confirmation will be sent to sellers immediately.
                         </div>
 
                         <!-- Continue Shopping -->
-                        <a id="continue-shopping-button"
-                            href="products.html"
-                            class="block text-center text-gray-600 text-sm mt-4 hover:text-gold transition-colors">
-                            Continue Exploring
+                        <a href="cart.html" class="block text-center text-gray-600 text-sm mt-4 hover:text-gold transition-colors">
+                            Back to Cart
                         </a>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+
     <footer class="bg-navy text-gray-400 p-4 text-center shadow-inner mt-auto">
         &copy; 2025 Virtuosa. All rights reserved.
     </footer>
+
     <script src="../js/config.js"></script>
     <script src="../js/header.js"></script>
     <script src="../js/mobile-header.js"></script>
-    <script src="../js/cart.js"></script>
+    <script src="../js/cash-on-delivery.js"></script>
 </body>
 
 </html>

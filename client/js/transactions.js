@@ -458,11 +458,12 @@ async function confirmShipment(event) {
 async function confirmDelivery(transactionId) {
     if (!confirm('Are you sure you have received the item and want to confirm delivery? This will release the payment to the seller.')) {
         return;
+    }
 
-try {
-const token = localStorage.getItem('token');
+    try {
+        const token = localStorage.getItem('token');
         
-const response = await fetch(`${API_BASE}/transactions/${transactionId}/confirm-delivery`, {
+        const response = await fetch(`${API_BASE}/transactions/${transactionId}/confirm-delivery`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`

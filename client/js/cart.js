@@ -101,7 +101,24 @@ async function addToCart(product, quantity = 1) {
             if (response.ok) {
                 console.log('✅ Added to backend cart');
                 
-                // Also update localStorage for immediate display
+                showToast(`${product.name} added to cart!`, 'success');
+                showCartBanner(`${product.name} added to cart!`);
+                await updateCartIcon();
+                
+                // Refresh cart from backend to get the latest state
+                const cart = await getCart();
+                console.log('💾 Refreshed cart from backend:', cart);
+                
+                // If we're on the cart page, re-render to show the new item
+                if (window.location.pathname.includes('cart.html')) {
+                    setTimeout(() => renderCart(), 100);
+                }
+            } else {
+                const error = await response.json();
+                console.error('❌ Backend add to cart failed:', error);
+                
+                // Fall back to localStorage if backend fails
+                console.log('🔄 Falling back to localStorage due to backend error');
                 const cart = await getCart();
                 const existingItem = cart.find(item => item._id === product._id);
 
@@ -117,7 +134,7 @@ async function addToCart(product, quantity = 1) {
                 }
 
                 await saveCart(cart);
-                console.log('💾 Updated localStorage cart');
+                console.log('💾 Saved to localStorage as fallback');
                 
                 showToast(`${product.name} added to cart!`, 'success');
                 showCartBanner(`${product.name} added to cart!`);
@@ -127,14 +144,37 @@ async function addToCart(product, quantity = 1) {
                 if (window.location.pathname.includes('cart.html')) {
                     setTimeout(() => renderCart(), 100);
                 }
-            } else {
-                const error = await response.json();
-                console.error('❌ Backend add to cart failed:', error);
-                showToast(error.message || 'Failed to add to cart', 'error');
             }
         } catch (error) {
             console.error('❌ Error adding to cart:', error);
-            showToast('Failed to add to cart', 'error');
+            
+            // Fall back to localStorage if network error occurs
+            console.log('🔄 Falling back to localStorage due to network error');
+            const cart = await getCart();
+            const existingItem = cart.find(item => item._id === product._id);
+
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({
+                    product: product,
+                    quantity: quantity,
+                    _id: product._id,
+                    addedAt: new Date().toISOString()
+                });
+            }
+
+            await saveCart(cart);
+            console.log('💾 Saved to localStorage as fallback');
+            
+            showToast(`${product.name} added to cart!`, 'success');
+            showCartBanner(`${product.name} added to cart!`);
+            await updateCartIcon();
+            
+            // If we're on the cart page, re-render to show the new item
+            if (window.location.pathname.includes('cart.html')) {
+                setTimeout(() => renderCart(), 100);
+            }
         }
     } else {
         // Add to localStorage cart
@@ -247,6 +287,31 @@ document.addEventListener('click', (e) => {
 async function removeFromCart(productId) {
     console.log('🗑️ Removing item from cart:', productId);
     
+    const token = localStorage.getItem('token');
+    
+    if (token) {
+        // Remove from backend cart first
+        try {
+            const response = await fetch(`${API_BASE}/cart/remove`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ productId })
+            });
+            
+            if (response.ok) {
+                console.log('✅ Item removed from backend cart');
+            } else {
+                console.warn('⚠️ Backend removal failed, continuing with localStorage update');
+            }
+        } catch (error) {
+            console.error('❌ Backend removal error:', error);
+        }
+    }
+    
+    // Update localStorage
     const cart = await getCart();
     const updatedCart = cart.filter(item => item._id !== productId);
     
@@ -266,21 +331,46 @@ async function removeFromCart(productId) {
 async function updateQuantity(productId, delta) {
     console.log('🔢 Updating quantity:', { productId, delta });
     
+    const token = localStorage.getItem('token');
     const cart = await getCart();
     const item = cart.find(item => item._id === productId);
     
     console.log('🛒 Found item:', item);
 
     if (item) {
-        item.quantity += delta;
-        console.log('🔢 New quantity:', item.quantity);
+        const newQuantity = item.quantity + delta;
+        console.log('🔢 New quantity:', newQuantity);
 
-        if (item.quantity <= 0) {
+        if (newQuantity <= 0) {
             console.log('🗑️ Quantity is 0, removing item');
             await removeFromCart(productId);
             return;
         }
 
+        if (token) {
+            // Update quantity in backend cart
+            try {
+                const response = await fetch(`${API_BASE}/cart/update`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ productId, quantity: newQuantity })
+                });
+                
+                if (response.ok) {
+                    console.log('✅ Quantity updated in backend cart');
+                } else {
+                    console.warn('⚠️ Backend update failed, continuing with localStorage update');
+                }
+            } catch (error) {
+                console.error('❌ Backend update error:', error);
+            }
+        }
+        
+        // Update localStorage
+        item.quantity = newQuantity;
         await saveCart(cart);
         console.log('💾 Cart saved with new quantity');
 
@@ -316,7 +406,6 @@ async function updateCartIcon() {
 async function renderCart() {
     const cartItemsContainer = document.getElementById('cart-items');
     const subtotalElement = document.getElementById('subtotal');
-    const shippingElement = document.getElementById('shipping');
     const totalElement = document.getElementById('total');
 
     if (!cartItemsContainer) return; // Not on the cart page
@@ -326,13 +415,15 @@ async function renderCart() {
     console.log('🛒 Rendering cart with data:', cart);
 
     if (cart.length === 0) {
-        cartItemsContainer.innerHTML = '<p class="text-center text-gray-500 py-8">Your cart is empty. <a href="/pages/products.html" class="text-gold font-semibold">Continue shopping</a></p>';
+        cartItemsContainer.innerHTML = '<p class="text-center text-gray-500 py-8">Your selections are empty. <a href="/pages/products.html" class="text-gold font-semibold">Continue exploring</a></p>';
         if (subtotalElement) subtotalElement.textContent = 'ZMW 0.00';
-        if (shippingElement) shippingElement.textContent = 'ZMW 0.00';
         if (totalElement) totalElement.textContent = 'ZMW 0.00';
         return;
     }
 
+    // Group items by category/intent for guilt-reduced display
+    const groupedItems = groupCartItemsByIntent(cart);
+    
     // Calculate totals
     const subtotal = cart.reduce((sum, item) => {
         const product = item.product || item;
@@ -343,21 +434,96 @@ async function renderCart() {
     const total = subtotal + shipping;
 
     if (subtotalElement) subtotalElement.textContent = `ZMW ${subtotal.toFixed(2)}`;
-    if (shippingElement) shippingElement.textContent = `ZMW ${shipping.toFixed(2)}`;
     if (totalElement) totalElement.textContent = `ZMW ${total.toFixed(2)}`;
 
-    // Render items
-    cartItemsContainer.innerHTML = cart.map(item => {
-        // Extract product data from nested structure
+    // Render grouped items
+    let html = '';
+    for (const [groupName, items] of Object.entries(groupedItems)) {
+        html += `
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-navy mb-4 pb-2 border-b border-gray-200">${groupName}</h3>
+                <div class="space-y-4">
+                    ${items.map(item => renderItem(item)).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    cartItemsContainer.innerHTML = html;
+}
+
+// Group cart items by intent/purpose to reduce guilt
+function groupCartItemsByIntent(cart) {
+    const groups = {};
+    
+    cart.forEach(item => {
         const product = item.product || item;
-        const productId = item._id || product._id;
+        const category = product.category || 'General';
+        const groupName = getIntentGroupName(category, product.name);
         
-        // Get image from product.images array or product.image
-        const imageUrl = product.images?.[0] || product.image || '';
-        
-        console.log('📦 Rendering item:', { item, product, productId, imageUrl });
-        
-        return `
+        if (!groups[groupName]) {
+            groups[groupName] = [];
+        }
+        groups[groupName].push(item);
+    });
+    
+    return groups;
+}
+
+// Determine intent-based group name
+function getIntentGroupName(category, productName) {
+    const lowerCategory = category.toLowerCase();
+    const lowerName = productName.toLowerCase();
+    
+    // Tech & Electronics
+    if (lowerCategory.includes('electronic') || lowerCategory.includes('computer') || 
+        lowerCategory.includes('phone') || lowerName.includes('laptop') ||
+        lowerName.includes('phone') || lowerName.includes('tablet')) {
+        return 'Your Tech Setup';
+    }
+    
+    // Fashion & Apparel
+    if (lowerCategory.includes('clothing') || lowerCategory.includes('fashion') ||
+        lowerCategory.includes('shoes') || lowerName.includes('shirt') ||
+        lowerName.includes('dress') || lowerName.includes('jeans')) {
+        return 'Your Weekend Look';
+    }
+    
+    // Home & Living
+    if (lowerCategory.includes('home') || lowerCategory.includes('furniture') ||
+        lowerName.includes('chair') || lowerName.includes('table') ||
+        lowerName.includes('sofa') || lowerName.includes('bed')) {
+        return 'Your Living Room Upgrade';
+    }
+    
+    // Books & Learning
+    if (lowerCategory.includes('book') || lowerName.includes('book') ||
+        lowerName.includes('textbook') || lowerName.includes('course')) {
+        return 'Your Learning Journey';
+    }
+    
+    // Sports & Fitness
+    if (lowerCategory.includes('sports') || lowerName.includes('sports') ||
+        lowerName.includes('gym') || lowerName.includes('fitness')) {
+        return 'Your Fitness Goals';
+    }
+    
+    // Default group
+    return 'Your Selected Items';
+}
+
+// Render individual item
+function renderItem(item) {
+    // Extract product data from nested structure
+    const product = item.product || item;
+    const productId = item._id || product._id;
+    
+    // Get image from product.images array or product.image
+    const imageUrl = product.images?.[0] || product.image || '';
+    
+    console.log('📦 Rendering item:', { item, product, productId, imageUrl });
+    
+    return `
         <div class="flex items-center border-b border-gray-200 py-4 last:border-0 last:pb-0">
             <img src="${fixServerUrl(imageUrl) || 'https://placehold.co/100x100?text=Product'}" alt="${product.name || 'Product'}" class="w-20 h-20 object-cover rounded-md">
             <div class="ml-4 flex-grow">
@@ -375,7 +541,6 @@ async function renderCart() {
             </div>
         </div>
     `;
-    }).join('');
 }
 
 // Cart Management JavaScript
@@ -411,12 +576,69 @@ function showCartBanner(message = 'Item added to cart!') {
     }
 }
 
+// Fulfillment method selection functions
+function selectFulfillmentMethod(method) {
+    console.log('🚀 Selected fulfillment method:', method);
+    
+    // Remove previous selections
+    document.querySelectorAll('[onclick^="selectFulfillmentMethod"]').forEach(card => {
+        card.classList.remove('border-gold', 'bg-gold', 'bg-opacity-10');
+        card.classList.add('border-gray-200');
+    });
+    
+    // Highlight selected method
+    const selectedCard = event.currentTarget;
+    selectedCard.classList.remove('border-gray-200');
+    selectedCard.classList.add('border-gold', 'bg-gold', 'bg-opacity-10');
+    
+    // Store selection
+    localStorage.setItem('selectedFulfillmentMethod', method);
+}
+
+function finalizeSelection() {
+    const method = localStorage.getItem('selectedFulfillmentMethod');
+    if (!method) {
+        alert('Please select a fulfillment method first.');
+        return;
+    }
+    
+    console.log('🎯 Finalizing selection with method:', method);
+    
+    if (method === 'mobile-money') {
+        // Redirect to mobile money payment page
+        window.location.href = 'mobile-money-payment.html';
+    } else if (method === 'cash-on-delivery') {
+        // Redirect to cash on delivery confirmation page
+        window.location.href = 'cash-on-delivery.html';
+    }
+}
+
+function getItDelivered() {
+    const method = localStorage.getItem('selectedFulfillmentMethod');
+    if (!method) {
+        alert('Please select a fulfillment method first.');
+        return;
+    }
+    
+    console.log('🚚 Getting items delivered with method:', method);
+    
+    // Same logic as finalizeSelection but with different messaging
+    if (method === 'mobile-money') {
+        window.location.href = 'mobile-money-payment.html';
+    } else if (method === 'cash-on-delivery') {
+        window.location.href = 'cash-on-delivery.html';
+    }
+}
+
 // Make functions globally available
 window.addToCart = addToCart;
 window.updateQuantity = updateQuantity;
 window.removeFromCart = removeFromCart;
 window.showCartBanner = showCartBanner;
 window.fixServerUrl = fixServerUrl;
+window.selectFulfillmentMethod = selectFulfillmentMethod;
+window.finalizeSelection = finalizeSelection;
+window.getItDelivered = getItDelivered;
 
 // Initialize cart on page load
 document.addEventListener('DOMContentLoaded', async () => {
@@ -474,5 +696,3 @@ function setupContinueShoppingButton() {
     console.log('📂 Default: continuing to products page');
 }
 
-// Make the helper function globally available
-window.fixServerUrl = fixServerUrl;

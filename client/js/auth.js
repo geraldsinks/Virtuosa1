@@ -151,15 +151,9 @@ async function handleLogin(event) {
             // Handle specific error for email verification
             if (result.requiresEmailVerification) {
                 showMessage(result.message, true);
-                // Show options for verification
+                // Automatically resend verification email
                 setTimeout(() => {
-                    const choice = confirm('Email verification required!\n\nOptions:\n1. OK - Resend verification email\n2. Cancel - Use manual verification code');
-                    if (choice) {
-                        resendVerificationEmail(email);
-                    } else {
-                        // Use manual verification
-                        requestManualVerificationCode(email);
-                    }
+                    resendVerificationEmail(email);
                 }, 2000);
             } else {
                 showMessage(result.message || 'Login failed', true);
@@ -190,69 +184,6 @@ async function resendVerificationEmail(email) {
     } catch (error) {
         console.error('Resend verification error:', error);
         showMessage('Failed to send verification email. Please try again.', true);
-    }
-}
-
-async function requestManualVerificationCode(email) {
-    try {
-        showMessage('Requesting manual verification code...');
-        
-        const response = await fetch(`${BASE_API_URL}/manual-verify`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-
-        const result = await response.json();
-        console.log('Manual verification response:', result);
-
-        if (response.ok) {
-            const code = result.verificationCode;
-            const expiresIn = result.expiresIn;
-            
-            showMessage(`Verification code: ${code}\nThis code expires in ${expiresIn} minutes. Please save it.`, false);
-            
-            // Show input dialog to enter the code
-            setTimeout(() => {
-                const userCode = prompt(`Enter verification code (expires in ${expiresIn} minutes):`);
-                if (userCode) {
-                    confirmManualVerificationCode(email, userCode);
-                }
-            }, 1000);
-        } else {
-            showMessage(result.message || 'Failed to generate verification code', true);
-        }
-    } catch (error) {
-        console.error('Manual verification request error:', error);
-        showMessage('Failed to request verification code. Please try again.', true);
-    }
-}
-
-async function confirmManualVerificationCode(email, verificationCode) {
-    try {
-        showMessage('Confirming verification code...');
-        
-        const response = await fetch(`${BASE_API_URL}/confirm-manual-verify`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, verificationCode })
-        });
-
-        const result = await response.json();
-        console.log('Manual verification confirmation response:', result);
-
-        if (response.ok) {
-            showMessage('Email verified successfully! You can now login.', false);
-            setTimeout(() => {
-                document.getElementById('login-email').value = email;
-                document.getElementById('login-password-input').focus();
-            }, 2000);
-        } else {
-            showMessage(result.message || 'Failed to verify code', true);
-        }
-    } catch (error) {
-        console.error('Manual verification confirmation error:', error);
-        showMessage('Failed to confirm verification code. Please try again.', true);
     }
 }
 
@@ -503,7 +434,7 @@ function renderAuthComponent(type) {
                 </div>
                 <div class="flex items-center space-x-2">
                     <input type="checkbox" id="signup-agreedToTerms" name="agreedToTerms" required class="w-4 h-4 text-navy bg-gray-100 border-gray-300 rounded focus:ring-gold">
-                    <label for="signup-agreedToTerms" class="text-sm text-gray-700">I agree to the <a href="#" class="text-navy hover:text-gold font-medium">terms and conditions</a></label>
+                    <label for="signup-agreedToTerms" class="text-sm text-gray-700">I agree to the <a href="terms.html" target="_blank" class="text-navy hover:text-gold font-medium">Terms and Conditions</a></label>
                 </div>
                 <button type="submit" class="auth-button w-full flex justify-center py-3 px-4 rounded-full text-sm font-bold text-navy transition-all duration-300 transform hover:scale-105">
                     Create Account

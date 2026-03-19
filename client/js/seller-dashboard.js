@@ -250,6 +250,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('active-listings').textContent = dashboardData.stats.activeListings;
         document.getElementById('sold-items').textContent = dashboardData.stats.soldItems;
         document.getElementById('seller-rating').textContent = dashboardData.seller.rating.toFixed(1);
+        
+        // Update token balance
+        const tokenBalance = document.getElementById('token-balance');
+        if (tokenBalance) {
+            tokenBalance.textContent = dashboardData.seller.tokenBalance || 0;
+        }
 
         // Update stars preview
         updateRatingStars(dashboardData.seller.rating);

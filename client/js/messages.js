@@ -93,8 +93,21 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Get URL parameters immediately
     const urlParams = new URLSearchParams(window.location.search);
-    let currentRecipientId = urlParams.get('recipientId');
+    let currentRecipientId = urlParams.get('recipientId') || urlParams.get('seller');
     const currentProductId = urlParams.get('productId');
+    const currentOrderId = urlParams.get('order');
+    
+    // If seller and order parameters are present, start chat with seller about order
+    if (urlParams.get('seller') && urlParams.get('order')) {
+        const sellerId = urlParams.get('seller');
+        const orderId = urlParams.get('order');
+        console.log('Starting chat with seller about order:', { sellerId, orderId });
+        
+        // Set a timeout to ensure conversations are loaded first
+        setTimeout(() => {
+            startChat(sellerId, 'Seller', '', orderId);
+        }, 1000);
+    }
     
     console.log('URL parameters:', { currentRecipientId, currentProductId });
 
@@ -127,8 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Define startChat function BEFORE calling it
-    window.startChat = async (recipientId, recipientName, recipientProfilePicture) => {
-        console.log('🚀 startChat called with:', { recipientId, recipientName, recipientProfilePicture });
+    window.startChat = async (recipientId, recipientName, recipientProfilePicture, orderId = '') => {
+        console.log('🚀 startChat called with:', { recipientId, recipientName, recipientProfilePicture, orderId });
         
         currentRecipientId = recipientId;
         activeConversationId = recipientId;
@@ -136,6 +149,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // Join socket room for real-time messaging
         if (socketConnected && socket) {
             socket.emit('join_conversation', recipientId);
+        }
+
+        // If orderId is provided, send an initial message about the order
+        if (orderId) {
+            setTimeout(async () => {
+                const initialMessage = `Hello! I'm messaging you about order #${orderId.slice(-8)}. I have some questions about this order.`;
+                
+                // Send the initial message
+                await sendMessage(initialMessage, orderId);
+                
+                console.log('📝 Sent initial order message:', initialMessage);
+            }, 1500); // Wait a bit for the chat to fully load
         }
 
         // Mobile UI handle
@@ -804,7 +829,8 @@ document.addEventListener('DOMContentLoaded', () => {
             socket.emit('send_message', {
                 receiverId: currentRecipientId,
                 content,
-                productId: currentProductId || undefined
+                productId: currentProductId || undefined,
+                orderId: currentOrderId || undefined
             });
             messageInput.value = '';
             stopTyping();
@@ -828,7 +854,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify({
                         receiverId: currentRecipientId,
                         content,
-                        productId: currentProductId || undefined
+                        productId: currentProductId || undefined,
+                        orderId: currentOrderId || undefined
                     })
                 });
 
