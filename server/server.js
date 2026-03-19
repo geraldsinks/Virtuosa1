@@ -2050,19 +2050,15 @@ const transporter = nodemailer.createTransport({
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
-    pool: true, // Use connection pooling
-    maxConnections: 2, // Reduced to prevent overwhelming
-    maxMessages: 10, // Reduced for better reliability
-    rateDelta: 5000, // 5 seconds delay between emails
-    rateLimit: 1, // Max 1 email per 5 seconds
-    connectionTimeout: 60000, // 60 seconds connection timeout
-    greetingTimeout: 30000, // 30 seconds greeting timeout
-    socketTimeout: 60000, // 60 seconds socket timeout
+    pool: false, // Disable pooling for better reliability
+    connectionTimeout: 120000, // 2 minutes connection timeout
+    greetingTimeout: 60000, // 1 minute greeting timeout
+    socketTimeout: 120000, // 2 minutes socket timeout
     tls: {
         rejectUnauthorized: false
     },
-    debug: false, // Set to true for debugging email issues
-    logger: false // Set to true for detailed logging
+    debug: true, // Enable debugging for email issues
+    logger: true // Enable detailed logging
 });
 
 // Verify transporter configuration on startup
@@ -2402,21 +2398,47 @@ app.post('/api/auth/resend-verification', async (req, res) => {
         });
         
         try {
-            await transporter.sendMail({
-                to: normalizedEmail,
-                subject: 'Virtuosa - Verify Your Email',
-                html: `
-                    <h2>Email Verification Request</h2>
-                    <p>You requested a new verification email. Please click <a href="${emailVerificationLink}">here</a> to verify your email address.</p>
-                    <p>This link will expire in 24 hours.</p>
-                `
-            });
+            let retryCount = 0;
+            const maxRetries = 3;
             
-            console.log('✅ Verification email sent successfully to:', normalizedEmail);
+            const sendEmail = async () => {
+                try {
+                    const result = await transporter.sendMail({
+                        to: normalizedEmail,
+                        subject: 'Virtuosa - Verify Your Email',
+                        html: `
+                            <h2>Email Verification Request</h2>
+                            <p>You requested a new verification email. Please click <a href="${emailVerificationLink}">here</a> to verify your email address.</p>
+                            <p>This link will expire in 24 hours.</p>
+                        `
+                    });
+                    
+                    console.log('✅ Verification email sent successfully to:', normalizedEmail);
+                    console.log('📧 Email result:', result);
+                    
+                    res.json({ 
+                        message: 'Verification email sent successfully. Please check your inbox (including spam folder).' 
+                    });
+                } catch (error) {
+                    retryCount++;
+                    console.error(`❌ Email send attempt ${retryCount} failed:`, error);
+                    
+                    if (retryCount < maxRetries) {
+                        console.log(`🔄 Retrying email send... Attempt ${retryCount + 1}/${maxRetries}`);
+                        // Wait 2 seconds before retry
+                        setTimeout(sendEmail, 2000);
+                    } else {
+                        console.error('❌ All email attempts failed');
+                        res.status(500).json({ 
+                            message: 'Failed to send verification email. Please check your email address or contact support at virtuosa@gmail.com.',
+                            error: 'Email sending failed',
+                            details: error.message 
+                        });
+                    }
+                }
+            };
             
-            res.json({ 
-                message: 'Verification email sent successfully. Please check your inbox (including spam folder).' 
-            });
+            await sendEmail();
         } catch (emailError) {
             console.error('❌ Failed to send verification email:', emailError);
             console.error('Email error details:', {
