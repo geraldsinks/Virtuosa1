@@ -289,12 +289,75 @@
                 margin-top: 60px;
             }
             
-            /* Fix message container scrolling */
+            /* Fix message container scrolling - prevent elastic behavior */
             .mobile-message-container {
-                height: calc(100vh - 200px);
+                height: calc(100vh - 240px); /* Account for header + input area */
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 padding: 12px;
+                overscroll-behavior: contain; /* Prevent elastic scrolling */
+                position: relative;
+            }
+            
+            /* Fix conversation list scrolling */
+            #conversation-list {
+                height: calc(100vh - 140px); /* Account for header + sidebar header */
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain; /* Prevent elastic scrolling */
+                position: relative;
+            }
+            
+            /* Fix mobile menu scrolling */
+            .mobile-menu-content {
+                height: calc(100vh - 60px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain; /* Prevent elastic scrolling */
+                margin-top: 60px;
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 80%;
+                max-width: 300px;
+                background: white;
+                transition: left 0.3s ease;
+                z-index: 200;
+            }
+            
+            .mobile-menu-content.active {
+                left: 0;
+            }
+            
+            /* Make input area always visible */
+            .mobile-input-area {
+                position: sticky;
+                bottom: 0;
+                background: white;
+                border-top: 1px solid #e5e7eb;
+                padding: 12px;
+                z-index: 10;
+                min-height: 120px; /* Ensure enough space for search + input */
+                overscroll-behavior: contain;
+            }
+            
+            /* Mobile menu overlay */
+            #mobile-menu-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 199;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                pointer-events: none;
+            }
+            
+            #mobile-menu-overlay:not(.hidden) {
+                opacity: 1;
+                pointer-events: auto;
             }
             
             /* Prevent body scroll on mobile */
@@ -303,6 +366,7 @@
                 position: fixed;
                 width: 100%;
                 height: 100vh;
+                overscroll-behavior: none; /* Prevent body elastic scrolling */
             }
             
             /* Fix sidebar scrolling on mobile */
@@ -310,13 +374,17 @@
                 height: calc(100vh - 60px);
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
                 margin-top: 60px;
+                position: relative;
             }
             
             /* Fix chat area positioning */
             #chat-area {
                 height: calc(100vh - 60px);
                 margin-top: 60px;
+                display: flex;
+                flex-direction: column;
             }
 
             .message-bubble {
@@ -453,10 +521,10 @@
     
     <!-- Minimal Mobile Messages Header (Hidden on Desktop) -->
     <header class="mobile-messages-header hidden">
-        <!-- Left: Back/Menu Button -->
-        <button id="mobile-back-button" class="text-white hover:text-gold transition-colors p-2">
+        <!-- Left: Menu Button -->
+        <button id="mobile-menu-button" class="text-white hover:text-gold transition-colors p-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
         </button>
 

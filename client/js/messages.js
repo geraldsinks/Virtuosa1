@@ -962,19 +962,28 @@ document.addEventListener('DOMContentLoaded', () => {
     window.showSidebar = () => {
         const sidebar = document.getElementById('sidebar');
         const chatArea = document.getElementById('chat-area');
+        const mobileHeader = document.querySelector('.mobile-messages-header');
+        const mobileTitle = mobileHeader?.querySelector('h1');
         
         if (sidebar) {
             sidebar.classList.remove('hidden');
             if (chatArea) chatArea.classList.add('hidden');
             
-            // Mobile: Add slide-in animation and adjust header
+            // Mobile: Add slide-in animation and update header
             if (window.innerWidth < 768) {
                 sidebar.style.transform = 'translateX(0)';
                 sidebar.style.transition = 'transform 0.3s ease';
                 
-                // Update mobile header title
-                const mobileTitle = document.querySelector('.mobile-messages-header h1');
-                if (mobileTitle) mobileTitle.textContent = 'Conversations';
+                // Update mobile header title to show "Conversations"
+                if (mobileTitle) {
+                    mobileTitle.textContent = 'Conversations';
+                }
+                
+                // Close mobile menu if it's open
+                const mobileMenu = document.querySelector('.mobile-menu-content');
+                const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+                if (mobileMenu) mobileMenu.classList.remove('active');
+                if (mobileMenuOverlay) mobileMenuOverlay.classList.add('hidden');
             }
         }
     };
@@ -1226,22 +1235,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const chatArea = document.getElementById('chat-area');
         const sidebar = document.getElementById('sidebar');
         const messageContainer = document.getElementById('message-container');
+        const mobileMenu = document.querySelector('.mobile-menu-content');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
         
         // Show mobile header, hide site header on mobile
         if (mobileHeader) mobileHeader.classList.remove('hidden');
         if (siteHeader) siteHeader.classList.add('hidden');
         
-        // Handle back button
-        const backButton = document.getElementById('mobile-back-button');
-        if (backButton) {
-            backButton.addEventListener('click', () => {
-                if (chatArea && sidebar) {
-                    // Show sidebar, hide chat area
-                    sidebar.classList.remove('hidden');
-                    chatArea.classList.add('hidden');
-                } else {
-                    // Go back to previous page
-                    window.history.back();
+        // Handle mobile menu button
+        const menuButton = document.getElementById('mobile-menu-button');
+        if (menuButton) {
+            menuButton.addEventListener('click', () => {
+                if (mobileMenu) {
+                    mobileMenu.classList.toggle('active');
+                    if (mobileMenuOverlay) {
+                        mobileMenuOverlay.classList.toggle('hidden');
+                    }
+                }
+            });
+        }
+        
+        // Handle menu overlay click
+        if (mobileMenuOverlay) {
+            mobileMenuOverlay.addEventListener('click', () => {
+                if (mobileMenu) {
+                    mobileMenu.classList.remove('active');
+                    mobileMenuOverlay.classList.add('hidden');
                 }
             });
         }
@@ -1252,12 +1271,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (searchToggle && searchInput) {
             searchToggle.addEventListener('click', () => {
                 searchInput.focus();
-                searchInput.scrollIntoView({ behavior: 'smooth' });
+                // Smooth scroll to input area
+                const inputArea = document.getElementById('input-area');
+                if (inputArea) {
+                    inputArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                }
             });
         }
         
         // Fix scrolling behavior
         fixMobileScrolling();
+        
+        // Auto-scroll to bottom when new messages are added
+        observeNewMessages();
         
         // Handle resize
         window.addEventListener('resize', () => {
@@ -1267,6 +1293,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (siteHeader) siteHeader.classList.remove('hidden');
                 document.body.style.overflow = '';
                 document.body.style.position = '';
+                if (mobileMenu) mobileMenu.classList.remove('active');
+                if (mobileMenuOverlay) mobileMenuOverlay.classList.add('hidden');
             } else {
                 // Mobile: show mobile header, hide site header
                 if (mobileHeader) mobileHeader.classList.remove('hidden');
@@ -1276,23 +1304,92 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    function observeNewMessages() {
+        const messageContainer = document.getElementById('message-container');
+        if (!messageContainer) return;
+        
+        // Create a MutationObserver to watch for new messages
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    // Auto-scroll to bottom when new messages are added
+                    setTimeout(() => {
+                        messageContainer.scrollTop = messageContainer.scrollHeight;
+                    }, 100);
+                }
+            });
+        });
+        
+        observer.observe(messageContainer, {
+            childList: true,
+            subtree: true
+        });
+    }
+    
     function fixMobileScrolling() {
         const messageContainer = document.getElementById('message-container');
-        const sidebar = document.getElementById('sidebar');
+        const conversationList = document.getElementById('conversation-list');
+        const mobileMenu = document.querySelector('.mobile-menu-content');
         
         // Prevent body scroll, allow individual containers to scroll
         document.body.style.overflow = 'hidden';
         document.body.style.position = 'fixed';
+        document.body.style.overscrollBehavior = 'none';
         
-        // Enable touch scrolling for message containers
+        // Enable touch scrolling for message containers with elastic scroll prevention
         if (messageContainer) {
             messageContainer.style.overflowY = 'auto';
             messageContainer.style.webkitOverflowScrolling = 'touch';
+            messageContainer.style.overscrollBehavior = 'contain';
+            
+            // Prevent elastic scroll bounce
+            messageContainer.addEventListener('touchmove', function(e) {
+                const scrollTop = messageContainer.scrollTop;
+                const scrollHeight = messageContainer.scrollHeight;
+                const clientHeight = messageContainer.clientHeight;
+                
+                // Prevent elastic scrolling at top and bottom
+                if ((scrollTop === 0 && e.deltaY < 0) || 
+                    (scrollTop + clientHeight >= scrollHeight && e.deltaY > 0)) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
         }
         
-        if (sidebar) {
-            sidebar.style.overflowY = 'auto';
-            sidebar.style.webkitOverflowScrolling = 'touch';
+        if (conversationList) {
+            conversationList.style.overflowY = 'auto';
+            conversationList.style.webkitOverflowScrolling = 'touch';
+            conversationList.style.overscrollBehavior = 'contain';
+            
+            // Prevent elastic scroll bounce for conversation list
+            conversationList.addEventListener('touchmove', function(e) {
+                const scrollTop = conversationList.scrollTop;
+                const scrollHeight = conversationList.scrollHeight;
+                const clientHeight = conversationList.clientHeight;
+                
+                // Prevent elastic scrolling at top and bottom
+                if ((scrollTop === 0 && e.deltaY < 0) || 
+                    (scrollTop + clientHeight >= scrollHeight && e.deltaY > 0)) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        }
+        
+        // Fix mobile menu scrolling
+        if (mobileMenu) {
+            mobileMenu.style.overscrollBehavior = 'contain';
+            
+            mobileMenu.addEventListener('touchmove', function(e) {
+                const scrollTop = mobileMenu.scrollTop;
+                const scrollHeight = mobileMenu.scrollHeight;
+                const clientHeight = mobileMenu.clientHeight;
+                
+                // Prevent elastic scrolling at top and bottom
+                if ((scrollTop === 0 && e.deltaY < 0) || 
+                    (scrollTop + clientHeight >= scrollHeight && e.deltaY > 0)) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
         }
         
         // Handle touch events to prevent conflicts
