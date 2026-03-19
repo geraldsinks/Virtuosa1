@@ -2043,55 +2043,139 @@ const subscriptionSchema = new mongoose.Schema({
 const Subscription = mongoose.model('Subscription', subscriptionSchema);
 console.log('Subscription model created successfully');
 
-// Simplified Gmail transporter configuration
-const gmailTransporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // Must be false for 587
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false // Helps bypass potential certificate issues on Render
-  }
+// Production-ready email configuration for Render Startup Tier
+const productionTransporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // Must be false for 587
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+    tls: {
+        rejectUnauthorized: false // Helps bypass potential certificate issues
+    },
+    pool: true, // Enable connection pooling for production
+    maxConnections: 5,
+    maxMessages: 100,
+    rateDelta: 1000,
+    rateLimit: 5
 });
 
-// Alternative: Try using Mailtrap or other service as fallback
-const fallbackTransporter = nodemailer.createTransport({
-  host: 'smtp.mailtrap.io',
-  port: 2525,
-  auth: {
-    user: process.env.MAILTRAP_USER || 'your-mailtrap-user',
-    pass: process.env.MAILTRAP_PASS || 'your-mailtrap-pass'
-  }
-});
-
-// Verify transporter configurations on startup
-const verifyTransporters = async () => {
-    const transporters = [
-        { name: 'Gmail (Simple)', transporter: gmailTransporter },
-        { name: 'Mailtrap (Fallback)', transporter: fallbackTransporter }
-    ];
+// Temporary fallback for Free Tier (stores emails for later sending)
+const emailQueue = [];
+const tempEmailStorage = {
+    emails: [],
     
-    for (const { name, transporter } of transporters) {
-        try {
-            await new Promise((resolve, reject) => {
-                transporter.verify((error, success) => {
-                    if (error) {
-                        console.log(`❌ ${name} transporter configuration error:`, error.message);
-                        resolve(false);
-                    } else {
-                        console.log(`✅ ${name} transporter is ready to send messages`);
-                        resolve(true);
-                    }
-                });
-            });
-        } catch (error) {
-            console.log(`❌ ${name} transporter verification failed:`, error.message);
+    add: function(emailData) {
+        this.emails.push({
+            ...emailData,
+            timestamp: new Date(),
+            sent: false
+        });
+        console.log('📧 Email queued for later delivery (Free Tier limitation):', emailData.to);
+    },
+    
+    getAll: function() {
+        return this.emails;
+    },
+    
+    markSent: function(index) {
+        if (this.emails[index]) {
+            this.emails[index].sent = true;
+            this.emails[index].sentAt = new Date();
         }
     }
 };
+
+// Check if we're on Render Free Tier and handle accordingly
+const isRenderFreeTier = process.env.RENDER === 'true' && !process.env.RENDER_SERVICE_ID;
+const isProductionReady = !isRenderFreeTier;
+
+// Verify transporter configurations on startup
+const verifyTransporters = async () => {
+    if (isRenderFreeTier) {
+        console.log('⚠️  Render Free Tier detected - SMTP blocked, emails will be queued');
+        console.log('📧 Upgrade to Startup Tier to enable email sending');
+        return;
+    }
+    
+    try {
+        await new Promise((resolve, reject) => {
+            productionTransporter.verify((error, success) => {
+                if (error) {
+                    console.log('❌ Production transporter configuration error:', error.message);
+                    resolve(false);
+                } else {
+                    console.log('✅ Production transporter is ready to send messages');
+                    resolve(true);
+                }
+            });
+        });
+    } catch (error) {
+        console.log('❌ Production transporter verification failed:', error.message);
+    }
+};
+
+// Admin endpoint to view queued emails (for after upgrade)
+app.get('/api/admin/queued-emails', async (req, res) => {
+    try {
+        const queuedEmails = tempEmailStorage.getAll();
+        res.json({
+            queuedEmails: queuedEmails,
+            totalQueued: queuedEmails.length,
+            isRenderFreeTier: isRenderFreeTier
+        });
+    } catch (error) {
+        console.error('❌ Error fetching queued emails:', error);
+        res.status(500).json({ message: 'Failed to fetch queued emails' });
+    }
+});
+
+// Admin endpoint to send queued emails (for after upgrade)
+app.post('/api/admin/send-queued-emails', async (req, res) => {
+    try {
+        if (isRenderFreeTier) {
+            return res.status(400).json({ 
+                message: 'Cannot send emails on Free Tier. Please upgrade to Startup Tier first.' 
+            });
+        }
+        
+        const queuedEmails = tempEmailStorage.getAll();
+        let sentCount = 0;
+        let failedCount = 0;
+        
+        for (let i = 0; i < queuedEmails.length; i++) {
+            const email = queuedEmails[i];
+            if (!email.sent) {
+                try {
+                    await productionTransporter.sendMail({
+                        to: email.to,
+                        subject: email.subject,
+                        html: email.html
+                    });
+                    
+                    tempEmailStorage.markSent(i);
+                    sentCount++;
+                    console.log(`✅ Sent queued email to: ${email.to}`);
+                } catch (error) {
+                    failedCount++;
+                    console.error(`❌ Failed to send queued email to ${email.to}:`, error.message);
+                }
+            }
+        }
+        
+        res.json({
+            message: `Processed ${queuedEmails.length} queued emails. Sent: ${sentCount}, Failed: ${failedCount}`,
+            sentCount,
+            failedCount,
+            totalProcessed: queuedEmails.length
+        });
+    } catch (error) {
+        console.error('❌ Error sending queued emails:', error);
+        res.status(500).json({ message: 'Failed to send queued emails' });
+    }
+});
 
 verifyTransporters();
 
@@ -2423,50 +2507,57 @@ app.post('/api/auth/resend-verification', async (req, res) => {
         });
         
         try {
-            const transporters = [
-                { name: 'Gmail (Simple)', transporter: gmailTransporter },
-                { name: 'Mailtrap (Fallback)', transporter: fallbackTransporter }
-            ];
-            
-            for (let i = 0; i < transporters.length; i++) {
-                const { name, transporter } = transporters[i];
+            // Handle Free Tier limitation
+            if (isRenderFreeTier) {
+                console.log('📧 Render Free Tier detected - queuing email for later delivery');
                 
-                try {
-                    console.log(`📧 Attempting to send email using ${name} transporter to:`, normalizedEmail);
-                    
-                    const result = await transporter.sendMail({
-                        to: normalizedEmail,
-                        subject: 'Virtuosa - Verify Your Email',
-                        html: `
-                            <h2>Email Verification Request</h2>
-                            <p>You requested a new verification email. Please click <a href="${emailVerificationLink}">here</a> to verify your email address.</p>
-                            <p>This link will expire in 24 hours.</p>
-                        `
-                    });
-                    
-                    console.log(`✅ Verification email sent successfully using ${name} transporter to:`, normalizedEmail);
-                    console.log('📧 Email result:', result);
-                    
-                    return res.json({ 
-                        message: 'Verification email sent successfully. Please check your inbox (including spam folder).' 
-                    });
-                } catch (error) {
-                    console.error(`❌ ${name} transporter failed:`, error.message);
-                    
-                    if (i === transporters.length - 1) {
-                        // Last transporter failed
-                        console.error('❌ All email transporters failed');
-                        return res.status(500).json({ 
-                            message: 'Failed to send verification email. Please check your email address or contact support at virtuosa@gmail.com.',
-                            error: 'Email sending failed',
-                            details: 'All email transporters failed to connect. Please try again later.'
-                        });
-                    } else {
-                        console.log(`🔄 Trying next transporter... (${i + 1}/${transporters.length})`);
-                        // Small delay before trying next transporter
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                    }
-                }
+                // Queue the email for later sending
+                tempEmailStorage.add({
+                    to: normalizedEmail,
+                    subject: 'Virtuosa - Verify Your Email',
+                    html: `
+                        <h2>Email Verification Request</h2>
+                        <p>You requested a new verification email. Please click <a href="${emailVerificationLink}">here</a> to verify your email address.</p>
+                        <p>This link will expire in 24 hours.</p>
+                    `,
+                    verificationLink: emailVerificationLink
+                });
+                
+                return res.json({ 
+                    message: 'Verification email queued. Note: Email sending is temporarily disabled on Free Tier. Your verification link is: ' + emailVerificationLink,
+                    verificationLink: emailVerificationLink,
+                    queued: true
+                });
+            }
+            
+            // Production tier - send email immediately
+            try {
+                console.log(`📧 Sending email using production transporter to:`, normalizedEmail);
+                
+                const result = await productionTransporter.sendMail({
+                    to: normalizedEmail,
+                    subject: 'Virtuosa - Verify Your Email',
+                    html: `
+                        <h2>Email Verification Request</h2>
+                        <p>You requested a new verification email. Please click <a href="${emailVerificationLink}">here</a> to verify your email address.</p>
+                        <p>This link will expire in 24 hours.</p>
+                    `
+                });
+                
+                console.log(`✅ Verification email sent successfully to:`, normalizedEmail);
+                console.log('📧 Email result:', result);
+                
+                return res.json({ 
+                    message: 'Verification email sent successfully. Please check your inbox (including spam folder).' 
+                });
+            } catch (error) {
+                console.error(`❌ Production transporter failed:`, error.message);
+                
+                return res.status(500).json({ 
+                    message: 'Failed to send verification email. Please check your email address or contact support at virtuosa@gmail.com.',
+                    error: 'Email sending failed',
+                    details: error.message 
+                });
             }
         } catch (emailError) {
             console.error('❌ Failed to send verification email:', emailError);
