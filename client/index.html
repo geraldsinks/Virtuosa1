@@ -684,7 +684,7 @@
             async function loadMarketingData() {
                 try {
                     // Load ad sliders from public endpoint
-                    const adResponse = await fetch('https://virtuosa-server.onrender.com/api/public/marketing/ad-sliders');
+                    const adResponse = await fetch('https://api.virtuosazm.com/api/public/marketing/ad-sliders');
                     if (adResponse.ok) {
                         const adSliders = await adResponse.json();
                         renderAdSliders(adSliders);
@@ -692,7 +692,7 @@
 
                     // Load category cards from public endpoint
                     console.log('Fetching category cards from DB...');
-                    const cardResponse = await fetch('https://virtuosa-server.onrender.com/api/public/marketing/category-cards');
+                    const cardResponse = await fetch('https://api.virtuosazm.com/api/public/marketing/category-cards');
                     if (cardResponse.ok) {
                         const categoryCards = await cardResponse.json();
                         console.log('Category cards received:', categoryCards);
@@ -719,7 +719,7 @@
                     // Handle both absolute and relative URLs
                     const imageUrl = ad.backgroundImage.startsWith('http') ? 
                         ad.backgroundImage : 
-                        `https://virtuosa-server.onrender.com${ad.backgroundImage}`;
+                        `https://api.virtuosazm.com${ad.backgroundImage}`;
                     
                     return `
                 <div class="ad-card flex-none w-full h-full bg-cover bg-center rounded-lg shadow-lg relative cursor-pointer"
@@ -758,7 +758,7 @@
                     // Handle both absolute and relative URLs for images
                     const imageUrl = card.image && card.image.startsWith('http') ? 
                         card.image : 
-                        (card.image ? `https://virtuosa-server.onrender.com${card.image}` : `https://placehold.co/400x200?text=${encodeURIComponent(card.title)}`);
+                        (card.image ? `https://api.virtuosazm.com${card.image}` : `https://placehold.co/400x200?text=${encodeURIComponent(card.title)}`);
 
                   return `
                 <div class="${cardClass}">
@@ -784,7 +784,7 @@
                     // First try to get fallback category overrides
                     let fallbackOverrides = [];
                     try {
-                        const overrideResponse = await fetch('https://virtuosa-server.onrender.com/api/public/marketing/fallback-categories');
+                        const overrideResponse = await fetch('https://api.virtuosazm.com/api/public/marketing/fallback-categories');
                         if (overrideResponse.ok) {
                             fallbackOverrides = await overrideResponse.json();
                             console.log('Loaded fallback overrides:', fallbackOverrides);
@@ -793,7 +793,7 @@
                         console.warn('Could not load fallback overrides, using defaults:', overrideError);
                     }
 
-                    const response = await fetch('https://virtuosa-server.onrender.com/api/categories', {
+                    const response = await fetch('https://api.virtuosazm.com/api/categories', {
                         method: 'GET',
                         headers: { 'Content-Type': 'application/json' }
                     });

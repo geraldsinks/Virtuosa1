@@ -673,7 +673,7 @@ async function handleAssetUpload(event) {
     }
 
     try {
-        const response = await fetch('https://virtuosa-server.onrender.com/api/marketing/assets', {
+        const response = await fetch('https://api.virtuosazm.com/api/marketing/assets', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
             body: formData
@@ -698,7 +698,7 @@ async function saveAdSlider(id) {
     const backgroundImage = document.getElementById(`ad-image-${id}`).value;
 
     try {
-        const response = await fetch(`https://virtuosa-server.onrender.com/api/marketing/ad-sliders/${id}`, {
+        const response = await fetch(`https://api.virtuosazm.com/api/marketing/ad-sliders/${id}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -730,7 +730,7 @@ async function saveCategoryCard(id) {
     const image = document.getElementById(`card-image-${id}`).value;
 
     try {
-        const response = await fetch(`https://virtuosa-server.onrender.com/api/marketing/category-cards/${id}`, {
+        const response = await fetch(`https://api.virtuosazm.com/api/marketing/category-cards/${id}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -1255,7 +1255,7 @@ async function deleteAdSlider(id) {
     if (!confirm('Are you sure you want to delete this ad slider?')) return;
 
     try {
-        const response = await fetch(`https://virtuosa-server.onrender.com/api/marketing/ad-sliders/${id}`, {
+        const response = await fetch(`https://api.virtuosazm.com/api/marketing/ad-sliders/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
@@ -1277,7 +1277,7 @@ async function deleteCategoryCard(id) {
     if (!confirm('Are you sure you want to delete this category card?')) return;
 
     try {
-        const response = await fetch(`https://virtuosa-server.onrender.com/api/marketing/category-cards/${id}`, {
+        const response = await fetch(`https://api.virtuosazm.com/api/marketing/category-cards/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
@@ -1478,7 +1478,7 @@ async function selectAsset(type, id) {
 
 async function loadAssetsForSelection(type, id) {
     try {
-        const response = await fetch('https://virtuosa-server.onrender.com/api/marketing/assets', {
+        const response = await fetch('https://api.virtuosazm.com/api/marketing/assets', {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
 
@@ -1831,7 +1831,7 @@ function editPresetCardsInManagement() {
             };
 
             // Check if card already exists by name
-            const existingResponse = await fetch(`https://virtuosa-server.onrender.com/api/marketing/category-cards?name=${encodeURIComponent(category.name)}`, {
+            const existingResponse = await fetch(`https://api.virtuosazm.com/api/marketing/category-cards?name=${encodeURIComponent(category.name)}`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
 
@@ -1841,7 +1841,7 @@ function editPresetCardsInManagement() {
 
                 if (existingCard) {
                     // Update existing card
-                    const updateResponse = await fetch(`https://virtuosa-server.onrender.com/api/marketing/category-cards/${existingCard._id}`, {
+                    const updateResponse = await fetch(`https://api.virtuosazm.com/api/marketing/category-cards/${existingCard._id}`, {
                         method: 'PUT',
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -1858,7 +1858,7 @@ function editPresetCardsInManagement() {
             }
 
             // Create new card
-            const createResponse = await fetch('https://virtuosa-server.onrender.com/api/marketing/category-cards', {
+            const createResponse = await fetch('https://api.virtuosazm.com/api/marketing/category-cards', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -1916,7 +1916,7 @@ function publishPresetToIndex() {
             };
 
             // Check if card already exists by name
-            const existingResponse = await fetch(`https://virtuosa-server.onrender.com/api/marketing/category-cards?name=${encodeURIComponent(category.name)}`, {
+            const existingResponse = await fetch(`https://api.virtuosazm.com/api/marketing/category-cards?name=${encodeURIComponent(category.name)}`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
 
@@ -1926,7 +1926,7 @@ function publishPresetToIndex() {
 
                 if (existingCard) {
                     // Update existing card with new data and activate it
-                    const updateResponse = await fetch(`https://virtuosa-server.onrender.com/api/marketing/category-cards/${existingCard._id}`, {
+                    const updateResponse = await fetch(`https://api.virtuosazm.com/api/marketing/category-cards/${existingCard._id}`, {
                         method: 'PUT',
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -1943,7 +1943,7 @@ function publishPresetToIndex() {
             }
 
             // Create new card
-            const createResponse = await fetch('https://virtuosa-server.onrender.com/api/marketing/category-cards', {
+            const createResponse = await fetch('https://api.virtuosazm.com/api/marketing/category-cards', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -2007,7 +2007,7 @@ async function publishPreset() {
     showToast(`Publishing ${currentPresetStyle} preset...`, 'info');
 
     try {
-        const response = await fetch('https://virtuosa-server.onrender.com/api/marketing/publish-preset', {
+        const response = await fetch('https://api.virtuosazm.com/api/marketing/publish-preset', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -2038,7 +2038,7 @@ async function deactivatePreset() {
     if (!confirm('Are you sure you want to deactivate all category cards? The home page will use its beautiful default fallback layout.')) return;
 
     try {
-        const response = await fetch('https://virtuosa-server.onrender.com/api/marketing/publish-preset', {
+        const response = await fetch('https://api.virtuosazm.com/api/marketing/publish-preset', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,

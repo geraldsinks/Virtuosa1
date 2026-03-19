@@ -2093,10 +2093,6 @@ const tempEmailStorage = {
     }
 };
 
-// Check if we're on Render Free Tier and handle accordingly
-const isRenderFreeTier = process.env.RENDER === 'true' && !process.env.RENDER_SERVICE_ID;
-const isProductionReady = !isRenderFreeTier;
-
 // Verify transporter configurations on startup
 const verifyTransporters = async () => {
     if (isRenderFreeTier) {
