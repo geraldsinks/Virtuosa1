@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cash on Delivery - Virtuosa</title>
+    <title>Virtuosa - Campus Delivery Arrangement</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
@@ -16,52 +16,173 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
+    
     <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            --gold-gradient: linear-gradient(135deg, #D4AF37 0%, #F4E4C1 50%, #D4AF37 100%);
+        }
+
         body {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0A1128 0%, #1a2347 50%, #0A1128 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
         }
-        
-        .delivery-card {
-            transition: all 0.3s ease;
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
         }
-        
-        .delivery-card:hover {
+
+        .serif-heading {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(212, 175, 55, 0.3);
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
         }
-        
+
+        .gold-accent {
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gold-button {
+            background: var(--gold-gradient);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gold-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .gold-button:hover::before {
+            left: 100%;
+        }
+
+        .gold-button:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3);
+        }
+
+        .editorial-text {
+            letter-spacing: 0.02em;
+            line-height: 1.6;
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            opacity: 0;
+        }
+
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
-        .animate-slide-in {
-            animation: slideIn 0.5s ease forwards;
+
+        /* Preserve existing header styles */
+        .bg-navy {
+            background-color: #0A1128 !important;
         }
-        
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
+
+        .text-gold {
+            color: #D4AF37 !important;
         }
-        
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+
+        .hover\:text-gold:hover {
+            color: #D4AF37 !important;
+        }
+
+        .bg-gold {
+            background-color: #D4AF37 !important;
+        }
+
+        .hover\:bg-gold:hover {
+            background-color: #D4AF37 !important;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(212, 175, 55, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(212, 175, 55, 0.7);
         }
     </style>
 </head>
 
-<body class="bg-gray-50 antialiased">
+<body class="bg-navy text-white antialiased">
     <!-- Standard Navigation -->
     <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
         <!-- Row 1: Utilities and Branding -->
@@ -206,21 +327,33 @@
         </div>
     </div>
 
-    <main class="flex-grow py-8">
-        <div class="container mx-auto px-4">
-            <!-- Header & Reassurance Banner -->
-            <div class="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6 mb-8">
-                <div class="text-center">
-                    <h1 class="text-3xl font-bold text-navy mb-3">Cash on Delivery</h1>
-                    <div class="flex justify-center items-center space-x-6 text-sm text-gray-700">
-                        <div class="flex items-center">
-                            <i class="fas fa-handshake text-green-600 mr-2"></i>
-                            <span>Pay When You Receive</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-shield-alt text-blue-600 mr-2"></i>
-                            <span>Secure Transactions</span>
-                        </div>
+    <main class="flex-grow py-8 main-content">
+        <div class="container mx-auto px-4 max-w-7xl">
+            <!-- Editorial Header -->
+            <div class="text-center mb-12">
+                <h1 class="serif-heading text-5xl md:text-6xl font-light mb-4 gold-accent">
+                    Campus Delivery Arrangement
+                </h1>
+                <p class="text-gray-300 text-lg editorial-text max-w-2xl mx-auto">
+                    Complete your delivery details for a seamless campus experience. 
+                    Your selections will be carefully prepared and personally delivered.
+                </p>
+            </div>
+
+            <!-- Trust Indicators -->
+            <div class="glass-panel p-6 mb-8">
+                <div class="flex flex-wrap justify-center items-center gap-8 text-sm">
+                    <div class="flex items-center text-gray-200">
+                        <i class="fas fa-handshake text-green-400 mr-3 text-lg"></i>
+                        <span>Pay Upon Arrival</span>
+                    </div>
+                    <div class="flex items-center text-gray-200">
+                        <i class="fas fa-shield-alt text-blue-400 mr-3 text-lg"></i>
+                        <span>Secure Transactions</span>
+                    </div>
+                    <div class="flex items-center text-gray-200">
+                        <i class="fas fa-map-marker-alt text-purple-400 mr-3 text-lg"></i>
+                        <span>Campus Delivery</span>
                     </div>
                 </div>
             </div>
@@ -228,70 +361,101 @@
             <!-- Order Summary -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-2">
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h2 class="text-xl font-bold text-navy mb-6">Order Summary</h2>
-                        <div id="order-items" class="space-y-4">
-                            <!-- Items will be populated here -->
+                    <div class="glass-panel p-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="serif-heading text-2xl font-light text-white">Your Selections</h2>
+                            <div class="floating-badge bg-gold text-navy px-3 py-1 rounded-full text-sm font-semibold">
+                                <span id="item-count">0</span> items
+                            </div>
                         </div>
                         
-                        <!-- Delivery Information -->
-                        <div class="mt-8 border-t pt-6">
-                            <h3 class="text-lg font-semibold text-navy mb-4">Delivery Information</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                                    <input type="text" id="delivery-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                                    <input type="tel" id="delivery-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent">
-                                </div>
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Delivery Address</label>
-                                    <textarea id="delivery-address" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"></textarea>
-                                </div>
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Delivery Instructions (Optional)</label>
-                                    <input type="text" id="delivery-instructions" placeholder="e.g., Leave at the gate, call before delivery" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent">
-                                </div>
+                        <div id="order-items" class="space-y-4">
+                            <!-- Items will be populated here -->
+                            <div class="text-center py-12 text-gray-400 editorial-text">
+                                <i class="fas fa-shopping-bag text-4xl mb-4 opacity-50"></i>
+                                <p class="text-lg mb-2">Loading your selections...</p>
+                                <div class="skeleton h-32 w-full rounded-lg mb-4"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Order Details & Action -->
+                <!-- Delivery Details -->
                 <div class="lg:col-span-1">
-                    <div class="bg-white rounded-lg shadow-lg p-6 h-fit sticky top-20">
-                        <h2 class="text-xl font-bold text-navy mb-4">Final Invoice</h2>
-                        <div class="space-y-3 border-t border-gray-200 pt-4">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Total Value of Selections:</span>
-                                <span class="font-semibold text-navy" id="subtotal">ZMW 0.00</span>
+                    <div class="glass-panel p-8">
+                        <h2 class="serif-heading text-2xl font-light text-white mb-6">Delivery Details</h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Personal Information -->
+                            <div class="border-t border-gray-600 pt-6">
+                                <h3 class="text-white font-light text-lg mb-4">Personal Information</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                                        <input type="text" id="delivery-name" class="w-full px-4 py-3 border border-gray-600 rounded-lg bg-white bg-opacity-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
+                                        <input type="tel" id="delivery-phone" class="w-full px-4 py-3 border border-gray-600 rounded-lg bg-white bg-opacity-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent">
+                                    </div>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Delivery Address</label>
+                                    <textarea id="delivery-address" rows="3" class="w-full px-4 py-3 border border-gray-600 rounded-lg bg-white bg-opacity-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"></textarea>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Delivery Instructions</label>
+                                    <input type="text" id="delivery-instructions" placeholder="e.g., Leave at campus gate, call before delivery" class="w-full px-4 py-3 border border-gray-600 rounded-lg bg-white bg-opacity-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent">
+                                </div>
                             </div>
-                            <div class="flex justify-between border-t border-gray-200 pt-3">
-                                <span class="font-bold text-navy">Final Invoice:</span>
-                                <span class="font-bold text-lg text-gold" id="total">ZMW 0.00</span>
+                        </div>
+
+                <!-- Investment Summary -->
+                <div class="lg:col-span-1">
+                    <div class="glass-panel p-8">
+                        <h2 class="serif-heading text-2xl font-light text-white mb-6">Investment Summary</h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Value Breakdown -->
+                            <div class="border-t border-gray-600 pt-6">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-gray-300 text-sm">Total Investment:</span>
+                                    <span class="text-white font-semibold text-lg" id="subtotal">ZMW 0.00</span>
+                                </div>
+                                
+                                <div class="text-xs text-gray-400 editorial-text">
+                                    Including all service fees and campus delivery protection
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Action Button -->
-                        <div class="mt-6 space-y-3">
-                            <button id="place-order-btn" onclick="placeCashOnDeliveryOrder()" 
-                                class="w-full bg-gradient-to-r from-gold to-yellow-600 text-white font-bold py-3 px-4 rounded-full hover:from-gold hover:to-yellow-700 transition-all transform hover:scale-105 shadow-lg">
-                                PLACE ORDER - CASH ON DELIVERY
-                            </button>
-                        </div>
+                            <!-- Final Value -->
+                            <div class="border-t border-gray-600 pt-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-white font-light text-lg">Final Value:</span>
+                                    <span class="gold-accent text-2xl font-semibold" id="total">ZMW 0.00</span>
+                                </div>
+                            </div>
 
-                        <!-- Safety Net Microcopy -->
-                        <div class="mt-4 text-center text-xs text-gray-600">
-                            <i class="fas fa-shield-alt text-green-600 mr-1"></i>
-                            Order confirmation will be sent to sellers immediately.
-                        </div>
+                            <!-- Action Button -->
+                            <div class="space-y-3 pt-6 border-t border-gray-600">
+                                <button id="place-order-btn" onclick="placeCashOnDeliveryOrder()" 
+                                    class="w-full gold-button text-navy font-semibold py-4 px-6 rounded-full">
+                                    Complete Delivery Arrangement
+                                </button>
+                            </div>
 
-                        <!-- Continue Shopping -->
-                        <a href="cart.html" class="block text-center text-gray-600 text-sm mt-4 hover:text-gold transition-colors">
-                            Back to Cart
-                        </a>
+                            <!-- Assurance Message -->
+                            <div class="text-center text-xs text-gray-400 editorial-text pt-4">
+                                <i class="fas fa-shield-alt text-green-400 mr-1"></i>
+                                Your delivery arrangement is secured with end-to-end encryption
+                            </div>
+
+                            <!-- Continue Exploring -->
+                            <a href="cart.html"
+                                class="block text-center text-gray-400 text-sm hover:text-gold transition-colors editorial-text">
+                                Return to Selections
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

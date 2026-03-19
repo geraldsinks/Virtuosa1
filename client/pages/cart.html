@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtuosa - Shopping Cart</title>
+    <title>Virtuosa - Your Curated Selections</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
@@ -16,17 +16,182 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
+    
     <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            --gold-gradient: linear-gradient(135deg, #D4AF37 0%, #F4E4C1 50%, #D4AF37 100%);
+        }
+
         body {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0A1128 0%, #1a2347 50%, #0A1128 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .serif-heading {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(212, 175, 55, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .gold-accent {
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gold-button {
+            background: var(--gold-gradient);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gold-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .gold-button:hover::before {
+            left: 100%;
+        }
+
+        .gold-button:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3);
+        }
+
+        .cart-item {
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .floating-badge {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .editorial-text {
+            letter-spacing: 0.02em;
+            line-height: 1.6;
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Preserve existing header styles */
+        .bg-navy {
+            background-color: #0A1128 !important;
+        }
+
+        .text-gold {
+            color: #D4AF37 !important;
+        }
+
+        .hover\:text-gold:hover {
+            color: #D4AF37 !important;
+        }
+
+        .bg-gold {
+            background-color: #D4AF37 !important;
+        }
+
+        .hover\:bg-gold:hover {
+            background-color: #D4AF37 !important;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(212, 175, 55, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(212, 175, 55, 0.7);
         }
     </style>
 </head>
 
-<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+<body class="bg-navy text-white antialiased">
     
     <!-- Mobile Header Structure (320px-480px) -->
     <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
@@ -291,110 +456,151 @@
     </div>
 
 
-    <main class="flex-grow py-8">
-        <div class="container mx-auto px-4">
-            <!-- Header & Reassurance Banner -->
-            <div class="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6 mb-8">
-                <div class="text-center">
-                    <h1 class="text-3xl font-bold text-navy mb-3">You're Almost Home.</h1>
-                    <div class="flex justify-center items-center space-x-6 text-sm text-gray-700">
-                        <div class="flex items-center">
-                            <i class="fas fa-lock text-green-600 mr-2"></i>
-                            <span>Secured with Bank-Level Encryption</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-truck text-blue-600 mr-2"></i>
-                            <span>30-Day Guaranteed Arrival Window</span>
-                        </div>
+    <main class="flex-grow py-8 main-content">
+        <div class="container mx-auto px-4 max-w-7xl">
+            <!-- Editorial Header -->
+            <div class="text-center mb-12">
+                <h1 class="serif-heading text-5xl md:text-6xl font-light mb-4 gold-accent">
+                    Your Curated Selections
+                </h1>
+                <p class="text-gray-300 text-lg editorial-text max-w-2xl mx-auto">
+                    Each piece has been thoughtfully chosen to reflect your discerning taste. 
+                    This is more than shopping—it's an investment in your lifestyle.
+                </p>
+            </div>
+
+            <!-- Trust Indicators -->
+            <div class="glass-panel p-6 mb-8">
+                <div class="flex flex-wrap justify-center items-center gap-8 text-sm">
+                    <div class="flex items-center text-gray-200">
+                        <i class="fas fa-shield-alt text-green-400 mr-3 text-lg"></i>
+                        <span>Bank-Level Security</span>
+                    </div>
+                    <div class="flex items-center text-gray-200">
+                        <i class="fas fa-clock text-blue-400 mr-3 text-lg"></i>
+                        <span>Express Campus Delivery</span>
+                    </div>
+                    <div class="flex items-center text-gray-200">
+                        <i class="fas fa-gem text-purple-400 mr-3 text-lg"></i>
+                        <span>Premium Quality</span>
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Multi-Category Product Review List -->
+                <!-- Curated Items Section -->
                 <div class="lg:col-span-2">
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <div id="cart-items">
-                            <p class="text-center text-gray-500 py-8">Your selections are empty. <a href="products.html"
-                                    class="text-gold font-semibold">Continue exploring</a></p>
+                    <div class="glass-panel p-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="serif-heading text-2xl font-light text-white">Your Collection</h2>
+                            <div class="floating-badge bg-gold text-navy px-3 py-1 rounded-full text-sm font-semibold">
+                                <span id="item-count">0</span> items
+                            </div>
+                        </div>
+                        
+                        <div id="cart-items" class="space-y-4">
+                            <!-- Cart items will be rendered here -->
+                            <div class="text-center py-12 text-gray-400 editorial-text">
+                                <i class="fas fa-shopping-bag text-4xl mb-4 opacity-50"></i>
+                                <p class="text-lg mb-2">Your collection awaits</p>
+                                <p class="text-sm mb-6">Discover pieces that speak to your style</p>
+                                <a href="products.html" class="inline-block gold-button text-navy px-6 py-3 rounded-full font-semibold">
+                                    Begin Exploring
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Re-framed Grand Total Summary & Payment Method -->
+                <!-- Investment Summary -->
                 <div class="lg:col-span-1">
-                    <div class="bg-white rounded-lg shadow-lg p-6 h-fit sticky top-20">
-                        <!-- Total Value Summary -->
-                        <h2 class="text-xl font-bold text-navy mb-4">Final Invoice</h2>
-                        <div class="space-y-3 border-t border-gray-200 pt-4">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Total Value of Selections:</span>
-                                <span class="font-semibold text-navy" id="subtotal">ZMW 0.00</span>
+                    <div class="glass-panel p-8 sticky top-24">
+                        <h2 class="serif-heading text-2xl font-light text-white mb-6">Investment Summary</h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Value Breakdown -->
+                            <div class="border-t border-gray-600 pt-6">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-gray-300 text-sm">Total Investment:</span>
+                                    <span class="text-white font-semibold text-lg" id="subtotal">ZMW 0.00</span>
+                                </div>
+                                
+                                <div class="text-xs text-gray-400 editorial-text">
+                                    Including all service fees and campus express delivery protection
+                                </div>
                             </div>
-                            <div class="text-xs text-gray-500 mt-2">
-                                Includes all Taxes, Fees, and your 30-Day Guaranteed Arrival Protection
-                            </div>
-                            <div class="flex justify-between border-t border-gray-200 pt-3">
-                                <span class="font-bold text-navy">Final Invoice:</span>
-                                <span class="font-bold text-lg text-gold" id="total">ZMW 0.00</span>
-                            </div>
-                        </div>
 
-                        <!-- Fulfillment Method Selection -->
-                        <div class="mt-6 pt-6 border-t border-gray-200">
-                            <h3 class="text-lg font-semibold text-navy mb-4">Select Your Fulfillment Method</h3>
-                            <div class="space-y-3">
-                                <!-- Mobile Money Card -->
-                                <div class="border border-gray-200 rounded-lg p-4 hover:border-gold hover:shadow-md transition-all cursor-pointer" onclick="selectFulfillmentMethod('mobile-money')">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <h4 class="font-semibold text-navy mb-2">Mobile Money</h4>
+                            <!-- Final Value -->
+                            <div class="border-t border-gray-600 pt-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-white font-light text-lg">Final Value:</span>
+                                    <span class="gold-accent text-2xl font-semibold" id="total">ZMW 0.00</span>
+                                </div>
+                            </div>
+
+                            <!-- Fulfillment Selection -->
+                            <div class="border-t border-gray-600 pt-6">
+                                <h3 class="text-white font-light text-lg mb-4">Delivery Preference</h3>
+                                <div class="space-y-3">
+                                    <!-- Mobile Money Option -->
+                                    <div class="glass-card p-4 cursor-pointer" onclick="selectFulfillmentMethod('mobile-money')">
+                                        <div class="flex items-center justify-between">
                                             <div class="flex items-center space-x-3">
-                                                <img src="https://res.cloudinary.com/dfruk0ufj/image/upload/v1773956210/virtuosa/marketing/nj94slxos41pgfdjzgsa.png" alt="Airtel Money" class="w-8 h-8 object-contain">
-                                                <img src="https://res.cloudinary.com/dfruk0ufj/image/upload/v1773956207/virtuosa/marketing/rmnzc4a5qskahm0u7rbc.webp" alt="MTN Money" class="w-8 h-8 object-contain">
+                                                <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center">
+                                                    <i class="fas fa-mobile-alt text-white"></i>
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-white font-medium">Mobile Payment</h4>
+                                                    <p class="text-gray-400 text-xs">Instant & Secure</p>
+                                                </div>
                                             </div>
+                                            <i class="fas fa-chevron-right text-gray-400"></i>
                                         </div>
-                                        <i class="fas fa-chevron-right text-gray-400"></i>
                                     </div>
-                                </div>
 
-                                <!-- Cash on Delivery Card -->
-                                <div class="border border-gray-200 rounded-lg p-4 hover:border-gold hover:shadow-md transition-all cursor-pointer" onclick="selectFulfillmentMethod('cash-on-delivery')">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <h4 class="font-semibold text-navy">Cash on Delivery</h4>
-                                            <p class="text-sm text-gray-600">Pay when your items arrive</p>
+                                    <!-- Cash on Delivery Option -->
+                                    <div class="glass-card p-4 cursor-pointer" onclick="selectFulfillmentMethod('cash-on-delivery')">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center">
+                                                    <i class="fas fa-hand-holding-usd text-white"></i>
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-white font-medium">Campus Delivery</h4>
+                                                    <p class="text-gray-400 text-xs">Pay upon arrival</p>
+                                                </div>
+                                            </div>
+                                            <i class="fas fa-chevron-right text-gray-400"></i>
                                         </div>
-                                        <i class="fas fa-chevron-right text-gray-400"></i>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Anti-Guilt Final Action Buttons -->
-                        <div class="mt-6 space-y-3">
-                            <button id="finalize-selection-btn" onclick="finalizeSelection()" 
-                                class="w-full bg-gradient-to-r from-gold to-yellow-600 text-white font-bold py-3 px-4 rounded-full hover:from-gold hover:to-yellow-700 transition-all transform hover:scale-105 shadow-lg">
-                                FINALIZE MY SELECTION
-                            </button>
-                            <button id="get-delivered-btn" onclick="getItDelivered()" 
-                                class="w-full bg-navy text-white font-semibold py-2 px-4 rounded-full hover:bg-dark-navy transition-colors">
-                                GET IT DELIVERED
-                            </button>
-                        </div>
+                            <!-- Action Buttons -->
+                            <div class="space-y-3 pt-6 border-t border-gray-600">
+                                <button id="finalize-selection-btn" onclick="finalizeSelection()" 
+                                    class="w-full gold-button text-navy font-semibold py-4 px-6 rounded-full">
+                                    Complete Your Selection
+                                </button>
+                                <button id="get-delivered-btn" onclick="getItDelivered()" 
+                                    class="w-full glass-card text-white font-medium py-3 px-6 rounded-full hover:bg-white hover:bg-opacity-20 transition-all">
+                                    Arrange Delivery
+                                </button>
+                            </div>
 
-                        <!-- Final Safety Net Microcopy -->
-                        <div class="mt-4 text-center text-xs text-gray-600">
-                            <i class="fas fa-shield-alt text-green-600 mr-1"></i>
-                            We will send your arrival confirmation and secure tracking link immediately.
-                        </div>
+                            <!-- Assurance Message -->
+                            <div class="text-center text-xs text-gray-400 editorial-text pt-4">
+                                <i class="fas fa-lock text-green-400 mr-1"></i>
+                                Your selections are secured with end-to-end encryption
+                            </div>
 
-                        <!-- Continue Shopping -->
-                        <a id="continue-shopping-button"
-                            href="products.html"
-                            class="block text-center text-gray-600 text-sm mt-4 hover:text-gold transition-colors">
-                            Continue Exploring
-                        </a>
+                            <!-- Continue Exploring -->
+                            <a id="continue-shopping-button"
+                                href="products.html"
+                                class="block text-center text-gray-400 text-sm hover:text-gold transition-colors editorial-text">
+                                Continue Your Journey
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
