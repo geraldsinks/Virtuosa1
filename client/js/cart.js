@@ -1,23 +1,11 @@
 // Cart Logic for Virtuosa
 // API_BASE is provided by config.js
 
-// Initialize cart from localStorage (fallback) and sync with backend
+// Initialize cart with proper priority: Backend > LocalStorage
 async function getCart() {
     const token = localStorage.getItem('token');
     
-    // Always prioritize localStorage for immediate operations
-    const localCart = localStorage.getItem('virtuosa_cart');
-    if (localCart) {
-        try {
-            const cart = JSON.parse(localCart);
-            console.log('📦 Cart from localStorage:', cart);
-            return cart;
-        } catch (error) {
-            console.error('Error parsing localStorage cart:', error);
-        }
-    }
-    
-    // Fallback to backend if no localStorage
+    // For logged in users, always prioritize backend cart
     if (token) {
         try {
             const response = await fetch(`${API_BASE}/cart`, {
@@ -26,14 +14,30 @@ async function getCart() {
             
             if (response.ok) {
                 const data = await response.json();
-                console.log('📦 Cart from backend:', data);
+                console.log('📦 Cart from backend (logged in user):', data);
+                
+                // Sync backend cart to localStorage for consistency
+                localStorage.setItem('virtuosa_cart', JSON.stringify(data.items || []));
+                
                 return data.items || [];
             }
         } catch (error) {
             console.error('Error fetching cart from backend:', error);
         }
     }
-
+    
+    // For guest users or backend failure, use localStorage
+    const localCart = localStorage.getItem('virtuosa_cart');
+    if (localCart) {
+        try {
+            const cart = JSON.parse(localCart);
+            console.log('📦 Cart from localStorage (guest user):', cart);
+            return cart;
+        } catch (error) {
+            console.error('Error parsing localStorage cart:', error);
+        }
+    }
+    
     return [];
 }
 
@@ -43,7 +47,7 @@ async function saveCart(cart) {
     console.log('💾 Saving cart:', cart);
     
     if (token) {
-        // For logged in users, try to sync with backend but also save to localStorage as backup
+        // For logged in users, prioritize backend storage
         try {
             const response = await fetch(`${API_BASE}/cart`, {
                 method: 'POST',
@@ -55,17 +59,25 @@ async function saveCart(cart) {
             });
             
             if (response.ok) {
-                console.log('✅ Cart synced to backend');
+                console.log('✅ Cart saved to backend');
+                // Sync to localStorage for consistency
+                localStorage.setItem('virtuosa_cart', JSON.stringify(cart));
             } else {
-                console.warn('⚠️ Backend sync failed, using localStorage');
+                console.warn('⚠️ Backend sync failed, using localStorage only');
+                // Fallback to localStorage only
+                localStorage.setItem('virtuosa_cart', JSON.stringify(cart));
             }
         } catch (error) {
             console.error('❌ Backend sync error:', error);
+            // Fallback to localStorage only
+            localStorage.setItem('virtuosa_cart', JSON.stringify(cart));
         }
+    } else {
+        // For guest users, only use localStorage
+        localStorage.setItem('virtuosa_cart', JSON.stringify(cart));
+        console.log('✅ Cart saved to localStorage (guest user)');
     }
-
-    // Always save to localStorage as backup/primary storage
-    localStorage.setItem('virtuosa_cart', JSON.stringify(cart));
+    
     await updateCartIcon();
 }
 

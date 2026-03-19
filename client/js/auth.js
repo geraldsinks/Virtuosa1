@@ -77,6 +77,9 @@ async function handleLogin(event) {
             localStorage.setItem('userEmail', result.user.email);
             localStorage.setItem('userFullName', result.user.fullName);
             
+            // Sync cart from localStorage to backend after login
+            await syncCartToBackend();
+            
             // Role Persistence Logic
             console.log('🔍 LOGIN DEBUG - Server response:', result.user);
             
@@ -606,3 +609,37 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAuthComponent(resetToken ? 'reset' : 'login');
     }
 });
+
+// Cart synchronization function
+async function syncCartToBackend() {
+    const localCart = localStorage.getItem('virtuosa_cart');
+    
+    if (localCart) {
+        try {
+            const cart = JSON.parse(localCart);
+            console.log('🔄 Syncing cart to backend after login:', cart);
+            
+            const response = await fetch(`${API_BASE}/cart`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({ items: cart })
+            });
+            
+            if (response.ok) {
+                console.log('✅ Cart synced to backend successfully');
+                // Clear localStorage to rely on backend going forward
+                localStorage.removeItem('virtuosa_cart');
+                console.log('🗑️ Cleared localStorage cart, now using backend cart');
+            } else {
+                console.warn('⚠️ Failed to sync cart to backend, keeping localStorage');
+            }
+        } catch (error) {
+            console.error('❌ Error syncing cart to backend:', error);
+        }
+    } else {
+        console.log('📦 No local cart to sync, using backend cart');
+    }
+}
