@@ -2093,35 +2093,74 @@ app.post('/api/auth/signup', async (req, res) => {
 
         await user.save();
 
+        console.log('🔍 Sending email verification email to:', email);
+        console.log('🔗 Verification link:', emailVerificationLink);
+        console.log('📧 Email config check:', {
+            hasEmailUser: !!process.env.EMAIL_USER,
+            hasEmailPass: !!process.env.EMAIL_PASS,
+            emailUser: process.env.EMAIL_USER
+        });
+
         // Send email verification email
         const emailVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/pages/verify-email.html?token=${emailVerificationToken}`;
-        await transporter.sendMail({
-            to: email,
-            subject: 'Virtuosa - Verify Your Email',
-            html: `
-                <h2>Welcome to Virtuosa!</h2>
-                <p>Thank you for signing up. Please click <a href="${emailVerificationLink}">here</a> to verify your email address.</p>
-                <p>This link will expire in 24 hours.</p>
-                <p>After verifying your email, you'll also need to verify your student status.</p>
-            `
-        });
+        
+        try {
+            const emailResult = await transporter.sendMail({
+                to: email,
+                subject: 'Virtuosa - Verify Your Email',
+                html: `
+                    <h2>Welcome to Virtuosa!</h2>
+                    <p>Thank you for signing up. Please click <a href="${emailVerificationLink}">here</a> to verify your email address.</p>
+                    <p>This link will expire in 24 hours.</p>
+                    <p>After verifying your email, you'll also need to verify your student status.</p>
+                `
+            });
+            
+            console.log('✅ Email verification email sent successfully to:', email);
+            console.log('📧 Email result:', emailResult);
+            
+            // Send student verification email
+            const studentVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/api/auth/verify-student/${verificationToken}`;
+            
+            try {
+                const studentEmailResult = await transporter.sendMail({
+                    to: studentEmail,
+                    subject: 'Virtuosa Student Verification',
+                    html: `
+                        <h2>Verify Your Student Status</h2>
+                        <p>Click <a href="${studentVerificationLink}">here</a> to verify your student email.</p>
+                        <p>This link will expire in 24 hours.</p>
+                    `
+                });
+                
+                console.log('✅ Student verification email sent successfully to:', studentEmail);
+                console.log('📧 Student email result:', studentEmailResult);
+            } catch (studentEmailError) {
+                console.error('❌ Failed to send student verification email:', studentEmailError);
+                // Don't fail the whole request if student email fails, but log it
+                console.log('⚠️ User created but student email verification failed');
+            }
 
-        // Send student verification email
-        const studentVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/api/auth/verify-student/${verificationToken}`;
-        await transporter.sendMail({
-            to: studentEmail,
-            subject: 'Virtuosa Student Verification',
-            html: `
-                <h2>Verify Your Student Status</h2>
-                <p>Click <a href="${studentVerificationLink}">here</a> to verify your student email.</p>
-                <p>This link will expire in 24 hours.</p>
-            `
-        });
-
-        res.status(201).json({
-            success: true,
-            message: 'Account created successfully! Please check your email for verification instructions.'
-        });
+            res.status(201).json({
+                success: true,
+                message: 'Account created successfully! Please check your email for verification instructions.'
+            });
+            
+        } catch (emailError) {
+            console.error('❌ Failed to send verification email:', emailError);
+            console.error('Email error details:', {
+                message: emailError.message,
+                code: emailError.code,
+                response: emailError.response
+            });
+            
+            // If email fails, we should still create the user but inform them of the issue
+            res.status(201).json({
+                success: true,
+                message: 'Account created but email verification failed. Please contact support at virtuosa@gmail.com or try logging in and requesting a new verification email.',
+                emailVerificationFailed: true
+            });
+        }
     } catch (error) {
         console.error('Signup error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
@@ -2290,14 +2329,27 @@ app.post('/api/auth/resend-verification', async (req, res) => {
                     <p>This link will expire in 24 hours.</p>
                 `
             });
-            console.log('✅ Verification email sent successfully');
+            
+            console.log('✅ Verification email sent successfully to:', email);
+            
+            res.json({ 
+                message: 'Verification email sent successfully. Please check your inbox (including spam folder).' 
+            });
         } catch (emailError) {
             console.error('❌ Failed to send verification email:', emailError);
-            // Don't fail the whole request if email sending fails
-            console.log('⚠️ User updated but email sending failed');
+            console.error('Email error details:', {
+                message: emailError.message,
+                code: emailError.code,
+                response: emailError.response
+            });
+            
+            // Return a more helpful error message
+            res.status(500).json({ 
+                message: 'Failed to send verification email. Please check your email address or contact support at virtuosa@gmail.com.',
+                error: 'Email sending failed',
+                details: emailError.message 
+            });
         }
-
-        res.json({ message: 'Verification email sent successfully' });
     } catch (error) {
         console.error('❌ Resend verification error:', error);
         console.error('Stack trace:', error.stack);
@@ -5345,6 +5397,81 @@ app.get('/api/admin/retention/test', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Test endpoint error:', error);
         res.status(500).json({ message: 'Test failed' });
+    }
+});
+
+// Test email configuration endpoint
+app.post('/api/admin/test-email', authenticateAdmin, async (req, res) => {
+    const { email } = req.body;
+    
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required for testing' });
+    }
+
+    try {
+        console.log('📧 Testing email configuration...');
+        console.log('📧 Email config check:', {
+            hasEmailUser: !!process.env.EMAIL_USER,
+            hasEmailPass: !!process.env.EMAIL_PASS,
+            emailUser: process.env.EMAIL_USER,
+            service: 'gmail'
+        });
+
+        // Test transporter verification first
+        await transporter.verify();
+        console.log('✅ Transporter verified successfully');
+
+        const testResult = await transporter.sendMail({
+            to: email,
+            subject: 'Virtuosa - Email Configuration Test',
+            html: `
+                <h2>Email Configuration Test</h2>
+                <p>This is a test email to verify that Virtuosa's email system is working correctly.</p>
+                <p>If you received this email, the configuration is working properly.</p>
+                <p>Timestamp: ${new Date().toISOString()}</p>
+                <p>Server: ${process.env.FRONTEND_URL || 'Local Development'}</p>
+            `
+        });
+
+        console.log('✅ Test email sent successfully');
+        console.log('📧 Test email result:', testResult);
+
+        res.json({ 
+            success: true, 
+            message: 'Email configuration is working correctly!',
+            testEmailSent: true,
+            emailConfig: {
+                hasEmailUser: !!process.env.EMAIL_USER,
+                hasEmailPass: !!process.env.EMAIL_PASS,
+                emailUser: process.env.EMAIL_USER,
+                service: 'gmail'
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Email configuration test failed:', error);
+        console.error('Email error details:', {
+            message: error.message,
+            code: error.code,
+            response: error.response
+        });
+        
+        res.status(500).json({ 
+            success: false, 
+            message: 'Email configuration test failed',
+            error: error.message,
+            details: {
+                message: error.message,
+                code: error.code,
+                response: error.response
+            },
+            suggestions: [
+                'Check if EMAIL_USER and EMAIL_PASS environment variables are set correctly',
+                'Make sure Gmail app password is enabled and correct',
+                'Verify that Gmail allows less secure apps for your account',
+                'Check network connectivity and firewall settings'
+            ]
+        });
     }
 });
 

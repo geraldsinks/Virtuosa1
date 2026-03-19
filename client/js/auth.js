@@ -217,26 +217,65 @@ async function handleSignup(event) {
         return;
     }
 
+    // Show loading state
+    const submitButton = document.querySelector('#signup-form button[type="submit"]');
+    const originalText = submitButton.textContent;
+    submitButton.textContent = 'Creating Account...';
+    submitButton.disabled = true;
+
     try {
+        console.log('Attempting signup with:', { fullName, email, university, phoneNumber, studentEmail });
+        console.log('API URL:', `${BASE_API_URL}/signup`);
+
         const response = await fetch(`${BASE_API_URL}/signup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ fullName, email, password, university, phoneNumber, studentEmail, agreedToTerms })
         });
 
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+
         const result = await response.json();
+        console.log('Response data:', result);
 
         if (response.ok) {
-            showMessage('Account created successfully! Please check your student email for verification.');
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 2000);
+            if (result.emailVerificationFailed) {
+                showMessage('Account created but email verification failed. Please contact support at virtuosa@gmail.com or try logging in and requesting a new verification email.', true);
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 3000);
+            } else {
+                showMessage('Account created successfully! Please check your student email for verification.');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            }
         } else {
-            showMessage(result.message || 'Signup failed. Please try again.', true);
+            // Handle specific error cases
+            if (result.message === 'Email already exists') {
+                showMessage('An account with this email already exists. Please use a different email or try logging in.', true);
+            } else if (result.message === 'All fields are required') {
+                showMessage('Please fill in all required fields.', true);
+            } else if (result.message === 'Invalid student email domain') {
+                showMessage('Please use a valid student email address (e.g., student@unza.zm).', true);
+            } else {
+                showMessage(result.message || 'Signup failed. Please try again.', true);
+            }
         }
     } catch (error) {
         console.error('Error during signup:', error);
-        showMessage('An error occurred during signup.', true);
+        
+        // Check if it's a network error
+        if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+            showMessage('Unable to connect to the server. Please check your internet connection and try again.', true);
+        } else {
+            showMessage('An error occurred during signup: ' + error.message, true);
+        }
+    } finally {
+        // Restore button state
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
     }
 }
 
