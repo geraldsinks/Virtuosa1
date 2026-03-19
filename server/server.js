@@ -2442,9 +2442,7 @@ app.post('/api/auth/resend-verification', async (req, res) => {
                     console.log(`✅ Verification email sent successfully using ${transporterName} transporter to:`, normalizedEmail);
                     console.log('📧 Email result:', result);
                     
-                    res.json({ 
-                        message: 'Verification email sent successfully. Please check your inbox (including spam folder).' 
-                    });
+                    return { success: true, result };
                 } catch (error) {
                     retryCount++;
                     console.error(`❌ ${useBackup ? 'Backup' : 'Primary'} email send attempt ${retryCount} failed:`, error);
@@ -2452,23 +2450,33 @@ app.post('/api/auth/resend-verification', async (req, res) => {
                     if (retryCount < maxRetries && !useBackup) {
                         console.log(`🔄 Retrying with primary transporter... Attempt ${retryCount + 1}/${maxRetries}`);
                         // Wait 1 second before retry
-                        setTimeout(() => sendEmail(false), 1000);
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        return await sendEmail(false);
                     } else if (!useBackup) {
                         console.log('🔄 Switching to backup transporter...');
                         // Try backup transporter
-                        setTimeout(() => sendEmail(true), 1000);
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        return await sendEmail(true);
                     } else {
                         console.error('❌ Both primary and backup email attempts failed');
-                        res.status(500).json({ 
-                            message: 'Failed to send verification email. Please check your email address or contact support at virtuosa@gmail.com.',
-                            error: 'Email sending failed',
-                            details: error.message 
-                        });
+                        return { success: false, error };
                     }
                 }
             };
             
-            await sendEmail();
+            const emailResult = await sendEmail();
+            
+            if (emailResult.success) {
+                res.json({ 
+                    message: 'Verification email sent successfully. Please check your inbox (including spam folder).' 
+                });
+            } else {
+                res.status(500).json({ 
+                    message: 'Failed to send verification email. Please check your email address or contact support at virtuosa@gmail.com.',
+                    error: 'Email sending failed',
+                    details: emailResult.error.message 
+                });
+            }
         } catch (emailError) {
             console.error('❌ Failed to send verification email:', emailError);
             console.error('Email error details:', {
