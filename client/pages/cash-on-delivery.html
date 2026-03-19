@@ -340,6 +340,29 @@
                 </p>
             </div>
 
+            <!-- Progress Indicator -->
+            <div class="glass-panel p-4 mb-8">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-white font-medium">Arrangement Progress</span>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-1 bg-gold bg-opacity-20 rounded-full"></div>
+                        <div class="flex-1 h-1 bg-gray-600 rounded-full overflow-hidden">
+                            <div class="h-full bg-gold bg-opacity-40 transition-all duration-500" style="width: 25%"></div>
+                        </div>
+                        <div class="w-8 h-1 bg-gray-600 rounded-full overflow-hidden">
+                            <div class="h-full bg-gold bg-opacity-40 transition-all duration-500" style="width: 50%"></div>
+                        </div>
+                        <div class="w-8 h-1 bg-gray-600 rounded-full overflow-hidden">
+                            <div class="h-full bg-gold bg-opacity-40 transition-all duration-500" style="width: 75%"></div>
+                        </div>
+                        <div class="w-8 h-1 bg-gold bg-opacity-40 transition-all duration-500" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-400 editorial-text mt-2">
+                        Step 1: Details → Step 2: Confirmation → Step 3: Campus Arrival
+                    </div>
+                </div>
+
             <!-- Trust Indicators -->
             <div class="glass-panel p-6 mb-8">
                 <div class="flex flex-wrap justify-center items-center gap-8 text-sm">
@@ -418,7 +441,21 @@
                         <div class="space-y-6">
                             <!-- Value Breakdown -->
                             <div class="border-t border-gray-600 pt-6">
-                                <div class="flex justify-between items-center mb-3">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="text-gray-300 text-sm">Your Tech Setup</span>
+                                    <!-- Progress Indicator -->
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-8 h-1 bg-gold bg-opacity-20 rounded-full"></div>
+                                        <div class="flex-1 h-1 bg-gray-600 rounded-full overflow-hidden">
+                                            <div class="h-full bg-gold bg-opacity-40 transition-all duration-500" style="width: 66%"></div>
+                                        </div>
+                                        <div class="w-8 h-1 bg-gray-600 rounded-full overflow-hidden">
+                                            <div class="h-full bg-gold bg-opacity-40 transition-all duration-500" style="width: 33%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center mb-3">
                                     <span class="text-gray-300 text-sm">Total Investment:</span>
                                     <span class="text-white font-semibold text-lg" id="subtotal">ZMW 0.00</span>
                                 </div>
@@ -432,14 +469,14 @@
                             <div class="border-t border-gray-600 pt-4">
                                 <div class="flex justify-between items-center">
                                     <span class="text-white font-light text-lg">Final Value:</span>
-                                    <span class="gold-accent text-2xl font-semibold" id="total">ZMW 0.00</span>
+                                    <span class="gold-accent text-xl font-semibold" id="total">ZMW 0.00</span>
                                 </div>
                             </div>
 
                             <!-- Action Button -->
                             <div class="space-y-3 pt-6 border-t border-gray-600">
                                 <button id="place-order-btn" onclick="placeCashOnDeliveryOrder()" 
-                                    class="w-full gold-button text-navy font-semibold py-4 px-6 rounded-full">
+                                    class="w-full gold-button text-white font-semibold py-4 px-6 rounded-full">
                                     Complete Delivery Arrangement
                                 </button>
                             </div>

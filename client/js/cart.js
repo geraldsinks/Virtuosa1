@@ -26,9 +26,14 @@ async function getCart() {
                 localStorage.setItem('virtuosa_cart', JSON.stringify(data.items || []));
                 
                 return data.items || [];
+            } else {
+                console.warn('⚠️ Backend cart unavailable, using localStorage');
+                // Don't try to parse failed response, just use localStorage
+                throw new Error('Backend cart unavailable');
             }
         } catch (error) {
             console.error('Error fetching cart from backend:', error);
+            // Don't try to parse failed response, just use localStorage
         }
     }
     
@@ -105,13 +110,13 @@ async function addToCart(product, quantity = 1) {
     if (token) {
         // Add to backend cart
         try {
-            const response = await fetch(`${API_BASE}/cart/add/${product._id}`, {
+            const response = await fetch(`${API_BASE}/cart/add`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ quantity })
+                body: JSON.stringify({ productId, quantity })
             });
 
             if (response.ok) {
@@ -224,41 +229,71 @@ async function addToCart(product, quantity = 1) {
 }
 
 /**
- * Show a modern toast notification
+ * Show a modern toast notification with improved timing and user experience
  * @param {string} message 
  * @param {string} type - 'success', 'error', 'info'
+ * @param {number} duration - Optional custom duration in milliseconds
  */
-function showToast(message, type = 'success') {
+function showToast(message, type = 'success', duration = 4000) {
     let container = document.getElementById('toast-container');
     if (!container) {
         container = document.createElement('div');
         container.id = 'toast-container';
+        container.className = 'fixed top-4 right-4 z-50 pointer-events-none';
         document.body.appendChild(container);
     }
 
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
+    // Remove any existing toasts to prevent stacking
+    const existingToasts = container.querySelectorAll('.toast');
+    existingToasts.forEach(toast => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    });
 
+    const toast = document.createElement('div');
+    toast.className = `toast ${type} toast-enter`;
+    
     // Choose icon based on type
     let icon = 'fa-check-circle';
-    if (type === 'error') icon = 'fa-exclamation-circle';
-    if (type === 'info') icon = 'fa-info-circle';
-
+    let iconColor = 'text-green-400';
+    if (type === 'error') {
+        icon = 'fa-exclamation-triangle';
+        iconColor = 'text-red-400';
+    } else if (type === 'info') {
+        icon = 'fa-info-circle';
+        iconColor = 'text-blue-400';
+    }
+    
     toast.innerHTML = `
-        <i class="fas ${icon} toast-icon"></i>
-        <span class="toast-message">${message}</span>
+        <div class="toast-content">
+            <div class="toast-icon ${iconColor}">
+                <i class="fas ${icon}"></i>
+            </div>
+            <div class="toast-message">${message}</div>
+            <div class="toast-close" onclick="this.parentElement.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
     `;
 
     container.appendChild(toast);
 
-    // Trigger animation
-    setTimeout(() => toast.classList.add('show'), 10);
+    // Trigger entrance animation
+    requestAnimationFrame(() => {
+        toast.classList.remove('toast-enter');
+        toast.classList.add('toast-show');
+    });
 
-    // Remove after 3 seconds
+    // Auto-remove after specified duration with smooth exit
     setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 400);
-    }, 3000);
+        toast.classList.add('toast-leave');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300); // Wait for exit animation
+    }, duration);
 }
 
 // Global Event Delegation for Add to Cart
@@ -337,6 +372,7 @@ async function removeFromCart(productId) {
                 console.log('✅ Item removed from backend cart');
             } else {
                 console.warn('⚠️ Backend removal failed, continuing with localStorage update');
+                // Don't show error to user for backend failures, just handle gracefully
             }
         } catch (error) {
             console.error('❌ Backend removal error:', error);
@@ -399,22 +435,27 @@ async function updateQuantity(productId, delta) {
         if (token) {
             // Update quantity in backend cart
             try {
-                const response = await fetch(`${API_BASE}/cart/update/${productId}`, {
+                const response = await fetch(`${API_BASE}/cart/update`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ quantity: newQuantity })
+                    body: JSON.stringify({ productId, quantity })
                 });
                 
                 if (response.ok) {
                     console.log('✅ Quantity updated in backend cart');
                 } else {
-                    console.warn('⚠️ Backend update failed, continuing with localStorage update');
+                    console.log('⚠️ Backend update failed, reverting to previous quantity');
+                    showToast('Failed to update quantity', 'error');
+                    await updateQuantity(productId, -delta);
                 }
             } catch (error) {
                 console.error('❌ Backend update error:', error);
+                console.log('⚠️ Backend update failed, reverting to previous quantity');
+                showToast('Failed to update quantity', 'error');
+                await updateQuantity(productId, -delta);
             }
         }
         
@@ -613,7 +654,10 @@ function renderItem(item) {
                 </div>
                 <div class="text-right flex-shrink-0">
                     <p class="text-white font-semibold text-lg mb-2">ZMW ${((product.price || 0) * (item.quantity || 0)).toFixed(2)}</p>
-                    <button onclick="removeFromCart('${productId}')" class="text-gray-400 text-sm hover:text-red-400 transition-colors editorial-text">Remove</button>
+                    <button onclick="removeFromCart('${productId}')" class="text-gray-400 text-sm hover:text-red-400 transition-colors editorial-text">
+                        <i class="fas fa-trash-alt mr-2"></i>
+                        <span class="hidden sm:inline">Remove</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -621,6 +665,112 @@ function renderItem(item) {
 }
 
 // Cart Management JavaScript
+
+// Toast Notification Styles
+const toastStyles = `
+#toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.toast {
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    min-width: 300px;
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transform: translateX(100%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 0.75rem;
+}
+
+.toast-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.toast-message {
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    flex: 1;
+    line-height: 1.4;
+}
+
+.toast-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.7);
+    flex-shrink: 0;
+}
+
+.toast-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+/* Animations */
+.toast-enter {
+    opacity: 0;
+    transform: translateX(100%) scale(0.8);
+}
+
+.toast-show {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+}
+
+.toast-leave {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+}
+
+/* Type-specific colors */
+.toast.success {
+    border-left: 4px solid #10b981;
+}
+
+.toast.error {
+    border-left: 4px solid #ef4444;
+}
+
+.toast.info {
+    border-left: 4px solid #3b82f6;
+}
+`;
+
+// Inject styles once
+if (!document.getElementById('toast-notification-styles')) {
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'toast-notification-styles';
+    styleSheet.textContent = toastStyles;
+    document.head.appendChild(styleSheet);
+}
 // Helper function to fix URLs to point to server
 function fixServerUrl(url) {
     if (!url) return 'https://placehold.co/100x100?text=Product';
@@ -635,7 +785,7 @@ function fixServerUrl(url) {
     return `${API_BASE}/${url}`;
 }
 
-// Show cart banner when items are added
+// Show cart banner when items are added with improved UX
 function showCartBanner(message = 'Item added to cart!') {
     const banner = document.getElementById('cart-banner');
     const bannerMessage = document.getElementById('cart-banner-message');
@@ -645,12 +795,62 @@ function showCartBanner(message = 'Item added to cart!') {
     if (banner && bannerMessage) {
         bannerMessage.textContent = message;
         banner.classList.remove('hidden');
+        banner.classList.add('banner-enter');
         
-        // Hide banner after 3 seconds
+        // Auto-hide after longer duration for better readability
         setTimeout(() => {
-            banner.classList.add('hidden');
-        }, 3000);
+            banner.classList.add('banner-leave');
+            setTimeout(() => {
+                banner.classList.add('hidden');
+                banner.classList.remove('banner-enter', 'banner-leave');
+            }, 300);
+        }, 5000); // 5 seconds instead of 3
     }
+}
+
+// Cart banner styles
+const bannerStyles = `
+#cart-banner {
+    position: fixed;
+    top: 4rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#cart-banner-message {
+    background: var(--gold-gradient);
+    color: #0A1128;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+}
+
+.banner-enter {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+}
+
+.banner-leave {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+}
+
+#cart-banner.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+`;
+
+// Inject banner styles once
+if (!document.getElementById('cart-banner-styles')) {
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'cart-banner-styles';
+    styleSheet.textContent = bannerStyles;
+    document.head.appendChild(styleSheet);
 }
 
 // Fulfillment method selection functions

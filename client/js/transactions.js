@@ -1,5 +1,179 @@
 // Transaction Management JavaScript
 // API_BASE is provided by config.js
+
+// Toast Notification System (shared with cart.js)
+const toastStyles = `
+#toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.toast {
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    min-width: 300px;
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transform: translateX(100%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 0.75rem;
+}
+
+.toast-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.toast-message {
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    flex: 1;
+    line-height: 1.4;
+}
+
+.toast-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.7);
+    flex-shrink: 0;
+}
+
+.toast-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+/* Animations */
+.toast-enter {
+    opacity: 0;
+    transform: translateX(100%) scale(0.8);
+}
+
+.toast-show {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+}
+
+.toast-leave {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+}
+
+/* Type-specific colors */
+.toast.success {
+    border-left: 4px solid #10b981;
+}
+
+.toast.error {
+    border-left: 4px solid #ef4444;
+}
+
+.toast.info {
+    border-left: 4px solid #3b82f6;
+}
+`;
+
+// Inject toast styles once
+if (!document.getElementById('toast-notification-styles')) {
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'toast-notification-styles';
+    styleSheet.textContent = toastStyles;
+    document.head.appendChild(styleSheet);
+}
+
+/**
+ * Show a modern toast notification with improved timing and user experience
+ * @param {string} message 
+ * @param {string} type - 'success', 'error', 'info'
+ * @param {number} duration - Optional custom duration in milliseconds
+ */
+function showToast(message, type = 'success', duration = 4000) {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'fixed top-4 right-4 z-50 pointer-events-none';
+        document.body.appendChild(container);
+    }
+
+    // Remove any existing toasts to prevent stacking
+    const existingToasts = container.querySelectorAll('.toast');
+    existingToasts.forEach(toast => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    });
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type} toast-enter`;
+    
+    // Choose icon based on type
+    let icon = 'fa-check-circle';
+    let iconColor = 'text-green-400';
+    if (type === 'error') {
+        icon = 'fa-exclamation-triangle';
+        iconColor = 'text-red-400';
+    } else if (type === 'info') {
+        icon = 'fa-info-circle';
+        iconColor = 'text-blue-400';
+    }
+    
+    toast.innerHTML = `
+        <div class="toast-content">
+            <div class="toast-icon ${iconColor}">
+                <i class="fas ${icon}"></i>
+            </div>
+            <div class="toast-message">${message}</div>
+            <div class="toast-close" onclick="this.parentElement.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+    `;
+
+    container.appendChild(toast);
+
+    // Trigger entrance animation
+    requestAnimationFrame(() => {
+        toast.classList.remove('toast-enter');
+        toast.classList.add('toast-show');
+    });
+
+    // Auto-remove after specified duration with smooth exit
+    setTimeout(() => {
+        toast.classList.add('toast-leave');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300); // Wait for exit animation
+    }, duration);
+}
 let currentTransactionId = null;
 let currentTransactionType = 'all';
 let currentPage = 1;
@@ -631,28 +805,14 @@ function showTab(tabName) {
     loadTransactions(1);
 }
 
-// Show error message
+// Show error message with improved toast system
 function showError(message) {
-    const notification = document.createElement('div');
-    notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
+    showToast(message, 'error', 5000);
 }
 
-// Show success message
+// Show success message with improved toast system
 function showSuccess(message) {
-    const notification = document.createElement('div');
-    notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
+    showToast(message, 'success', 5000);
 }
 
 // Logout function
