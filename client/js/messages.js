@@ -1447,6 +1447,35 @@ document.addEventListener('DOMContentLoaded', () => {
     function addScrollToInputFunctionality(messageContainer, inputArea) {
         if (!messageContainer || !inputArea) return;
         
+        // Add double-tap message indicator
+        const doubleTapMessage = document.createElement('div');
+        doubleTapMessage.id = 'double-tap-message';
+        doubleTapMessage.innerHTML = 'Double tap to type';
+        doubleTapMessage.style.cssText = `
+            position: absolute;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 17, 40, 0.9);
+            color: #FFD700;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 45;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        `;
+        
+        // Add message to chat area
+        const chatArea = document.getElementById('chat-area');
+        if (chatArea) {
+            chatArea.style.position = 'relative';
+            chatArea.appendChild(doubleTapMessage);
+        }
+        
         // Add scroll indicator button
         const scrollIndicator = document.createElement('button');
         scrollIndicator.id = 'scroll-to-input-btn';
@@ -1479,7 +1508,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         document.body.appendChild(scrollIndicator);
         
-        // Show/hide scroll indicator based on scroll position
+        // Show/hide scroll indicator and double-tap message based on scroll position
         const updateScrollIndicator = () => {
             const scrollTop = messageContainer.scrollTop;
             const scrollHeight = messageContainer.scrollHeight;
@@ -1490,10 +1519,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 scrollIndicator.style.opacity = '0';
                 scrollIndicator.style.transform = 'translateY(20px)';
                 scrollIndicator.style.pointerEvents = 'none';
+                doubleTapMessage.style.opacity = '0';
             } else {
                 scrollIndicator.style.opacity = '1';
                 scrollIndicator.style.transform = 'translateY(0)';
                 scrollIndicator.style.pointerEvents = 'auto';
+                doubleTapMessage.style.opacity = '1';
             }
         };
         
@@ -1501,22 +1532,28 @@ document.addEventListener('DOMContentLoaded', () => {
         scrollIndicator.addEventListener('click', () => {
             console.log('Scroll to input clicked');
             
-            // First scroll to the bottom of message container
+            // First scroll to bottom of message container
             if (messageContainer) {
                 messageContainer.scrollTop = messageContainer.scrollHeight;
             }
             
-            // Then scroll the input area into view
+            // Then scroll input area into view with better positioning
             setTimeout(() => {
                 if (inputArea) {
-                    inputArea.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'end',
-                        inline: 'nearest'
+                    // Get input area position
+                    const inputRect = inputArea.getBoundingClientRect();
+                    const viewportHeight = window.innerHeight;
+                    
+                    // Calculate scroll position to show input field with some padding
+                    const targetScrollY = window.pageYOffset + inputRect.top - (viewportHeight - inputRect.height - 100);
+                    
+                    window.scrollTo({
+                        top: targetScrollY,
+                        behavior: 'smooth'
                     });
                 }
                 
-                // Focus the input field after scrolling
+                // Focus input field after scrolling
                 setTimeout(() => {
                     const messageInput = document.getElementById('message-input');
                     if (messageInput) {
@@ -1540,22 +1577,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 console.log('Keyboard shortcut triggered');
                 
-                // First scroll to the bottom of message container
+                // First scroll to bottom of message container
                 if (messageContainer) {
                     messageContainer.scrollTop = messageContainer.scrollHeight;
                 }
                 
-                // Then scroll the input area into view
+                // Then scroll input area into view with better positioning
                 setTimeout(() => {
                     if (inputArea) {
-                        inputArea.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'end',
-                            inline: 'nearest'
+                        const inputRect = inputArea.getBoundingClientRect();
+                        const viewportHeight = window.innerHeight;
+                        const targetScrollY = window.pageYOffset + inputRect.top - (viewportHeight - inputRect.height - 100);
+                        
+                        window.scrollTo({
+                            top: targetScrollY,
+                            behavior: 'smooth'
                         });
                     }
                     
-                    // Focus the input field after scrolling
+                    // Focus input field after scrolling
                     setTimeout(() => {
                         const messageInput = document.getElementById('message-input');
                         if (messageInput) {
@@ -1578,22 +1618,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 console.log('Double tap detected');
                 
-                // First scroll to the bottom of message container
+                // First scroll to bottom of message container
                 if (messageContainer) {
                     messageContainer.scrollTop = messageContainer.scrollHeight;
                 }
                 
-                // Then scroll the input area into view
+                // Then scroll input area into view with better positioning
                 setTimeout(() => {
                     if (inputArea) {
-                        inputArea.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'end',
-                            inline: 'nearest'
+                        const inputRect = inputArea.getBoundingClientRect();
+                        const viewportHeight = window.innerHeight;
+                        const targetScrollY = window.pageYOffset + inputRect.top - (viewportHeight - inputRect.height - 100);
+                        
+                        window.scrollTo({
+                            top: targetScrollY,
+                            behavior: 'smooth'
                         });
                     }
                     
-                    // Focus the input field after scrolling
+                    // Focus input field after scrolling
                     setTimeout(() => {
                         const messageInput = document.getElementById('message-input');
                         if (messageInput) {
