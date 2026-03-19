@@ -1283,20 +1283,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        // Handle search toggle
-        const searchToggle = document.getElementById('mobile-search-toggle');
-        const searchInput = document.getElementById('search-input');
-        if (searchToggle && searchInput) {
-            searchToggle.addEventListener('click', () => {
-                searchInput.focus();
-                // Smooth scroll to input area
-                const inputArea = document.getElementById('input-area');
-                if (inputArea) {
-                    inputArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                }
-            });
-        }
-        
         // Fix scrolling behavior
         fixMobileScrolling();
         
@@ -1423,7 +1409,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Ensure input area is accessible
         if (inputArea && chatArea) {
-            // Make sure the chat area layout allows input area to be visible
+            // Make sure chat area layout allows input area to be visible
             chatArea.style.display = 'flex';
             chatArea.style.flexDirection = 'column';
             
@@ -1438,11 +1424,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const messageInput = document.getElementById('message-input');
             if (messageInput) {
                 messageInput.addEventListener('focus', scrollToInput);
-            }
-            
-            const searchInput = document.getElementById('search-input');
-            if (searchInput) {
-                searchInput.addEventListener('focus', scrollToInput);
             }
         }
         

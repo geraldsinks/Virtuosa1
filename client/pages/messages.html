@@ -323,7 +323,8 @@
                 max-width: 300px;
                 background: white;
                 transition: left 0.3s ease;
-                z-index: 200;
+                z-index: 1000; /* Higher than overlay */
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
             }
             
             .mobile-menu-content.active {
@@ -368,7 +369,7 @@
                 right: 0;
                 bottom: 0;
                 background: rgba(0, 0, 0, 0.5);
-                z-index: 199;
+                z-index: 999; /* Higher z-index to overlay everything */
                 opacity: 0;
                 transition: opacity 0.3s ease;
                 pointer-events: none;
@@ -552,13 +553,9 @@
             <h1 class="text-lg font-bold text-gold">Messages</h1>
         </div>
 
-        <!-- Right: Optional Actions -->
+        <!-- Right: Empty space for balance -->
         <div class="flex items-center space-x-2">
-            <button id="mobile-search-toggle" class="text-white hover:text-gold transition-colors p-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            </button>
+            <!-- No search button - removed -->
         </div>
     </header>
     
@@ -832,12 +829,6 @@
                     <!-- Typing Indicator -->
                     <div id="typing-indicator" class="hidden text-xs text-gray-500 mb-2 italic px-4">
                         Someone is typing...
-                    </div>
-                    
-                    <!-- Search Bar -->
-                    <div class="mb-3 px-4">
-                        <input type="text" id="search-input" placeholder="Search messages..." 
-                               class="w-full py-2 px-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold border-none text-sm">
                     </div>
                     
                     <form id="message-form" class="flex items-center gap-2 px-4 pb-2">
