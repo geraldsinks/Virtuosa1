@@ -1499,15 +1499,32 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Scroll to input functionality
         scrollIndicator.addEventListener('click', () => {
-            inputArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            console.log('Scroll to input clicked');
             
-            // Focus the input field after scrolling
+            // First scroll to the bottom of message container
+            if (messageContainer) {
+                messageContainer.scrollTop = messageContainer.scrollHeight;
+            }
+            
+            // Then scroll the input area into view
             setTimeout(() => {
-                const messageInput = document.getElementById('message-input');
-                if (messageInput) {
-                    messageInput.focus();
+                if (inputArea) {
+                    inputArea.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'end',
+                        inline: 'nearest'
+                    });
                 }
-            }, 500);
+                
+                // Focus the input field after scrolling
+                setTimeout(() => {
+                    const messageInput = document.getElementById('message-input');
+                    if (messageInput) {
+                        messageInput.focus();
+                        console.log('Input field focused');
+                    }
+                }, 300);
+            }, 100);
         });
         
         // Listen for scroll events
@@ -1521,14 +1538,32 @@ document.addEventListener('DOMContentLoaded', () => {
             // Ctrl/Cmd + Down arrow scrolls to input
             if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowDown') {
                 e.preventDefault();
-                inputArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                console.log('Keyboard shortcut triggered');
                 
+                // First scroll to the bottom of message container
+                if (messageContainer) {
+                    messageContainer.scrollTop = messageContainer.scrollHeight;
+                }
+                
+                // Then scroll the input area into view
                 setTimeout(() => {
-                    const messageInput = document.getElementById('message-input');
-                    if (messageInput) {
-                        messageInput.focus();
+                    if (inputArea) {
+                        inputArea.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'end',
+                            inline: 'nearest'
+                        });
                     }
-                }, 500);
+                    
+                    // Focus the input field after scrolling
+                    setTimeout(() => {
+                        const messageInput = document.getElementById('message-input');
+                        if (messageInput) {
+                            messageInput.focus();
+                            console.log('Input field focused via keyboard');
+                        }
+                    }, 300);
+                }, 100);
             }
         });
         
@@ -1541,14 +1576,32 @@ document.addEventListener('DOMContentLoaded', () => {
             if (tapLength < 500 && tapLength > 0) {
                 // Double tap detected
                 e.preventDefault();
-                inputArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                console.log('Double tap detected');
                 
+                // First scroll to the bottom of message container
+                if (messageContainer) {
+                    messageContainer.scrollTop = messageContainer.scrollHeight;
+                }
+                
+                // Then scroll the input area into view
                 setTimeout(() => {
-                    const messageInput = document.getElementById('message-input');
-                    if (messageInput) {
-                        messageInput.focus();
+                    if (inputArea) {
+                        inputArea.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'end',
+                            inline: 'nearest'
+                        });
                     }
-                }, 500);
+                    
+                    // Focus the input field after scrolling
+                    setTimeout(() => {
+                        const messageInput = document.getElementById('message-input');
+                        if (messageInput) {
+                            messageInput.focus();
+                            console.log('Input field focused via double tap');
+                        }
+                    }, 300);
+                }, 100);
             }
             
             lastTap = currentTime;
