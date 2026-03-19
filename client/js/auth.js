@@ -529,6 +529,10 @@ function renderAuthComponent(type) {
                 <button type="submit" class="auth-button w-full flex justify-center py-3 px-4 rounded-full text-sm font-bold text-navy transition-all duration-300">
                     Log In
                 </button>
+                <p class="text-center text-sm mt-6 text-gray-600">
+                    Don't have an account? 
+                    <a href="#" id="switch-to-signup" class="font-bold text-navy hover:text-gold transition-colors duration-200">Sign Up</a>
+                </p>
             </form>
         </div>
     `;
@@ -609,6 +613,9 @@ function renderAuthComponent(type) {
                 <button type="submit" class="auth-button w-full flex justify-center py-3 px-4 rounded-full text-sm font-bold text-navy transition-all duration-300">
                     Send Reset Link
                 </button>
+                <div class="text-center">
+                    <a href="#" id="switch-to-login-from-forgot" class="text-sm text-navy hover:text-gold transition-colors duration-200">Back to Login</a>
+                </div>
             </form>
         </div>
     `;
