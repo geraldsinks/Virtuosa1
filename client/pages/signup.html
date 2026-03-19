@@ -648,22 +648,6 @@
                             </label>
                         </div>
                         
-                        <!-- Email Verification -->
-                        <div>
-                            <label for="signup-email-verify" class="form-label block text-sm">Verify Email Address</label>
-                            <div class="flex space-x-2">
-                                <input type="email" id="signup-email-verify" name="emailVerify" required 
-                                    class="auth-input flex-1 block px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400" 
-                                    placeholder="Re-enter your email">
-                                <button type="button" id="verify-email-btn" 
-                                    class="px-4 py-3 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors"
-                                    onclick="verifyEmailMatch()">
-                                    Verify
-                                </button>
-                            </div>
-                            <p id="email-verify-message" class="text-xs mt-1 hidden"></p>
-                        </div>
-
                         <!-- I'm not a robot verification -->
                         <div>
                             <label class="form-label block text-sm">Security Verification</label>
@@ -763,29 +747,6 @@
             } else {
                 phoneInput.setCustomValidity('');
             }
-        }
-
-        function verifyEmailMatch() {
-            const email = document.getElementById('signup-email')?.value;
-            const emailVerify = document.getElementById('signup-email-verify')?.value;
-            const message = document.getElementById('email-verify-message');
-            const verifyBtn = document.getElementById('verify-email-btn');
-            
-            if (!email || !emailVerify) {
-                showMessage('Please enter both email fields', true);
-                return;
-            }
-            
-            if (email !== emailVerify) {
-                message.textContent = '❌ Email addresses do not match';
-                message.className = 'text-xs mt-1 text-red-600';
-                verifyBtn.className = 'px-4 py-3 bg-red-200 text-red-700 rounded-lg text-sm font-medium';
-                return;
-            }
-            
-            message.textContent = '✅ Email addresses match!';
-            message.className = 'text-xs mt-1 text-green-600';
-            verifyBtn.className = 'px-4 py-3 bg-green-200 text-green-700 rounded-lg text-sm font-medium';
         }
 
         function setupRobotCheck() {

@@ -2119,20 +2119,20 @@ app.post('/api/auth/signup', async (req, res) => {
 
         await user.save();
 
-        console.log('🔍 Sending email verification email to:', email);
+        // Send email verification email
+        const emailVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/pages/verify-email.html?token=${emailVerificationToken}`;
+        
+        console.log('🔍 Sending email verification email to:', normalizedEmail);
         console.log('🔗 Verification link:', emailVerificationLink);
         console.log('📧 Email config check:', {
             hasEmailUser: !!process.env.EMAIL_USER,
             hasEmailPass: !!process.env.EMAIL_PASS,
             emailUser: process.env.EMAIL_USER
         });
-
-        // Send email verification email
-        const emailVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/pages/verify-email.html?token=${emailVerificationToken}`;
         
         try {
             const emailResult = await transporter.sendMail({
-                to: email,
+                to: normalizedEmail,
                 subject: 'Virtuosa - Verify Your Email',
                 html: `
                     <h2>Welcome to Virtuosa!</h2>
@@ -2142,7 +2142,7 @@ app.post('/api/auth/signup', async (req, res) => {
                 `
             });
             
-            console.log('✅ Email verification email sent successfully to:', email);
+            console.log('✅ Email verification email sent successfully to:', normalizedEmail);
             console.log('📧 Email result:', emailResult);
             
             // Send student verification email
@@ -2150,7 +2150,7 @@ app.post('/api/auth/signup', async (req, res) => {
             
             try {
                 const studentEmailResult = await transporter.sendMail({
-                    to: studentEmail,
+                    to: normalizedStudentEmail,
                     subject: 'Virtuosa Student Verification',
                     html: `
                         <h2>Verify Your Student Status</h2>
@@ -2159,7 +2159,7 @@ app.post('/api/auth/signup', async (req, res) => {
                     `
                 });
                 
-                console.log('✅ Student verification email sent successfully to:', studentEmail);
+                console.log('✅ Student verification email sent successfully to:', normalizedStudentEmail);
                 console.log('📧 Student email result:', studentEmailResult);
             } catch (studentEmailError) {
                 console.error('❌ Failed to send student verification email:', studentEmailError);
