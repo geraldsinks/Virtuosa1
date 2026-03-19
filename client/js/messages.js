@@ -13,6 +13,9 @@ window.fixServerUrl = fixServerUrl;
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Messages page loading...');
     
+    // Initialize mobile header functionality
+    initializeMobileHeader();
+    
     const token = localStorage.getItem('token');
     const userEmail = localStorage.getItem('userEmail');
     const userFullName = localStorage.getItem('userFullName');
@@ -140,6 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
             sidebar.classList.add('hidden');
             chatArea.classList.remove('hidden');
             chatArea.classList.add('flex');
+            
+            // Update mobile header title
+            const mobileTitle = document.querySelector('.mobile-messages-header h1');
+            if (mobileTitle && recipientName) {
+                mobileTitle.textContent = recipientName;
+            }
         } else {
             chatArea.classList.remove('hidden');
             chatArea.classList.add('flex');
@@ -951,14 +960,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Helper functions
     window.showSidebar = () => {
+        const sidebar = document.getElementById('sidebar');
+        const chatArea = document.getElementById('chat-area');
+        
         if (sidebar) {
             sidebar.classList.remove('hidden');
             if (chatArea) chatArea.classList.add('hidden');
             
-            // Mobile: Add slide-in animation
+            // Mobile: Add slide-in animation and adjust header
             if (window.innerWidth < 768) {
                 sidebar.style.transform = 'translateX(0)';
                 sidebar.style.transition = 'transform 0.3s ease';
+                
+                // Update mobile header title
+                const mobileTitle = document.querySelector('.mobile-messages-header h1');
+                if (mobileTitle) mobileTitle.textContent = 'Conversations';
             }
         }
     };
@@ -1200,6 +1216,109 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     };
+
+    // Mobile Header Initialization
+    function initializeMobileHeader() {
+        if (window.innerWidth >= 768) return; // Only on mobile
+        
+        const mobileHeader = document.querySelector('.mobile-messages-header');
+        const siteHeader = document.querySelector('.site-header');
+        const chatArea = document.getElementById('chat-area');
+        const sidebar = document.getElementById('sidebar');
+        const messageContainer = document.getElementById('message-container');
+        
+        // Show mobile header, hide site header on mobile
+        if (mobileHeader) mobileHeader.classList.remove('hidden');
+        if (siteHeader) siteHeader.classList.add('hidden');
+        
+        // Handle back button
+        const backButton = document.getElementById('mobile-back-button');
+        if (backButton) {
+            backButton.addEventListener('click', () => {
+                if (chatArea && sidebar) {
+                    // Show sidebar, hide chat area
+                    sidebar.classList.remove('hidden');
+                    chatArea.classList.add('hidden');
+                } else {
+                    // Go back to previous page
+                    window.history.back();
+                }
+            });
+        }
+        
+        // Handle search toggle
+        const searchToggle = document.getElementById('mobile-search-toggle');
+        const searchInput = document.getElementById('search-input');
+        if (searchToggle && searchInput) {
+            searchToggle.addEventListener('click', () => {
+                searchInput.focus();
+                searchInput.scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+        
+        // Fix scrolling behavior
+        fixMobileScrolling();
+        
+        // Handle resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                // Desktop: show site header, hide mobile header
+                if (mobileHeader) mobileHeader.classList.add('hidden');
+                if (siteHeader) siteHeader.classList.remove('hidden');
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+            } else {
+                // Mobile: show mobile header, hide site header
+                if (mobileHeader) mobileHeader.classList.remove('hidden');
+                if (siteHeader) siteHeader.classList.add('hidden');
+                fixMobileScrolling();
+            }
+        });
+    }
+    
+    function fixMobileScrolling() {
+        const messageContainer = document.getElementById('message-container');
+        const sidebar = document.getElementById('sidebar');
+        
+        // Prevent body scroll, allow individual containers to scroll
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        
+        // Enable touch scrolling for message containers
+        if (messageContainer) {
+            messageContainer.style.overflowY = 'auto';
+            messageContainer.style.webkitOverflowScrolling = 'touch';
+        }
+        
+        if (sidebar) {
+            sidebar.style.overflowY = 'auto';
+            sidebar.style.webkitOverflowScrolling = 'touch';
+        }
+        
+        // Handle touch events to prevent conflicts
+        let touchStartY = 0;
+        let touchEndY = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+        
+        document.addEventListener('touchend', (e) => {
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipeGesture(touchStartY, touchEndY);
+        }, { passive: true });
+    }
+    
+    function handleSwipeGesture(startY, endY) {
+        const swipeThreshold = 50;
+        const deltaY = startY - endY;
+        
+        // Handle vertical swipes for scrolling
+        if (Math.abs(deltaY) > swipeThreshold) {
+            // Allow natural scrolling behavior
+            return;
+        }
+    }
 
     console.log('Messages initialization complete');
 });
