@@ -2044,7 +2044,7 @@ const Subscription = mongoose.model('Subscription', subscriptionSchema);
 console.log('Subscription model created successfully');
 
 // Nodemailer setup with enhanced configuration and alternative service
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER,
