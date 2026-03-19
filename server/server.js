@@ -2043,38 +2043,19 @@ const subscriptionSchema = new mongoose.Schema({
 const Subscription = mongoose.model('Subscription', subscriptionSchema);
 console.log('Subscription model created successfully');
 
-// Nodemailer setup with alternative SMTP configuration
-const transporter = nodemailer.createTransport({
+// Nodemailer setup with multiple fallback configurations
+const primaryTransporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // Use TLS
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    pool: false, // Disable pooling for better reliability
-    connectionTimeout: 30000, // 30 seconds connection timeout
-    greetingTimeout: 10000, // 10 seconds greeting timeout
-    socketTimeout: 30000, // 30 seconds socket timeout
-    tls: {
-        rejectUnauthorized: false,
-        minVersion: 'TLSv1.2'
-    },
-    debug: true, // Enable debugging for email issues
-    logger: true // Enable detailed logging
-});
-
-// Backup transporter using different configuration
-const backupTransporter = nodemailer.createTransport({
-    service: 'gmail',
+    port: 465,
+    secure: true, // Use SSL
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
     pool: false,
-    connectionTimeout: 15000, // Shorter timeout for backup
-    greetingTimeout: 5000,
-    socketTimeout: 15000,
+    connectionTimeout: 20000, // 20 seconds
+    greetingTimeout: 8000, // 8 seconds
+    socketTimeout: 20000, // 20 seconds
     tls: {
         rejectUnauthorized: false
     },
@@ -2082,14 +2063,70 @@ const backupTransporter = nodemailer.createTransport({
     logger: false
 });
 
-// Verify transporter configuration on startup
-transporter.verify((error, success) => {
-    if (error) {
-        console.error('❌ Email transporter configuration error:', error);
-    } else {
-        console.log('✅ Email transporter is ready to send messages');
-    }
+const secondaryTransporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // Use TLS
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    },
+    pool: false,
+    connectionTimeout: 15000, // 15 seconds
+    greetingTimeout: 5000, // 5 seconds
+    socketTimeout: 15000, // 15 seconds
+    tls: {
+        rejectUnauthorized: false
+    },
+    debug: false,
+    logger: false
 });
+
+const tertiaryTransporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    },
+    pool: false,
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 3000, // 3 seconds
+    socketTimeout: 10000, // 10 seconds
+    tls: {
+        rejectUnauthorized: false
+    },
+    debug: false,
+    logger: false
+});
+
+// Verify all transporter configurations on startup
+const verifyTransporters = async () => {
+    const transporters = [
+        { name: 'Primary (SSL)', transporter: primaryTransporter },
+        { name: 'Secondary (TLS)', transporter: secondaryTransporter },
+        { name: 'Tertiary (Service)', transporter: tertiaryTransporter }
+    ];
+    
+    for (const { name, transporter } of transporters) {
+        try {
+            await new Promise((resolve, reject) => {
+                transporter.verify((error, success) => {
+                    if (error) {
+                        console.log(`❌ ${name} transporter configuration error:`, error.message);
+                        resolve(false);
+                    } else {
+                        console.log(`✅ ${name} transporter is ready to send messages`);
+                        resolve(true);
+                    }
+                });
+            });
+        } catch (error) {
+            console.log(`❌ ${name} transporter verification failed:`, error.message);
+        }
+    }
+};
+
+verifyTransporters();
 
 // Enhanced Signup endpoint with student verification
 app.post('/api/auth/signup', async (req, res) => {
@@ -2419,17 +2456,19 @@ app.post('/api/auth/resend-verification', async (req, res) => {
         });
         
         try {
-            let retryCount = 0;
-            const maxRetries = 2; // Reduced retries since we have backup
+            const transporters = [
+                { name: 'Primary (SSL)', transporter: primaryTransporter },
+                { name: 'Secondary (TLS)', transporter: secondaryTransporter },
+                { name: 'Tertiary (Service)', transporter: tertiaryTransporter }
+            ];
             
-            const sendEmail = async (useBackup = false) => {
+            for (let i = 0; i < transporters.length; i++) {
+                const { name, transporter } = transporters[i];
+                
                 try {
-                    const currentTransporter = useBackup ? backupTransporter : transporter;
-                    const transporterName = useBackup ? 'Backup' : 'Primary';
+                    console.log(`📧 Attempting to send email using ${name} transporter to:`, normalizedEmail);
                     
-                    console.log(`📧 Using ${transporterName} transporter to send email to:`, normalizedEmail);
-                    
-                    const result = await currentTransporter.sendMail({
+                    const result = await transporter.sendMail({
                         to: normalizedEmail,
                         subject: 'Virtuosa - Verify Your Email',
                         html: `
@@ -2439,43 +2478,29 @@ app.post('/api/auth/resend-verification', async (req, res) => {
                         `
                     });
                     
-                    console.log(`✅ Verification email sent successfully using ${transporterName} transporter to:`, normalizedEmail);
+                    console.log(`✅ Verification email sent successfully using ${name} transporter to:`, normalizedEmail);
                     console.log('📧 Email result:', result);
                     
-                    return { success: true, result };
+                    return res.json({ 
+                        message: 'Verification email sent successfully. Please check your inbox (including spam folder).' 
+                    });
                 } catch (error) {
-                    retryCount++;
-                    console.error(`❌ ${useBackup ? 'Backup' : 'Primary'} email send attempt ${retryCount} failed:`, error);
+                    console.error(`❌ ${name} transporter failed:`, error.message);
                     
-                    if (retryCount < maxRetries && !useBackup) {
-                        console.log(`🔄 Retrying with primary transporter... Attempt ${retryCount + 1}/${maxRetries}`);
-                        // Wait 1 second before retry
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                        return await sendEmail(false);
-                    } else if (!useBackup) {
-                        console.log('🔄 Switching to backup transporter...');
-                        // Try backup transporter
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                        return await sendEmail(true);
+                    if (i === transporters.length - 1) {
+                        // Last transporter failed
+                        console.error('❌ All email transporters failed');
+                        return res.status(500).json({ 
+                            message: 'Failed to send verification email. Please check your email address or contact support at virtuosa@gmail.com.',
+                            error: 'Email sending failed',
+                            details: 'All email transporters failed to connect. Please try again later.'
+                        });
                     } else {
-                        console.error('❌ Both primary and backup email attempts failed');
-                        return { success: false, error };
+                        console.log(`🔄 Trying next transporter... (${i + 1}/${transporters.length})`);
+                        // Small delay before trying next transporter
+                        await new Promise(resolve => setTimeout(resolve, 1000));
                     }
                 }
-            };
-            
-            const emailResult = await sendEmail();
-            
-            if (emailResult.success) {
-                res.json({ 
-                    message: 'Verification email sent successfully. Please check your inbox (including spam folder).' 
-                });
-            } else {
-                res.status(500).json({ 
-                    message: 'Failed to send verification email. Please check your email address or contact support at virtuosa@gmail.com.',
-                    error: 'Email sending failed',
-                    details: emailResult.error.message 
-                });
             }
         } catch (emailError) {
             console.error('❌ Failed to send verification email:', emailError);
