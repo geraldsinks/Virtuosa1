@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Seller Benefits</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .benefits-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .benefit-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .benefit-card:hover {
+            border-color: #FFD700;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .benefit-icon {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 32px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .highlight-badge {
+            background: linear-gradient(90deg, #FFD700, #C19A6B);
+            color: #0A1128;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .exclusive-badge {
+            background: linear-gradient(90deg, #8b5cf6, #7c3aed);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .campus-badge {
+            background: linear-gradient(90deg, #10b981, #059669);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .comparison-table {
+            overflow-x: auto;
+        }
+
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .comparison-table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .comparison-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .virtuosa-highlight {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+        }
+
+        .testimonial-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #FFD700, #C19A6B);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 0.75rem 0;
+            display: flex;
+            align-items: flex-start;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .pricing-tier {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            background: white;
+        }
+
+        .pricing-tier:hover {
+            border-color: #FFD700;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .pricing-tier.featured {
+            border-color: #FFD700;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="/index.html" class="hover:text-gold transition-colors">Home</a>
+                    <a href="/pages/products.html" class="hover:text-gold transition-colors">Products</a>
+                    <a href="/pages/seller.html" class="hover:text-gold transition-colors">Sell</a>
+                    <a href="/pages/login.html" class="hover:text-gold transition-colors">Sign In</a>
+                </nav>
+                <button class="md:hidden" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Page Header -->
+            <div class="text-center mb-10">
+                <h1 class="text-4xl md:text-5xl font-bold text-navy mb-4">Why Sell on Virtuosa?</h1>
+                <p class="text-gray-600 text-lg">Discover the exclusive benefits that make Virtuosa the best platform for student sellers</p>
+            </div>
+
+            <!-- Key Stats -->
+            <div class="mb-12">
+                <div class="benefits-container rounded-xl p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+                        <div>
+                            <div class="stat-number mb-2">0%</div>
+                            <div class="text-gray-600 font-semibold">Listing Fees</div>
+                            <div class="text-sm text-gray-500">List unlimited items for free</div>
+                        </div>
+                        <div>
+                            <div class="stat-number mb-2">2M+</div>
+                            <div class="text-gray-600 font-semibold">Student Buyers</div>
+                            <div class="text-sm text-gray-500">Access to massive campus audience</div>
+                        </div>
+                        <div>
+                            <div class="stat-number mb-2">24h</div>
+                            <div class="text-gray-600 font-semibold">Avg. Sale Time</div>
+                            <div class="text-sm text-gray-500">Items sell 5x faster than other platforms</div>
+                        </div>
+                        <div>
+                            <div class="stat-number mb-2">95%</div>
+                            <div class="text-gray-600 font-semibold">Success Rate</div>
+                            <div class="text-sm text-gray-500">Higher completion rate than competitors</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Core Benefits -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Core Seller Benefits</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Zero Listing Fees -->
+                    <div class="benefit-card rounded-xl p-6">
+                        <div class="benefit-icon bg-green-100 text-green-600">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3">Zero Listing Fees</h3>
+                        <div class="highlight-badge mb-3">Exclusive</div>
+                        <p class="text-gray-600 mb-4">List unlimited items completely free. Only pay when you make a sale.</p>
+                        <ul class="feature-list text-sm text-gray-700">
+                            <li>No upfront costs to start selling</li>
+                            <li>List as many items as you want</li>
+                            <li>Only commission on successful sales</li>
+                            <li>No hidden fees or subscriptions</li>
+                        </ul>
+                    </div>
+
+                    <!-- Campus Focus -->
+                    <div class="benefit-card rounded-xl p-6">
+                        <div class="benefit-icon bg-blue-100 text-blue-600">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3">Campus Focus</h3>
+                        <div class="campus-badge mb-3">Unique</div>
+                        <p class="text-gray-600 mb-4">Connect with verified students from your campus and nearby institutions.</p>
+                        <ul class="feature-list text-sm text-gray-700">
+                            <li>Verified student buyers only</li>
+                            <li>Easy local pickup and delivery</li>
+                            <li>Built-in campus community trust</li>
+                            <li>No shipping costs for local sales</li>
+                        </ul>
+                    </div>
+
+                    <!-- Secure Payments -->
+                    <div class="benefit-card rounded-xl p-6">
+                        <div class="benefit-icon bg-purple-100 text-purple-600">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3">Secure Payments</h3>
+                        <div class="highlight-badge mb-3">Protected</div>
+                        <p class="text-gray-600 mb-4">Escrow system ensures you get paid and buyers get their items.</p>
+                        <ul class="feature-list text-sm text-gray-700">
+                            <li>Buyer payment held in escrow</li>
+                            <li>Funds released after delivery confirmation</li>
+                            <li>Protection against fraud and chargebacks</li>
+                            <li>Multiple secure payment options</li>
+                        </ul>
+                    </div>
+
+                    <!-- Fast Sales -->
+                    <div class="benefit-card rounded-xl p-6">
+                        <div class="benefit-icon bg-yellow-100 text-yellow-600">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3">Lightning Fast Sales</h3>
+                        <div class="exclusive-badge mb-3">5x Faster</div>
+                        <p class="text-gray-600 mb-4">Items sell 5 times faster than on other platforms due to campus focus.</p>
+                        <ul class="feature-list text-sm text-gray-700">
+                            <li>Average sale time: 24 hours</li>
+                            <li>High buyer intent and urgency</li>
+                            <li>Real-time notifications</li>
+                            <li>Instant messaging with buyers</li>
+                        </ul>
+                    </div>
+
+                    <!-- Seller Tools -->
+                    <div class="benefit-card rounded-xl p-6">
+                        <div class="benefit-icon bg-red-100 text-red-600">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3">Advanced Seller Tools</h3>
+                        <div class="highlight-badge mb-3">Professional</div>
+                        <p class="text-gray-600 mb-4">Powerful analytics and management tools to grow your business.</p>
+                        <ul class="feature-list text-sm text-gray-700">
+                            <li>Sales analytics and insights</li>
+                            <li>Inventory management system</li>
+                            <li>Automated pricing suggestions</li>
+                            <li>Performance tracking dashboard</li>
+                        </ul>
+                    </div>
+
+                    <!-- Community Support -->
+                    <div class="benefit-card rounded-xl p-6">
+                        <div class="benefit-icon bg-indigo-100 text-indigo-600">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3">Community Support</h3>
+                        <div class="campus-badge mb-3">Trusted</div>
+                        <p class="text-gray-600 mb-4">Join a supportive community of student entrepreneurs and sellers.</p>
+                        <ul class="feature-list text-sm text-gray-700">
+                            <li>Seller forums and discussion groups</li>
+                            <li>Mentorship from top sellers</li>
+                            <li>Exclusive seller events</li>
+                            <li>Peer-to-peer learning opportunities</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Platform Comparison -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Why Virtuosa Beats the Competition</h2>
+                <div class="benefits-container rounded-xl p-6">
+                    <div class="comparison-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Virtuosa</th>
+                                    <th>Facebook Marketplace</th>
+                                    <th>eBay</th>
+                                    <th>Craigslist</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="virtuosa-highlight">
+                                    <td><strong>Listing Fees</strong></td>
+                                    <td><strong class="text-green-600">FREE</strong></td>
+                                    <td>FREE</td>
+                                    <td class="text-red-600">$0.35+ per listing</td>
+                                    <td>FREE</td>
+                                </tr>
+                                <tr class="virtuosa-highlight">
+                                    <td><strong>Commission</strong></td>
+                                    <td><strong class="text-green-600">5-8%</strong></td>
+                                    <td>FREE</td>
+                                    <td class="text-red-600">10-15%</td>
+                                    <td>FREE</td>
+                                </tr>
+                                <tr class="virtuosa-highlight">
+                                    <td><strong>Payment Protection</strong></td>
+                                    <td><strong class="text-green-600">✓ Escrow System</strong></td>
+                                    <td class="text-yellow-600">✗ Limited</td>
+                                    <td class="text-yellow-600">✓ Buyer Protection</td>
+                                    <td class="text-red-600">✗ None</td>
+                                </tr>
+                                <tr class="virtuosa-highlight">
+                                    <td><strong>Buyer Verification</strong></td>
+                                    <td><strong class="text-green-600">✓ Student Verified</strong></td>
+                                    <td class="text-red-600">✗ None</td>
+                                    <td class="text-yellow-600">✓ Some</td>
+                                    <td class="text-red-600">✗ None</td>
+                                </tr>
+                                <tr class="virtuosa-highlight">
+                                    <td><strong>Average Sale Time</strong></td>
+                                    <td><strong class="text-green-600">24 hours</strong></td>
+                                    <td>3-7 days</td>
+                                    <td>7-14 days</td>
+                                    <td>5-10 days</td>
+                                </tr>
+                                <tr class="virtuosa-highlight">
+                                    <td><strong>Local Focus</strong></td>
+                                    <td><strong class="text-green-600">✓ Campus Only</strong></td>
+                                    <td class="text-yellow-600">✓ Local</td>
+                                    <td class="text-red-600">✗ National</td>
+                                    <td class="text-yellow-600">✓ Local</td>
+                                </tr>
+                                <tr class="virtuosa-highlight">
+                                    <td><strong>Seller Analytics</strong></td>
+                                    <td><strong class="text-green-600">✓ Advanced</strong></td>
+                                    <td class="text-red-600">✗ None</td>
+                                    <td class="text-yellow-600">✓ Basic</td>
+                                    <td class="text-red-600">✗ None</td>
+                                </tr>
+                                <tr class="virtuosa-highlight">
+                                    <td><strong>Support Quality</strong></td>
+                                    <td><strong class="text-green-600">✓ 24/7 Student Support</strong></td>
+                                    <td class="text-red-600">✗ Limited</td>
+                                    <td class="text-yellow-600">✓ Business Hours</td>
+                                    <td class="text-red-600">✗ None</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seller Success Stories -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Success Stories</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="testimonial-card">
+                        <div class="flex items-center mb-4">
+                            <img src="https://picsum.photos/seed/student1/50/50.jpg" alt="Student" class="w-12 h-12 rounded-full mr-3">
+                            <div>
+                                <div class="font-semibold text-navy">Sarah K.</div>
+                                <div class="text-sm text-gray-600">Computer Science Major</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-700 italic">"I made $2,400 in my first month selling textbooks and electronics. The campus focus means buyers are right here, and payments are always secure."</p>
+                        <div class="mt-3 text-sm text-blue-600 font-semibold">💰 $2,400 earned</div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="flex items-center mb-4">
+                            <img src="https://picsum.photos/seed/student2/50/50.jpg" alt="Student" class="w-12 h-12 rounded-full mr-3">
+                            <div>
+                                <div class="font-semibold text-navy">Mike R.</div>
+                                <div class="text-sm text-gray-600">Business Student</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-700 italic">"Virtuosa's analytics helped me optimize my pricing. I sell 3x more items here than on Facebook Marketplace with half the effort."</p>
+                        <div class="mt-3 text-sm text-blue-600 font-semibold">📈 300% increase in sales</div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="flex items-center mb-4">
+                            <img src="https://picsum.photos/seed/student3/50/50.jpg" alt="Student" class="w-12 h-12 rounded-full mr-3">
+                            <div>
+                                <div class="font-semibold text-navy">Emily L.</div>
+                                <div class="text-sm text-gray-600">Art & Design Major</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-700 italic">"The seller community is amazing! I've learned so much from other students and built a real business selling handmade crafts."</p>
+                        <div class="mt-3 text-sm text-blue-600 font-semibold">🎨 150+ items sold</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Commission Structure -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Simple, Transparent Pricing</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="pricing-tier rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-navy mb-4">Casual Seller</h3>
+                        <div class="text-3xl font-bold text-green-600 mb-2">5%</div>
+                        <div class="text-gray-600 mb-4">Commission on sales up to $500/month</div>
+                        <ul class="feature-list text-sm text-gray-700">
+                            <li>Free listings</li>
+                            <li>Basic analytics</li>
+                            <li>Standard support</li>
+                            <li>Payment protection</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-tier featured rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-navy mb-4">Power Seller</h3>
+                        <div class="text-3xl font-bold text-green-600 mb-2">6.5%</div>
+                        <div class="text-gray-600 mb-4">Commission on sales $500-$2,000/month</div>
+                        <ul class="feature-list text-sm text-gray-700">
+                            <li>Free listings</li>
+                            <li>Advanced analytics</li>
+                            <li>Priority support</li>
+                            <li>Payment protection</li>
+                            <li>Seller badge</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-tier rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-navy mb-4">Pro Seller</h3>
+                        <div class="text-3xl font-bold text-green-600 mb-2">8%</div>
+                        <div class="text-gray-600 mb-4">Commission on sales over $2,000/month</div>
+                        <ul class="feature-list text-sm text-gray-700">
+                            <li>Free listings</li>
+                            <li>Pro analytics</li>
+                            <li>Dedicated support</li>
+                            <li>Payment protection</li>
+                            <li>Pro seller badge</li>
+                            <li>API access</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Benefits -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">More Reasons to Choose Virtuosa</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="benefit-card rounded-xl p-6 text-center">
+                        <div class="benefit-icon bg-green-100 text-green-600 mx-auto mb-4">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-navy mb-3">Mobile App</h3>
+                        <p class="text-gray-600 text-sm">Manage your business on the go with our full-featured mobile app</p>
+                    </div>
+                    <div class="benefit-card rounded-xl p-6 text-center">
+                        <div class="benefit-icon bg-blue-100 text-blue-600 mx-auto mb-4">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-navy mb-3">Student Discounts</h3>
+                        <p class="text-gray-600 text-sm">Exclusive discounts on shipping, supplies, and business tools</p>
+                    </div>
+                    <div class="benefit-card rounded-xl p-6 text-center">
+                        <div class="benefit-icon bg-purple-100 text-purple-600 mx-auto mb-4">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-navy mb-3">Seller Awards</h3>
+                        <p class="text-gray-600 text-sm">Get recognized for top performance with monthly awards and prizes</p>
+                    </div>
+                    <div class="benefit-card rounded-xl p-6 text-center">
+                        <div class="benefit-icon bg-yellow-100 text-yellow-600 mx-auto mb-4">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-navy mb-3">Growth Tools</h3>
+                        <p class="text-gray-600 text-sm">Scale your business with advanced tools and insights</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div class="text-center bg-gold rounded-xl p-8">
+                <h2 class="text-2xl font-bold text-navy mb-4">Start Selling Today!</h2>
+                <p class="text-navy mb-6">Join thousands of successful student sellers on Virtuosa</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/pages/seller.html" class="bg-navy text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-rocket mr-2"></i>Start Selling Now
+                    </a>
+                    <a href="/pages/seller-guide.html" class="bg-white text-navy border-2 border-navy px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-book mr-2"></i>Read Seller Guide
+                    </a>
+                </div>
+                <div class="mt-6">
+                    <p class="text-navy font-semibold">✓ No setup fees • ✓ Cancel anytime • ✓ Start earning in minutes</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-auto">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">About Us</h3>
+                <p class="text-sm">Virtuosa is a student trading platform connecting buyers and sellers for books, electronics, and more. Join our community to trade smarter!</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Become a Seller</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/seller.html" class="hover:text-gold transition-colors">Start Selling</a></li>
+                    <li><a href="/pages/seller-guide.html" class="hover:text-gold transition-colors">Seller Guide</a></li>
+                    <li><a href="/pages/seller-benefits.html" class="hover:text-gold transition-colors">Seller Benefits</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Payments</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/payment-options.html" class="hover:text-gold transition-colors">Payment Options</a></li>
+                    <li><a href="/pages/secure-transactions.html" class="hover:text-gold transition-colors">Secure Transactions</a></li>
+                    <li><a href="/pages/refund-policy.html" class="hover:text-gold transition-colors">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Help and Contact</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/faq.html" class="hover:text-gold transition-colors">FAQ</a></li>
+                    <li><a href="/pages/contact-support.html" class="hover:text-gold transition-colors">Contact Support</a></li>
+                    <li><a href="/pages/live-chat.html" class="hover:text-gold transition-colors">Live Chat</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Follow Us</h3>
+                <div class="flex space-x-4">
+                    <a href="https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://x.com" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-x-twitter fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 text-center text-sm">
+            &copy; 2025 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="/js/config.js"></script>
+    <script>
+        function toggleMobileMenu() {
+            // Mobile menu toggle functionality
+            console.log('Mobile menu toggle');
+        }
+    </script>
+</body>
+
+</html>

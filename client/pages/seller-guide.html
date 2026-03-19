@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Seller Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .guide-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .guide-section {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            background: white;
+        }
+
+        .guide-section:hover {
+            border-color: #FFD700;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .guide-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 24px;
+            margin-bottom: 1rem;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 0.75rem 0;
+            display: flex;
+            align-items: flex-start;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .checklist li:last-child {
+            border-bottom: none;
+        }
+
+        .checklist li::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .warning-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .warning-list li {
+            padding: 0.75rem 0;
+            display: flex;
+            align-items: flex-start;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .warning-list li:last-child {
+            border-bottom: none;
+        }
+
+        .warning-list li::before {
+            content: '⚠';
+            color: #f59e0b;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .prohibited-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .prohibited-list li {
+            padding: 0.75rem 0;
+            display: flex;
+            align-items: flex-start;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .prohibited-list li:last-child {
+            border-bottom: none;
+        }
+
+        .prohibited-list li::before {
+            content: '✗';
+            color: #ef4444;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .compliance-badge {
+            background: linear-gradient(90deg, #10b981, #059669);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .quality-badge {
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #FFD700, #C19A6B);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: #FFD700;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #FFD700;
+        }
+
+        .info-box {
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-box-blue {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid #3b82f6;
+        }
+
+        .info-box-green {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border: 2px solid #22c55e;
+        }
+
+        .info-box-yellow {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+        }
+
+        .info-box-red {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid #ef4444;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="/index.html" class="hover:text-gold transition-colors">Home</a>
+                    <a href="/pages/products.html" class="hover:text-gold transition-colors">Products</a>
+                    <a href="/pages/seller.html" class="hover:text-gold transition-colors">Sell</a>
+                    <a href="/pages/login.html" class="hover:text-gold transition-colors">Sign In</a>
+                </nav>
+                <button class="md:hidden" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Page Header -->
+            <div class="text-center mb-10">
+                <h1 class="text-4xl md:text-5xl font-bold text-navy mb-4">Seller Guide</h1>
+                <p class="text-gray-600 text-lg">Best practices and compliance guidelines for successful selling on Virtuosa</p>
+            </div>
+
+            <!-- Quick Start -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Quick Start Checklist</h2>
+                <div class="guide-container rounded-xl p-8">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">1. Complete Your Profile</h3>
+                            <p class="text-gray-600">Verify your student status, add profile photo, and complete all required information.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">2. Read This Guide</h3>
+                            <p class="text-gray-600">Familiarize yourself with our best practices, policies, and compliance requirements.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">3. Prepare Your Items</h3>
+                            <p class="text-gray-600">Clean your items, take quality photos, and gather all necessary information.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">4. Create Your First Listing</h3>
+                            <p class="text-gray-600">Write detailed descriptions, set competitive prices, and publish your listing.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">5. Manage Sales</h3>
+                            <p class="text-gray-600">Respond to inquiries, process orders promptly, and maintain good communication.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Listing Best Practices -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Creating Quality Listings</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Image Guidelines -->
+                    <div class="guide-section rounded-xl p-6">
+                        <div class="guide-icon bg-blue-100 text-blue-600">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-4">Image Quality Standards</h3>
+                        <div class="compliance-badge mb-4">Required</div>
+                        <ul class="checklist text-gray-700">
+                            <li>Use natural, bright lighting - no dark or blurry photos</li>
+                            <li>Capture all angles - front, back, sides, and details</li>
+                            <li>Show scale - include common objects for size reference</li>
+                            <li>Highlight flaws - photograph any damage or wear honestly</li>
+                            <li>Use plain background - avoid clutter or distracting elements</li>
+                            <li>Minimum 3 photos per item, maximum 10 photos</li>
+                            <li>Images must be at least 800x800 pixels</li>
+                            <li>No watermarks, text, or promotional overlays</li>
+                        </ul>
+                    </div>
+
+                    <!-- Description Guidelines -->
+                    <div class="guide-section rounded-xl p-6">
+                        <div class="guide-icon bg-green-100 text-green-600">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-4">Writing Effective Descriptions</h3>
+                        <div class="quality-badge mb-4">Best Practice</div>
+                        <ul class="checklist text-gray-700">
+                            <li>Be specific - include brand, model, size, color, and condition</li>
+                            <li>Describe condition honestly - use standard grading (New, Like New, Good, Fair)</li>
+                            <li>Include measurements - provide exact dimensions and weight</li>
+                            <li>Mention included accessories - list all items buyer will receive</li>
+                            <li>Explain unique features - highlight what makes your item special</li>
+                            <li>Use proper formatting - bullet points and paragraphs for readability</li>
+                            <li>Avoid promotional language - focus on facts, not marketing hype</li>
+                            <li>Include care instructions if applicable</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing Strategy -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Pricing Best Practices</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="guide-section rounded-xl p-6">
+                        <div class="guide-icon bg-purple-100 text-purple-600 mx-auto">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-navy mb-3 text-center">Research Market</h3>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Check similar items on Virtuosa</li>
+                            <li>• Research prices on other platforms</li>
+                            <li>• Consider original retail price</li>
+                            <li>• Factor in current market demand</li>
+                        </ul>
+                    </div>
+                    <div class="guide-section rounded-xl p-6">
+                        <div class="guide-icon bg-yellow-100 text-yellow-600 mx-auto">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-navy mb-3 text-center">Competitive Pricing</h3>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Price 10-20% below retail for used items</li>
+                            <li>• Consider Virtuosa's commission fees</li>
+                            <li>• Leave room for negotiation</li>
+                            <li>• Offer bundle discounts for multiple items</li>
+                        </ul>
+                    </div>
+                    <div class="guide-section rounded-xl p-6">
+                        <div class="guide-icon bg-red-100 text-red-600 mx-auto">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-navy mb-3 text-center">Value Proposition</h3>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Highlight unique selling points</li>
+                            <li>• Emphasize condition and quality</li>
+                            <li>• Mention any included extras</li>
+                            <li>• Consider campus convenience factor</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code of Conduct -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Code of Conduct</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Required Behaviors -->
+                    <div class="guide-section rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-navy mb-4 flex items-center">
+                            <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                            Required Behaviors
+                        </h3>
+                        <ul class="checklist text-gray-700">
+                            <li>Respond to buyer inquiries within 24 hours</li>
+                            <li>Be honest and accurate in all descriptions</li>
+                            <li>Maintain professional and respectful communication</li>
+                            <li>Honor agreed-upon prices and terms</li>
+                            <li>Ship or deliver items within promised timeframe</li>
+                            <li>Provide tracking information when applicable</li>
+                            <li>Resolve issues professionally and promptly</li>
+                            <li>Maintain positive seller ratings above 4.0 stars</li>
+                        </ul>
+                    </div>
+
+                    <!-- Prohibited Behaviors -->
+                    <div class="guide-section rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-navy mb-4 flex items-center">
+                            <i class="fas fa-times-circle text-red-600 mr-3"></i>
+                            Prohibited Behaviors
+                        </h3>
+                        <ul class="prohibited-list text-gray-700">
+                            <li>Misrepresenting item condition or authenticity</li>
+                            <li>Using inappropriate language or harassment</li>
+                            <li>Pressure selling or aggressive tactics</li>
+                            <li>Canceling orders without valid reason</li>
+                            <li>Sharing personal contact information</li>
+                            <li>Engaging in transactions outside Virtuosa</li>
+                            <li>Creating fake reviews or ratings</li>
+                            <li>Discriminating against any buyers</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compliance Requirements -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Compliance & Legal Requirements</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Item Restrictions -->
+                    <div class="info-box info-box-red">
+                        <h3 class="text-lg font-bold text-red-800 mb-3 flex items-center">
+                            <i class="fas fa-ban mr-2"></i>
+                            Prohibited Items
+                        </h3>
+                        <ul class="text-red-700 text-sm space-y-1">
+                            <li>• Weapons, firearms, ammunition</li>
+                            <li>• Alcohol, tobacco, vaping products</li>
+                            <li>• Controlled substances or drug paraphernalia</li>
+                            <li>• Stolen or counterfeit goods</li>
+                            <li>• Adult content or sexual services</li>
+                            <li>• Hate speech or discriminatory materials</li>
+                            <li>• Hazardous materials or chemicals</li>
+                            <li>• Live animals or pets</li>
+                        </ul>
+                    </div>
+
+                    <!-- Legal Requirements -->
+                    <div class="info-box info-box-blue">
+                        <h3 class="text-lg font-bold text-blue-800 mb-3 flex items-center">
+                            <i class="fas fa-gavel mr-2"></i>
+                            Legal Obligations
+                        </h3>
+                        <ul class="text-blue-700 text-sm space-y-1">
+                            <li>• You must be the legal owner of items sold</li>
+                            <li>• Ensure items comply with campus policies</li>
+                            <li>• Follow local, state, and federal laws</li>
+                            <li>• Pay applicable taxes on earnings</li>
+                            <li>• Respect intellectual property rights</li>
+                            <li>• Maintain proper business licenses if required</li>
+                            <li>• Comply with consumer protection laws</li>
+                            <li>• Keep records of all transactions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Communication Standards -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Communication Standards</h2>
+                <div class="guide-container rounded-xl p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-navy mb-4 flex items-center">
+                                <i class="fas fa-comments text-green-600 mr-3"></i>
+                                Best Practices
+                            </h3>
+                            <ul class="checklist text-gray-700">
+                                <li>Use Virtuosa's messaging system for all communication</li>
+                                <li>Be prompt - respond within 24 hours</li>
+                                <li>Be clear and concise in your responses</li>
+                                <li>Provide additional photos or information when requested</li>
+                                <li>Set clear expectations for pickup/delivery</li>
+                                <li>Be flexible and reasonable with buyers</li>
+                                <li>Document important agreements in writing</li>
+                                <li>Maintain professional tone at all times</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-navy mb-4 flex items-center">
+                                <i class="fas fa-exclamation-triangle text-yellow-600 mr-3"></i>
+                                Common Mistakes to Avoid
+                            </h3>
+                            <ul class="warning-list text-gray-700">
+                                <li>Sharing personal phone numbers or social media</li>
+                                <li>Using slang, abbreviations, or unclear language</li>
+                                <li>Making promises you can't keep</li>
+                                <li>Ignoring buyer questions or concerns</li>
+                                <li>Being defensive when receiving feedback</li>
+                                <li>Rushing buyers to make decisions</li>
+                                <li>Changing terms after agreement is made</li>
+                                <li>Disappearing after payment is received</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Metrics -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Performance Metrics</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="guide-section rounded-xl p-6 text-center">
+                        <div class="text-3xl font-bold text-green-600 mb-2">4.5+</div>
+                        <div class="text-gray-600 font-semibold">Target Rating</div>
+                        <div class="text-sm text-gray-500 mt-2">Maintain high customer satisfaction</div>
+                    </div>
+                    <div class="guide-section rounded-xl p-6 text-center">
+                        <div class="text-3xl font-bold text-blue-600 mb-2">< 24h</div>
+                        <div class="text-gray-600 font-semibold">Response Time</div>
+                        <div class="text-sm text-gray-500 mt-2">Reply to inquiries quickly</div>
+                    </div>
+                    <div class="guide-section rounded-xl p-6 text-center">
+                        <div class="text-3xl font-bold text-purple-600 mb-2">95%</div>
+                        <div class="text-gray-600 font-semibold">On-Time Delivery</div>
+                        <div class="text-sm text-gray-500 mt-2">Meet your delivery promises</div>
+                    </div>
+                    <div class="guide-section rounded-xl p-6 text-center">
+                        <div class="text-3xl font-bold text-yellow-600 mb-2">0%</div>
+                        <div class="text-gray-600 font-semibold">Cancellation Rate</div>
+                        <div class="text-sm text-gray-500 mt-2">Avoid order cancellations</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Getting Help -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Resources & Support</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="guide-section rounded-xl p-6 text-center">
+                        <div class="guide-icon bg-blue-100 text-blue-600 mx-auto mb-4">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-navy mb-3">FAQ & Help Center</h3>
+                        <p class="text-gray-600 text-sm mb-4">Find answers to common questions and troubleshooting guides</p>
+                        <a href="/pages/faq.html" class="text-gold hover:underline text-sm font-semibold">Visit FAQ →</a>
+                    </div>
+                    <div class="guide-section rounded-xl p-6 text-center">
+                        <div class="guide-icon bg-green-100 text-green-600 mx-auto mb-4">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-navy mb-3">Seller Support</h3>
+                        <p class="text-gray-600 text-sm mb-4">Get personalized help from our dedicated seller support team</p>
+                        <a href="/pages/contact-support.html" class="text-gold hover:underline text-sm font-semibold">Contact Support →</a>
+                    </div>
+                    <div class="guide-section rounded-xl p-6 text-center">
+                        <div class="guide-icon bg-purple-100 text-purple-600 mx-auto mb-4">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-navy mb-3">Seller Analytics</h3>
+                        <p class="text-gray-600 text-sm mb-4">Track your performance and optimize your selling strategy</p>
+                        <a href="/pages/seller-analytics.html" class="text-gold hover:underline text-sm font-semibold">View Analytics →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div class="text-center bg-gold rounded-xl p-8">
+                <h2 class="text-2xl font-bold text-navy mb-4">Ready to Start Selling?</h2>
+                <p class="text-navy mb-6">Follow these guidelines to become a successful Virtuosa seller</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/pages/seller.html" class="bg-navy text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-store mr-2"></i>Become a Seller
+                    </a>
+                    <a href="/pages/create-product.html" class="bg-white text-navy border-2 border-navy px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>List Your First Item
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-auto">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">About Us</h3>
+                <p class="text-sm">Virtuosa is a student trading platform connecting buyers and sellers for books, electronics, and more. Join our community to trade smarter!</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Become a Seller</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/seller.html" class="hover:text-gold transition-colors">Start Selling</a></li>
+                    <li><a href="/pages/seller-guide.html" class="hover:text-gold transition-colors">Seller Guide</a></li>
+                    <li><a href="/pages/seller-benefits.html" class="hover:text-gold transition-colors">Seller Benefits</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Payments</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/payment-options.html" class="hover:text-gold transition-colors">Payment Options</a></li>
+                    <li><a href="/pages/secure-transactions.html" class="hover:text-gold transition-colors">Secure Transactions</a></li>
+                    <li><a href="/pages/refund-policy.html" class="hover:text-gold transition-colors">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Help and Contact</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/faq.html" class="hover:text-gold transition-colors">FAQ</a></li>
+                    <li><a href="/pages/contact-support.html" class="hover:text-gold transition-colors">Contact Support</a></li>
+                    <li><a href="/pages/live-chat.html" class="hover:text-gold transition-colors">Live Chat</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Follow Us</h3>
+                <div class="flex space-x-4">
+                    <a href="https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://x.com" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-x-twitter fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 text-center text-sm">
+            &copy; 2025 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="/js/config.js"></script>
+    <script>
+        function toggleMobileMenu() {
+            // Mobile menu toggle functionality
+            console.log('Mobile menu toggle');
+        }
+    </script>
+</body>
+
+</html>
