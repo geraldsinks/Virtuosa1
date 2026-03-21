@@ -22,10 +22,27 @@ async function getCart() {
                 const data = await response.json();
                 console.log('📦 Cart from backend (logged in user):', data);
                 
-                // Sync backend cart to localStorage for consistency
-                localStorage.setItem('virtuosa_cart', JSON.stringify(data.items || []));
+                // Ensure cart items have consistent structure with product ID
+                const normalizedItems = (data.items || []).map(item => {
+                    // Backend returns populated product object
+                    if (item.product && typeof item.product === 'object') {
+                        return {
+                            _id: item.product._id, // Use product._id as item _id
+                            product: item.product,   // Keep the populated product object
+                            quantity: item.quantity,
+                            addedAt: item.addedAt || new Date().toISOString()
+                        };
+                    }
+                    // Fallback for any other structure
+                    return item;
+                });
                 
-                return data.items || [];
+                console.log('🔧 Normalized cart items:', normalizedItems);
+                
+                // Sync normalized cart to localStorage for consistency
+                localStorage.setItem('virtuosa_cart', JSON.stringify(normalizedItems));
+                
+                return normalizedItems;
             } else {
                 console.warn('⚠️ Backend cart unavailable, using localStorage');
                 // Don't try to parse failed response, just use localStorage
@@ -60,13 +77,26 @@ async function saveCart(cart) {
     if (token) {
         // For logged in users, prioritize backend storage
         try {
+            // Normalize cart items before sending to backend
+            const normalizedCart = cart.map(item => {
+                if (item.product && typeof item.product === 'object') {
+                    return {
+                        product: item.product._id, // Send only product._id to backend
+                        quantity: item.quantity || 1
+                    };
+                }
+                return item;
+            });
+            
+            console.log('🔧 Normalized cart for backend:', normalizedCart);
+            
             const response = await fetch(`${API_BASE}/cart`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ items: cart })
+                body: JSON.stringify({ items: normalizedCart })
             });
             
             if (response.ok) {
