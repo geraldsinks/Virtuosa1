@@ -542,23 +542,23 @@ function renderAuthComponent(type) {
             </div>
             <form id="signup-form" class="space-y-6">
                 <div>
-                    <label for="signup-fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <label for="signup-fullName" class="form-label block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                     <input type="text" id="signup-fullName" name="fullName" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="Enter your full name">
                 </div>
                 <div>
-                    <label for="signup-email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <label for="signup-email" class="form-label block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                     <input type="email" id="signup-email" name="email" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="Enter your email">
                 </div>
                 <div>
-                    <label for="signup-phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <label for="signup-phone" class="form-label block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
                     <input type="tel" id="signup-phone" name="phoneNumber" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="+260XXXXXXXXX" pattern="\\+260[0-9]{9}">
                 </div>
                 <div>
-                    <label for="signup-student-email" class="block text-sm font-medium text-gray-700 mb-1">Student Email</label>
+                    <label for="signup-student-email" class="form-label block text-sm font-medium text-gray-700 mb-1">Student Email</label>
                     <input type="email" id="signup-student-email" name="studentEmail" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="student@unza.zm">
                 </div>
                 <div>
-                    <label for="signup-university" class="block text-sm font-medium text-gray-700 mb-1">University</label>
+                    <label for="signup-university" class="form-label block text-sm font-medium text-gray-700 mb-1">University</label>
                     <select id="signup-university" name="university" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50">
                         <option value="">Select your university</option>
                         <option value="University of Zambia">University of Zambia</option>
@@ -567,7 +567,7 @@ function renderAuthComponent(type) {
                     </select>
                 </div>
                 <div>
-                    <label for="signup-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <label for="signup-password" class="form-label block text-sm font-medium text-gray-700 mb-1">Password</label>
                     <div class="relative">
                         <input type="password" id="signup-password" name="password" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400 pr-12" placeholder="Enter your password">
                         <span class="password-toggle" onclick="togglePassword('signup-password')">
@@ -576,7 +576,7 @@ function renderAuthComponent(type) {
                     </div>
                 </div>
                 <div>
-                    <label for="signup-confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                    <label for="signup-confirm-password" class="form-label block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
                     <div class="relative">
                         <input type="password" id="signup-confirm-password" name="confirmPassword" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400 pr-12" placeholder="Confirm your password">
                         <span class="password-toggle" onclick="togglePassword('signup-confirm-password')">
