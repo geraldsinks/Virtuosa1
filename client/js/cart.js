@@ -93,6 +93,104 @@ async function saveCart(cart) {
     await updateCartIcon();
 }
 
+// Validate and fix cart items to ensure they have correct product IDs
+async function validateAndFixCart() {
+    try {
+        const cart = await getCart();
+        const fixedCart = [];
+        let hasChanges = false;
+
+        for (const item of cart) {
+            const product = item.product || item;
+            const productId = item._id || product._id;
+            
+            if (!productId) {
+                console.warn('⚠️ Cart item missing product ID, removing:', item);
+                hasChanges = true;
+                continue; // Skip this item
+            }
+
+            // Validate product ID format (24-character hex string for ObjectId)
+            if (typeof productId === 'string' && productId.length === 24 && /^[0-9a-fA-F]{24}$/.test(productId)) {
+                // Valid ObjectId format, keep the item
+                fixedCart.push({
+                    ...item,
+                    _id: productId,
+                    product: {
+                        ...product,
+                        _id: productId
+                    }
+                });
+            } else {
+                console.warn('⚠️ Invalid product ID format, removing item:', productId, item);
+                hasChanges = true;
+            }
+        }
+
+        if (hasChanges) {
+            await saveCart(fixedCart);
+            console.log('🔧 Cart validated and fixed. Items removed:', cart.length - fixedCart.length);
+            
+            // Show notification to user if items were removed
+            if (cart.length !== fixedCart.length) {
+                showToast('Cart updated - some items were removed due to invalid product data', 'warning');
+            }
+            
+            // Update cart icon
+            await updateCartIcon();
+            
+            // If on cart page, re-render
+            if (window.location.pathname.includes('cart.html')) {
+                renderCart();
+            }
+        }
+
+        return fixedCart;
+    } catch (error) {
+        console.error('❌ Error validating cart:', error);
+        return [];
+    }
+}
+
+// Auto-validate cart when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    validateAndFixCart();
+});
+
+// Make function globally available
+window.validateAndFixCart = validateAndFixCart;
+
+// Validate product data before adding to cart
+function validateProductData(product) {
+    if (!product || typeof product !== 'object') {
+        console.error('❌ Invalid product data:', product);
+        return false;
+    }
+    
+    if (!product._id) {
+        console.error('❌ Product missing _id:', product);
+        return false;
+    }
+    
+    // Validate ObjectId format (24-character hex string)
+    if (typeof product._id !== 'string' || product._id.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(product._id)) {
+        console.error('❌ Invalid product _id format:', product._id);
+        return false;
+    }
+    
+    if (!product.name || typeof product.name !== 'string') {
+        console.error('❌ Product missing valid name:', product);
+        return false;
+    }
+    
+    if (!product.price || typeof product.price !== 'number' || product.price <= 0) {
+        console.error('❌ Product missing valid price:', product);
+        return false;
+    }
+    
+    return true;
+}
+
 async function addToCart(product, quantity = 1) {
     // Prevent concurrent cart operations
     if (cartOperationLock) {
@@ -106,6 +204,12 @@ async function addToCart(product, quantity = 1) {
         const token = localStorage.getItem('token');
         
         console.log('🛒 Adding to cart:', { product, quantity, hasToken: !!token });
+        
+        // Validate product data before proceeding
+        if (!validateProductData(product)) {
+            showToast('Invalid product data - cannot add to cart', 'error');
+            return;
+        }
     
     if (token) {
         // Add to backend cart

@@ -6,6 +6,22 @@ let orderData = {};
 document.addEventListener('DOMContentLoaded', async () => {
     await loadCartItems();
     renderOrderSummary();
+    
+    // Validate and fix cart items before proceeding
+    try {
+        const fixedCart = await validateAndFixCart();
+        if (fixedCart.length === 0 && cartItems.length > 0) {
+            // Cart had invalid items that were removed
+            showToast('Cart updated - some items were invalid and have been removed', 'warning');
+            // Redirect to cart page to see updated cart
+            setTimeout(() => {
+                window.location.href = 'cart.html';
+            }, 3000);
+        }
+    } catch (error) {
+        console.error('❌ Error validating cart:', error);
+    }
+    
     loadUserData();
     
     // Retry failed orders if connection is restored
@@ -188,6 +204,12 @@ async function placeCashOnDeliveryOrder() {
                 if (!productId) {
                     console.error('❌ Invalid item structure - missing product ID:', item);
                     throw new Error('Invalid item data: missing product ID');
+                }
+                
+                // Validate product ID format (24-character hex string for ObjectId)
+                if (typeof productId !== 'string' || productId.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(productId)) {
+                    console.error('❌ Invalid product ID format:', productId, item);
+                    throw new Error(`Invalid product ID format: ${productId}`);
                 }
                 
                 return {

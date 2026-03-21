@@ -3067,6 +3067,18 @@ app.post('/api/products', authenticateToken, upload.array('images', 5), async (r
         });
 
         await product.save();
+        
+        // Log product creation with ID tracking
+        console.log(`✅ Product created with ID: ${product._id}`);
+        console.log(`📦 Product details:`, {
+            _id: product._id.toString(),
+            name: product.name,
+            price: product.price,
+            seller: product.seller.toString(),
+            sellerName: product.sellerName,
+            createdAt: product.createdAt
+        });
+        
         res.status(201).json(product);
     } catch (error) {
         console.error('Create product error:', error);
@@ -3181,12 +3193,26 @@ app.delete('/api/products/:id', authenticateToken, async (req, res) => {
 // Get product details
 app.get('/api/products/:id', async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id)
+        const productId = req.params.id;
+        console.log(`🔍 Looking for product with ID: ${productId}`);
+        
+        const product = await Product.findById(productId)
             .populate('seller', 'fullName email sellerRating totalSellerReviews storeName storeSlug');
 
         if (!product) {
+            console.log(`❌ Product not found: ${productId}`);
             return res.status(404).json({ message: 'Product not found' });
         }
+
+        // Log product details with ID tracking
+        console.log(`✅ Product found:`, {
+            _id: product._id.toString(),
+            name: product.name,
+            price: product.price,
+            seller: product.seller?._id?.toString(),
+            sellerName: product.seller?.fullName,
+            status: product.status
+        });
 
         // Increment view count
         product.viewCount += 1;
@@ -3267,6 +3293,18 @@ app.get('/api/products', async (req, res) => {
             .skip(skip)
             .limit(parseInt(limit));
 
+        // Log product retrieval with ID tracking
+        console.log(`📋 Retrieved ${products.length} products`);
+        products.forEach((product, index) => {
+            console.log(`📦 Product ${index + 1}:`, {
+                _id: product._id.toString(),
+                name: product.name,
+                price: product.price,
+                seller: product.seller?._id?.toString(),
+                sellerName: product.seller?.fullName
+            });
+        });
+
         const total = await Product.countDocuments(filter);
         const totalPages = Math.ceil(total / parseInt(limit));
 
@@ -3300,10 +3338,21 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
         }
 
         // Get product details
+        console.log(`🔍 Transaction - Looking for product with ID: ${productId}`);
         const product = await Product.findById(productId);
         if (!product || product.status !== 'Active') {
+            console.log(`❌ Transaction - Product not available: ${productId}`);
             return res.status(404).json({ message: 'Product not available' });
         }
+
+        // Log product details for transaction
+        console.log(`✅ Transaction - Product found:`, {
+            _id: product._id.toString(),
+            name: product.name,
+            price: product.price,
+            seller: product.seller.toString(),
+            buyer: user._id.toString()
+        });
 
         if (product.seller.toString() === user._id.toString()) {
             return res.status(400).json({ message: 'Cannot buy your own product' });
@@ -3332,6 +3381,17 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
         });
 
         await transaction.save();
+        
+        // Log transaction creation with product ID tracking
+        console.log(`💰 Transaction created:`, {
+            transactionId: transaction._id.toString(),
+            productId: transaction.product.toString(),
+            productName: product.name,
+            buyer: transaction.buyer.toString(),
+            seller: transaction.seller.toString(),
+            totalAmount,
+            status: transaction.status
+        });
 
         // Update product status
         product.status = 'Reserved';
