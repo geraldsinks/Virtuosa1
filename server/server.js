@@ -6495,6 +6495,13 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
         }
 
         const { items, deliveryInfo, paymentMethod, subtotal, total } = req.body;
+        
+        console.log('📦 Order request received:');
+        console.log('👤 User:', user._id, user.fullName);
+        console.log('🛒 Items:', items);
+        console.log('📍 Delivery Info:', deliveryInfo);
+        console.log('💳 Payment Method:', paymentMethod);
+        console.log('💰 Subtotal:', subtotal, 'Total:', total);
 
         if (!items || !Array.isArray(items) || items.length === 0) {
             return res.status(400).json({ message: 'Order items are required' });
@@ -6521,9 +6528,17 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
             }
 
             // Get product details
+            console.log(`🔍 Looking for product with ID: ${productId}`);
             const product = await Product.findById(productId);
-            if (!product || product.status !== 'Active') {
-                return res.status(404).json({ message: `Product ${productId} not available` });
+            console.log(`📦 Product found:`, product ? `ID: ${product._id}, Name: ${product.name}, Status: ${product.status}` : 'NOT FOUND');
+            
+            if (!product) {
+                return res.status(404).json({ message: `Product ${productId} not found` });
+            }
+            
+            if (product.status !== 'Active') {
+                console.log(`⚠️ Product ${productId} status is: ${product.status} (expected: Active)`);
+                return res.status(404).json({ message: `Product ${productId} not available (status: ${product.status})` });
             }
 
             if (product.seller.toString() === user._id.toString()) {
