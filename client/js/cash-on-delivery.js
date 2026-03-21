@@ -39,39 +39,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Load cart items from localStorage
 async function loadCartItems() {
     try {
-        const cart = await getCart();
+        // Use the normalized getCart function from cart.js
+        // This ensures cart items have correct product IDs
+        const cart = await window.getCart();
         cartItems = cart;
-        console.log('🛒 Loaded cart items:', cartItems);
+        console.log('🛒 Loaded normalized cart items:', cartItems);
+        
+        // Log each item's product ID for debugging
+        cartItems.forEach((item, index) => {
+            const productId = item._id || item.product?._id;
+            console.log(`📦 Cart item ${index + 1}:`, {
+                productId: productId,
+                productName: item.product?.name || item.name,
+                quantity: item.quantity
+            });
+        });
     } catch (error) {
         console.error('❌ Error loading cart items:', error);
         cartItems = [];
     }
-}
-
-// Get cart items (reuse from cart.js)
-async function getCart() {
-    const token = localStorage.getItem('token');
-    
-    if (token) {
-        try {
-            const response = await fetch(`${API_BASE}/cart`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                return data.items || [];
-            }
-        } catch (error) {
-            console.error('❌ Error fetching backend cart:', error);
-        }
-    }
-    
-    // Fallback to localStorage
-    const localCart = localStorage.getItem('virtuosa_cart');
-    return localCart ? JSON.parse(localCart) : [];
 }
 
 // Render order summary

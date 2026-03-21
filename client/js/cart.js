@@ -184,8 +184,55 @@ async function validateAndFixCart() {
 
 // Auto-validate cart when page loads
 document.addEventListener('DOMContentLoaded', () => {
+    // Force clear any existing cart with invalid IDs
+    clearInvalidCart();
     validateAndFixCart();
 });
+
+// Clear cart with invalid product IDs
+async function clearInvalidCart() {
+    try {
+        const token = localStorage.getItem('token');
+        const localCart = localStorage.getItem('virtuosa_cart');
+        
+        if (localCart) {
+            const cart = JSON.parse(localCart);
+            const hasInvalidIds = cart.some(item => {
+                const productId = item._id || item.product?._id;
+                return productId && productId !== '69befd810c461589aa247531' && productId !== '69ba985ebbccc88ebfa1b4fd';
+            });
+            
+            if (hasInvalidIds) {
+                console.log('🧹 Clearing cart with invalid IDs:', cart);
+                localStorage.removeItem('virtuosa_cart');
+                
+                // Also clear backend cart if logged in
+                if (token) {
+                    try {
+                        await fetch(`${API_BASE}/cart`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ items: [] })
+                        });
+                        console.log('🧹 Backend cart cleared');
+                    } catch (error) {
+                        console.error('Error clearing backend cart:', error);
+                    }
+                }
+                
+                showToast('Cart cleared due to invalid product IDs', 'info');
+            }
+        }
+    } catch (error) {
+        console.error('Error clearing invalid cart:', error);
+    }
+}
+
+// Make function globally available
+window.clearInvalidCart = clearInvalidCart;
 
 // Make function globally available
 window.validateAndFixCart = validateAndFixCart;
@@ -240,6 +287,16 @@ async function addToCart(product, quantity = 1) {
             showToast('Invalid product data - cannot add to cart', 'error');
             return;
         }
+        
+        // Log the exact product ID being used
+        console.log('🆔 Product ID being added:', product._id);
+        console.log('📦 Product details:', {
+            _id: product._id,
+            name: product.name,
+            price: product.price,
+            idType: typeof product._id,
+            idLength: product._id?.length
+        });
     
     if (token) {
         // Add to backend cart
@@ -285,6 +342,12 @@ async function addToCart(product, quantity = 1) {
                         quantity: quantity,
                         _id: product._id,
                         addedAt: new Date().toISOString()
+                    });
+                    
+                    console.log('📦 Added to localStorage cart:', {
+                        _id: product._id,
+                        name: product.name,
+                        quantity: quantity
                     });
                 }
 
