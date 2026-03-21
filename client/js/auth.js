@@ -199,6 +199,53 @@ function togglePassword(inputId) {
 // Make togglePassword globally available
 window.togglePassword = togglePassword;
 
+// Phone number formatting function
+function formatPhoneNumber(input) {
+    // Remove all non-digit characters
+    let value = input.value.replace(/\D/g, '');
+    
+    // Limit to 9 digits
+    if (value.length > 9) {
+        value = value.slice(0, 9);
+    }
+    
+    // Format as XXX XXX XXX
+    if (value.length > 6) {
+        value = value.slice(0, 3) + ' ' + value.slice(3, 6) + ' ' + value.slice(6);
+    } else if (value.length > 3) {
+        value = value.slice(0, 3) + ' ' + value.slice(3);
+    }
+    
+    input.value = value;
+}
+
+// Add phone number formatting event listener when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneInput = document.getElementById('signup-phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function() {
+            formatPhoneNumber(this);
+        });
+        
+        // Prevent pasting non-numeric characters
+        phoneInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedData = e.clipboardData.getData('text');
+            const numericData = pastedData.replace(/\D/g, '').slice(0, 9);
+            
+            // Format the pasted data
+            let formattedValue = numericData;
+            if (numericData.length > 6) {
+                formattedValue = numericData.slice(0, 3) + ' ' + numericData.slice(3, 6) + ' ' + numericData.slice(6);
+            } else if (numericData.length > 3) {
+                formattedValue = numericData.slice(0, 3) + ' ' + numericData.slice(3);
+            }
+            
+            this.value = formattedValue;
+        });
+    }
+});
+
 async function handleLogin(event) {
     event.preventDefault();
     const email = document.getElementById('login-email')?.value;
@@ -353,8 +400,9 @@ async function handleSignup(event) {
         return;
     }
     
-    // Add +260 country code to phone number
-    phoneNumber = '+260' + phoneNumber;
+    // Phone number already includes +260 prefix from the HTML, just use the value as is
+    // Remove any spaces from the phone number and add +260 prefix
+    phoneNumber = '+260' + phoneNumber.replace(/\s/g, '');
     
     if (password !== confirmPassword) {
         showMessage('Passwords do not match.', true);
@@ -551,7 +599,15 @@ function renderAuthComponent(type) {
                 </div>
                 <div>
                     <label for="signup-phone" class="form-label block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                    <input type="tel" id="signup-phone" name="phoneNumber" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="+260XXXXXXXXX" pattern="\\+260[0-9]{9}">
+                    <div class="phone-input-group">
+                        <span class="phone-country-code">+260</span>
+                        <input type="tel" id="signup-phone" name="phoneNumber" required 
+                            class="auth-input phone-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" 
+                            placeholder="XXX XXX XXX" 
+                            pattern="[0-9]{9}" 
+                            maxlength="9">
+                    </div>
+                    <p class="phone-hint">Enter 9 digits after +260</p>
                 </div>
                 <div>
                     <label for="signup-student-email" class="form-label block text-sm font-medium text-gray-700 mb-1">Student Email</label>

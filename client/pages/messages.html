@@ -47,10 +47,84 @@
             border-right: 1px solid #e5e7eb;
         }
 
+        /* Mobile Menu Styles */
+        .mobile-menu-content {
+            padding: 0;
+            background: white;
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #0A1128;
+            color: white;
+        }
+
+        .mobile-menu-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .mobile-menu-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-menu-section {
+            padding: 16px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .mobile-menu-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin-bottom: 8px;
+            padding: 0 20px;
+        }
+
+        .mobile-menu-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #1f2937;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            font-size: 14px;
+        }
+
+        .mobile-menu-link:hover {
+            background: #f9fafb;
+            color: #0A1128;
+        }
+
+        .mobile-menu-link i {
+            width: 20px;
+            margin-right: 12px;
+            color: #6b7280;
+        }
+
         /* Mobile-specific improvements */
         @media (max-width: 768px) {
+            body {
+                overflow: hidden;
+                position: fixed;
+                width: 100%;
+                height: 100vh;
+                overscroll-behavior: none;
+            }
+
             .chat-container {
-                height: calc(100vh - 120px);
+                height: calc(100vh - 60px);
+                margin-top: 60px;
             }
 
             .mobile-hidden {
@@ -157,48 +231,77 @@
                 opacity: 1;
             }
 
-            /* Mobile message bubbles */
+            /* Message bubbles with proper mobile sizing */
             .message-bubble {
                 max-width: 85% !important;
-                margin: 8px 0;
+                margin: 12px 0;
+                font-size: 16px;
+                line-height: 1.5;
+                padding: 12px 16px;
+                border-radius: 18px;
             }
 
-            /* Mobile input area */
+            .message-bubble.sent {
+                background: #0A1128;
+                color: white;
+                margin-left: auto;
+            }
+
+            .message-bubble.received {
+                background: #f3f4f6;
+                color: #1f2937;
+                margin-right: auto;
+            }
+
+            /* Mobile input area with proper spacing */
             .mobile-input-area {
-                padding: 4px; /* Further reduced padding */
+                padding: 12px 16px;
                 background: white;
                 border-top: 1px solid #e5e7eb;
                 position: sticky;
                 bottom: 0;
                 z-index: 20;
-                min-height: 60px; /* Further reduced height */
+                min-height: 80px;
+                max-height: 120px;
+                overscroll-behavior: contain;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom));
             }
 
-            /* Mobile input field enhancements */
+            /* Mobile input field with better sizing */
             .mobile-input-area #message-input {
-                font-size: 16px; /* Prevents zoom on iOS */
-                padding: 4px 8px; /* Further reduced padding */
-                min-height: 28px; /* Further reduced height */
-                border-radius: 14px; /* Smaller radius */
+                font-size: 16px;
+                padding: 12px 16px;
+                min-height: 44px;
+                border-radius: 22px;
+                background: #f3f4f6;
+                border: 1px solid #e5e7eb;
+                flex-grow: 1;
             }
 
-            /* Mobile input buttons */
+            /* Mobile input buttons with proper sizing */
             .mobile-input-area .mobile-touch-button {
-                min-width: 28px; /* Further reduced */
-                min-height: 28px; /* Further reduced */
-                border-radius: 14px; /* Smaller radius */
+                min-width: 44px;
+                min-height: 44px;
+                border-radius: 22px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                padding: 3px; /* Further reduced padding */
+                padding: 8px;
+                background: #f3f4f6;
+                border: 1px solid #e5e7eb;
             }
 
-            /* Mobile send button */
+            /* Mobile send button with proper sizing */
             .mobile-input-area button[type="submit"] {
-                min-width: 28px; /* Further reduced */
-                min-height: 28px; /* Further reduced */
-                border-radius: 14px; /* Smaller radius */
-                padding: 4px; /* Further reduced padding */
+                min-width: 44px;
+                min-height: 44px;
+                border-radius: 22px;
+                padding: 8px;
+                background: #0A1128;
+                color: #FFD700;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             /* Mobile search input */
@@ -237,23 +340,32 @@
                 padding: 8px 16px;
             }
 
-            /* Mobile chat header */
+            /* Mobile chat header with proper sizing */
             .mobile-chat-header {
-                padding: 12px 16px;
-                min-height: 60px;
+                padding: 16px;
+                min-height: 68px;
+                background: white;
+                border-bottom: 1px solid #e5e7eb;
             }
 
-            /* Mobile message container */
+            /* Mobile message container with proper padding */
             .mobile-message-container {
-                padding: 12px;
-                min-height: calc(100vh - 240px);
+                padding: 16px;
+                height: calc(100vh - 180px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+                background: #f9fafb;
             }
 
-            /* Touch-friendly buttons */
+            /* Touch-friendly buttons with proper sizing */
             .mobile-touch-button {
                 min-width: 44px;
                 min-height: 44px;
                 padding: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             /* Safe area for notched phones */
@@ -316,7 +428,7 @@
                 height: calc(100vh - 60px);
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
-                overscroll-behavior: contain; /* Prevent elastic scrolling */
+                overscroll-behavior: contain;
                 margin-top: 60px;
                 position: fixed;
                 top: 0;
@@ -339,122 +451,22 @@
                 bottom: 0;
                 background: white;
                 border-top: 1px solid #e5e7eb;
-                padding: 4px 0; /* Further reduced padding */
+                padding: 12px 16px;
                 z-index: 10;
-                min-height: 60px; /* Reduced height to match calculations */
+                min-height: 80px;
+                max-height: 120px;
                 overscroll-behavior: contain;
-                margin-top: auto; /* Push to bottom */
-                flex-shrink: 0; /* Prevent shrinking */
+                margin-top: auto;
+                flex-shrink: 0;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom));
             }
             
             /* Compressed mobile input form */
             .mobile-input-area #message-form {
-                gap: 4px; /* Further reduced gap */
-                padding: 0 4px; /* Further reduced horizontal padding */
+                gap: 8px;
+                padding: 0;
             }
             
-            /* Smaller mobile touch buttons */
-            .mobile-input-area .mobile-touch-button {
-                min-width: 28px; /* Further reduced from 32px */
-                min-height: 28px; /* Further reduced from 32px */
-                padding: 3px; /* Further reduced padding */
-            }
-            
-            /* Compressed message input */
-            .mobile-input-area #message-input {
-                font-size: 16px; /* Keep readable */
-                padding: 4px 8px; /* Further reduced padding */
-                min-height: 28px; /* Further reduced height */
-                border-radius: 14px; /* Smaller radius */
-                flex-grow: 1;
-            }
-            
-            /* Smaller send button */
-            .mobile-input-area button[type="submit"] {
-                min-width: 28px; /* Further reduced from 32px */
-                min-height: 28px; /* Further reduced from 32px */
-                padding: 4px; /* Further reduced padding */
-                border-radius: 14px; /* Smaller radius */
-            }
-            
-            /* Adjust icons for smaller buttons */
-            .mobile-input-area .mobile-touch-button i,
-            .mobile-input-area button[type="submit"] i {
-                width: 12px; /* Further smaller icons */
-                height: 12px;
-            }
-            
-            /* Ensure chat area has proper flex layout */
-            #chat-area {
-                display: flex;
-                flex-direction: column;
-                height: calc(100vh - 60px);
-                margin-top: 60px;
-            }
-            
-            /* Ensure message container grows properly */
-            #message-container {
-                flex-grow: 1;
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-                overscroll-behavior: contain;
-            }
-            
-            /* Mobile menu overlay */
-            #mobile-menu-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 999; /* Higher z-index to overlay everything */
-                opacity: 0;
-                transition: opacity 0.3s ease;
-                pointer-events: none;
-            }
-            
-            #mobile-menu-overlay:not(.hidden) {
-                opacity: 1;
-                pointer-events: auto;
-            }
-            
-            /* Prevent body scroll on mobile */
-            body {
-                overflow: hidden;
-                position: fixed;
-                width: 100%;
-                height: 100vh;
-                overscroll-behavior: none; /* Prevent body elastic scrolling */
-            }
-            
-            /* Fix sidebar scrolling on mobile */
-            #sidebar {
-                height: calc(100vh - 60px);
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-                overscroll-behavior: contain;
-                margin-top: 60px;
-                position: relative;
-            }
-            
-            /* Fix chat area positioning */
-            #chat-area {
-                height: calc(100vh - 60px);
-                margin-top: 60px;
-                display: flex;
-                flex-direction: column;
-            }
-
-            .message-bubble {
-                max-width: 90% !important;
-                font-size: 14px;
-            }
-
-            .mobile-message-container {
-                padding: 8px;
-            }
-
             /* Enhanced mobile message styles */
             .mobile-message-bubble {
                 margin: 12px 0;

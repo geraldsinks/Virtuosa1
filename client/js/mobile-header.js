@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeMobileHeader() {
     // Mobile Menu Elements
     const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenuButton = document.getElementById('mobile-menu-button'); // Messages page menu button
     const desktopMenuToggle = document.getElementById('desktop-menu-toggle');
     const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
     const mobileMenuClose = document.getElementById('mobile-menu-close');
@@ -32,6 +33,11 @@ function initializeMobileHeader() {
     // Initialize Mobile Menu
     if (mobileMenuToggle && mobileMenuOverlay) {
         mobileMenuToggle.addEventListener('click', openMobileMenu);
+    }
+    
+    // Initialize Messages Page Mobile Menu Button
+    if (mobileMenuButton && mobileMenuOverlay) {
+        mobileMenuButton.addEventListener('click', openMobileMenu);
     }
     
     // Desktop "All" Menu Trigger (Amazon-style)
