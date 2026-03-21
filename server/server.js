@@ -4864,9 +4864,9 @@ app.get('/api/seller/dashboard', authenticateToken, async (req, res) => {
             .filter(t => t.status === 'Completed')
             .reduce((sum, t) => sum + t.sellerPayout, 0);
 
-        const activeListings = orders.filter(o => o.status === 'Active').length;
-        const soldItems = orders.filter(o => o.status === 'Sold').length;
-        const pendingTransactions = orders.filter(o => ['Pending', 'Confirmed'].includes(o.status)).length;
+        const activeListings = products.filter(p => p.status === 'Active').length;
+        const soldItems = transactions.filter(t => t.status === 'Completed').length;
+        const pendingTransactions = transactions.filter(t => ['Pending', 'Confirmed'].includes(t.status)).length;
 
         res.json({
             buyer: {
