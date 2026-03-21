@@ -6551,9 +6551,14 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
                 // Try alternative lookup methods
                 console.log(`🔍 Trying alternative lookup methods...`);
                 
+                let regexProduct = null;
+                let stringProduct = null;
+                let objectIdProduct = null;
+                let nameProduct = null;
+                
                 // Method 1: Try with regex pattern (fixed)
                 try {
-                    const regexProduct = await Product.findOne({
+                    regexProduct = await Product.findOne({
                         _id: { $regex: `^${productId}$`, $options: 'i' }
                     });
                     console.log(`🔍 Regex lookup result:`, regexProduct ? `Found: ${regexProduct.name}` : 'Not found');
@@ -6563,7 +6568,7 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
                 
                 // Method 2: Try exact string match
                 try {
-                    const stringProduct = await Product.findOne({
+                    stringProduct = await Product.findOne({
                         _id: productId
                     });
                     console.log(`🔍 String match result:`, stringProduct ? `Found: ${stringProduct.name}` : 'Not found');
@@ -6574,7 +6579,7 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
                 // Method 3: Try ObjectId conversion explicitly
                 try {
                     const objectId = new mongoose.Types.ObjectId(productId);
-                    const objectIdProduct = await Product.findOne({
+                    objectIdProduct = await Product.findOne({
                         _id: objectId
                     });
                     console.log(`🔍 ObjectId lookup result:`, objectIdProduct ? `Found: ${objectIdProduct.name}` : 'Not found');
@@ -6583,10 +6588,30 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
                 }
                 
                 // Method 4: Search by name pattern
-                const nameProduct = await Product.findOne({
+                nameProduct = await Product.findOne({
                     name: { $regex: 'Samsung S26 Ultra', $options: 'i' }
                 });
                 console.log(`🔍 Name search result:`, nameProduct ? `Found: ${nameProduct.name} (ID: ${nameProduct._id})` : 'Not found');
+                
+                // If we found the product by name, provide the solution
+                if (nameProduct) {
+                    console.log(`✅ SOLUTION: Use product ID ${nameProduct._id.toString()} instead of ${productId}`);
+                    return res.status(404).json({ 
+                        message: `Product ${productId} not found`,
+                        solution: {
+                            issue: 'Product ID mismatch',
+                            correctProductId: nameProduct._id.toString(),
+                            productName: nameProduct.name,
+                            action: 'Update your cart with the correct product ID'
+                        },
+                        debugInfo: {
+                            requestedProductId: productId,
+                            foundProductId: nameProduct._id.toString(),
+                            productName: nameProduct.name,
+                            recentProducts: allProducts.map(p => ({id: p._id.toString(), name: p.name})).slice(0, 3)
+                        }
+                    });
+                }
                 
                 return res.status(404).json({ 
                     message: `Product ${productId} not found`,
@@ -6601,7 +6626,7 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
                             nameSearch: !!nameProduct,
                             foundProductId: nameProduct ? nameProduct._id.toString() : null
                         },
-                        suggestion: nameProduct ? `Try using product ID: ${nameProduct._id.toString()}` : 'Product not found in database'
+                        suggestion: 'Product not found in database - try re-adding to cart from product page'
                     }
                 });
             }
