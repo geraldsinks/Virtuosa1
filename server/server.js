@@ -6551,21 +6551,42 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
                 // Try alternative lookup methods
                 console.log(`🔍 Trying alternative lookup methods...`);
                 
-                // Method 1: Try with regex pattern
-                const regexProduct = await Product.findOne({
-                    _id: { $regex: productId, $options: 'i' }
-                });
-                console.log(`🔍 Regex lookup result:`, regexProduct ? `Found: ${regexProduct.name}` : 'Not found');
+                // Method 1: Try with regex pattern (fixed)
+                try {
+                    const regexProduct = await Product.findOne({
+                        _id: { $regex: `^${productId}$`, $options: 'i' }
+                    });
+                    console.log(`🔍 Regex lookup result:`, regexProduct ? `Found: ${regexProduct.name}` : 'Not found');
+                } catch (regexError) {
+                    console.log(`❌ Regex lookup error: ${regexError.message}`);
+                }
                 
-                // Method 2: Try string comparison
-                const stringProduct = await Product.findOne({
-                    $expr: { $eq: [{ $toString: ['$_id'] }, productId] }
-                });
-                console.log(`🔍 String comparison result:`, stringProduct ? `Found: ${stringProduct.name}` : 'Not found');
+                // Method 2: Try exact string match
+                try {
+                    const stringProduct = await Product.findOne({
+                        _id: productId
+                    });
+                    console.log(`🔍 String match result:`, stringProduct ? `Found: ${stringProduct.name}` : 'Not found');
+                } catch (stringError) {
+                    console.log(`❌ String match error: ${stringError.message}`);
+                }
                 
-                // Method 3: Direct database query
-                const dbProduct = await Product.findOne({ _id: productId });
-                console.log(`🔍 Direct DB query result:`, dbProduct ? `Found: ${dbProduct.name}` : 'Not found');
+                // Method 3: Try ObjectId conversion explicitly
+                try {
+                    const objectId = new mongoose.Types.ObjectId(productId);
+                    const objectIdProduct = await Product.findOne({
+                        _id: objectId
+                    });
+                    console.log(`🔍 ObjectId lookup result:`, objectIdProduct ? `Found: ${objectIdProduct.name}` : 'Not found');
+                } catch (objectIdError) {
+                    console.log(`❌ ObjectId lookup error: ${objectIdError.message}`);
+                }
+                
+                // Method 4: Search by name pattern
+                const nameProduct = await Product.findOne({
+                    name: { $regex: 'Samsung S26 Ultra', $options: 'i' }
+                });
+                console.log(`🔍 Name search result:`, nameProduct ? `Found: ${nameProduct.name} (ID: ${nameProduct._id})` : 'Not found');
                 
                 return res.status(404).json({ 
                     message: `Product ${productId} not found`,
@@ -6576,8 +6597,11 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
                         lookupResults: {
                             regex: !!regexProduct,
                             string: !!stringProduct,
-                            direct: !!dbProduct
-                        }
+                            objectId: !!objectIdProduct,
+                            nameSearch: !!nameProduct,
+                            foundProductId: nameProduct ? nameProduct._id.toString() : null
+                        },
+                        suggestion: nameProduct ? `Try using product ID: ${nameProduct._id.toString()}` : 'Product not found in database'
                     }
                 });
             }
