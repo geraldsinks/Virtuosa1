@@ -1374,6 +1374,11 @@ const userSchema = new mongoose.Schema({
     successfulTransactions: { type: Number, default: 0 },
     totalTransactions: { type: Number, default: 0 },
 
+    // Token economy fields
+    tokenBalance: { type: Number, default: 0 },
+    totalTokensEarned: { type: Number, default: 0 },
+    totalTokensRedeemed: { type: Number, default: 0 },
+
     resetPasswordToken: String,
     resetPasswordExpires: Date,
 
@@ -1383,6 +1388,20 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 console.log('User model created successfully');
+
+// Token Transaction Schema
+const tokenTransactionSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    amount: { type: Number, required: true },
+    type: { type: String, enum: ['earned', 'redeemed'], required: true },
+    reason: { type: String, required: true },
+    orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' },
+    description: String,
+    createdAt: { type: Date, default: Date.now }
+});
+
+const TokenTransaction = mongoose.model('TokenTransaction', tokenTransactionSchema);
+console.log('TokenTransaction model created successfully');
 
 // Enhanced Product Schema
 const productSchema = new mongoose.Schema({
@@ -1450,6 +1469,9 @@ const transactionSchema = new mongoose.Schema({
     seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
 
+    // Quantity for multi-item orders
+    quantity: { type: Number, default: 1 },
+
     // Payment details
     totalAmount: { type: Number, required: true },
     commissionAmount: { type: Number, required: true },
@@ -1457,12 +1479,15 @@ const transactionSchema = new mongoose.Schema({
     deliveryFee: { type: Number, default: 0 },
 
     // Payment method
-    paymentMethod: { type: String, enum: ['Mobile Money', 'Bank Transfer', 'Cash'], required: true },
+    paymentMethod: { type: String, enum: ['Mobile Money', 'Bank Transfer', 'Cash', 'cash_on_delivery'], required: true },
     paymentReference: String,
     paymentStatus: { type: String, enum: ['Pending', 'Paid', 'Released', 'Refunded'], default: 'Pending' },
 
     // Transaction status
-    status: { type: String, enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Completed', 'Cancelled', 'Disputed'], default: 'Pending' },
+    status: { type: String, enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Completed', 'Cancelled', 'Disputed', 'pending_seller_confirmation'], default: 'Pending' },
+
+    // Cash on delivery flag
+    isCashOnDelivery: { type: Boolean, default: false },
 
     // Escrow
     escrowReleased: { type: Boolean, default: false },
@@ -1470,7 +1495,12 @@ const transactionSchema = new mongoose.Schema({
 
     // Delivery
     deliveryMethod: { type: String, enum: ['Meetup', 'Delivery', 'Shipping'] },
-    deliveryAddress: String,
+    deliveryAddress: {
+        name: String,
+        phone: String,
+        address: String,
+        instructions: String
+    },
     trackingNumber: String,
 
     // Dispute
@@ -4774,23 +4804,19 @@ app.get('/api/seller/dashboard', authenticateToken, async (req, res) => {
             .filter(t => t.status === 'Completed')
             .reduce((sum, t) => sum + t.sellerPayout, 0);
 
-        const activeListings = products.filter(p => p.status === 'Active').length;
-        const soldItems = products.filter(p => p.status === 'Sold').length;
-        const pendingTransactions = transactions.filter(t => ['Pending', 'Confirmed'].includes(t.status)).length;
+        const activeListings = orders.filter(o => o.status === 'Active').length;
+        const soldItems = orders.filter(o => o.status === 'Sold').length;
+        const pendingTransactions = orders.filter(o => ['Pending', 'Confirmed'].includes(o.status)).length;
 
         res.json({
-            seller: {
+            buyer: {
                 name: user.fullName,
                 email: user.email,
-                isVerified: user.sellerVerified,
-                isPro: user.isProSeller,
-                rating: user.sellerRating,
-                totalReviews: user.totalSellerReviews,
-                successfulTransactions: user.successfulTransactions,
+                isStudentVerified: user.isStudentVerified,
                 memberSince: user.createdAt,
-                storeName: user.storeName,
-                storeDescription: user.storeDescription,
-                storeSlug: user.storeSlug
+                tokenBalance: user.tokenBalance || 0,
+                totalTokensEarned: user.totalTokensEarned || 0,
+                totalTokensRedeemed: user.totalTokensRedeemed || 0
             },
             stats: {
                 totalRevenue,
@@ -6460,6 +6486,128 @@ app.post('/api/checkout', authenticateToken, async (req, res) => {
     }
 });
 
+// Create new order (cash on delivery with multiple items)
+app.post('/api/orders', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(403).json({ message: 'User not found' });
+        }
+
+        const { items, deliveryInfo, paymentMethod, subtotal, total } = req.body;
+
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ message: 'Order items are required' });
+        }
+
+        if (!deliveryInfo || !deliveryInfo.name || !deliveryInfo.phone || !deliveryInfo.address) {
+            return res.status(400).json({ message: 'Delivery information is required' });
+        }
+
+        if (!paymentMethod) {
+            return res.status(400).json({ message: 'Payment method is required' });
+        }
+
+        // Validate each item and create transactions
+        const transactions = [];
+        let totalCommission = 0;
+        let totalDeliveryFee = 0;
+
+        for (const item of items) {
+            const { productId, quantity, price } = item;
+
+            if (!productId || !quantity || !price) {
+                return res.status(400).json({ message: 'Invalid item data' });
+            }
+
+            // Get product details
+            const product = await Product.findById(productId);
+            if (!product || product.status !== 'Active') {
+                return res.status(404).json({ message: `Product ${productId} not available` });
+            }
+
+            if (product.seller.toString() === user._id.toString()) {
+                return res.status(400).json({ message: 'Cannot buy your own product' });
+            }
+
+            // Calculate fees for this item
+            const commissionRate = 0.06; // 6% commission
+            const commissionAmount = price * commissionRate;
+            const deliveryFee = paymentMethod === 'cash_on_delivery' ? 20 : 0; // K20 for cash on delivery
+            const itemTotal = price * quantity + deliveryFee;
+            const sellerPayout = (price * quantity) - commissionAmount;
+
+            totalCommission += commissionAmount;
+            totalDeliveryFee += deliveryFee;
+
+            // Create transaction for this item
+            const transaction = new Transaction({
+                buyer: user._id,
+                seller: product.seller,
+                product: product._id,
+                quantity: quantity,
+                totalAmount: itemTotal,
+                commissionAmount,
+                sellerPayout,
+                deliveryFee,
+                paymentMethod,
+                deliveryMethod: 'Delivery',
+                deliveryAddress: {
+                    name: deliveryInfo.name,
+                    phone: deliveryInfo.phone,
+                    address: deliveryInfo.address,
+                    instructions: deliveryInfo.instructions || ''
+                },
+                status: 'pending_seller_confirmation',
+                isCashOnDelivery: paymentMethod === 'cash_on_delivery'
+            });
+
+            await transaction.save();
+            transactions.push(transaction);
+
+            // Update product status
+            product.status = 'Reserved';
+            await product.save();
+
+            // Create notification for seller
+            await new Notification({
+                user: product.seller,
+                title: 'New Order Received',
+                message: `You have a new order for ${quantity}x ${product.name}`,
+                type: 'Transaction',
+                link: `/seller-dashboard.html?tab=orders`
+            }).save();
+        }
+
+        // Create notification for buyer
+        await new Notification({
+            user: user._id,
+            title: 'Order Placed Successfully',
+            message: `Your order for ${transactions.length} items has been placed successfully`,
+            type: 'Transaction',
+            link: `/orders.html`
+        }).save();
+
+        res.status(201).json({
+            order: {
+                _id: transactions[0]._id, // Use first transaction ID as order ID
+                items: transactions,
+                deliveryInfo,
+                paymentMethod,
+                subtotal,
+                total: total || subtotal + totalDeliveryFee,
+                status: 'pending_seller_confirmation',
+                createdAt: new Date()
+            },
+            message: 'Order placed successfully'
+        });
+
+    } catch (error) {
+        console.error('Create order error:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
 // Get user orders
 app.get('/api/orders', authenticateToken, async (req, res) => {
     try {
@@ -6542,6 +6690,26 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
             order.status = 'Delivered';
             order.deliveryConfirmedAt = new Date();
             order.deliveryNotes = deliveryNotes;
+            
+            // Award 5 tokens to buyer for confirming delivery
+            await User.findByIdAndUpdate(req.user.userId, {
+                $inc: { 
+                    tokenBalance: 5,
+                    totalTokensEarned: 5
+                }
+            });
+            
+            // Create token transaction record
+            await new TokenTransaction({
+                user: req.user.userId,
+                amount: 5,
+                type: 'earned',
+                reason: 'Delivery confirmation',
+                orderId: order._id,
+                description: `Earned 5 tokens for confirming delivery of order #${order._id.toString().slice(-8)}`
+            }).save();
+            
+            console.log('✅ Awarded 5 tokens to buyer for delivery confirmation');
         } else if (isSeller) {
             // Seller can update shipping status
             if (status === 'Shipped') {
@@ -6557,7 +6725,7 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
 
         await order.save();
 
-        // Create notification for the other party
+        // Create notification for other party
         const notificationRecipient = isBuyer ? order.seller._id : order.buyer._id;
         const notificationTitle = isBuyer ? 'Delivery Confirmed' : 'Order Status Updated';
         const notificationMessage = isBuyer 
@@ -6572,6 +6740,32 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
             link: `/orders.html`
         }).save();
 
+        // Award 5 tokens to seller if buyer confirmed delivery (order completed)
+        if (isBuyer && status === 'Delivered') {
+            try {
+                await User.findByIdAndUpdate(order.seller._id, {
+                    $inc: { 
+                        tokenBalance: 5,
+                        totalTokensEarned: 5
+                    }
+                });
+                
+                // Create token transaction record for seller
+                await new TokenTransaction({
+                    user: order.seller._id,
+                    amount: 5,
+                    type: 'earned',
+                    reason: 'Order completion',
+                    orderId: order._id,
+                    description: `Earned 5 tokens for completing order #${order._id.toString().slice(-8)}`
+                }).save();
+                
+                console.log('✅ Awarded 5 tokens to seller for order completion');
+            } catch (tokenError) {
+                console.error('Error awarding tokens to seller:', tokenError);
+            }
+        }
+
         res.json({ message: 'Order status updated successfully', order });
     } catch (error) {
         console.error('Update order status error:', error);
@@ -6579,4 +6773,166 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
     }
 });
 
-console.log('🗂️ Data Retention Management System initialized');
+// Token Management endpoints
+
+// Get user token balance and history
+app.get('/api/tokens', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Get token transactions
+        const tokenTransactions = await TokenTransaction.find({ user: req.user.userId })
+            .sort({ createdAt: -1 })
+            .limit(50);
+
+        res.json({
+            tokenBalance: user.tokenBalance || 0,
+            totalTokensEarned: user.totalTokensEarned || 0,
+            totalTokensRedeemed: user.totalTokensRedeemed || 0,
+            transactions: tokenTransactions
+        });
+    } catch (error) {
+        console.error('Get token balance error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Get token redemption options
+app.get('/api/tokens/redeem-options', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+        const currentBalance = user.tokenBalance || 0;
+
+        const redemptionOptions = [
+            {
+                id: 'discount_10_percent',
+                name: '10% Discount',
+                description: 'Get 10% off your next purchase',
+                cost: 25,
+                available: currentBalance >= 25,
+                icon: 'fas fa-percentage'
+            },
+            {
+                id: 'featured_product_week',
+                name: 'Featured Product',
+                description: 'Feature your product for 1 week',
+                cost: 50,
+                available: currentBalance >= 50,
+                icon: 'fas fa-star'
+            },
+            {
+                id: 'premium_showcase_month',
+                name: 'Premium Showcase',
+                description: 'Premium showcase placement for 1 month',
+                cost: 100,
+                available: currentBalance >= 100,
+                icon: 'fas fa-crown'
+            }
+        ];
+
+        res.json({
+            currentBalance,
+            redemptionOptions
+        });
+    } catch (error) {
+        console.error('Get redemption options error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Redeem tokens for rewards
+app.post('/api/tokens/redeem', authenticateToken, async (req, res) => {
+    try {
+        const { redemptionId } = req.body;
+        
+        if (!redemptionId) {
+            return res.status(400).json({ message: 'Redemption ID required' });
+        }
+
+        const user = await User.findById(req.user.userId);
+        const currentBalance = user.tokenBalance || 0;
+
+        let reward;
+        let cost = 0;
+
+        switch (redemptionId) {
+            case 'discount_10_percent':
+                cost = 25;
+                if (currentBalance >= cost) {
+                    reward = { type: 'discount', value: '10%', code: `DISCOUNT10_${Date.now()}` };
+                };
+                break;
+            case 'featured_product_week':
+                cost = 50;
+                if (currentBalance >= cost) {
+                    reward = { type: 'featured_product', duration: '1 week' };
+                }
+                break;
+            case 'premium_showcase_month':
+                cost = 100;
+                if (currentBalance >= cost) {
+                    reward = { type: 'premium_showcase', duration: '1 month' };
+                }
+                break;
+            default:
+                return res.status(400).json({ message: 'Invalid redemption option' });
+        }
+
+        if (!reward || currentBalance < cost) {
+            return res.status(400).json({ message: 'Insufficient tokens or invalid redemption' });
+        }
+
+        // Update user token balance
+        await User.findByIdAndUpdate(req.user.userId, {
+            $inc: { 
+                tokenBalance: -cost,
+                totalTokensRedeemed: cost
+            }
+        });
+
+        // Create token transaction record
+        await new TokenTransaction({
+            user: req.user.userId,
+            amount: -cost,
+            type: 'redeemed',
+            reason: `Redeemed for ${reward.type}`,
+            description: `Redeemed ${cost} tokens for ${reward.type}`,
+            reward: reward
+        }).save();
+
+        res.json({
+            message: 'Tokens redeemed successfully',
+            reward,
+            newBalance: (user.tokenBalance || 0) - cost
+        });
+
+    } catch (error) {
+        console.error('Redeem tokens error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Helper function to update seller's average rating
+async function updateSellerRating(sellerId) {
+    try {
+        const reviews = await Review.find({ 
+            reviewedUser: sellerId, 
+            reviewType: 'Buyer to Seller' 
+        });
+
+        if (reviews.length > 0) {
+            const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
+            
+            await User.findByIdAndUpdate(sellerId, {
+                sellerRating: Math.round(averageRating * 10) / 10 // Round to 1 decimal place
+            });
+        }
+    } catch (error) {
+        console.error('Update seller rating error:', error);
+    }
+}
+
+console.log('✅ Virtuosa Server initialized successfully');

@@ -97,6 +97,12 @@ async function loadDashboardData() {
         // Update welcome message
         document.getElementById('buyer-name').textContent = userData.fullName || 'Buyer';
         
+        // Update token balance display
+        const tokenBalanceElement = document.getElementById('token-balance');
+        if (tokenBalanceElement) {
+            tokenBalanceElement.textContent = userData.tokenBalance || 0;
+        }
+        
         // Update user greeting in header
         const userGreeting = document.getElementById('user-greeting');
         if (userGreeting) {
@@ -198,34 +204,26 @@ async function loadOrderStats() {
     const token = localStorage.getItem('token');
     
     try {
-        const response = await fetch('/api/transactions', {
+        const response = await fetch(`${API_BASE}/buyer/dashboard`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-
+        
         if (response.ok) {
             const data = await response.json();
-            const transactions = data.transactions || [];
-            
-            // Calculate stats from transactions
-            const activeOrders = transactions.filter(t => t.status === 'Pending' || t.status === 'Confirmed').length;
-            const completedOrders = transactions.filter(t => t.status === 'Completed').length;
-            const totalSpent = transactions
-                .filter(t => t.status === 'Completed' && t.buyer._id === JSON.parse(localStorage.getItem('userId') || 'null'))
-                .reduce((sum, t) => sum + (t.totalAmount || 0), 0);
             
             // Update stat cards with animation
-            animateNumber('active-orders', activeOrders);
-            animateNumber('completed-orders', completedOrders);
-            animateNumber('total-spent', `ZMW ${totalSpent.toLocaleString()}`);
-            animateNumber('saved-items', 0); // No saved items endpoint yet
+            animateNumber('active-orders', data.stats?.pendingOrders || 0);
+            animateNumber('completed-orders', data.stats?.completedOrders || 0);
+            animateNumber('total-spent', data.stats?.totalSpent || 0);
+        } else {
+            throw new Error('Failed to load order statistics');
         }
     } catch (error) {
-        console.error('Error loading order stats:', error);
-        // Set default values
-        document.getElementById('active-orders').textContent = '0';
-        document.getElementById('completed-orders').textContent = '0';
-        document.getElementById('total-spent').textContent = 'ZMW 0';
-        document.getElementById('saved-items').textContent = '0';
+        console.error('Order stats loading error:', error);
+        // Set default values on error
+        animateNumber('active-orders', 0);
+        animateNumber('completed-orders', 0);
+        animateNumber('total-spent', 0);
     }
 }
 
