@@ -6529,11 +6529,57 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
 
             // Get product details
             console.log(`🔍 Looking for product with ID: ${productId}`);
+            console.log(`🆔 Product ID type: ${typeof productId}, length: ${productId?.length}`);
+            
+            // Try ObjectId conversion for debugging
+            try {
+                const objectId = new mongoose.Types.ObjectId(productId);
+                console.log(`✅ Valid ObjectId: ${objectId}`);
+            } catch (error) {
+                console.log(`❌ Invalid ObjectId: ${error.message}`);
+            }
+            
             const product = await Product.findById(productId);
             console.log(`📦 Product found:`, product ? `ID: ${product._id}, Name: ${product.name}, Status: ${product.status}` : 'NOT FOUND');
             
             if (!product) {
-                return res.status(404).json({ message: `Product ${productId} not found` });
+                // Try searching for products with similar ID patterns
+                console.log(`🔍 Searching for products with similar IDs...`);
+                const allProducts = await Product.find({}).limit(5);
+                console.log(`📋 Recent products:`, allProducts.map(p => ({id: p._id.toString(), name: p.name})));
+                
+                // Try alternative lookup methods
+                console.log(`🔍 Trying alternative lookup methods...`);
+                
+                // Method 1: Try with regex pattern
+                const regexProduct = await Product.findOne({
+                    _id: { $regex: productId, $options: 'i' }
+                });
+                console.log(`🔍 Regex lookup result:`, regexProduct ? `Found: ${regexProduct.name}` : 'Not found');
+                
+                // Method 2: Try string comparison
+                const stringProduct = await Product.findOne({
+                    $expr: { $eq: [{ $toString: ['$_id'] }, productId] }
+                });
+                console.log(`🔍 String comparison result:`, stringProduct ? `Found: ${stringProduct.name}` : 'Not found');
+                
+                // Method 3: Direct database query
+                const dbProduct = await Product.findOne({ _id: productId });
+                console.log(`🔍 Direct DB query result:`, dbProduct ? `Found: ${dbProduct.name}` : 'Not found');
+                
+                return res.status(404).json({ 
+                    message: `Product ${productId} not found`,
+                    debugInfo: {
+                        productId,
+                        productType: typeof productId,
+                        recentProducts: allProducts.map(p => ({id: p._id.toString(), name: p.name})).slice(0, 3),
+                        lookupResults: {
+                            regex: !!regexProduct,
+                            string: !!stringProduct,
+                            direct: !!dbProduct
+                        }
+                    }
+                });
             }
             
             if (product.status !== 'Active') {
