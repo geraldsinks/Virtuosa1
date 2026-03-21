@@ -6218,16 +6218,54 @@ app.get('/api/cart', authenticateToken, async (req, res) => {
             .populate('items.product', 'name price images category seller');
         
         if (!cart) {
-            return res.json({ items: [], total: 0 });
+            return res.json({ items: [] });
         }
 
-        const total = cart.items.reduce((sum, item) => {
-            return sum + (item.product.price * item.quantity);
-        }, 0);
-
-        res.json({ items: cart.items, total });
+        res.json({ items: cart.items });
     } catch (error) {
         console.error('Get cart error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Save/Update entire cart (for localStorage sync)
+app.post('/api/cart', authenticateToken, async (req, res) => {
+    try {
+        const { items } = req.body;
+        
+        let cart = await Cart.findOne({ user: req.user.userId });
+        
+        if (!cart) {
+            cart = new Cart({ user: req.user.userId, items: [] });
+        }
+        
+        // Validate and convert items
+        const validatedItems = [];
+        for (const item of items) {
+            // Handle both nested and flat item structures
+            const productId = item._id || item.product?._id;
+            const quantity = item.quantity || 1;
+            
+            if (!productId) continue;
+            
+            const product = await Product.findById(productId);
+            if (!product) continue;
+            
+            validatedItems.push({
+                product: productId,
+                quantity: quantity,
+                addedAt: item.addedAt || new Date()
+            });
+        }
+        
+        cart.items = validatedItems;
+        cart.updatedAt = new Date();
+        await cart.save();
+        
+        await cart.populate('items.product', 'name price images category seller');
+        res.json({ items: cart.items });
+    } catch (error) {
+        console.error('Save cart error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -6267,7 +6305,8 @@ app.post('/api/cart/add', authenticateToken, async (req, res) => {
         cart.updatedAt = new Date();
         await cart.save();
 
-        res.json({ message: 'Item added to cart successfully' });
+        await cart.populate('items.product', 'name price images category seller');
+        res.json({ items: cart.items });
     } catch (error) {
         console.error('Add to cart error:', error);
         res.status(500).json({ message: 'Server error' });
@@ -6300,7 +6339,8 @@ app.put('/api/cart/update', authenticateToken, async (req, res) => {
         cart.updatedAt = new Date();
         await cart.save();
 
-        res.json({ message: 'Cart updated successfully' });
+        await cart.populate('items.product', 'name price images category seller');
+        res.json({ items: cart.items });
     } catch (error) {
         console.error('Update cart error:', error);
         res.status(500).json({ message: 'Server error' });
@@ -6323,7 +6363,8 @@ app.delete('/api/cart/remove/:productId', authenticateToken, async (req, res) =>
         cart.updatedAt = new Date();
         await cart.save();
 
-        res.json({ message: 'Item removed from cart successfully' });
+        await cart.populate('items.product', 'name price images category seller');
+        res.json({ items: cart.items });
     } catch (error) {
         console.error('Remove from cart error:', error);
         res.status(500).json({ message: 'Server error' });
