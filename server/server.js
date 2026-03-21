@@ -3583,48 +3583,6 @@ app.post('/api/transactions/:id/confirm-delivery', authenticateToken, async (req
     }
 });
 
-// Get user's transactions
-app.get('/api/transactions', authenticateToken, async (req, res) => {
-    try {
-        const { type, status, page = 1, limit = 20 } = req.query;
-        const user = await User.findById(req.user.userId);
-
-        let filter = {};
-        if (type === 'buying') {
-            filter.buyer = user._id;
-        } else if (type === 'selling') {
-            filter.seller = user._id;
-        } else {
-            filter.$or = [{ buyer: user._id }, { seller: user._id }];
-        }
-
-        if (status) filter.status = status;
-
-        const skip = (parseInt(page) - 1) * parseInt(limit);
-
-        const transactions = await Transaction.find(filter)
-            .populate('buyer seller product')
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(parseInt(limit));
-
-        const total = await Transaction.countDocuments(filter);
-
-        res.json({
-            transactions,
-            pagination: {
-                currentPage: parseInt(page),
-                totalPages: Math.ceil(total / parseInt(limit)),
-                total,
-                limit: parseInt(limit)
-            }
-        });
-    } catch (error) {
-        console.error('Get transactions error:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
-
 // Raise dispute
 app.post('/api/transactions/:id/dispute', authenticateToken, async (req, res) => {
     try {
@@ -3674,6 +3632,62 @@ app.post('/api/transactions/:id/dispute', authenticateToken, async (req, res) =>
         });
     } catch (error) {
         console.error('Raise dispute error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Get buyer dashboard data
+app.get('/api/buyer/dashboard', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+        if (!user || user.isSeller) {
+            return res.status(403).json({ message: 'Buyer access required' });
+        }
+
+        // Get buyer's transactions
+        const transactions = await Transaction.find({ buyer: user._id })
+            .populate('seller', 'fullName email')
+            .populate('product', 'name price images')
+            .sort({ createdAt: -1 })
+            .limit(10);
+
+        // Calculate order statistics
+        const orderStats = {
+            totalOrders: await Transaction.countDocuments({ buyer: user._id }),
+            pendingOrders: await Transaction.countDocuments({ 
+                buyer: user._id, 
+                status: { $in: ['pending_seller_confirmation', 'confirmed_by_seller'] }
+            }),
+            completedOrders: await Transaction.countDocuments({ 
+                buyer: user._id, 
+                status: 'completed' 
+            }),
+            totalSpent: transactions
+                .filter(t => t.status === 'completed')
+                .reduce((sum, t) => sum + (t.totalAmount || 0), 0)
+        };
+
+        console.log('📊 Buyer dashboard data loaded:', {
+            userId: user._id,
+            transactionsCount: transactions.length,
+            orderStats
+        });
+
+        res.json({
+            buyer: {
+                name: user.fullName,
+                email: user.email,
+                isStudentVerified: user.isStudentVerified,
+                memberSince: user.createdAt,
+                tokenBalance: user.tokenBalance || 0,
+                totalTokensEarned: user.totalTokensEarned || 0,
+                totalTokensRedeemed: user.totalTokensRedeemed || 0
+            },
+            recentOrders: transactions,
+            orderStats
+        });
+    } catch (error) {
+        console.error('Buyer dashboard error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
