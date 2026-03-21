@@ -116,7 +116,7 @@ async function addToCart(product, quantity = 1) {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ productId, quantity })
+                body: JSON.stringify({ productId: product._id, quantity })
             });
 
             if (response.ok) {
@@ -441,7 +441,7 @@ async function updateQuantity(productId, delta) {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ productId, quantity })
+                    body: JSON.stringify({ productId, quantity: newQuantity })
                 });
                 
                 if (response.ok) {

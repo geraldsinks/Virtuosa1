@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (logoutBtn && userDropdown.contains(logoutBtn)) {
                             userDropdown.insertBefore(messagesLink, logoutBtn);
                         } else {
+                            // Fallback: just append to dropdown
                             userDropdown.appendChild(messagesLink);
                         }
                     }
