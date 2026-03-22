@@ -245,7 +245,7 @@ function displayTransactions(transactions) {
         transactionCard.className = 'p-6 hover:bg-gray-50 transition-colors';
         
         // Add null checks for buyer and seller
-        const isBuyer = transaction.buyer && userData.id && transaction.buyer._id === userData.id;
+        const isBuyer = transaction.buyer && userData && userData.id && transaction.buyer._id === userData.id;
         const otherParty = isBuyer ? (transaction.seller || { fullName: 'Unknown' }) : (transaction.buyer || { fullName: 'Unknown' });
         
         transactionCard.innerHTML = `
@@ -378,7 +378,7 @@ function displayTransactionDetails(transaction) {
         userData = { id: null };
     }
     
-    const isBuyer = transaction.buyer && userData.id && transaction.buyer._id === userData.id;
+    const isBuyer = transaction.buyer && userData && userData.id && transaction.buyer._id === userData.id;
     
     container.innerHTML = `
         <div class="grid grid-cols-2 gap-6">
