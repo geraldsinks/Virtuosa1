@@ -387,7 +387,7 @@
                     <button onclick="loadOrders(1, 'confirmed_by_seller')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Confirmed</button>
                     <button onclick="loadOrders(1, 'out_for_delivery')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Out for Delivery</button>
                     <button onclick="loadOrders(1, 'delivered_pending_confirmation')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Delivered (Pending)</button>
-                    <button onclick="loadOrders(1, 'completed')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Completed</button>
+                    <button onclick="loadOrders(1, 'Completed')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Completed</button>
                     <button onclick="loadOrders(1, 'declined')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Declined</button>
                 </div>
             </div>
@@ -630,6 +630,7 @@
                     case 'out_for_delivery': return 'bg-purple-100 text-purple-800';
                     case 'delivered_pending_confirmation': return 'bg-orange-100 text-orange-800';
                     case 'completed': return 'bg-green-100 text-green-800';
+                    case 'Completed': return 'bg-green-100 text-green-800';
                     case 'declined': return 'bg-red-100 text-red-800';
                     default: return 'bg-gray-100 text-gray-800';
                 }
@@ -643,6 +644,7 @@
                     case 'out_for_delivery': return 'fas fa-truck';
                     case 'delivered_pending_confirmation': return 'fas fa-box';
                     case 'completed': return 'fas fa-check-double';
+                    case 'Completed': return 'fas fa-check-double';
                     case 'declined': return 'fas fa-times-circle';
                     default: return 'fas fa-question-circle';
                 }
@@ -870,7 +872,7 @@ Confirm Delivery & Earn Tokens?
                             'Authorization': `Bearer ${token}`
                         },
                         body: JSON.stringify({ 
-                            status: 'completed',
+                            status: 'Completed',
                             deliveryNotes: 'Delivery confirmed by buyer - transaction completed + 5 tokens earned'
                         })
                     });

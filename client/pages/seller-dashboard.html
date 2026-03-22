@@ -551,13 +551,35 @@
                                 <div class="flex items-center mt-1">
                                     <p id="seller-rating" class="text-3xl font-bold text-navy mr-2">5.0</p>
                                     <div class="flex text-yellow-400" id="rating-stars-preview">
-                                        <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
                                     </div>
                                 </div>
                             </div>
                             <div class="bg-yellow-50 p-3 rounded-lg">
-                                <i data-lucide="award" class="w-6 h-6 text-yellow-600"></i>
+                                <i data-lucide="star" class="w-6 h-6 text-yellow-400"></i>
                             </div>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-r from-gold/20 to-yellow-15 text-navy rounded-xl p-6 shadow-lg border-2 border-gold/30">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600 uppercase tracking-wider font-semibold">Token Balance
+                                </p>
+                                <p id="seller-token-balance" class="text-3xl font-bold mt-1 text-gold">0</p>
+                                <p class="text-xs text-gray-500 mt-1">Earned from sales</p>
+                            </div>
+                            <div class="bg-gold/20 p-3 rounded-lg">
+                                <i class="fas fa-coins text-gold text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-gold/20">
+                            <button onclick="showTokenRewards()" class="text-xs bg-gold text-navy px-3 py-1 rounded-full font-semibold hover:bg-yellow-500 transition-colors">
+                                <i class="fas fa-gift mr-1"></i>View Rewards
+                            </button>
                         </div>
                     </div>
                 </div>

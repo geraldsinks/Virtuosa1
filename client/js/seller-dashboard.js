@@ -192,6 +192,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             dashboardData = await response.json();
             updateUI();
             initializeCharts();
+            await loadTokenBalance(); // Load seller's token balance
         } catch (error) {
             console.error('Error loading dashboard:', error);
             showMessage(error.message || 'Error loading dashboard data', true);
@@ -798,6 +799,126 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.viewProducts = () => {
         window.location.href = '/pages/my-products.html';
+    };
+
+    // Load seller's token balance
+    async function loadTokenBalance() {
+        try {
+            const response = await fetch(`${API_BASE}/user/profile`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const user = await response.json();
+                const tokenBalanceElement = document.getElementById('seller-token-balance');
+                if (tokenBalanceElement) {
+                    tokenBalanceElement.textContent = user.tokenBalance || 0;
+                }
+            }
+        } catch (error) {
+            console.error('Error loading token balance:', error);
+        }
+    }
+
+    // Show token rewards modal (reused from orders page)
+    window.showTokenRewards = () => {
+        const modalHtml = `
+            <div id="token-rewards-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-white rounded-lg p-8 max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+                    <div class="text-center mb-6">
+                        <div class="bg-gold/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-coins text-gold text-2xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-navy mb-2">Token Rewards Program</h2>
+                        <p class="text-gray-600">Earn tokens and unlock exclusive marketplace benefits</p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="font-semibold text-navy mb-3">How to Earn Tokens:</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                                    <span class="text-sm">Complete Order Delivery</span>
+                                </div>
+                                <span class="bg-green-600 text-white px-2 py-1 rounded text-sm font-semibold">+5</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-star text-blue-600 mr-3"></i>
+                                    <span class="text-sm">Receive Product Reviews</span>
+                                </div>
+                                <span class="bg-blue-600 text-white px-2 py-1 rounded text-sm font-semibold">+3</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-camera text-purple-600 mr-3"></i>
+                                    <span class="text-sm">Quality Product Photos</span>
+                                </div>
+                                <span class="bg-purple-600 text-white px-2 py-1 rounded text-sm font-semibold">+2</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gold/50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-calendar-check text-gold mr-3"></i>
+                                    <span class="text-sm">Daily Login Streak</span>
+                                </div>
+                                <span class="bg-gold text-navy px-2 py-1 rounded text-sm font-semibold">+1</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="font-semibold text-navy mb-3">Redeem Your Tokens:</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <h4 class="font-semibold text-sm">10% Discount</h4>
+                                        <p class="text-xs text-gray-500">Valid for any purchase</p>
+                                    </div>
+                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold">25 Tokens</span>
+                                </div>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <h4 class="font-semibold text-sm">Fast Delivery</h4>
+                                        <p class="text-xs text-gray-500">Priority shipping</p>
+                                    </div>
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold">50 Tokens</span>
+                                </div>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <h4 class="font-semibold text-sm">Premium Badge</h4>
+                                        <p class="text-xs text-gray-500">Show on your profile</p>
+                                    </div>
+                                    <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-semibold">100 Tokens</span>
+                                </div>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <h4 class="font-semibold text-sm">VIP Access</h4>
+                                        <p class="text-xs text-gray-500">Exclusive features</p>
+                                    </div>
+                                    <span class="bg-gold/20 text-gold px-2 py-1 rounded text-xs font-semibold">200 Tokens</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                                class="bg-navy text-white font-semibold py-2 px-6 rounded-full hover:bg-gray-800 transition-colors">
+                            Got it!
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
     };
 
     // Auto-refresh dashboard every 30 seconds

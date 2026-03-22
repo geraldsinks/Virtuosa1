@@ -7027,10 +7027,10 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
         const isSeller = order.seller._id.toString() === req.user.userId;
 
         // Validate status transitions based on user role and cash on delivery flow
-        if (isBuyer && status === 'completed') {
+        if (isBuyer && status === 'Completed') {
             // Buyer confirms delivery - move to completed
             if (order.status === 'delivered_pending_confirmation') {
-                order.status = 'completed';
+                order.status = 'Completed';
                 order.deliveryConfirmedAt = new Date();
                 order.deliveryNotes = deliveryNotes;
                 
