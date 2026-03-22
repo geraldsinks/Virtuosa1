@@ -3675,10 +3675,11 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
                 // Check for low stock alert
                 if (product.inventoryTracking && product.inventory <= product.lowStockThreshold) {
                     console.log(`📦 Low stock alert triggered: ${product.inventory} <= ${product.lowStockThreshold}`);
-                } else {
-                    product.status = 'Active'; // Ensure it stays active
-                    console.log(`📦 Product remains Active with inventory: ${product.inventory}`);
                 }
+                
+                // CRITICAL FIX: Ensure persistent listings stay Active, don't set to Reserved
+                product.status = 'Active'; 
+                console.log(`📦 Persistent listing kept Active: ${product.name}, inventory: ${product.inventory}`);
             }
         }
         
