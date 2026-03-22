@@ -7422,9 +7422,52 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
             await transaction.save();
             transactions.push(transaction);
 
-            // Update product status
-            product.status = 'Reserved';
+            // Update product status - handle different listing types
+            console.log(`🔄 Checkout - Processing product:`, {
+                productId: product._id,
+                name: product.name,
+                listingType: product.listingType,
+                currentStatus: product.status,
+                currentInventory: product.inventory
+            });
+
+            if (product.listingType === 'one_time') {
+                // One-time sale: mark as reserved
+                product.status = 'Reserved';
+                console.log(`📦 One-time sale set to Reserved: ${product.name}`);
+            } else if (product.listingType === 'persistent') {
+                // Persistent listing: decrement inventory but keep active
+                product.inventory -= quantity;
+                
+                // Add to sales history
+                product.salesHistory.push({
+                    buyer: user._id,
+                    quantity: quantity,
+                    price: product.price,
+                    soldAt: new Date()
+                });
+                
+                // Update total sold count
+                product.totalSold += quantity;
+                
+                // Update status based on remaining inventory
+                if (product.inventory > 0) {
+                    product.status = 'Active'; // Keep it active
+                    console.log(`📦 Persistent listing kept active: ${product.name}, new inventory: ${product.inventory}`);
+                } else {
+                    product.status = 'Out of Stock';
+                    product.soldAt = new Date();
+                    console.log(`📦 Persistent listing out of stock: ${product.name}`);
+                }
+            }
+            
             await product.save();
+            
+            console.log(`✅ Product status updated in checkout:`, {
+                productId: product._id,
+                finalStatus: product.status,
+                finalInventory: product.inventory
+            });
 
             // Create notification for seller
             await new Notification({
