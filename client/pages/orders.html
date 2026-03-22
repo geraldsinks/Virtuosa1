@@ -1027,6 +1027,29 @@ Confirm Delivery & Earn Tokens?
                             closeReviewModal();
                         }
                     });
+                    
+                    // Ensure star rating buttons are clickable
+                    document.querySelectorAll('.rating-star').forEach(star => {
+                        star.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const rating = parseInt(star.dataset.rating);
+                            setRating(rating);
+                        });
+                    });
+                    
+                    // Ensure submit button is clickable
+                    const submitBtn = document.querySelector('button[onclick*="submitReview"]');
+                    if (submitBtn) {
+                        submitBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const onclickAttr = submitBtn.getAttribute('onclick');
+                            if (onclickAttr) {
+                                eval(onclickAttr);
+                            }
+                        });
+                    }
                 }, 100);
             }
 

@@ -4132,6 +4132,29 @@ app.get('/api/transactions', authenticateToken, async (req, res) => {
     }
 });
 
+// Get individual transaction details
+app.get('/api/transactions/:id', authenticateToken, async (req, res) => {
+    try {
+        const transaction = await Transaction.findById(req.params.id)
+            .populate('buyer seller product');
+
+        if (!transaction) {
+            return res.status(404).json({ message: 'Transaction not found' });
+        }
+
+        // Check if user is part of the transaction
+        const userId = req.user.userId;
+        if (transaction.buyer._id.toString() !== userId && transaction.seller._id.toString() !== userId) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        res.json(transaction);
+    } catch (error) {
+        console.error('Get transaction details error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // Get all transactions (admin)
 app.get('/api/admin/transactions', authenticateAdmin, async (req, res) => {
     try {
@@ -7304,6 +7327,152 @@ app.post('/api/tokens/redeem', authenticateToken, async (req, res) => {
 
     } catch (error) {
         console.error('Redeem tokens error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Review endpoints
+
+// Create a review
+app.post('/api/reviews', authenticateToken, async (req, res) => {
+    try {
+        const { orderId, productId, rating, comment } = req.body;
+        const userId = req.user.userId;
+
+        // Validate input
+        if (!orderId || !productId || !rating || rating < 1 || rating > 5) {
+            return res.status(400).json({ message: 'Invalid review data' });
+        }
+
+        // Get transaction to verify user is the buyer
+        const transaction = await Transaction.findById(orderId);
+        if (!transaction) {
+            return res.status(404).json({ message: 'Transaction not found' });
+        }
+
+        if (transaction.buyer.toString() !== userId) {
+            return res.status(403).json({ message: 'Only buyers can leave reviews' });
+        }
+
+        if (transaction.status !== 'Completed') {
+            return res.status(400).json({ message: 'Can only review completed transactions' });
+        }
+
+        // Check if review already exists
+        const existingReview = await Review.findOne({
+            reviewer: userId,
+            transaction: orderId,
+            product: productId
+        });
+
+        if (existingReview) {
+            return res.status(400).json({ message: 'Review already exists for this transaction' });
+        }
+
+        // Get product to find seller
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        // Create review
+        const review = new Review({
+            reviewer: userId,
+            reviewedUser: product.seller,
+            transaction: orderId,
+            product: productId,
+            reviewType: 'Buyer to Seller',
+            rating: parseInt(rating),
+            comment: comment || ''
+        });
+
+        await review.save();
+
+        // Update seller's average rating
+        await updateSellerRating(product.seller);
+
+        // Award tokens to buyer for leaving review
+        await User.findByIdAndUpdate(userId, {
+            $inc: { tokenBalance: 3 }
+        });
+
+        // Create token transaction record
+        const tokenTransaction = new TokenTransaction({
+            user: userId,
+            amount: 3,
+            type: 'earned',
+            description: 'Review submitted - 3 tokens earned'
+        });
+        await tokenTransaction.save();
+
+        res.status(201).json({
+            message: 'Review submitted successfully',
+            review
+        });
+    } catch (error) {
+        console.error('Create review error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Get user's reviews (reviews they wrote)
+app.get('/api/reviews/my-reviews', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        const reviews = await Review.find({ reviewer: userId })
+            .populate('reviewedUser', 'fullName')
+            .populate('product', 'name images')
+            .populate('transaction', 'createdAt')
+            .sort({ createdAt: -1 });
+
+        res.json(reviews);
+    } catch (error) {
+        console.error('Get my reviews error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Get reviews about user (reviews they received)
+app.get('/api/reviews/about-me', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        const reviews = await Review.find({ reviewedUser: userId })
+            .populate('reviewer', 'fullName')
+            .populate('product', 'name images')
+            .populate('transaction', 'createdAt')
+            .sort({ createdAt: -1 });
+
+        res.json(reviews);
+    } catch (error) {
+        console.error('Get reviews about me error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Delete a review
+app.delete('/api/reviews/:id', authenticateToken, async (req, res) => {
+    try {
+        const review = await Review.findById(req.params.id);
+
+        if (!review) {
+            return res.status(404).json({ message: 'Review not found' });
+        }
+
+        // Check if user is the reviewer
+        if (review.reviewer.toString() !== req.user.userId) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        await Review.findByIdAndDelete(req.params.id);
+
+        // Update seller's average rating
+        await updateSellerRating(review.reviewedUser);
+
+        res.json({ message: 'Review deleted successfully' });
+    } catch (error) {
+        console.error('Delete review error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
