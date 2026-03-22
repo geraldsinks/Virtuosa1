@@ -1586,7 +1586,7 @@ const notificationSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     title: { type: String, required: true },
     message: { type: String, required: true },
-    type: { type: String, enum: ['System', 'Transaction', 'Account', 'Promotion'], default: 'System' },
+    type: { type: String, enum: ['System', 'Transaction', 'Account', 'Promotion', 'Order'], default: 'System' },
     isRead: { type: Boolean, default: false },
     link: String,
     createdAt: { type: Date, default: Date.now }
@@ -7400,7 +7400,7 @@ app.post('/api/orders/:orderId/confirm', authenticateToken, async (req, res) => 
         // Create notification for buyer
         await new Notification({
             user: order.buyer._id,
-            type: 'order_confirmed',
+            type: 'Transaction',
             title: 'Order Confirmed!',
             message: `Your order #${order._id.toString().slice(-8)} has been confirmed by the seller.`,
             relatedOrder: order._id,
@@ -7459,7 +7459,7 @@ app.post('/api/orders/:orderId/decline', authenticateToken, async (req, res) => 
         // Create notification for buyer
         await new Notification({
             user: order.buyer._id,
-            type: 'order_declined',
+            type: 'Transaction',
             title: 'Order Declined',
             message: `Your order #${order._id.toString().slice(-8)} has been declined by the seller.`,
             relatedOrder: order._id,
