@@ -7052,6 +7052,33 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
                     description: `Earned 5 tokens for confirming delivery of order #${order._id.toString().slice(-8)}`
                 }).save();
                 
+                // Release payment to seller for cash on delivery orders
+                if (order.paymentMethod === 'cash_on_delivery') {
+                    order.paymentStatus = 'Released';
+                    order.escrowReleased = true;
+                    order.escrowReleasedAt = new Date();
+                    
+                    // Award 5 tokens to seller for completed delivery
+                    await User.findByIdAndUpdate(order.seller._id, {
+                        $inc: { 
+                            tokenBalance: 5,
+                            totalTokensEarned: 5
+                        }
+                    });
+                    
+                    // Create token transaction record for seller
+                    await new TokenTransaction({
+                        user: order.seller._id,
+                        amount: 5,
+                        type: 'earned',
+                        reason: 'Order completed',
+                        orderId: order._id,
+                        description: `Earned 5 tokens for completing order #${order._id.toString().slice(-8)}`
+                    }).save();
+                    
+                    console.log('✅ Released payment to seller and awarded 5 tokens');
+                }
+                
                 console.log('✅ Awarded 5 tokens to buyer for delivery confirmation');
             } else {
                 return res.status(400).json({ message: 'Invalid status transition' });
