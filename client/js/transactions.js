@@ -231,12 +231,22 @@ function displayTransactions(transactions) {
         return;
     }
 
+    // Get user data safely
+    let userData;
+    try {
+        userData = JSON.parse(localStorage.getItem('user'));
+    } catch (error) {
+        console.error('Error parsing user data:', error);
+        userData = { id: null };
+    }
+
     transactions.forEach(transaction => {
         const transactionCard = document.createElement('div');
         transactionCard.className = 'p-6 hover:bg-gray-50 transition-colors';
         
-        const isBuyer = transaction.buyer._id === JSON.parse(localStorage.getItem('user')).id;
-        const otherParty = isBuyer ? transaction.seller : transaction.buyer;
+        // Add null checks for buyer and seller
+        const isBuyer = transaction.buyer && userData.id && transaction.buyer._id === userData.id;
+        const otherParty = isBuyer ? (transaction.seller || { fullName: 'Unknown' }) : (transaction.buyer || { fullName: 'Unknown' });
         
         transactionCard.innerHTML = `
             <div class="flex items-center justify-between">
@@ -358,7 +368,17 @@ async function viewTransactionDetails(transactionId) {
 // Display transaction details in modal
 function displayTransactionDetails(transaction) {
     const container = document.getElementById('transactionDetails');
-    const isBuyer = transaction.buyer._id === JSON.parse(localStorage.getItem('user')).id;
+    
+    // Get user data safely
+    let userData;
+    try {
+        userData = JSON.parse(localStorage.getItem('user'));
+    } catch (error) {
+        console.error('Error parsing user data:', error);
+        userData = { id: null };
+    }
+    
+    const isBuyer = transaction.buyer && userData.id && transaction.buyer._id === userData.id;
     
     container.innerHTML = `
         <div class="grid grid-cols-2 gap-6">
