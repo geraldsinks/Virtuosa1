@@ -413,6 +413,8 @@
                     if (response.ok) {
                         const data = await response.json();
                         orders = data.orders || [];
+                        // Store user role for rendering
+                        window.currentUserRole = data.userRole || 'buyer';
                         renderOrders();
                         renderPagination(data.pagination);
                     } else {
@@ -436,10 +438,10 @@
                         <div class="text-center py-12">
                             <i class="fas fa-box text-6xl text-gray-300 mb-4"></i>
                             <h3 class="text-xl font-semibold text-gray-600 mb-2">No orders found</h3>
-                            <p class="text-gray-500 mb-6">You haven't placed any orders yet.</p>
+                            <p class="text-gray-500 mb-6">${window.currentUserRole === 'seller' ? "You haven't received any orders yet." : "You haven't placed any orders yet."}</p>
                             <a href="/pages/products.html" class="inline-flex items-center bg-button-gold text-white px-6 py-3 rounded-full hover-bg-button-gold transition-colors">
                                 <i class="fas fa-shopping-bag mr-2"></i>
-                                Start Shopping
+                                ${window.currentUserRole === 'seller' ? 'View Your Products' : 'Start Shopping'}
                             </a>
                         </div>
                     `;
@@ -452,6 +454,11 @@
                     const statusIcon = getStatusIcon(order.status);
                     const orderDate = new Date(order.createdAt).toLocaleDateString();
                     const productImage = order.product?.images?.[0] || 'https://placehold.co/100x100';
+                    
+                    // Different display for sellers vs buyers
+                    const isSeller = window.currentUserRole === 'seller';
+                    const otherParty = isSeller ? order.buyer : order.seller;
+                    const otherPartyLabel = isSeller ? 'Buyer' : 'Seller';
                     
                     html += `
                         <div class="bg-white rounded-lg shadow-md p-6 mb-4 hover:shadow-lg transition-shadow">
@@ -475,8 +482,8 @@
                             
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-t pt-4">
                                 <div class="text-sm text-gray-600 mb-2 sm:mb-0">
-                                    <p><i class="fas fa-user mr-1"></i> Seller: ${order.seller?.fullName || 'Unknown'}</p>
-                                    <p><i class="fas fa-box mr-1"></i> Quantity: ${order.quantity}</p>
+                                    <p><i class="fas fa-user mr-1"></i> ${otherPartyLabel}: ${otherParty?.fullName || 'Unknown'}</p>
+                                    <p><i class="fas fa-box mr-1"></i> Quantity: ${order.quantity || 1}</p>
                                     ${order.trackingNumber ? `<p><i class="fas fa-truck mr-1"></i> Tracking: ${order.trackingNumber}</p>` : ''}
                                     <p><i class="fas fa-money-bill-wave mr-1"></i> Payment: ${order.paymentMethod === 'cash_on_delivery' ? 'Cash on Delivery' : 'Other'}</p>
                                 </div>
@@ -485,16 +492,22 @@
                                         class="px-4 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors text-sm">
                                         <i class="fas fa-eye mr-1"></i> View Details
                                     </button>
-                                    ${order.seller?._id ? `
-                                        <button onclick="messageSeller('${order.seller._id}', '${order._id}')" 
+                                    ${otherParty?._id ? `
+                                        <button onclick="message${otherPartyLabel}('${otherParty._id}', '${order._id}')" 
                                             class="px-4 py-2 bg-gold text-white rounded-lg hover:bg-gold transition-colors text-sm">
-                                            <i class="fas fa-message mr-1"></i> Message Seller
+                                            <i class="fas fa-message mr-1"></i> Message ${otherPartyLabel}
                                         </button>
                                     ` : ''}
-                                    ${order.status === 'delivered_pending_confirmation' ? `
+                                    ${!isSeller && order.status === 'delivered_pending_confirmation' ? `
                                         <button onclick="confirmDelivery('${order._id}')" 
                                             class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
                                             <i class="fas fa-check mr-1"></i> Confirm Delivery
+                                        </button>
+                                    ` : ''}
+                                    ${isSeller && order.status === 'confirmed_by_seller' ? `
+                                        <button onclick="markAsShipped('${order._id}')" 
+                                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                            <i class="fas fa-truck mr-1"></i> Mark as Shipped
                                         </button>
                                     ` : ''}
                                 </div>
@@ -579,6 +592,47 @@
             window.messageSeller = (sellerId, orderId) => {
                 // Redirect to messages page with pre-filled conversation
                 window.location.href = `messages.html?seller=${sellerId}&order=${orderId}`;
+            };
+
+            // Message buyer (for sellers)
+            window.messageBuyer = (buyerId, orderId) => {
+                // Redirect to messages page with pre-filled conversation
+                window.location.href = `messages.html?buyer=${buyerId}&order=${orderId}`;
+            };
+
+            // Mark as shipped (for sellers)
+            window.markAsShipped = async (orderId) => {
+                const token = localStorage.getItem('token');
+                
+                const confirmed = confirm('Are you sure you want to mark this order as shipped?');
+                
+                if (!confirmed) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            status: 'out_for_delivery'
+                        })
+                    });
+
+                    if (response.ok) {
+                        showToast('Order marked as shipped!', 'success');
+                        await loadOrders(currentPage, currentFilter);
+                    } else {
+                        const error = await response.json();
+                        showToast(error.message || 'Failed to update order status', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error marking as shipped:', error);
+                    showToast('Error updating order status', 'error');
+                }
             };
 
             // Confirm delivery

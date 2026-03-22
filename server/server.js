@@ -6827,19 +6827,34 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
     }
 });
 
-// Get user orders
+// Get user orders (works for both buyers and sellers)
 app.get('/api/orders', authenticateToken, async (req, res) => {
     try {
         const { page = 1, limit = 10, status } = req.query;
         
-        let query = { buyer: req.user.userId };
+        // Get user info to determine if they're a seller
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        let query;
+        if (user.isSeller) {
+            // For sellers, get orders where they are the seller
+            query = { seller: req.user.userId };
+        } else {
+            // For buyers, get orders where they are the buyer
+            query = { buyer: req.user.userId };
+        }
+        
         if (status) {
             query.status = status;
         }
 
         const orders = await Transaction.find(query)
             .populate('product', 'name images price')
-            .populate('seller', 'fullName storeName')
+            .populate('buyer', 'fullName email')
+            .populate('seller', 'fullName storeName email')
             .sort({ createdAt: -1 })
             .limit(limit * 1)
             .skip((page - 1) * limit);
@@ -6853,7 +6868,8 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
                 totalPages: Math.ceil(total / limit),
                 total,
                 limit: parseInt(limit)
-            }
+            },
+            userRole: user.isSeller ? 'seller' : 'buyer'
         });
     } catch (error) {
         console.error('Get orders error:', error);

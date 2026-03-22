@@ -220,18 +220,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     function updateUI() {
         if (!dashboardData) return;
 
-        // Update seller info
+        // Update seller info - use buyer object since server returns seller info in buyer field
         const sellerName = document.getElementById('seller-name');
         const sellerVerified = document.getElementById('seller-verified');
         const sellerPro = document.getElementById('seller-pro');
         const userGreeting = document.getElementById('user-greeting');
         const verificationCard = document.getElementById('verification-card');
 
-        if (sellerName) sellerName.textContent = dashboardData.seller.name;
-        if (userGreeting) userGreeting.textContent = `Hello, ${dashboardData.seller.name}`;
+        // Use buyer.name since server returns seller info in buyer field
+        const sellerInfo = dashboardData.buyer || dashboardData.seller || {};
+        if (sellerName) sellerName.textContent = sellerInfo.name || 'Seller';
+        if (userGreeting) userGreeting.textContent = `Hello, ${sellerInfo.name || 'Seller'}`;
 
         // Handle verification status
-        if (dashboardData.seller.isVerified) {
+        if (sellerInfo.isStudentVerified) {
             if (sellerVerified) sellerVerified.classList.remove('hidden');
             if (verificationCard) verificationCard.classList.add('hidden');
         } else {
@@ -239,26 +241,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (verificationCard) verificationCard.classList.remove('hidden');
         }
 
-        if (dashboardData.seller.isPro) {
+        if (sellerInfo.isPro) {
             if (sellerPro) sellerPro.classList.remove('hidden');
             const proFeatures = document.getElementById('pro-features');
             if (proFeatures) proFeatures.classList.remove('hidden');
         }
 
         // Update stats
-        document.getElementById('total-revenue').textContent = `ZMW ${dashboardData.stats.totalRevenue.toFixed(2)}`;
-        document.getElementById('active-listings').textContent = dashboardData.stats.activeListings;
-        document.getElementById('sold-items').textContent = dashboardData.stats.soldItems;
-        document.getElementById('seller-rating').textContent = dashboardData.seller.rating.toFixed(1);
+        const stats = dashboardData.stats || {};
+        document.getElementById('total-revenue').textContent = `ZMW ${(stats.totalRevenue || 0).toFixed(2)}`;
+        document.getElementById('active-listings').textContent = stats.activeListings || 0;
+        document.getElementById('sold-items').textContent = stats.soldItems || 0;
+        document.getElementById('seller-rating').textContent = (sellerInfo.rating || 0).toFixed(1);
         
         // Update token balance
         const tokenBalance = document.getElementById('token-balance');
         if (tokenBalance) {
-            tokenBalance.textContent = dashboardData.seller.tokenBalance || 0;
+            tokenBalance.textContent = sellerInfo.tokenBalance || 0;
         }
 
         // Update stars preview
-        updateRatingStars(dashboardData.seller.rating);
+        updateRatingStars(sellerInfo.rating || 0);
 
         // Update recent transactions
         updateRecentTransactions();
