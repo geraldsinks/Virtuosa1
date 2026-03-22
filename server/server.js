@@ -3416,6 +3416,35 @@ app.get('/api/products/:id', async (req, res) => {
     }
 });
 
+// Force refresh product data (for debugging)
+app.get('/api/products/:id/refresh', authenticateToken, async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        console.log(`🔄 Product refresh requested:`, {
+            id: product._id,
+            name: product.name,
+            listingType: product.listingType,
+            status: product.status,
+            inventory: product.inventory,
+            totalSold: product.totalSold,
+            lastSoldAt: product.lastSoldAt
+        });
+
+        res.json({
+            product,
+            timestamp: new Date().toISOString()
+        });
+
+    } catch (error) {
+        console.error('Product refresh error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // Enhanced products endpoint with search and filter
 app.get('/api/products', async (req, res) => {
     try {
@@ -6907,9 +6936,33 @@ app.post('/api/cart/add', authenticateToken, async (req, res) => {
             return res.status(400).json({ message: 'Product ID is required' });
         }
 
-        // Verify product exists and is active
+        // Verify product exists and is available
         const product = await Product.findById(productId);
-        if (!product || product.status !== 'Active') {
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        console.log(`🔍 Cart Add - Product found:`, {
+            id: product._id,
+            name: product.name,
+            listingType: product.listingType,
+            status: product.status,
+            inventory: product.inventory,
+            totalSold: product.totalSold
+        });
+
+        // Check product availability based on listing type
+        let isAvailable = false;
+        if (product.listingType === 'one_time') {
+            isAvailable = product.status === 'Active';
+            console.log(`📦 One-time listing check: status=${product.status}, available=${isAvailable}`);
+        } else if (product.listingType === 'persistent') {
+            isAvailable = product.inventory > 0 && ['Active', 'Reserved'].includes(product.status);
+            console.log(`📦 Persistent listing check: inventory=${product.inventory}, status=${product.status}, available=${isAvailable}`);
+        }
+
+        if (!isAvailable) {
+            console.log(`❌ Product not available: ${product.name}, reason: ${product.listingType === 'one_time' ? 'Status not Active' : 'No inventory or invalid status'}`);
             return res.status(404).json({ message: 'Product not available' });
         }
 
