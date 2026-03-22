@@ -1,6 +1,72 @@
-// Orders Management System
+// Orders Management System with Real-time Updates
 let currentPage = 1;
 let currentFilter = '';
+let socket = null;
+
+// Initialize socket connection for real-time updates
+function initializeSocket() {
+    try {
+        socket = io();
+        
+        // Authenticate socket
+        const token = localStorage.getItem('token');
+        if (token) {
+            socket.emit('authenticate', token);
+        }
+
+        // Listen for real-time order status updates
+        socket.on('order_status_updated', (data) => {
+            console.log('🔄 Real-time order update received:', data);
+            handleRealTimeOrderUpdate(data);
+        });
+
+        // Listen for order update errors
+        socket.on('order_update_error', (error) => {
+            console.error('❌ Order update error:', error);
+            showToast(error.message, 'error');
+        });
+
+    } catch (error) {
+        console.error('Socket connection error:', error);
+    }
+}
+
+// Handle real-time order updates
+function handleRealTimeOrderUpdate(data) {
+    // Update the order in the current view if it exists
+    const orderElements = document.querySelectorAll('[data-order-id]');
+    orderElements.forEach(element => {
+        if (element.dataset.orderId === data.orderId) {
+            // Update status display
+            const statusElement = element.querySelector('.order-status');
+            if (statusElement) {
+                const statusColor = getStatusColor(data.status);
+                const statusIcon = getStatusIcon(data.status);
+                const statusText = getStatusText(data.status);
+                
+                statusElement.className = `inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusColor}`;
+                statusElement.innerHTML = `
+                    <i class="${statusIcon} mr-1"></i>
+                    ${statusText}
+                `;
+            }
+
+            // Add animation to draw attention
+            element.classList.add('ring-2', 'ring-green-500', 'ring-opacity-50');
+            setTimeout(() => {
+                element.classList.remove('ring-2', 'ring-green-500', 'ring-opacity-50');
+            }, 2000);
+
+            // Show toast notification
+            showToast(`Order #${data.orderId.toString().slice(-8)} status updated to ${getStatusText(data.status)}`, 'success');
+        }
+    });
+
+    // Reload orders to ensure data consistency
+    setTimeout(() => {
+        loadOrders(currentPage, currentFilter);
+    }, 1000);
+}
 
 // Load orders with pagination and filtering
 async function loadOrders(page = 1, statusFilter = '') {
@@ -47,6 +113,56 @@ async function loadOrders(page = 1, statusFilter = '') {
     }
 }
 
+// Update order status in real-time
+async function updateOrderStatus(orderId, status, trackingNumber = null, deliveryNotes = null) {
+    try {
+        if (!socket) {
+            throw new Error('Socket connection not established');
+        }
+
+        // Emit order status update via socket
+        socket.emit('update_order_status', {
+            orderId,
+            status,
+            trackingNumber,
+            deliveryNotes
+        });
+
+        console.log(`📤 Sent order status update: ${orderId} -> ${status}`);
+
+    } catch (error) {
+        console.error('❌ Error updating order status:', error);
+        showToast('Failed to update order status', 'error');
+        
+        // Fallback to HTTP request
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    status,
+                    trackingNumber,
+                    deliveryNotes
+                })
+            });
+
+            if (response.ok) {
+                showToast('Order status updated successfully', 'success');
+                loadOrders(currentPage, currentFilter);
+            } else {
+                throw new Error('Failed to update order status');
+            }
+        } catch (fallbackError) {
+            console.error('❌ Fallback also failed:', fallbackError);
+            showToast('Failed to update order status', 'error');
+        }
+    }
+}
+
 // Render orders in the DOM
 function renderOrders(orders) {
     const container = document.getElementById('orders-container');
@@ -68,14 +184,14 @@ function renderOrders(orders) {
         const statusText = getStatusText(order.status);
         
         return `
-            <div class="bg-white rounded-lg shadow-md p-6 mb-4 border border-gray-200">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-4 border border-gray-200 hover:shadow-lg transition-shadow" data-order-id="${order._id}">
                 <div class="flex justify-between items-start mb-4">
                     <div>
                         <h3 class="text-lg font-semibold text-navy">Order #${order._id ? order._id.slice(-8) : 'Unknown'}</h3>
                         <p class="text-sm text-gray-500">${new Date(order.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div class="text-right">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusColor}">
+                        <span class="order-status inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusColor}">
                             <i class="${statusIcon} mr-1"></i>
                             ${statusText}
                         </span>
@@ -116,11 +232,84 @@ function renderOrders(orders) {
                         </div>
                     </div>
                 ` : ''}
+                
+                <!-- Action buttons based on order status and user role -->
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <div class="flex flex-wrap gap-2">
+                        ${getOrderActionButtons(order)}
+                    </div>
+                </div>
             </div>
         `;
     }).join('');
 
     container.innerHTML = ordersHtml;
+    
+    // Attach event listeners to action buttons
+    attachOrderActionListeners();
+}
+
+// Get appropriate action buttons based on order status and user role
+function getOrderActionButtons(order) {
+    // This would need to be implemented based on user role (buyer/seller)
+    // For now, return basic status update buttons
+    const buttons = [];
+    
+    if (order.status === 'pending_seller_confirmation') {
+        buttons.push(`
+            <button onclick="updateOrderStatus('${order._id}', 'confirmed_by_seller')" 
+                    class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                <i class="fas fa-check mr-2"></i>Confirm Order
+            </button>
+            <button onclick="updateOrderStatus('${order._id}', 'declined', null, 'Declined by seller')" 
+                    class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                <i class="fas fa-times mr-2"></i>Decline Order
+            </button>
+        `);
+    }
+    
+    if (order.status === 'confirmed_by_seller') {
+        buttons.push(`
+            <button onclick="showTrackingModal('${order._id}')" 
+                    class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
+                <i class="fas fa-truck mr-2"></i>Mark as Shipped
+            </button>
+        `);
+    }
+    
+    if (order.status === 'out_for_delivery') {
+        buttons.push(`
+            <button onclick="updateOrderStatus('${order._id}', 'delivered_pending_confirmation', null, 'Order delivered')" 
+                    class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                <i class="fas fa-box mr-2"></i>Mark as Delivered
+            </button>
+        `);
+    }
+    
+    if (order.status === 'delivered_pending_confirmation') {
+        buttons.push(`
+            <button onclick="updateOrderStatus('${order._id}', 'Completed', null, 'Delivery confirmed by buyer')" 
+                    class="px-4 py-2 bg-gold text-navy rounded-lg hover:bg-yellow-500 transition-colors font-semibold">
+                <i class="fas fa-check-double mr-2"></i>Confirm Delivery
+            </button>
+        `);
+    }
+    
+    return buttons.join('');
+}
+
+// Attach event listeners to order action buttons
+function attachOrderActionListeners() {
+    // Event listeners are attached via onclick attributes in the HTML
+    // This function can be extended for more complex event handling
+}
+
+// Show tracking modal for shipped orders
+function showTrackingModal(orderId) {
+    const trackingNumber = prompt('Enter tracking number:');
+    if (trackingNumber) {
+        updateOrderStatus(orderId, 'out_for_delivery', trackingNumber, 'Order shipped with tracking');
+    }
 }
 
 // Update pagination controls
@@ -209,6 +398,40 @@ function showError(message) {
     }
 }
 
+// Show toast notification
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+    
+    toast.className = `fixed bottom-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-y-full transition-transform duration-300`;
+    toast.innerHTML = `
+        <div class="flex items-center space-x-2">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+
+    document.body.appendChild(toast);
+
+    // Animate in
+    setTimeout(() => {
+        toast.classList.remove('translate-y-full');
+    }, 100);
+
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.add('translate-y-full');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Initialize socket when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    initializeSocket();
+});
+
 // Make functions globally available
 window.loadOrders = loadOrders;
 window.renderOrders = renderOrders;
+window.updateOrderStatus = updateOrderStatus;
+window.showTrackingModal = showTrackingModal;

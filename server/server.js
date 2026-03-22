@@ -4459,6 +4459,43 @@ app.put('/api/notifications/:id/read', authenticateToken, async (req, res) => {
     }
 });
 
+// Delete notification
+app.delete('/api/notifications/:id', authenticateToken, async (req, res) => {
+    try {
+        const notification = await Notification.findOneAndDelete({
+            _id: req.params.id,
+            user: req.user.userId
+        });
+        
+        if (!notification) {
+            return res.status(404).json({ message: 'Notification not found' });
+        }
+        
+        res.json({ message: 'Notification deleted successfully' });
+    } catch (error) {
+        console.error('Delete notification error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Delete all read notifications
+app.delete('/api/notifications/read', authenticateToken, async (req, res) => {
+    try {
+        const result = await Notification.deleteMany({
+            user: req.user.userId,
+            isRead: true
+        });
+        
+        res.json({ 
+            message: 'Read notifications deleted successfully',
+            deletedCount: result.deletedCount
+        });
+    } catch (error) {
+        console.error('Delete read notifications error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // ============================================
 // SELLER APPLICATION ENDPOINTS
 // ============================================
@@ -5611,6 +5648,155 @@ io.on('connection', (socket) => {
             }
         } catch (error) {
             console.error('Reaction error:', error);
+        }
+    });
+
+    // Handle order status updates in real-time
+    socket.on('update_order_status', async (data) => {
+        try {
+            const { orderId, status, trackingNumber, deliveryNotes } = data;
+            
+            if (!socket.userId || !orderId) return;
+
+            const order = await Transaction.findById(orderId)
+                .populate('seller', 'fullName')
+                .populate('buyer', 'fullName');
+
+            if (!order) {
+                socket.emit('order_update_error', { message: 'Order not found' });
+                return;
+            }
+
+            const user = await User.findById(socket.userId);
+            const isBuyer = order.buyer._id.toString() === socket.userId;
+            const isSeller = order.seller._id.toString() === socket.userId;
+
+            // Validate status transitions based on user role
+            if (isBuyer && status === 'Completed') {
+                if (order.status !== 'delivered_pending_confirmation') {
+                    socket.emit('order_update_error', { message: 'Invalid status transition' });
+                    return;
+                }
+                order.status = 'Completed';
+                order.deliveryConfirmedAt = new Date();
+                order.deliveryNotes = deliveryNotes;
+                
+                // Award tokens to buyer
+                await User.findByIdAndUpdate(socket.userId, {
+                    $inc: { tokenBalance: 5, totalTokensEarned: 5 }
+                });
+                
+                // Create token transaction
+                await new TokenTransaction({
+                    user: socket.userId,
+                    amount: 5,
+                    type: 'earned',
+                    reason: 'Delivery confirmation',
+                    orderId: order._id,
+                    description: `Earned 5 tokens for confirming delivery of order #${order._id.toString().slice(-8)}`
+                }).save();
+                
+                // Award tokens to seller and release payment
+                if (order.paymentMethod === 'cash_on_delivery') {
+                    await User.findByIdAndUpdate(order.seller._id, {
+                        $inc: { tokenBalance: 5, totalTokensEarned: 5 }
+                    });
+                    
+                    await new TokenTransaction({
+                        user: order.seller._id,
+                        amount: 5,
+                        type: 'earned',
+                        reason: 'Order completed',
+                        orderId: order._id,
+                        description: `Earned 5 tokens for completing order #${order._id.toString().slice(-8)}`
+                    }).save();
+                    
+                    order.paymentStatus = 'Released';
+                    order.escrowReleased = true;
+                    order.escrowReleasedAt = new Date();
+                }
+                
+            } else if (isSeller) {
+                // Handle seller status updates
+                if (status === 'confirmed_by_seller' && order.status === 'pending_seller_confirmation') {
+                    order.status = 'confirmed_by_seller';
+                    order.sellerConfirmedAt = new Date();
+                } else if (status === 'declined' && order.status === 'pending_seller_confirmation') {
+                    order.status = 'declined';
+                    order.declinedAt = new Date();
+                    order.declineReason = deliveryNotes || 'Order declined by seller';
+                } else if (status === 'out_for_delivery' && order.status === 'confirmed_by_seller') {
+                    order.status = 'out_for_delivery';
+                    order.trackingNumber = trackingNumber;
+                    order.shippedAt = new Date();
+                } else if (status === 'delivered_pending_confirmation' && order.status === 'out_for_delivery') {
+                    order.status = 'delivered_pending_confirmation';
+                    order.deliveredAt = new Date();
+                    order.deliveryNotes = deliveryNotes || 'Order delivered, awaiting buyer confirmation';
+                } else {
+                    socket.emit('order_update_error', { message: 'Invalid status transition' });
+                    return;
+                }
+            } else {
+                socket.emit('order_update_error', { message: 'Unauthorized to update this order' });
+                return;
+            }
+
+            await order.save();
+
+            // Create notification for other party
+            const notificationRecipient = isBuyer ? order.seller._id : order.buyer._id;
+            const notificationTitle = isBuyer ? 'Delivery Confirmed' : 'Order Status Updated';
+            const notificationMessage = isBuyer 
+                ? `${order.buyer.fullName} confirmed delivery of order #${order._id.toString().slice(-8)}`
+                : `Order #${order._id.toString().slice(-8)} status updated to ${status}`;
+
+            const notification = new Notification({
+                user: notificationRecipient,
+                title: notificationTitle,
+                message: notificationMessage,
+                type: 'Transaction',
+                link: '/pages/orders.html',
+                relatedOrder: order._id
+            });
+            await notification.save();
+
+            // Send real-time updates to both buyer and seller
+            const buyerRoom = `user_${order.buyer._id}`;
+            const sellerRoom = `user_${order.seller._id}`;
+
+            // Send order update event
+            const orderUpdateData = {
+                orderId: order._id,
+                status: order.status,
+                updatedBy: socket.userId,
+                timestamp: new Date(),
+                notification: {
+                    title: notificationTitle,
+                    message: notificationMessage,
+                    type: 'Transaction'
+                }
+            };
+
+            io.to(buyerRoom).emit('order_status_updated', orderUpdateData);
+            io.to(sellerRoom).emit('order_status_updated', orderUpdateData);
+
+            // Send notification event
+            io.to(`user_${notificationRecipient}`).emit('new_notification', {
+                _id: notification._id,
+                title: notification.title,
+                message: notification.message,
+                type: notification.type,
+                link: notification.link,
+                createdAt: notification.createdAt,
+                isRead: false
+            });
+
+            console.log(`✅ Order ${orderId} status updated to ${status} by ${isBuyer ? 'buyer' : 'seller'}`);
+
+        } catch (error) {
+            console.error('Order status update error:', error);
+            socket.emit('order_update_error', { message: 'Server error' });
         }
     });
 

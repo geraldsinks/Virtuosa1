@@ -15,6 +15,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize desktop search
     initializeDesktopSearch();
 
+    // Update notification badges function
+    function updateNotificationBadges(unreadCount) {
+        const badges = document.querySelectorAll('.notification-badge, #notification-badge-count, #mobile-notification-badge');
+        badges.forEach(badge => {
+            badge.textContent = unreadCount;
+            if (unreadCount > 0) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        });
+    }
+
+    // Initialize notification modal if script is available
+    function initializeNotificationModal() {
+        // Add click listeners to notification badges
+        const notificationBadges = document.querySelectorAll('.notification-badge, #notification-badge-count, #mobile-notification-badge');
+        notificationBadges.forEach(badge => {
+            badge.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Check if notification modal is available
+                if (window.notificationModal) {
+                    window.notificationModal.open();
+                } else {
+                    // Fallback to notifications page
+                    window.location.href = '/pages/notifications.html';
+                }
+            });
+        });
+    }
+
+    // Initialize notification modal after DOM is ready
+    setTimeout(initializeNotificationModal, 100);
+
     async function updateUserUI() {
         const userFullName = localStorage.getItem('userFullName');
         const userEmail = localStorage.getItem('userEmail');
@@ -149,25 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const notifications = await notificationsResponse.json();
                     const unreadCount = notifications.filter(n => !n.isRead).length;
 
-                    // Update notification badge if it exists (combined for mobile)
-                    const notificationBadge = document.getElementById('notification-badge-count');
-                    const mobileNotificationBadge = document.getElementById('mobile-notification-badge');
-                    if (notificationBadge) {
-                        notificationBadge.textContent = unreadCount;
-                        if (unreadCount > 0) {
-                            notificationBadge.classList.remove('hidden');
-                        } else {
-                            notificationBadge.classList.add('hidden');
-                        }
-                    }
-                    if (mobileNotificationBadge) {
-                        mobileNotificationBadge.textContent = unreadCount;
-                        if (unreadCount > 0) {
-                            mobileNotificationBadge.classList.remove('hidden');
-                        } else {
-                            mobileNotificationBadge.classList.add('hidden');
-                        }
-                    }
+                    // Update all notification badges
+                    updateNotificationBadges(unreadCount);
                 }
             } catch (error) {
                 console.error('Error fetching notifications:', error);

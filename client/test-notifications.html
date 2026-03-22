@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification System Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-navy mb-6">Notification System Test</h1>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test Features</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Real-time Notifications Test -->
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-semibold mb-2">Real-time Notifications</h3>
+                    <p class="text-sm text-gray-600 mb-3">Test socket.io connection and real-time updates</p>
+                    <button onclick="testSocketConnection()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                        <i class="fas fa-plug mr-2"></i>Test Socket Connection
+                    </button>
+                    <div id="socket-status" class="mt-2 text-sm"></div>
+                </div>
+
+                <!-- Notification Modal Test -->
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-semibold mb-2">Notification Modal</h3>
+                    <p class="text-sm text-gray-600 mb-3">Test responsive notification modal</p>
+                    <button onclick="testNotificationModal()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                        <i class="fas fa-bell mr-2"></i>Open Notification Modal
+                    </button>
+                </div>
+
+                <!-- Order Status Updates Test -->
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-semibold mb-2">Order Status Updates</h3>
+                    <p class="text-sm text-gray-600 mb-3">Test real-time order status changes</p>
+                    <button onclick="testOrderStatusUpdate()" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+                        <i class="fas fa-truck mr-2"></i>Simulate Order Update
+                    </button>
+                    <div id="order-status" class="mt-2 text-sm"></div>
+                </div>
+
+                <!-- Notification Deletion Test -->
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-semibold mb-2">Notification Deletion</h3>
+                    <p class="text-sm text-gray-600 mb-3">Test delete notification functionality</p>
+                    <button onclick="testNotificationDeletion()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                        <i class="fas fa-trash mr-2"></i>Test Delete Notification
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Test Results</h2>
+            <div id="test-results" class="space-y-2">
+                <div class="text-gray-500">Run tests to see results...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/notification-modal.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <script>
+        let testSocket = null;
+        let testResults = [];
+
+        function addTestResult(test, status, message) {
+            testResults.push({ test, status, message, timestamp: new Date() });
+            updateTestResults();
+        }
+
+        function updateTestResults() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = testResults.map(result => {
+                const statusColor = result.status === 'success' ? 'text-green-600' : 
+                                   result.status === 'error' ? 'text-red-600' : 'text-yellow-600';
+                const statusIcon = result.status === 'success' ? 'fa-check-circle' : 
+                                  result.status === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle';
+                
+                return `
+                    <div class="flex items-start space-x-3 p-3 border rounded-lg">
+                        <i class="fas ${statusIcon} ${statusColor} mt-1"></i>
+                        <div class="flex-1">
+                            <div class="font-medium">${result.test}</div>
+                            <div class="text-sm ${statusColor}">${result.message}</div>
+                            <div class="text-xs text-gray-500">${result.timestamp.toLocaleTimeString()}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function testSocketConnection() {
+            const statusDiv = document.getElementById('socket-status');
+            
+            try {
+                testSocket = io();
+                
+                testSocket.on('connect', () => {
+                    statusDiv.innerHTML = '<span class="text-green-600"><i class="fas fa-check-circle mr-1"></i>Connected</span>';
+                    addTestResult('Socket Connection', 'success', 'Socket.io connection established successfully');
+                    
+                    // Test authentication
+                    const token = localStorage.getItem('token');
+                    if (token) {
+                        testSocket.emit('authenticate', token);
+                        statusDiv.innerHTML += '<span class="text-blue-600 ml-2"><i class="fas fa-key mr-1"></i>Authenticated</span>';
+                    } else {
+                        statusDiv.innerHTML += '<span class="text-yellow-600 ml-2"><i class="fas fa-exclamation-triangle mr-1"></i>No token found</span>';
+                    }
+                });
+
+                testSocket.on('connect_error', (error) => {
+                    statusDiv.innerHTML = '<span class="text-red-600"><i class="fas fa-times-circle mr-1"></i>Connection Error</span>';
+                    addTestResult('Socket Connection', 'error', `Connection failed: ${error.message}`);
+                });
+
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="text-red-600"><i class="fas fa-times-circle mr-1"></i>Initialization Error</span>';
+                addTestResult('Socket Connection', 'error', `Socket initialization failed: ${error.message}`);
+            }
+        }
+
+        function testNotificationModal() {
+            try {
+                if (window.notificationModal) {
+                    window.notificationModal.open();
+                    addTestResult('Notification Modal', 'success', 'Modal opened successfully');
+                    
+                    // Auto-close after 3 seconds for testing
+                    setTimeout(() => {
+                        window.notificationModal.close();
+                        addTestResult('Notification Modal Close', 'success', 'Modal closed successfully');
+                    }, 3000);
+                } else {
+                    addTestResult('Notification Modal', 'error', 'Notification modal not available');
+                }
+            } catch (error) {
+                addTestResult('Notification Modal', 'error', `Modal test failed: ${error.message}`);
+            }
+        }
+
+        function testOrderStatusUpdate() {
+            const statusDiv = document.getElementById('order-status');
+            
+            if (!testSocket) {
+                statusDiv.innerHTML = '<span class="text-red-600">Connect socket first</span>';
+                addTestResult('Order Status Update', 'error', 'Socket not connected');
+                return;
+            }
+
+            // Simulate order status update
+            const mockOrderData = {
+                orderId: '507f1f77bcf86cd799439011',
+                status: 'out_for_delivery',
+                updatedBy: 'test-user',
+                timestamp: new Date(),
+                notification: {
+                    title: 'Order Shipped',
+                    message: 'Your order has been shipped and is on its way!',
+                    type: 'Transaction'
+                }
+            };
+
+            // Listen for the update
+            testSocket.on('order_status_updated', (data) => {
+                statusDiv.innerHTML = `<span class="text-green-600"><i class="fas fa-check-circle mr-1"></i>Updated: ${data.status}</span>`;
+                addTestResult('Order Status Update', 'success', `Order status updated to: ${data.status}`);
+            });
+
+            // Emit the update (this would normally come from server)
+            setTimeout(() => {
+                testSocket.emit('order_status_updated', mockOrderData);
+                statusDiv.innerHTML = '<span class="text-yellow-600"><i class="fas fa-spinner fa-spin mr-1"></i>Waiting for update...</span>';
+            }, 1000);
+        }
+
+        async function testNotificationDeletion() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    addTestResult('Notification Deletion', 'error', 'No authentication token found');
+                    return;
+                }
+
+                // First create a test notification
+                const createResponse = await fetch(`${API_BASE}/notifications/test`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: 'Test Notification',
+                        message: 'This is a test notification for deletion',
+                        type: 'System'
+                    })
+                });
+
+                if (createResponse.ok) {
+                    const notification = await createResponse.json();
+                    
+                    // Now delete it
+                    const deleteResponse = await fetch(`${API_BASE}/notifications/${notification._id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (deleteResponse.ok) {
+                        addTestResult('Notification Deletion', 'success', 'Test notification created and deleted successfully');
+                    } else {
+                        addTestResult('Notification Deletion', 'error', 'Failed to delete test notification');
+                    }
+                } else {
+                    addTestResult('Notification Deletion', 'error', 'Failed to create test notification');
+                }
+            } catch (error) {
+                addTestResult('Notification Deletion', 'error', `Deletion test failed: ${error.message}`);
+            }
+        }
+
+        // Initialize tests when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            addTestResult('System Initialization', 'success', 'Test page loaded successfully');
+        });
+    </script>
+</body>
+</html>
