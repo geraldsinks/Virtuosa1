@@ -3307,14 +3307,21 @@ app.delete('/api/admin/delete-all-products', authenticateToken, async (req, res)
             return res.status(403).json({ message: 'Admin access required' });
         }
 
-        // Delete all products
-        const result = await Product.deleteMany({});
+        // Delete all products and transactions
+        const productsResult = await Product.deleteMany({});
+        const transactionsResult = await Transaction.deleteMany({});
+        const cartsResult = await Cart.deleteMany({});
         
-        console.log(`🗑️ Deleted all products: ${result.deletedCount} items removed`);
+        console.log(`🗑️ Database reset completed:`);
+        console.log(`   Products deleted: ${productsResult.deletedCount}`);
+        console.log(`   Transactions deleted: ${transactionsResult.deletedCount}`);
+        console.log(`   Carts deleted: ${cartsResult.deletedCount}`);
         
         res.json({
-            message: 'All products deleted successfully',
-            deletedCount: result.deletedCount
+            message: 'Database reset successfully',
+            productsDeleted: productsResult.deletedCount,
+            transactionsDeleted: transactionsResult.deletedCount,
+            cartsDeleted: cartsResult.deletedCount
         });
 
     } catch (error) {

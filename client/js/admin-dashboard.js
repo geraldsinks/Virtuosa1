@@ -935,4 +935,70 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('userVerifiedFilter')?.addEventListener('change', () => loadUsers());
     document.getElementById('transactionStatusFilter')?.addEventListener('change', () => loadTransactions());
     document.getElementById('disputeStatusFilter')?.addEventListener('change', () => loadTransactions());
+
+    // Database reset functionality
+    const resetBtn = document.getElementById('reset-database-btn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', handleDatabaseReset);
+    }
 });
+
+// Handle database reset
+function handleDatabaseReset() {
+    // Confirm with user
+    const confirmation = prompt('⚠️ DANGER: This will permanently delete ALL products, transactions, and carts!\n\nType "DELETE ALL" to confirm:');
+    
+    if (confirmation !== 'DELETE ALL') {
+        alert('❌ Database reset cancelled. Confirmation text did not match.');
+        return;
+    }
+
+    // Double confirm
+    const doubleConfirm = confirm('🚨 FINAL WARNING: This action CANNOT be undone!\n\nAll data will be permanently lost.\n\nAre you absolutely sure?');
+    
+    if (!doubleConfirm) {
+        alert('❌ Database reset cancelled.');
+        return;
+    }
+
+    // Show loading state
+    const resetBtn = document.getElementById('reset-database-btn');
+    const originalText = resetBtn.innerHTML;
+    resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Resetting...';
+    resetBtn.disabled = true;
+
+    // Perform reset
+    const token = localStorage.getItem('token');
+    fetch(`${API_BASE}/admin/delete-all-products`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to reset database');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('✅ Database reset successful:', data);
+        
+        // Show success message
+        alert(`✅ Database reset successfully!\n\n- Products deleted: ${data.productsDeleted}\n- Transactions deleted: ${data.transactionsDeleted}\n- Carts deleted: ${data.cartsDeleted}\n\nPage will reload in 3 seconds...`);
+        
+        // Reload page after delay
+        setTimeout(() => {
+            window.location.reload();
+        }, 3000);
+    })
+    .catch(error => {
+        console.error('❌ Database reset failed:', error);
+        alert('❌ Failed to reset database. Please try again.');
+        
+        // Reset button state
+        resetBtn.innerHTML = originalText;
+        resetBtn.disabled = false;
+    });
+}
