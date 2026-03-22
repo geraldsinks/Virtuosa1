@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Order Details</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            --gold-gradient: linear-gradient(135deg, #D4AF37 0%, #F4E4C1 50%, #D4AF37 100%);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0A1128 0%, #1a2347 50%, #0A1128 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .serif-heading {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(212, 175, 55, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .gold-accent {
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-badge {
+            @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+        }
+
+        .status-pending { @apply bg-gray-100 text-gray-800; }
+        .status-confirmed { @apply bg-blue-100 text-blue-800; }
+        .status-shipped { @apply bg-purple-100 text-purple-800; }
+        .status-delivered { @apply bg-green-100 text-green-800; }
+        .status-completed { @apply bg-emerald-100 text-emerald-800; }
+        .status-declined { @apply bg-red-100 text-red-800; }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased">
+    
+    <!-- Navigation Header -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="index.html" class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gold rounded-lg flex items-center justify-center">
+                            <i class="fas fa-graduation-cap text-navy text-lg"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">Virtuosa</span>
+                    </a>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="products.html" class="text-gray-300 hover:text-gold transition-colors">Marketplace</a>
+                    <a href="seller.html" class="text-gray-300 hover:text-gold transition-colors">Become a Seller</a>
+                    <a href="about.html" class="text-gray-300 hover:text-gold transition-colors">About</a>
+                </nav>
+
+                <!-- User Actions -->
+                <div class="flex items-center space-x-4">
+                    <div id="auth-section" class="flex items-center space-x-3">
+                        <!-- Will be populated by header.js -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow py-8">
+        <div class="container mx-auto px-4">
+            <!-- Loading State -->
+            <div id="loading-state" class="text-center py-12">
+                <div class="inline-flex items-center space-x-3">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-r-2 border-gold"></div>
+                    <span class="text-gray-400">Loading order details...</span>
+                </div>
+            </div>
+
+            <!-- Error State -->
+            <div id="error-state" class="hidden">
+                <div class="text-center py-12">
+                    <i class="fas fa-exclamation-triangle text-6xl text-red-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Order Not Found</h3>
+                    <p class="text-gray-600 mb-6">The order you're looking for doesn't exist or you don't have permission to view it.</p>
+                    <a href="orders.html" class="inline-flex items-center bg-button-gold text-white px-6 py-3 rounded-full hover-bg-button-gold transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Orders
+                    </a>
+                </div>
+            </div>
+
+            <!-- Order Details -->
+            <div id="order-details" class="hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Main Order Information -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Order Header -->
+                        <div class="glass-panel p-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <h1 class="serif-heading text-2xl font-light text-white">Order Details</h1>
+                                <div id="order-status" class="status-badge">
+                                    <!-- Status will be populated here -->
+                                </div>
+                            </div>
+
+                            <!-- Product Information -->
+                            <div class="glass-card p-6 mb-6">
+                                <h2 class="text-xl font-bold text-navy mb-4 flex items-center">
+                                    <i class="fas fa-box text-gold mr-3"></i>
+                                    Product Information
+                                </h2>
+                                <div class="flex flex-col md:flex-row gap-6">
+                                    <div class="flex-shrink-0">
+                                        <img id="product-image" src="" alt="" class="w-full md:w-48 h-48 object-cover rounded-lg">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h3 id="product-name" class="text-lg font-semibold text-gray-900 mb-2"></h3>
+                                        <p id="product-description" class="text-gray-600 text-sm mb-3"></p>
+                                        <div class="grid grid-cols-2 gap-4 mb-3">
+                                            <div>
+                                                <span class="text-sm text-gray-500">Condition:</span>
+                                                <span id="product-condition" class="text-sm font-medium text-gray-900 ml-1"></span>
+                                            </div>
+                                            <div>
+                                                <span class="text-sm text-gray-500">Category:</span>
+                                                <span id="product-category" class="text-sm font-medium text-gray-900 ml-1"></span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <span class="text-2xl font-bold text-gold">ZMW <span id="product-price">0.00</span></span>
+                                                <span id="product-original-price" class="text-sm text-gray-400 line-through ml-2"></span>
+                                            </div>
+                                            <div class="text-right">
+                                                <span class="text-sm text-gray-500">Quantity:</span>
+                                                <span id="product-quantity" class="text-lg font-semibold text-gray-900 ml-1"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Delivery Information -->
+                            <div class="glass-card p-6 mb-6">
+                                <h2 class="text-xl font-bold text-navy mb-4 flex items-center">
+                                    <i class="fas fa-truck text-gold mr-3"></i>
+                                    Delivery Information
+                                </h2>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500">Delivery Method:</span>
+                                        <span id="delivery-method" class="text-sm font-medium text-gray-900"></span>
+                                    </div>
+                                    <div id="delivery-address-section" class="hidden">
+                                        <span class="text-sm text-gray-500">Delivery Address:</span>
+                                        <p id="delivery-address" class="text-sm text-gray-900 mt-1"></p>
+                                    </div>
+                                    <div id="tracking-section" class="hidden">
+                                        <span class="text-sm text-gray-500">Tracking Number:</span>
+                                        <span id="tracking-number" class="text-sm font-medium text-gray-900"></span>
+                                    </div>
+                                    <div id="delivery-instructions-section" class="hidden">
+                                        <span class="text-sm text-gray-500">Delivery Instructions:</span>
+                                        <p id="delivery-instructions" class="text-sm text-gray-900 mt-1"></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Timeline -->
+                            <div class="glass-card p-6">
+                                <h2 class="text-xl font-bold text-navy mb-4 flex items-center">
+                                    <i class="fas fa-clock text-gold mr-3"></i>
+                                    Order Timeline
+                                </h2>
+                                <div id="order-timeline" class="space-y-4">
+                                    <!-- Timeline events will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="space-y-6">
+                        <!-- Price Breakdown -->
+                        <div class="glass-panel p-6">
+                            <h2 class="serif-heading text-lg font-light text-white mb-6">Price Breakdown</h2>
+                            
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-300">Product Price</span>
+                                    <span class="text-white font-semibold">ZMW <span id="breakdown-price">0.00</span></span>
+                                </div>
+                                <div id="delivery-fee-row" class="hidden flex justify-between items-center">
+                                    <span class="text-gray-300">Delivery Fee</span>
+                                    <span class="text-white font-semibold">ZMW <span id="breakdown-delivery">0.00</span></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-300">Commission (6%)</span>
+                                    <span class="text-white font-semibold">ZMW <span id="breakdown-commission">0.00</span></span>
+                                </div>
+                                <div class="border-t border-gray-600 pt-4">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-300 font-semibold">Total Amount</span>
+                                        <span class="text-gold font-bold text-lg">ZMW <span id="breakdown-total">0.00</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="glass-panel p-6">
+                            <h2 class="serif-heading text-lg font-light text-white mb-6">Contact Information</h2>
+                            
+                            <div class="space-y-4">
+                                <div id="seller-info" class="space-y-3">
+                                    <h3 class="text-white font-semibold mb-2 flex items-center">
+                                        <i class="fas fa-store text-gold mr-2"></i>
+                                        Seller Information
+                                    </h3>
+                                    <div class="text-gray-300 text-sm space-y-1">
+                                        <p><span class="font-medium">Name:</span> <span id="seller-name"></span></p>
+                                        <p><span class="font-medium">Email:</span> <span id="seller-email"></span></p>
+                                        <p><span class="font-medium">Phone:</span> <span id="seller-phone"></span></p>
+                                    </div>
+                                </div>
+                                
+                                <div id="buyer-info" class="space-y-3">
+                                    <h3 class="text-white font-semibold mb-2 flex items-center">
+                                        <i class="fas fa-user text-gold mr-2"></i>
+                                        Buyer Information
+                                    </h3>
+                                    <div class="text-gray-300 text-sm space-y-1">
+                                        <p><span class="font-medium">Name:</span> <span id="buyer-name"></span></p>
+                                        <p><span class="font-medium">Email:</span> <span id="buyer-email"></span></p>
+                                        <p><span class="font-medium">Phone:</span> <span id="buyer-phone"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="glass-panel p-6">
+                            <h2 class="serif-heading text-lg font-light text-white mb-6">Actions</h2>
+                            
+                            <div id="action-buttons" class="space-y-3">
+                                <!-- Action buttons will be populated based on user role and order status -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-12">
+        <div class="container mx-auto text-center">
+            &copy; 2025 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Success/Error Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/header.js"></script>
+    <script src="../js/order-details.js"></script>
+</body>
+
+</html>

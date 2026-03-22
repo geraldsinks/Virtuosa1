@@ -7350,9 +7350,9 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
 app.get('/api/orders/:orderId', authenticateToken, async (req, res) => {
     try {
         const order = await Transaction.findById(req.params.orderId)
-            .populate('product', 'name images description price')
-            .populate('seller', 'fullName storeName email phoneNumber')
-            .populate('buyer', 'fullName email phoneNumber');
+            .populate('buyer', 'fullName email phoneNumber')
+            .populate('seller', 'fullName email phoneNumber')
+            .populate('product', 'name description price condition category images originalPrice');
 
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
@@ -7364,7 +7364,10 @@ app.get('/api/orders/:orderId', authenticateToken, async (req, res) => {
             return res.status(403).json({ message: 'Access denied' });
         }
 
-        res.json(order);
+        res.json({
+            order,
+            userRole: order.buyer._id.toString() === req.user.userId ? 'buyer' : 'seller'
+        });
     } catch (error) {
         console.error('Get order details error:', error);
         res.status(500).json({ message: 'Server error' });
