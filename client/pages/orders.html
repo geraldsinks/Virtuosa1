@@ -439,6 +439,7 @@
             // Update filter button states
             function updateFilterButtons(activeStatus = '') {
                 const filterButtons = document.querySelectorAll('.filter-btn');
+                
                 filterButtons.forEach(button => {
                     // Remove active styling from all buttons
                     button.classList.remove('bg-navy', 'text-white');
@@ -449,9 +450,13 @@
                     if (onclickAttr) {
                         // Extract the status parameter from onclick="loadOrders(1, 'status')"
                         const match = onclickAttr.match(/loadOrders\(1,\s*['"]([^'"]*)['"]\)/);
-                        if (match && match[1] === activeStatus) {
-                            button.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-                            button.classList.add('bg-navy', 'text-white');
+                        if (match) {
+                            const buttonStatus = match[1];
+                            // Handle empty string for "All Orders" - both should be empty
+                            if (buttonStatus === activeStatus) {
+                                button.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                                button.classList.add('bg-navy', 'text-white');
+                            }
                         }
                     }
                 });
@@ -659,7 +664,7 @@
 
                     if (response.ok) {
                         showToast('Order confirmed successfully!', 'success');
-                        await loadOrders(currentPage, currentFilter);
+                        await loadOrders(1, ''); // Load all orders after confirmation
                     } else {
                         const error = await response.json();
                         showToast(error.message || 'Failed to confirm order', 'error');
@@ -690,7 +695,7 @@
 
                     if (response.ok) {
                         showToast('Order declined successfully', 'warning');
-                        await loadOrders(currentPage, currentFilter);
+                        await loadOrders(1, ''); // Load all orders after decline
                     } else {
                         const error = await response.json();
                         showToast(error.message || 'Failed to decline order', 'error');
@@ -725,7 +730,7 @@
 
                     if (response.ok) {
                         showToast('Order marked as shipped!', 'success');
-                        await loadOrders(currentPage, currentFilter);
+                        await loadOrders(1, ''); // Load all orders after shipping
                     } else {
                         const error = await response.json();
                         showToast(error.message || 'Failed to update order status', 'error');
