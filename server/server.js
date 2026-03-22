@@ -3909,11 +3909,42 @@ app.post('/api/transactions/:id/confirm-delivery', authenticateToken, async (req
         transaction.escrowReleasedAt = new Date();
         await transaction.save();
 
-        // Update product status
+        // Update product status - only for one-time sales
         const product = await Product.findById(transaction.product._id);
-        product.status = 'Sold';
-        product.soldAt = new Date();
-        await product.save();
+        if (product) {
+            console.log(`🔄 Confirm delivery - Processing product:`, {
+                productId: product._id,
+                name: product.name,
+                listingType: product.listingType,
+                currentStatus: product.status,
+                currentInventory: product.inventory
+            });
+
+            if (product.listingType === 'one_time') {
+                // One-time sale: mark as sold
+                product.status = 'Sold';
+                product.soldAt = new Date();
+                console.log(`📦 One-time sale marked as sold: ${product.name}`);
+            } else if (product.listingType === 'persistent') {
+                // Persistent listing: ensure it stays active if inventory > 0
+                if (product.inventory > 0) {
+                    product.status = 'Active'; // Keep it active
+                    console.log(`📦 Persistent listing kept active: ${product.name}, inventory: ${product.inventory}`);
+                } else {
+                    product.status = 'Out of Stock';
+                    product.soldAt = new Date();
+                    console.log(`📦 Persistent listing out of stock: ${product.name}`);
+                }
+            }
+            
+            await product.save();
+            
+            console.log(`✅ Product status updated in confirm delivery:`, {
+                productId: product._id,
+                finalStatus: product.status,
+                finalInventory: product.inventory
+            });
+        }
 
         // Update user stats
         await User.findByIdAndUpdate(transaction.buyer._id, {
