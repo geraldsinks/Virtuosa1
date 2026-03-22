@@ -4100,10 +4100,20 @@ app.get('/api/admin/user-analytics', authenticateAdmin, async (req, res) => {
 // Get user transactions (buyer dashboard)
 app.get('/api/transactions', authenticateToken, async (req, res) => {
     try {
-        const { page = 1, limit = 5, status } = req.query;
+        const { page = 1, limit = 5, status, type } = req.query;
         const userId = req.user.userId;
 
-        let filter = { buyer: userId };
+        let filter = {};
+        
+        // Handle transaction type (buying vs selling)
+        if (type === 'buying') {
+            filter.buyer = userId;
+        } else if (type === 'selling') {
+            filter.seller = userId;
+        } else {
+            // Default to buyer transactions for backward compatibility
+            filter.buyer = userId;
+        }
 
         if (status) filter.status = status;
 
