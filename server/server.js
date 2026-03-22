@@ -3298,7 +3298,32 @@ app.post('/api/products/draft', authenticateToken, async (req, res) => {
     }
 });
 
-// Get User's Draft
+// Emergency: Delete all products (for database reset)
+app.delete('/api/admin/delete-all-products', authenticateToken, async (req, res) => {
+    try {
+        // Check if user is admin
+        const user = await User.findById(req.user.userId);
+        if (!user || (user.role !== 'admin' && user.isAdmin !== true && user.isAdmin !== 'true')) {
+            return res.status(403).json({ message: 'Admin access required' });
+        }
+
+        // Delete all products
+        const result = await Product.deleteMany({});
+        
+        console.log(`🗑️ Deleted all products: ${result.deletedCount} items removed`);
+        
+        res.json({
+            message: 'All products deleted successfully',
+            deletedCount: result.deletedCount
+        });
+
+    } catch (error) {
+        console.error('Delete all products error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Get user's Draft
 app.get('/api/products/draft', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
