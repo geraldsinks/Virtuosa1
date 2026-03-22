@@ -199,7 +199,16 @@ async function clearInvalidCart() {
             const cart = JSON.parse(localCart);
             const hasInvalidIds = cart.some(item => {
                 const productId = item._id || item.product?._id;
-                return productId && productId !== '69befd810c461589aa247531' && productId !== '69ba985ebbccc88ebfa1b4fd';
+                
+                // Check if product ID is valid (24-character hex string for ObjectId)
+                if (!productId) return true; // Missing ID is invalid
+                
+                // Valid ObjectId format: 24-character hex string
+                if (typeof productId === 'string' && productId.length === 24 && /^[0-9a-fA-F]{24}$/.test(productId)) {
+                    return false; // Valid ID
+                }
+                
+                return true; // Invalid ID format
             });
             
             if (hasInvalidIds) {
