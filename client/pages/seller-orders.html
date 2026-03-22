@@ -455,35 +455,39 @@
             // Get action buttons based on order status
             function getActionButtons(order) {
                 switch (order.status) {
-                    case 'Pending':
+                    case 'pending_seller_confirmation':
                         return `
-                            <button onclick="updateOrderStatus('${order._id}', 'Processing')" 
+                            <button onclick="confirmOrder('${order._id}')" 
                                 class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
-                                <i class="fas fa-check mr-1"></i> Accept Order
+                                <i class="fas fa-check mr-1"></i> Confirm Order
                             </button>
-                            <button onclick="updateOrderStatus('${order._id}', 'Cancelled')" 
+                            <button onclick="declineOrder('${order._id}')" 
                                 class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm">
-                                <i class="fas fa-times mr-1"></i> Cancel
+                                <i class="fas fa-times mr-1"></i> Decline Order
                             </button>
                         `;
-                    case 'Processing':
+                    case 'confirmed_by_seller':
                         return `
-                            <button onclick="showShippingForm('${order._id}')" 
+                            <button onclick="markAsShipped('${order._id}')" 
                                 class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
                                 <i class="fas fa-truck mr-1"></i> Mark as Shipped
                             </button>
                         `;
-                    case 'Shipped':
+                    case 'out_for_delivery':
                         return `
-                            <span class="text-sm text-gray-600">Waiting for delivery confirmation</span>
+                            <span class="text-sm text-blue-600 font-medium">Order out for delivery</span>
                         `;
-                    case 'Delivered':
+                    case 'delivered_pending_confirmation':
+                        return `
+                            <span class="text-sm text-orange-600 font-medium">Waiting for buyer confirmation</span>
+                        `;
+                    case 'completed':
                         return `
                             <span class="text-sm text-green-600 font-medium">Order completed</span>
                         `;
-                    case 'Cancelled':
+                    case 'declined':
                         return `
-                            <span class="text-sm text-red-600 font-medium">Order cancelled</span>
+                            <span class="text-sm text-red-600 font-medium">Order declined</span>
                         `;
                     default:
                         return '';
@@ -583,25 +587,128 @@
             // Helper functions
             function getStatusColor(status) {
                 switch (status) {
-                    case 'Pending': return 'status-pending';
-                    case 'Processing': return 'status-processing';
-                    case 'Shipped': return 'status-shipped';
-                    case 'Delivered': return 'status-delivered';
-                    case 'Cancelled': return 'status-cancelled';
+                    case 'pending_seller_confirmation': return 'bg-yellow-100 text-yellow-800';
+                    case 'confirmed_by_seller': return 'bg-blue-100 text-blue-800';
+                    case 'out_for_delivery': return 'bg-purple-100 text-purple-800';
+                    case 'delivered_pending_confirmation': return 'bg-orange-100 text-orange-800';
+                    case 'completed': return 'bg-green-100 text-green-800';
+                    case 'declined': return 'bg-red-100 text-red-800';
                     default: return 'bg-gray-100 text-gray-800';
                 }
             }
 
             function getStatusIcon(status) {
                 switch (status) {
-                    case 'Pending': return 'fas fa-clock';
-                    case 'Processing': return 'fas fa-cog';
-                    case 'Shipped': return 'fas fa-truck';
-                    case 'Delivered': return 'fas fa-check-circle';
-                    case 'Cancelled': return 'fas fa-times-circle';
+                    case 'pending_seller_confirmation': return 'fas fa-clock';
+                    case 'confirmed_by_seller': return 'fas fa-check-circle';
+                    case 'out_for_delivery': return 'fas fa-truck';
+                    case 'delivered_pending_confirmation': return 'fas fa-box';
+                    case 'completed': return 'fas fa-check-double';
+                    case 'declined': return 'fas fa-times-circle';
                     default: return 'fas fa-question-circle';
                 }
             }
+
+            // Fix server URL
+            function fixServerUrl(url) {
+                if (!url) return 'https://placehold.co/100x100';
+                if (url.startsWith('http')) return url;
+                if (url.startsWith('/')) return `${API_BASE}${url}`;
+                return `${API_BASE}/${url}`;
+            }
+
+            // Confirm order
+            window.confirmOrder = async (orderId) => {
+                if (!confirm('Are you sure you want to confirm this order?')) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/confirm`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        alert('Order confirmed successfully!');
+                        await loadOrders();
+                    } else {
+                        const error = await response.json();
+                        alert(error.message || 'Failed to confirm order');
+                    }
+                } catch (error) {
+                    console.error('Error confirming order:', error);
+                    alert('Error confirming order');
+                }
+            };
+
+            // Decline order
+            window.declineOrder = async (orderId) => {
+                const reason = prompt('Please provide a reason for declining this order:');
+                if (reason === null) return; // User cancelled
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/decline`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ reason: reason || 'Order declined' })
+                    });
+
+                    if (response.ok) {
+                        alert('Order declined successfully');
+                        await loadOrders();
+                    } else {
+                        const error = await response.json();
+                        alert(error.message || 'Failed to decline order');
+                    }
+                } catch (error) {
+                    console.error('Error declining order:', error);
+                    alert('Error declining order');
+                }
+            };
+
+            // Mark as shipped
+            window.markAsShipped = async (orderId) => {
+                if (!confirm('Are you sure you want to mark this order as shipped?')) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            status: 'out_for_delivery'
+                        })
+                    });
+
+                    if (response.ok) {
+                        alert('Order marked as shipped!');
+                        await loadOrders();
+                    } else {
+                        const error = await response.json();
+                        alert(error.message || 'Failed to update order status');
+                    }
+                } catch (error) {
+                    console.error('Error marking as shipped:', error);
+                    alert('Error updating order status');
+                }
+            };
+
+            // View order details
+            window.viewOrderDetails = (orderId) => {
+                window.location.href = `order-details.html?id=${orderId}`;
+            };
+
+            // Message buyer
+            window.messageBuyer = (buyerId, productName) => {
+                window.location.href = `messages.html?buyer=${buyerId}&product=${productName}`;
+            };
 
             // Toast notification
             function showToast(message, type = 'success') {

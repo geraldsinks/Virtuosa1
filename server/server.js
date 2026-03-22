@@ -1484,7 +1484,7 @@ const transactionSchema = new mongoose.Schema({
     paymentStatus: { type: String, enum: ['Pending', 'Paid', 'Released', 'Refunded'], default: 'Pending' },
 
     // Transaction status
-    status: { type: String, enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Completed', 'Cancelled', 'Disputed', 'pending_seller_confirmation'], default: 'Pending' },
+    status: { type: String, enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Completed', 'Cancelled', 'Disputed', 'pending_seller_confirmation', 'confirmed_by_seller', 'out_for_delivery', 'delivered_pending_confirmation', 'declined'], default: 'Pending' },
 
     // Cash on delivery flag
     isCashOnDelivery: { type: Boolean, default: false },
@@ -6902,7 +6902,114 @@ app.get('/api/orders/:orderId', authenticateToken, async (req, res) => {
     }
 });
 
-// Update order status (for delivery confirmation)
+// Seller confirms order
+app.post('/api/orders/:orderId/confirm', authenticateToken, async (req, res) => {
+    try {
+        const order = await Transaction.findById(req.params.orderId)
+            .populate('buyer', 'fullName email')
+            .populate('seller', 'fullName email');
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Check if user is the seller
+        if (order.seller._id.toString() !== req.user.userId) {
+            return res.status(403).json({ message: 'Only seller can confirm order' });
+        }
+
+        // Check if order is in pending status
+        if (order.status !== 'pending_seller_confirmation') {
+            return res.status(400).json({ message: 'Order cannot be confirmed' });
+        }
+
+        // Update order status
+        order.status = 'confirmed_by_seller';
+        order.sellerConfirmedAt = new Date();
+        await order.save();
+
+        // Create notification for buyer
+        await new Notification({
+            user: order.buyer._id,
+            type: 'order_confirmed',
+            title: 'Order Confirmed!',
+            message: `Your order #${order._id.toString().slice(-8)} has been confirmed by the seller.`,
+            relatedOrder: order._id,
+            isRead: false
+        }).save();
+
+        console.log('✅ Order confirmed by seller:', order._id);
+
+        res.json({
+            message: 'Order confirmed successfully',
+            order: order
+        });
+    } catch (error) {
+        console.error('Confirm order error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Seller declines order
+app.post('/api/orders/:orderId/decline', authenticateToken, async (req, res) => {
+    try {
+        const { reason } = req.body;
+        
+        const order = await Transaction.findById(req.params.orderId)
+            .populate('buyer', 'fullName email')
+            .populate('seller', 'fullName email')
+            .populate('product', 'name price');
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Check if user is the seller
+        if (order.seller._id.toString() !== req.user.userId) {
+            return res.status(403).json({ message: 'Only seller can decline order' });
+        }
+
+        // Check if order is in pending status
+        if (order.status !== 'pending_seller_confirmation') {
+            return res.status(400).json({ message: 'Order cannot be declined' });
+        }
+
+        // Update order status
+        order.status = 'declined';
+        order.declinedAt = new Date();
+        order.declineReason = reason || 'Order declined by seller';
+        await order.save();
+
+        // Refund any escrow if applicable
+        if (order.isCashOnDelivery === false && order.paymentStatus === 'Paid') {
+            // For non-cash orders, refund the payment
+            order.paymentStatus = 'Refunded';
+            await order.save();
+        }
+
+        // Create notification for buyer
+        await new Notification({
+            user: order.buyer._id,
+            type: 'order_declined',
+            title: 'Order Declined',
+            message: `Your order #${order._id.toString().slice(-8)} has been declined by the seller.`,
+            relatedOrder: order._id,
+            isRead: false
+        }).save();
+
+        console.log('❌ Order declined by seller:', order._id, 'Reason:', reason);
+
+        res.json({
+            message: 'Order declined successfully',
+            order: order
+        });
+    } catch (error) {
+        console.error('Decline order error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Update order status (for delivery confirmation and seller actions)
 app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
     try {
         const { status, trackingNumber, deliveryNotes } = req.body;
@@ -6919,35 +7026,54 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
         const isBuyer = order.buyer._id.toString() === req.user.userId;
         const isSeller = order.seller._id.toString() === req.user.userId;
 
-        // Validate status transitions based on user role
-        if (isBuyer && status === 'Delivered') {
-            // Buyer can confirm delivery
-            order.status = 'Delivered';
-            order.deliveryConfirmedAt = new Date();
-            order.deliveryNotes = deliveryNotes;
-            
-            // Award 5 tokens to buyer for confirming delivery
-            await User.findByIdAndUpdate(req.user.userId, {
-                $inc: { 
-                    tokenBalance: 5,
-                    totalTokensEarned: 5
-                }
-            });
-            
-            // Create token transaction record
-            await new TokenTransaction({
-                user: req.user.userId,
-                amount: 5,
-                type: 'earned',
-                reason: 'Delivery confirmation',
-                orderId: order._id,
-                description: `Earned 5 tokens for confirming delivery of order #${order._id.toString().slice(-8)}`
-            }).save();
-            
-            console.log('✅ Awarded 5 tokens to buyer for delivery confirmation');
+        // Validate status transitions based on user role and cash on delivery flow
+        if (isBuyer && status === 'delivered_pending_confirmation') {
+            // Buyer confirms delivery - move to completed
+            if (order.status === 'out_for_delivery') {
+                order.status = 'completed';
+                order.deliveryConfirmedAt = new Date();
+                order.deliveryNotes = deliveryNotes;
+                
+                // Award 5 tokens to buyer for confirming delivery
+                await User.findByIdAndUpdate(req.user.userId, {
+                    $inc: { 
+                        tokenBalance: 5,
+                        totalTokensEarned: 5
+                    }
+                });
+                
+                // Create token transaction record
+                await new TokenTransaction({
+                    user: req.user.userId,
+                    amount: 5,
+                    type: 'earned',
+                    reason: 'Delivery confirmation',
+                    orderId: order._id,
+                    description: `Earned 5 tokens for confirming delivery of order #${order._id.toString().slice(-8)}`
+                }).save();
+                
+                console.log('✅ Awarded 5 tokens to buyer for delivery confirmation');
+            } else {
+                return res.status(400).json({ message: 'Invalid status transition' });
+            }
         } else if (isSeller) {
-            // Seller can update shipping status
-            if (status === 'Shipped') {
+            // Seller actions for cash on delivery orders
+            if (status === 'confirmed_by_seller' && order.status === 'pending_seller_confirmation') {
+                // Seller confirms the order
+                order.status = 'confirmed_by_seller';
+                order.sellerConfirmedAt = new Date();
+            } else if (status === 'declined' && order.status === 'pending_seller_confirmation') {
+                // Seller declines the order
+                order.status = 'declined';
+                order.declinedAt = new Date();
+                order.declineReason = deliveryNotes || 'Order declined by seller';
+            } else if (status === 'out_for_delivery' && order.status === 'confirmed_by_seller') {
+                // Seller marks order as out for delivery
+                order.status = 'out_for_delivery';
+                order.trackingNumber = trackingNumber;
+                order.shippedAt = new Date();
+            } else if (status === 'Shipped') {
+                // Legacy shipping status
                 order.status = 'Shipped';
                 order.trackingNumber = trackingNumber;
                 order.shippedAt = new Date();

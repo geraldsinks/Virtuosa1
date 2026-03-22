@@ -281,14 +281,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const storeSlugInput = document.getElementById('store-slug-input');
         const shopLinkContainer = document.getElementById('shop-link-container');
         const publicShopLink = document.getElementById('public-shop-link');
-
-        if (storeNameInput && dashboardData.seller.storeName) storeNameInput.value = dashboardData.seller.storeName;
-        if (storeDescInput && dashboardData.seller.storeDescription) storeDescInput.value = dashboardData.seller.storeDescription;
-        if (storeSlugInput && dashboardData.seller.storeSlug) {
-            storeSlugInput.value = dashboardData.seller.storeSlug;
+        
+        if (storeNameInput && sellerInfo.storeName) storeNameInput.value = sellerInfo.storeName;
+        if (storeDescInput && sellerInfo.storeDescription) storeDescInput.value = sellerInfo.storeDescription;
+        if (storeSlugInput && sellerInfo.storeSlug) {
+            storeSlugInput.value = sellerInfo.storeSlug;
             if (shopLinkContainer) shopLinkContainer.classList.remove('hidden');
             if (publicShopLink) {
-                const fullLink = `${window.location.origin}/pages/seller-shop.html?shop=${dashboardData.seller.storeSlug}`;
+                const fullLink = `${window.location.origin}/pages/seller-shop.html?shop=${sellerInfo.storeSlug}`;
                 publicShopLink.href = fullLink;
                 publicShopLink.textContent = fullLink;
             }

@@ -504,6 +504,16 @@
                                             <i class="fas fa-check mr-1"></i> Confirm Delivery
                                         </button>
                                     ` : ''}
+                                    ${isSeller && order.status === 'pending_seller_confirmation' ? `
+                                        <button onclick="confirmOrder('${order._id}')" 
+                                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+                                            <i class="fas fa-check mr-1"></i> Confirm Order
+                                        </button>
+                                        <button onclick="declineOrder('${order._id}')" 
+                                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm">
+                                            <i class="fas fa-times mr-1"></i> Decline Order
+                                        </button>
+                                    ` : ''}
                                     ${isSeller && order.status === 'confirmed_by_seller' ? `
                                         <button onclick="markAsShipped('${order._id}')" 
                                             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
@@ -598,6 +608,69 @@
             window.messageBuyer = (buyerId, orderId) => {
                 // Redirect to messages page with pre-filled conversation
                 window.location.href = `messages.html?buyer=${buyerId}&order=${orderId}`;
+            };
+
+            // Confirm order (for sellers)
+            window.confirmOrder = async (orderId) => {
+                const token = localStorage.getItem('token');
+                
+                const confirmed = confirm('Are you sure you want to confirm this order? This will notify the buyer that you\'re preparing their items.');
+                
+                if (!confirmed) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/confirm`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        showToast('Order confirmed successfully!', 'success');
+                        await loadOrders(currentPage, currentFilter);
+                    } else {
+                        const error = await response.json();
+                        showToast(error.message || 'Failed to confirm order', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error confirming order:', error);
+                    showToast('Error confirming order', 'error');
+                }
+            };
+
+            // Decline order (for sellers)
+            window.declineOrder = async (orderId) => {
+                const token = localStorage.getItem('token');
+                
+                const reason = prompt('Please provide a reason for declining this order (optional):');
+                
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/decline`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            reason: reason || 'Order declined by seller'
+                        })
+                    });
+
+                    if (response.ok) {
+                        showToast('Order declined successfully', 'warning');
+                        await loadOrders(currentPage, currentFilter);
+                    } else {
+                        const error = await response.json();
+                        showToast(error.message || 'Failed to decline order', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error declining order:', error);
+                    showToast('Error declining order', 'error');
+                }
             };
 
             // Mark as shipped (for sellers)
