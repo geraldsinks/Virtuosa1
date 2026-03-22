@@ -3435,7 +3435,16 @@ app.get('/api/products', async (req, res) => {
         } = req.query;
 
         // Build filter
-        const filter = { status: 'Active' };
+        const filter = { 
+            $or: [
+                { status: 'Active' },
+                { 
+                    listingType: 'persistent', 
+                    inventory: { $gt: 0 },
+                    status: { $in: ['Active', 'Reserved'] }
+                }
+            ]
+        };
 
         if (category) filter.category = category;
         if (subcategory) filter.subcategory = subcategory;
@@ -3675,8 +3684,9 @@ app.post('/api/transactions/:id/pay', authenticateToken, async (req, res) => {
         transaction.confirmedAt = new Date();
         await transaction.save();
 
-        // Handle one-time sales - mark product as sold
+        // Handle product status updates based on listing type
         if (transaction.product && transaction.product.listingType === 'one_time') {
+            // One-time sale: mark product as sold
             const product = await Product.findById(transaction.product._id);
             if (product) {
                 product.status = 'Sold';
@@ -3693,6 +3703,20 @@ app.post('/api/transactions/:id/pay', authenticateToken, async (req, res) => {
                 product.totalSold += 1;
                 product.lastSoldAt = new Date();
                 await product.save();
+            }
+        } else if (transaction.product && transaction.product.listingType === 'persistent') {
+            // Persistent listing: ensure product remains Active if still has inventory
+            const product = await Product.findById(transaction.product._id);
+            if (product) {
+                // Product status should already be correct from transaction creation
+                // Just ensure it's set properly based on current inventory
+                if (product.inventory > 0) {
+                    product.status = 'Active'; // Ensure it stays active
+                } else {
+                    product.status = 'Out of Stock'; // Should already be set, but ensure it
+                }
+                await product.save();
+                console.log(`📦 Persistent listing updated: ${product.name}, inventory: ${product.inventory}, status: ${product.status}`);
             }
         }
 

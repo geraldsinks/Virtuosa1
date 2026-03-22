@@ -8,11 +8,24 @@ function initializeSocket() {
     try {
         socket = io();
         
-        // Authenticate socket
-        const token = localStorage.getItem('token');
-        if (token) {
-            socket.emit('authenticate', token);
-        }
+        // Listen for connection events
+        socket.on('connect', () => {
+            console.log('🔌 Socket connected successfully');
+            
+            // Authenticate socket
+            const token = localStorage.getItem('token');
+            if (token) {
+                socket.emit('authenticate', token);
+            }
+        });
+
+        socket.on('disconnect', () => {
+            console.log('🔌 Socket disconnected');
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('🔌 Socket connection error:', error);
+        });
 
         // Listen for real-time order status updates
         socket.on('order_status_updated', (data) => {
@@ -27,7 +40,8 @@ function initializeSocket() {
         });
 
     } catch (error) {
-        console.error('Socket connection error:', error);
+        console.error('Socket initialization error:', error);
+        socket = null;
     }
 }
 
@@ -116,50 +130,57 @@ async function loadOrders(page = 1, statusFilter = '') {
 // Update order status in real-time
 async function updateOrderStatus(orderId, status, trackingNumber = null, deliveryNotes = null) {
     try {
-        if (!socket) {
-            throw new Error('Socket connection not established');
+        // Try Socket.IO first if available, otherwise use HTTP
+        if (socket && socket.connected) {
+            // Emit order status update via socket
+            socket.emit('update_order_status', {
+                orderId,
+                status,
+                trackingNumber,
+                deliveryNotes
+            });
+
+            console.log(`📤 Sent order status update: ${orderId} -> ${status}`);
+        } else {
+            // Fallback to HTTP request directly
+            console.log('🔌 Socket not connected, using HTTP fallback');
+            await updateOrderStatusHTTP(orderId, status, trackingNumber, deliveryNotes);
         }
-
-        // Emit order status update via socket
-        socket.emit('update_order_status', {
-            orderId,
-            status,
-            trackingNumber,
-            deliveryNotes
-        });
-
-        console.log(`📤 Sent order status update: ${orderId} -> ${status}`);
 
     } catch (error) {
         console.error('❌ Error updating order status:', error);
-        showToast('Failed to update order status', 'error');
-        
         // Fallback to HTTP request
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    status,
-                    trackingNumber,
-                    deliveryNotes
-                })
-            });
+        await updateOrderStatusHTTP(orderId, status, trackingNumber, deliveryNotes);
+    }
+}
 
-            if (response.ok) {
-                showToast('Order status updated successfully', 'success');
-                loadOrders(currentPage, currentFilter);
-            } else {
-                throw new Error('Failed to update order status');
-            }
-        } catch (fallbackError) {
-            console.error('❌ Fallback also failed:', fallbackError);
-            showToast('Failed to update order status', 'error');
+// HTTP fallback for order status updates
+async function updateOrderStatusHTTP(orderId, status, trackingNumber = null, deliveryNotes = null) {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                status,
+                trackingNumber,
+                deliveryNotes
+            })
+        });
+
+        if (response.ok) {
+            showToast('Order status updated successfully', 'success');
+            loadOrders(currentPage, currentFilter);
+        } else {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to update order status');
         }
+    } catch (fallbackError) {
+        console.error('❌ HTTP fallback failed:', fallbackError);
+        showToast(fallbackError.message || 'Failed to update order status', 'error');
     }
 }
 
