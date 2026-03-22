@@ -3630,11 +3630,22 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
         });
 
         // Update product status and inventory based on listing type
+        console.log(`🔄 Processing product update:`, {
+            productId: product._id,
+            name: product.name,
+            listingType: product.listingType,
+            currentInventory: product.inventory,
+            currentTotalSold: product.totalSold,
+            currentStatus: product.status
+        });
+
         if (product.listingType === 'one_time') {
             // One-time sale: mark as reserved, will be marked as sold when payment is confirmed
             product.status = 'Reserved';
+            console.log(`📦 One-time sale: Status set to Reserved`);
         } else if (product.listingType === 'persistent') {
             // Persistent listing: decrement inventory
+            const oldInventory = product.inventory;
             product.inventory -= 1;
             
             // Add to sales history
@@ -3648,21 +3659,38 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
             // Update total sold count
             product.totalSold += 1;
             
+            console.log(`📦 Persistent listing updated:`, {
+                oldInventory,
+                newInventory: product.inventory,
+                totalSold: product.totalSold,
+                salesHistoryCount: product.salesHistory.length
+            });
+            
             // Check if out of stock
             if (product.inventory <= 0) {
                 product.status = 'Out of Stock';
                 product.soldAt = new Date();
+                console.log(`📦 Product out of stock, status set to Out of Stock`);
             } else {
                 // Check for low stock alert
                 if (product.inventoryTracking && product.inventory <= product.lowStockThreshold) {
-                    console.log(`📊 Low stock alert for product ${product._id}: ${product.inventory} remaining`);
-                    // TODO: Send low stock notification to seller
+                    console.log(`📦 Low stock alert triggered: ${product.inventory} <= ${product.lowStockThreshold}`);
+                } else {
+                    product.status = 'Active'; // Ensure it stays active
+                    console.log(`📦 Product remains Active with inventory: ${product.inventory}`);
                 }
             }
         }
         
         product.lastSoldAt = new Date();
         await product.save();
+
+        console.log(`✅ Product saved:`, {
+            productId: product._id,
+            finalInventory: product.inventory,
+            finalTotalSold: product.totalSold,
+            finalStatus: product.status
+        });
 
         res.status(201).json({
             transaction,
