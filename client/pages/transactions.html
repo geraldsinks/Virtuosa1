@@ -519,6 +519,33 @@
     <script src="../js/mobile-header.js"></script>
     <script src="../js/cart.js"></script>
     <script src="../js/transactions.js"></script>
+    
+    <script>
+        // Tab switching function
+        function showTab(tabName) {
+            // Update current transaction type
+            currentTransactionType = tabName;
+            
+            // Update tab button styles
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'text-blue-600', 'font-medium');
+                btn.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700');
+            });
+            
+            // Activate selected tab
+            const activeTab = document.querySelector(`button[onclick="showTab('${tabName}')"]`);
+            if (activeTab) {
+                activeTab.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700');
+                activeTab.classList.add('border-blue-500', 'text-blue-600', 'font-medium');
+            }
+            
+            // Reload transactions with new filter
+            loadTransactions(1);
+        }
+        
+        // Make loadTransactions globally available
+        window.loadTransactions = loadTransactions;
+    </script>
 </body>
 
 </html>

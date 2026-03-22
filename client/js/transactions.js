@@ -1,8 +1,14 @@
 // Transaction Management JavaScript
 // API_BASE is provided by config.js
+// Toast styles are shared from cart.js
 
-// Toast Notification System (shared with cart.js)
-const toastStyles = `
+// Toast notification functions (shared with cart.js)
+
+// Inject toast styles once
+if (!document.getElementById('toast-notification-styles')) {
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'toast-notification-styles';
+    styleSheet.textContent = `
 #toast-container {
     position: fixed;
     top: 1rem;
@@ -24,6 +30,7 @@ const toastStyles = `
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.75rem;
     transform: translateX(100%);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -80,30 +87,28 @@ const toastStyles = `
     transform: translateX(0) scale(1);
 }
 
-.toast-leave {
+.toast-exit {
     opacity: 0;
-    transform: translateX(100%) scale(0.9);
+    transform: translateX(100%) scale(0.8);
 }
 
-/* Type-specific colors */
+/* Toast variants */
 .toast.success {
-    border-left: 4px solid #10b981;
+    border-left: 4px solid #22c55e;
 }
 
 .toast.error {
     border-left: 4px solid #ef4444;
 }
 
+.toast.warning {
+    border-left: 4px solid #f59e0b;
+}
+
 .toast.info {
     border-left: 4px solid #3b82f6;
 }
 `;
-
-// Inject toast styles once
-if (!document.getElementById('toast-notification-styles')) {
-    const styleSheet = document.createElement('style');
-    styleSheet.id = 'toast-notification-styles';
-    styleSheet.textContent = toastStyles;
     document.head.appendChild(styleSheet);
 }
 

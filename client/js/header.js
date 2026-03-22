@@ -111,9 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         // Find the logout button to insert before
                         const logoutBtn = userDropdown.querySelector('button[onclick*="logout"]');
-                        if (logoutBtn && userDropdown.contains(logoutBtn)) {
+                        if (logoutBtn) {
                             try {
-                                userDropdown.insertBefore(messagesLink, logoutBtn);
+                                // Check if logoutBtn is actually a child of userDropdown
+                                if (userDropdown.contains(logoutBtn)) {
+                                    userDropdown.insertBefore(messagesLink, logoutBtn);
+                                } else {
+                                    userDropdown.appendChild(messagesLink);
+                                }
                             } catch (error) {
                                 console.warn('insertBefore failed, using appendChild fallback:', error);
                                 userDropdown.appendChild(messagesLink);
