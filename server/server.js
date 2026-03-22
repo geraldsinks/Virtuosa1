@@ -7072,6 +7072,11 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
                 order.status = 'out_for_delivery';
                 order.trackingNumber = trackingNumber;
                 order.shippedAt = new Date();
+            } else if (status === 'delivered_pending_confirmation' && order.status === 'out_for_delivery') {
+                // Seller marks order as delivered (waiting for buyer confirmation)
+                order.status = 'delivered_pending_confirmation';
+                order.deliveredAt = new Date();
+                order.deliveryNotes = deliveryNotes || 'Order delivered, awaiting buyer confirmation';
             } else if (status === 'Shipped') {
                 // Legacy shipping status
                 order.status = 'Shipped';
