@@ -388,11 +388,16 @@
             
             let orders = [];
             let currentPage = 1;
+            let currentFilter = ''; // Track current filter
             const ordersPerPage = 10;
 
             // Load orders from backend
             async function loadOrders(page = 1, status = '') {
                 const token = localStorage.getItem('token');
+                
+                // Update current state
+                currentPage = page;
+                currentFilter = status;
                 
                 if (!token) {
                     window.location.href = '/pages/login.html';
@@ -417,6 +422,8 @@
                         window.currentUserRole = data.userRole || 'buyer';
                         renderOrders();
                         renderPagination(data.pagination);
+                        // Update filter button states
+                        updateFilterButtons(status);
                     } else {
                         console.error('Failed to load orders:', await response.json());
                         orders = [];
@@ -427,6 +434,27 @@
                     orders = [];
                     renderOrders();
                 }
+            }
+
+            // Update filter button states
+            function updateFilterButtons(activeStatus = '') {
+                const filterButtons = document.querySelectorAll('.filter-btn');
+                filterButtons.forEach(button => {
+                    // Remove active styling from all buttons
+                    button.classList.remove('bg-navy', 'text-white');
+                    button.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                    
+                    // Add active styling to the current filter button
+                    const onclickAttr = button.getAttribute('onclick');
+                    if (onclickAttr) {
+                        // Extract the status parameter from onclick="loadOrders(1, 'status')"
+                        const match = onclickAttr.match(/loadOrders\(1,\s*['"]([^'"]*)['"]\)/);
+                        if (match && match[1] === activeStatus) {
+                            button.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                            button.classList.add('bg-navy', 'text-white');
+                        }
+                    }
+                });
             }
 
             // Render orders
@@ -568,7 +596,7 @@
                 
                 // Previous button
                 if (pagination.currentPage > 1) {
-                    html += `<button onclick="loadOrders(${pagination.currentPage - 1})" class="px-3 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors">
+                    html += `<button onclick="loadOrders(${pagination.currentPage - 1}, '${currentFilter}')" class="px-3 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors">
                         <i class="fas fa-chevron-left"></i>
                     </button>`;
                 }
@@ -576,14 +604,14 @@
                 // Page numbers
                 for (let i = 1; i <= pagination.totalPages; i++) {
                     const isActive = i === pagination.currentPage;
-                    html += `<button onclick="loadOrders(${i})" class="px-4 py-2 rounded-lg transition-colors ${
+                    html += `<button onclick="loadOrders(${i}, '${currentFilter}')" class="px-4 py-2 rounded-lg transition-colors ${
                         isActive ? 'bg-gold text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }">${i}</button>`;
                 }
                 
                 // Next button
                 if (pagination.currentPage < pagination.totalPages) {
-                    html += `<button onclick="loadOrders(${pagination.currentPage + 1})" class="px-3 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors">
+                    html += `<button onclick="loadOrders(${pagination.currentPage + 1}, '${currentFilter}')" class="px-3 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors">
                         <i class="fas fa-chevron-right"></i>
                     </button>`;
                 }
@@ -1005,6 +1033,7 @@ Confirm Delivery & Earn Tokens?
 
             updateUserUI();
             await loadOrders(1); // Load first page of orders
+            updateFilterButtons(''); // Set initial filter button state
         });
     </script>
     <script src="../js/config.js"></script>
