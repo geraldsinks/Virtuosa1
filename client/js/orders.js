@@ -84,41 +84,35 @@ function renderOrders(orders) {
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <p class="text-sm text-gray-500">Items</p>
-                        <p class="font-medium">${order.items?.length || 0} items</p>
+                        <p class="text-sm text-gray-500">Product</p>
+                        <p class="font-medium">${order.product?.name || 'Unknown Product'}</p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-500">Total</p>
-                        <p class="font-medium">K${order.total || 0}</p>
+                        <p class="font-medium">K${order.totalAmount || order.total || 0}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Quantity</p>
+                        <p class="font-medium">${order.quantity || 1}</p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-500">Payment</p>
                         <p class="font-medium">${order.paymentMethod || 'N/A'}</p>
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Delivery</p>
-                        <p class="font-medium">${order.deliveryInfo?.address || 'N/A'}</p>
-                    </div>
                 </div>
                 
-                ${order.items ? `
+                ${order.product ? `
                     <div class="mt-4 pt-4 border-t border-gray-200">
-                        <h4 class="font-medium mb-2">Order Items</h4>
-                        <div class="space-y-2">
-                            ${order.items.map(item => `
-                                <div class="flex justify-between items-center py-2">
-                                    <div class="flex items-center">
-                                        <img src="${item.product?.images?.[0] || '/images/placeholder.jpg'}" 
-                                             alt="${item.product?.name || 'Product'}" 
-                                             class="w-12 h-12 object-cover rounded mr-3">
-                                        <div>
-                                            <p class="font-medium">${item.product?.name || 'Product'}</p>
-                                            <p class="text-sm text-gray-500">K${item.price || 0} × ${item.quantity || 1}</p>
-                                        </div>
-                                    </div>
-                                    <p class="font-medium">K${(item.price || 0) * (item.quantity || 1)}</p>
-                                </div>
-                            `).join('')}
+                        <h4 class="font-medium mb-2">Product Details</h4>
+                        <div class="flex items-center space-x-4">
+                            <img src="${order.product.images?.[0] || '/images/placeholder.jpg'}" 
+                                 alt="${order.product.name || 'Product'}" 
+                                 class="w-16 h-16 object-cover rounded">
+                            <div class="flex-grow">
+                                <p class="font-medium">${order.product.name}</p>
+                                <p class="text-sm text-gray-500">K${order.product.price || 0} × ${order.quantity || 1}</p>
+                            </div>
+                            <p class="font-medium">K${(order.product.price || 0) * (order.quantity || 1)}</p>
                         </div>
                     </div>
                 ` : ''}

@@ -114,14 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (logoutBtn && userDropdown.contains(logoutBtn)) {
                             userDropdown.insertBefore(messagesLink, logoutBtn);
                         } else {
-                            // Fallback: append to dropdown before the divider
-                            const divider = userDropdown.querySelector('.border-t');
-                            if (divider && userDropdown.contains(divider)) {
-                                userDropdown.insertBefore(messagesLink, divider);
-                            } else {
-                                // Last fallback: just append to dropdown
-                                userDropdown.appendChild(messagesLink);
-                            }
+                            // Fallback: append to dropdown
+                            userDropdown.appendChild(messagesLink);
                         }
                     }
                 }

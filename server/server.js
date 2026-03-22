@@ -4097,6 +4097,41 @@ app.get('/api/admin/user-analytics', authenticateAdmin, async (req, res) => {
     }
 });
 
+// Get user transactions (buyer dashboard)
+app.get('/api/transactions', authenticateToken, async (req, res) => {
+    try {
+        const { page = 1, limit = 5, status } = req.query;
+        const userId = req.user.userId;
+
+        let filter = { buyer: userId };
+
+        if (status) filter.status = status;
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        const transactions = await Transaction.find(filter)
+            .populate('buyer seller product')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        const total = await Transaction.countDocuments(filter);
+
+        res.json({
+            transactions,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(total / parseInt(limit)),
+                total,
+                limit: parseInt(limit)
+            }
+        });
+    } catch (error) {
+        console.error('Get user transactions error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // Get all transactions (admin)
 app.get('/api/admin/transactions', authenticateAdmin, async (req, res) => {
     try {

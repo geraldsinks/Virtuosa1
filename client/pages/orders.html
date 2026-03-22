@@ -385,7 +385,6 @@
             const API_BASE = 'https://api.virtuosazm.com/api';
             const loginLink = document.getElementById('login-link');
             const userGreeting = document.getElementById('user-greeting');
-            const logoutButton = document.getElementById('logout-button');
             
             let orders = [];
             let currentPage = 1;
@@ -862,33 +861,23 @@ Confirm Delivery & Earn Tokens?
             function updateUserUI() {
                 const userFullName = localStorage.getItem('userFullName');
                 if (userFullName) {
-                    loginLink.classList.add('hidden');
-                    userGreeting.textContent = `Hello, ${userFullName}`;
-                    userGreeting.classList.add('hidden', 'md:inline');
-                    logoutButton.classList.remove('hidden');
+                    if (loginLink) loginLink.classList.add('hidden');
+                    if (userGreeting) {
+                        userGreeting.textContent = `Hello, ${userFullName}`;
+                        userGreeting.classList.add('hidden', 'md:inline');
+                    }
                 } else {
-                    loginLink.classList.remove('hidden');
-                    userGreeting.classList.add('hidden');
-                    if(userGreeting.classList.contains('md:inline')) userGreeting.classList.remove('md:inline');
-                    logoutButton.classList.add('hidden');
+                    if (loginLink) loginLink.classList.remove('hidden');
+                    if (userGreeting) {
+                        userGreeting.classList.add('hidden');
+                        if(userGreeting.classList.contains('md:inline')) userGreeting.classList.remove('md:inline');
+                    }
                     window.location.href = '/pages/login.html';
                 }
             }
 
             updateUserUI();
             await loadOrders(1); // Load first page of orders
-
-            logoutButton.addEventListener('click', async () => {
-                try {
-                    await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('userEmail');
-                    localStorage.removeItem('userFullName');
-                    window.location.href = '/index.html';
-                } catch (error) {
-                    console.error('Logout error:', error);
-                }
-            });
         });
     </script>
     <script src="../js/config.js"></script>
