@@ -29,6 +29,21 @@ const subcategories = {
     'Other': ['General']
 };
 
+// Toggle inventory options based on listing type
+function toggleInventoryOptions() {
+    const listingType = document.querySelector('input[name="listingType"]:checked').value;
+    const inventoryOptions = document.getElementById('inventoryOptions');
+    
+    if (listingType === 'persistent') {
+        inventoryOptions.classList.remove('hidden');
+    } else {
+        inventoryOptions.classList.add('hidden');
+    }
+}
+
+// Make the function globally available
+window.toggleInventoryOptions = toggleInventoryOptions;
+
 // Update subcategories based on selected category
 function updateSubcategories() {
     const category = document.getElementById('category').value;
@@ -212,6 +227,16 @@ async function createProduct(event) {
         formData.append('location', document.getElementById('location').value.trim());
         formData.append('pickupAvailable', document.getElementById('pickupAvailable').checked);
         formData.append('deliveryAvailable', document.getElementById('deliveryAvailable').checked);
+        
+        // Add listing type and inventory fields
+        const listingType = document.querySelector('input[name="listingType"]:checked').value;
+        formData.append('listingType', listingType);
+        
+        if (listingType === 'persistent') {
+            formData.append('inventory', parseInt(document.getElementById('inventory').value) || 1);
+            formData.append('inventoryTracking', document.getElementById('inventoryTracking').checked);
+            formData.append('lowStockThreshold', parseInt(document.getElementById('lowStockThreshold').value) || 1);
+        }
         
         // Add images
         uploadedImages.forEach((image, index) => {

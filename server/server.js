@@ -1414,6 +1414,27 @@ const productSchema = new mongoose.Schema({
     category: { type: String, required: true },
     subcategory: String,
 
+    // Listing Type and Inventory Management
+    listingType: { 
+        type: String, 
+        enum: ['one_time', 'persistent'], 
+        required: true,
+        default: 'one_time'
+    },
+    inventory: { 
+        type: Number, 
+        default: 1,
+        min: 0
+    },
+    inventoryTracking: { 
+        type: Boolean, 
+        default: false 
+    },
+    lowStockThreshold: { 
+        type: Number, 
+        default: 1 
+    },
+
     // Seller information
     seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     sellerName: { type: String, required: true },
@@ -1430,10 +1451,19 @@ const productSchema = new mongoose.Schema({
     }],
 
     // Product status
-    status: { type: String, enum: ['Active', 'Sold', 'Reserved', 'Removed'], default: 'Active' },
+    status: { type: String, enum: ['Active', 'Sold', 'Reserved', 'Removed', 'Out of Stock'], default: 'Active' },
     isFeatured: { type: Boolean, default: false },
     viewCount: { type: Number, default: 0 },
     favoriteCount: { type: Number, default: 0 },
+
+    // Sales tracking
+    totalSold: { type: Number, default: 0 },
+    salesHistory: [{
+        buyer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        quantity: Number,
+        price: Number,
+        soldAt: { type: Date, default: Date.now }
+    }],
 
     // Academic specific
     courseCode: String,
@@ -1446,7 +1476,8 @@ const productSchema = new mongoose.Schema({
     // Timestamps
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
-    soldAt: Date
+    soldAt: Date,
+    lastSoldAt: Date
 });
 
 const Product = mongoose.model('Product', productSchema);
@@ -3023,7 +3054,11 @@ app.post('/api/products', authenticateToken, upload.array('images', 5), async (r
             courseCode,
             courseName, // From frontend
             author, // From frontend
-            isbn // From frontend
+            isbn, // From frontend
+            listingType, // New field
+            inventory, // New field
+            inventoryTracking, // New field
+            lowStockThreshold // New field
         } = req.body;
 
         // Basic validation
@@ -3063,6 +3098,10 @@ app.post('/api/products', authenticateToken, upload.array('images', 5), async (r
             courseName,
             author,
             isbn,
+            listingType: listingType || 'one_time',
+            inventory: listingType === 'persistent' ? (parseInt(inventory) || 1) : 1,
+            inventoryTracking: listingType === 'persistent' ? (inventoryTracking === 'true' || inventoryTracking === true) : false,
+            lowStockThreshold: listingType === 'persistent' ? (parseInt(lowStockThreshold) || 1) : 1,
             status: 'Active'
         });
 
@@ -3083,6 +3122,158 @@ app.post('/api/products', authenticateToken, upload.array('images', 5), async (r
     } catch (error) {
         console.error('Create product error:', error);
         res.status(500).json({ message: error.message || 'Server error' });
+    }
+});
+
+// Get seller's products
+app.get('/api/products/my-products', authenticateToken, async (req, res) => {
+    try {
+        const products = await Product.find({ seller: req.user.userId })
+            .sort({ createdAt: -1 })
+            .limit(50);
+
+        res.json(products);
+    } catch (error) {
+        console.error('Get seller products error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Update product inventory (for persistent listings)
+app.put('/api/products/:productId/inventory', authenticateToken, async (req, res) => {
+    try {
+        const { inventory, lowStockThreshold, inventoryTracking } = req.body;
+        
+        const product = await Product.findById(req.params.productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        // Check if user is the seller
+        if (product.seller.toString() !== req.user.userId) {
+            return res.status(403).json({ message: 'Only seller can update inventory' });
+        }
+
+        // Check if product is a persistent listing
+        if (product.listingType !== 'persistent') {
+            return res.status(400).json({ message: 'Inventory management only available for persistent listings' });
+        }
+
+        // Update inventory fields
+        if (inventory !== undefined) {
+            product.inventory = Math.max(0, parseInt(inventory));
+            
+            // Update status based on inventory
+            if (product.inventory > 0) {
+                product.status = 'Active';
+            } else {
+                product.status = 'Out of Stock';
+                product.soldAt = new Date();
+            }
+        }
+
+        if (lowStockThreshold !== undefined) {
+            product.lowStockThreshold = Math.max(1, parseInt(lowStockThreshold));
+        }
+
+        if (inventoryTracking !== undefined) {
+            product.inventoryTracking = inventoryTracking;
+        }
+
+        product.updatedAt = new Date();
+        await product.save();
+
+        res.json({
+            message: 'Inventory updated successfully',
+            inventory: product.inventory,
+            status: product.status,
+            lowStockThreshold: product.lowStockThreshold,
+            inventoryTracking: product.inventoryTracking
+        });
+
+    } catch (error) {
+        console.error('Update inventory error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Update product listing type (convert between one-time and persistent)
+app.put('/api/products/:productId/listing-type', authenticateToken, async (req, res) => {
+    try {
+        const { listingType, inventory } = req.body;
+        
+        const product = await Product.findById(req.params.productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        // Check if user is the seller
+        if (product.seller.toString() !== req.user.userId) {
+            return res.status(403).json({ message: 'Only seller can update listing type' });
+        }
+
+        // Check if product is sold
+        if (product.status === 'Sold') {
+            return res.status(400).json({ message: 'Cannot change listing type for sold products' });
+        }
+
+        // Update listing type
+        product.listingType = listingType;
+        
+        if (listingType === 'persistent') {
+            product.inventory = inventory || 1;
+            product.inventoryTracking = true;
+            product.lowStockThreshold = 1;
+            product.status = 'Active'; // Ensure it's active for persistent listings
+        } else {
+            // Convert to one-time sale
+            product.inventory = 1;
+            product.inventoryTracking = false;
+            product.lowStockThreshold = 1;
+            product.status = 'Active';
+        }
+
+        product.updatedAt = new Date();
+        await product.save();
+
+        res.json({
+            message: 'Listing type updated successfully',
+            listingType: product.listingType,
+            inventory: product.inventory,
+            status: product.status
+        });
+
+    } catch (error) {
+        console.error('Update listing type error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Get product sales history
+app.get('/api/products/:productId/sales', authenticateToken, async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.productId)
+            .populate('salesHistory.buyer', 'fullName email');
+        
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        // Check if user is the seller
+        if (product.seller.toString() !== req.user.userId) {
+            return res.status(403).json({ message: 'Only seller can view sales history' });
+        }
+
+        res.json({
+            totalSold: product.totalSold,
+            salesHistory: product.salesHistory,
+            currentInventory: product.inventory,
+            listingType: product.listingType
+        });
+
+    } catch (error) {
+        console.error('Get sales history error:', error);
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
@@ -3345,6 +3536,13 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'Product not available' });
         }
 
+        // Check inventory for persistent listings
+        if (product.listingType === 'persistent') {
+            if (product.inventory <= 0) {
+                return res.status(400).json({ message: 'Product is out of stock' });
+            }
+        }
+
         // Log product details for transaction
         console.log(`✅ Transaction - Product found:`, {
             _id: product._id.toString(),
@@ -3393,8 +3591,39 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
             status: transaction.status
         });
 
-        // Update product status
-        product.status = 'Reserved';
+        // Update product status and inventory based on listing type
+        if (product.listingType === 'one_time') {
+            // One-time sale: mark as reserved, will be marked as sold when payment is confirmed
+            product.status = 'Reserved';
+        } else if (product.listingType === 'persistent') {
+            // Persistent listing: decrement inventory
+            product.inventory -= 1;
+            
+            // Add to sales history
+            product.salesHistory.push({
+                buyer: user._id,
+                quantity: 1,
+                price: product.price,
+                soldAt: new Date()
+            });
+            
+            // Update total sold count
+            product.totalSold += 1;
+            
+            // Check if out of stock
+            if (product.inventory <= 0) {
+                product.status = 'Out of Stock';
+                product.soldAt = new Date();
+            } else {
+                // Check for low stock alert
+                if (product.inventoryTracking && product.inventory <= product.lowStockThreshold) {
+                    console.log(`📊 Low stock alert for product ${product._id}: ${product.inventory} remaining`);
+                    // TODO: Send low stock notification to seller
+                }
+            }
+        }
+        
+        product.lastSoldAt = new Date();
         await product.save();
 
         res.status(201).json({
@@ -3418,7 +3647,7 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
 app.post('/api/transactions/:id/pay', authenticateToken, async (req, res) => {
     try {
         const transaction = await Transaction.findById(req.params.id)
-            .populate('buyer seller');
+            .populate('buyer seller product');
 
         if (!transaction) {
             return res.status(404).json({ message: 'Transaction not found' });
@@ -3445,6 +3674,27 @@ app.post('/api/transactions/:id/pay', authenticateToken, async (req, res) => {
         transaction.status = 'Confirmed';
         transaction.confirmedAt = new Date();
         await transaction.save();
+
+        // Handle one-time sales - mark product as sold
+        if (transaction.product && transaction.product.listingType === 'one_time') {
+            const product = await Product.findById(transaction.product._id);
+            if (product) {
+                product.status = 'Sold';
+                product.soldAt = new Date();
+                
+                // Add to sales history
+                product.salesHistory.push({
+                    buyer: transaction.buyer._id,
+                    quantity: 1,
+                    price: product.price,
+                    soldAt: new Date()
+                });
+                
+                product.totalSold += 1;
+                product.lastSoldAt = new Date();
+                await product.save();
+            }
+        }
 
         // Notify seller
         await transporter.sendMail({

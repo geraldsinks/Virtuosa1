@@ -670,6 +670,60 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Listing Type Section -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Listing Type <span
+                                class="text-red-500">*</span></label>
+                        <div class="space-y-3">
+                            <label
+                                class="flex items-start gap-3 cursor-pointer bg-gray-50 hover:bg-yellow-50 p-4 rounded-xl border border-gray-200 hover:border-gold transition-all">
+                                <input type="radio" name="listingType" value="one_time" checked
+                                    class="w-4 h-4 accent-yellow-500 mt-1" onchange="toggleInventoryOptions()">
+                                <div class="flex-1">
+                                    <span class="text-sm font-semibold text-navy block">One-Time Sale</span>
+                                    <span class="text-xs text-gray-500">Perfect for unique items, used textbooks, or single products. Listing will be marked as sold after purchase.</span>
+                                </div>
+                            </label>
+                            <label
+                                class="flex items-start gap-3 cursor-pointer bg-gray-50 hover:bg-yellow-50 p-4 rounded-xl border border-gray-200 hover:border-gold transition-all">
+                                <input type="radio" name="listingType" value="persistent"
+                                    class="w-4 h-4 accent-yellow-500 mt-1" onchange="toggleInventoryOptions()">
+                                <div class="flex-1">
+                                    <span class="text-sm font-semibold text-navy block">Persistent Listing</span>
+                                    <span class="text-xs text-gray-500">Ideal for items with multiple quantities (new products, supplies). Listing remains active until you remove it or run out of inventory.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Options (Hidden by default) -->
+                    <div id="inventoryOptions" class="md:col-span-2 hidden space-y-4">
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                            <div class="flex items-center mb-3">
+                                <i data-lucide="package" class="w-5 h-5 text-blue-600 mr-2"></i>
+                                <h4 class="text-sm font-semibold text-blue-900">Inventory Management</h4>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Initial Quantity</label>
+                                    <input type="number" id="inventory" min="1" value="1"
+                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Low Stock Alert</label>
+                                    <input type="number" id="lowStockThreshold" min="1" value="1"
+                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="inventoryTracking" checked
+                                        class="w-4 h-4 accent-blue-500 mr-2">
+                                    <label for="inventoryTracking" class="text-sm text-gray-700">Enable inventory tracking</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">Course Code <span
                                 class="text-xs text-gray-400 font-normal">— Optional</span></label>
