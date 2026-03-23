@@ -600,21 +600,31 @@
                 display: none !important;
             }
             
-            /* Mobile messages header - hidden by default since we use chat-header back button instead */
+            /* Mobile messages header - visible on conversation list */
             .mobile-messages-header {
-                display: none;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                padding-top: calc(12px + env(safe-area-inset-top));
                 position: fixed;
                 top: 0;
                 left: 0;
                 right: 0;
-                z-index: 100;
+                z-index: 50;
                 background: #0A1128;
                 color: white;
-                padding: 12px 16px;
-                min-height: 60px;
-                align-items: center;
-                justify-content: space-between;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            
+            /* Hide mobile header when chat is active */
+            body.mobile-chat-active .mobile-messages-header {
+                display: none;
+            }
+            
+            /* Add top padding to conversation list to account for mobile header */
+            #conversation-list {
+                padding-top: calc(60px + env(safe-area-inset-top));
             }
             
             /* Main container - mobile header is always hidden so full height */
@@ -708,6 +718,21 @@
                 flex-shrink: 0;
                 min-height: 80px;
                 max-height: 120px;
+                display: flex !important;
+                flex-direction: column;
+            }
+            
+            /* Ensure input area is always visible on mobile */
+            .mobile-input-area {
+                display: flex !important;
+                position: sticky !important;
+                bottom: 0 !important;
+                background: white !important;
+                border-top: 1px solid #e5e7eb !important;
+                padding: 12px 16px !important;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+                z-index: 30 !important;
+                min-height: 80px !important;
             }
             
             /* Touch-friendly mobile input with better sizing */
@@ -918,8 +943,8 @@
 
 <body class="bg-gray-50 flex flex-col h-screen overflow-hidden">
     
-    <!-- Minimal Mobile Messages Header (Hidden by default - only shows on conversation list on mobile) -->
-    <header class="mobile-messages-header hidden">
+    <!-- Mobile Messages Header (Navy, visible on conversation list) -->
+    <header class="mobile-messages-header bg-navy text-white shadow-lg fixed top-0 left-0 right-0 z-50 safe-area-top">
         <!-- Left: Back Button - goes to previous page -->
         <button id="mobile-messages-back-button" class="text-white hover:text-gold transition-colors p-2" onclick="history.back()">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -353,6 +353,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Prevent body scroll when chat is active
             document.body.style.overflow = 'hidden';
             
+            // Show mobile header when going back to conversations
+            const mobileHeader = document.querySelector('.mobile-messages-header');
+            if (mobileHeader) {
+                mobileHeader.classList.add('hidden');
+            }
+            
         } else {
             // Desktop behavior
             if (chatArea) {
@@ -403,6 +409,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Restore body scroll
             document.body.style.overflow = '';
+            
+            // Show mobile header when back to conversations
+            const mobileHeader = document.querySelector('.mobile-messages-header');
+            if (mobileHeader) {
+                mobileHeader.classList.remove('hidden');
+            }
             
             // Clear active conversation
             activeConversationId = null;
@@ -702,6 +714,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 500);
     });
+
+    // Initialize mobile header visibility
+    if (window.innerWidth < 768) {
+        const mobileHeader = document.querySelector('.mobile-messages-header');
+        const chatArea = document.getElementById('chat-area');
+        
+        // Show mobile header by default (conversation list view)
+        if (mobileHeader) {
+            mobileHeader.classList.remove('hidden');
+        }
+        
+        // Hide chat area by default on mobile
+        if (chatArea && !currentRecipientId) {
+            chatArea.classList.add('hidden');
+        }
+    }
 
     // Load initial data
     loadConversations();
