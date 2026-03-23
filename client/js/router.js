@@ -552,7 +552,7 @@ class CleanRouter {
         return !dangerousPatterns.some(pattern => pattern.test(pageFile));
     }
 
-    // Load the actual HTML file with SPA navigation
+    // Load the actual HTML file with proper navigation
     async loadPage(path, params = {}) {
         try {
             this.showLoading();
@@ -577,26 +577,26 @@ class CleanRouter {
             // Combine route parameters with query parameters (query params take precedence)
             const allParams = { ...routeParams, ...params };
             
-            // Use combined validation and loading to prevent race conditions
-            const result = await this.validateAndLoadContent(pageFile, allParams);
-            
-            if (!result.success) {
-                // Use standardized fallback system
-                const userRole = this.getCurrentUserRole();
-                await this.fallbackManager.executeFallback(result.fallbackContext, {
-                    userRole: userRole,
-                    showMessage: `Route not found, redirecting to safe page`,
-                    delay: 1000
-                });
+            // Build the final URL with parameters
+            let finalUrl = pageFile;
+            if (Object.keys(allParams).length > 0) {
+                finalUrl += '?' + new URLSearchParams(allParams).toString();
             }
+            
+            // For clean URLs, do a full page redirect to ensure proper loading
+            if (path.includes('/') && !path.includes('.html')) {
+                // This is a clean URL - redirect to the actual HTML file
+                window.location.href = finalUrl;
+                return;
+            }
+            
+            // For direct HTML file access, also do full redirect
+            window.location.href = finalUrl;
             
         } catch (error) {
             console.error('Router loadPage error:', error);
-            // Use fallback system for unexpected errors
-            await this.fallbackManager.executeFallback('server-error', {
-                showMessage: 'An error occurred, redirecting to safe page',
-                delay: 1000
-            });
+            // Fallback to direct redirect
+            window.location.href = '/pages/' + path + '.html';
         } finally {
             this.hideLoading();
         }

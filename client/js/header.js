@@ -357,16 +357,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const categoryEvent = new CustomEvent('virtuosaCategory', { detail: { category: category } });
             window.dispatchEvent(categoryEvent);
         } else {
-            // Use clean URL for category navigation
-            const categoryPath = `/products/${encodeURIComponent(category)}`;
-            console.log('Navigating to clean category URL:', categoryPath);
+            // Navigate to products page with category parameter
+            // Use query parameter approach for reliable category filtering
+            const categoryUrl = `/products?category=${encodeURIComponent(category)}`;
+            console.log('Navigating to products with category:', categoryUrl);
             
-            if (window.router && window.router.navigate) {
-                window.router.navigate(categoryPath);
-            } else {
-                // Fallback to direct navigation
-                window.location.href = categoryPath;
-            }
+            // Do a full page redirect to ensure proper loading
+            window.location.href = categoryUrl;
         }
     };
 

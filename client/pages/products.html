@@ -584,13 +584,15 @@
                     categoryFromPath = decodeURIComponent(pathParts[2]);
                 }
 
-                // Use category from path first, then query string
-                currentCategory = categoryFromPath || categoryFromUrl || null;
+                // Use category from query string first (for backward compatibility), then path
+                currentCategory = categoryFromUrl || categoryFromPath || null;
 
                 if (searchFromUrl && globalSearchInput) {
                     globalSearchInput.value = searchFromUrl;
                     filters.searchQuery = searchFromUrl;
                 }
+
+                console.log('Fetching products with category:', currentCategory);
 
                 const url = currentCategory 
                     ? `${API_BASE}/products?category=${encodeURIComponent(currentCategory)}` 
