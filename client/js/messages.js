@@ -333,14 +333,32 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 1500); // Wait a bit for the chat to fully load
         }
 
-        // Mobile UI handle
+        // Mobile UI handle - improved navigation
         if (window.innerWidth < 768) {
-            sidebar.classList.add('hidden');
-            chatArea.classList.remove('hidden');
-            chatArea.classList.add('flex');
+            console.log('📱 Mobile navigation - switching to chat view');
+            
+            // Hide sidebar and show chat area
+            if (sidebar) {
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('mobile-full');
+            }
+            if (chatArea) {
+                chatArea.classList.remove('hidden');
+                chatArea.classList.add('mobile-full', 'flex');
+            }
+            
+            // Add mobile navigation state
+            document.body.classList.add('mobile-chat-active');
+            
+            // Prevent body scroll when chat is active
+            document.body.style.overflow = 'hidden';
+            
         } else {
-            chatArea.classList.remove('hidden');
-            chatArea.classList.add('flex');
+            // Desktop behavior
+            if (chatArea) {
+                chatArea.classList.remove('hidden');
+                chatArea.classList.add('flex');
+            }
         }
 
         if (recipientName) {
@@ -363,6 +381,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Highlight active conversation
         loadConversations();
+    };
+    
+    // Mobile back to conversation list function
+    window.backToConversations = () => {
+        console.log('📱 Back to conversations');
+        
+        if (window.innerWidth < 768) {
+            // Show sidebar and hide chat area
+            if (sidebar) {
+                sidebar.classList.remove('hidden');
+                sidebar.classList.add('mobile-full');
+            }
+            if (chatArea) {
+                chatArea.classList.add('hidden');
+                chatArea.classList.remove('mobile-full', 'flex');
+            }
+            
+            // Remove mobile navigation state
+            document.body.classList.remove('mobile-chat-active');
+            
+            // Restore body scroll
+            document.body.style.overflow = '';
+            
+            // Clear active conversation
+            activeConversationId = null;
+            currentRecipientId = null;
+            
+            // Stop polling
+            if (pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
+            }
+        }
     };
 
     // IMMEDIATELY show chat area if we have recipientId
@@ -545,6 +596,113 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Mobile keyboard and viewport handling
+    function initializeMobileKeyboardHandling() {
+        if (window.innerWidth >= 768) return; // Only on mobile
+        
+        const messageInput = document.getElementById('message-input');
+        const messageContainer = document.getElementById('message-container');
+        const chatArea = document.getElementById('chat-area');
+        
+        if (!messageInput || !messageContainer) return;
+        
+        // Handle keyboard show/hide on mobile
+        let originalViewportHeight = window.innerHeight;
+        
+        // Store original viewport height
+        const updateViewportHeight = () => {
+            originalViewportHeight = window.innerHeight;
+        };
+        
+        window.addEventListener('resize', updateViewportHeight);
+        
+        // Handle input focus (keyboard show)
+        messageInput.addEventListener('focus', () => {
+            console.log('📱 Mobile keyboard shown');
+            
+            // Wait for keyboard to appear
+            setTimeout(() => {
+                const currentViewportHeight = window.innerHeight;
+                const heightDifference = originalViewportHeight - currentViewportHeight;
+                
+                if (heightDifference > 150) { // Keyboard is likely shown
+                    console.log('📱 Keyboard detected, adjusting layout');
+                    
+                    // Adjust message container height for keyboard
+                    if (chatArea && messageContainer) {
+                        const headerHeight = 68; // Approximate header height
+                        const inputHeight = 80; // Approximate input height
+                        const safeAreaBottom = env(safe-area-inset-bottom) || 0;
+                        
+                        messageContainer.style.height = `${currentViewportHeight - headerHeight - inputHeight - safeAreaBottom}px`;
+                        messageContainer.scrollTop = messageContainer.scrollHeight;
+                    }
+                }
+            }, 300);
+        });
+        
+        // Handle input blur (keyboard hide)
+        messageInput.addEventListener('blur', () => {
+            console.log('📱 Mobile keyboard hidden');
+            
+            // Reset message container height
+            setTimeout(() => {
+                if (messageContainer && chatArea) {
+                    messageContainer.style.height = '';
+                    messageContainer.scrollTop = messageContainer.scrollHeight;
+                }
+            }, 100);
+        });
+        
+        // Handle visual viewport API if available
+        if ('visualViewport' in window) {
+            window.visualViewport.addEventListener('resize', () => {
+                const viewport = window.visualViewport;
+                const heightDifference = originalViewportHeight - viewport.height;
+                
+                if (messageContainer && chatArea) {
+                    if (heightDifference > 150) { // Keyboard is shown
+                        const headerHeight = 68;
+                        const inputHeight = 80;
+                        const safeAreaBottom = env(safe-area-inset-bottom) || 0;
+                        
+                        messageContainer.style.height = `${viewport.height - headerHeight - inputHeight - safeAreaBottom}px`;
+                    } else {
+                        messageContainer.style.height = '';
+                    }
+                    messageContainer.scrollTop = messageContainer.scrollHeight;
+                }
+            });
+        }
+    }
+    
+    // Helper function to get safe area inset
+    function env(cssVar) {
+        if (typeof CSS !== 'undefined' && CSS.supports && CSS.supports('env', cssVar)) {
+            return parseInt(getComputedStyle(document.documentElement).getPropertyValue(cssVar)) || 0;
+        }
+        return 0;
+    }
+    
+    // Initialize mobile keyboard handling
+    if (window.innerWidth < 768) {
+        initializeMobileKeyboardHandling();
+    }
+    
+    // Handle orientation changes
+    window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+            if (window.innerWidth < 768) {
+                initializeMobileKeyboardHandling();
+            }
+            
+            // Scroll to bottom after orientation change
+            if (messageContainer) {
+                messageContainer.scrollTop = messageContainer.scrollHeight;
+            }
+        }, 500);
+    });
+
     // Load initial data
     loadConversations();
 
@@ -564,12 +722,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-        // Helper functions for real-time updates
+    // Helper functions for real-time updates
     function addMessageToUI(message) {
         const isMine = message.sender === userId;
         const messageHtml = createMessageHTML(message, isMine);
-        messageContainer.insertAdjacentHTML('beforeend', messageHtml);
-        messageContainer.scrollTop = messageContainer.scrollHeight;
+        
+        if (messageContainer) {
+            messageContainer.insertAdjacentHTML('beforeend', messageHtml);
+            
+            // Smooth scroll to bottom on mobile
+            if (window.innerWidth < 768) {
+                setTimeout(() => {
+                    messageContainer.scrollTo({
+                        top: messageContainer.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }, 100);
+            } else {
+                messageContainer.scrollTop = messageContainer.scrollHeight;
+            }
+        }
         
         // Mobile: Add haptic feedback if available
         if (window.innerWidth < 768 && navigator.vibrate) {
@@ -580,69 +752,70 @@ document.addEventListener('DOMContentLoaded', () => {
     function createMessageHTML(message, isMine) {
         const messageClass = isMine ? 'bg-navy text-white rounded-tr-none' : 'bg-white text-navy rounded-tl-none border border-gray-100';
         const mobileMessageClass = window.innerWidth < 768 ? 'mobile-message-bubble' : '';
+        const isMobile = window.innerWidth < 768;
         
         return `
             <div class="flex ${isMine ? 'justify-end' : 'justify-start'} message-bubble ${mobileMessageClass}" data-message-id="${sanitizeHTML(message._id)}">
-                <div class="max-w-[75%] md:max-w-[75%] max-mobile-w-[85%] p-3 md:p-3 p-4 rounded-2xl text-sm md:text-sm text-base shadow-sm ${messageClass} relative group message-content">
+                <div class="max-w-[75%] ${isMobile ? 'max-w-[85%]' : 'md:max-w-[75%]'} p-3 ${isMobile ? 'p-4' : 'md:p-3'} rounded-2xl text-sm ${isMobile ? 'text-base' : 'md:text-sm'} shadow-sm ${messageClass} relative group message-content">
                     ${message.replyTo ? `
-                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded text-xs md:text-xs opacity-70 mobile-reply-bubble">
+                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded text-xs ${isMobile ? 'opacity-70 mobile-reply-bubble' : 'md:text-xs opacity-70'}">
                             <p class="font-semibold">Replying to: ${sanitizeHTML(message.replyTo.content.substring(0, 50))}...</p>
                         </div>
                     ` : ''}
                     
                     ${message.product ? `
-                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded-lg flex items-center gap-2 cursor-pointer mobile-product-bubble" onclick="window.location.href='/product/${sanitizeHTML(message.product._id)}'">
-                            <img src="${sanitizeHTML(fixServerUrl(message.product.images?.[0]))}" class="w-8 h-8 md:w-8 md:h-8 w-10 h-10 rounded object-cover">
+                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded-lg flex items-center gap-2 cursor-pointer ${isMobile ? 'mobile-product-bubble' : ''}" onclick="window.location.href='/product/${sanitizeHTML(message.product._id)}'">
+                            <img src="${sanitizeHTML(fixServerUrl(message.product.images?.[0]))}" class="w-8 h-8 ${isMobile ? 'w-10 h-10' : 'md:w-8 md:h-8'} rounded object-cover">
                             <div class="min-w-0">
-                                <p class="text-[10px] md:text-[10px] text-xs font-bold truncate">${sanitizeHTML(message.product.name)}</p>
-                                <p class="text-[10px] md:text-[10px] text-xs opacity-70">ZMW ${sanitizeHTML(message.product.price)}</p>
+                                <p class="text-[10px] ${isMobile ? 'text-xs' : 'md:text-[10px]'} font-bold truncate">${sanitizeHTML(message.product.name)}</p>
+                                <p class="text-[10px] ${isMobile ? 'text-xs' : 'md:text-[10px]'} opacity-70">ZMW ${sanitizeHTML(message.product.price)}</p>
                             </div>
                         </div>
                     ` : ''}
                     
                     ${message.messageType === 'image' ? `
-                        <div class="mb-2 mobile-image-bubble">
-                            <img src="${sanitizeHTML(fixServerUrl(message.fileUrl))}" class="max-w-full rounded cursor-pointer mobile-message-image" onclick="window.open('${sanitizeHTML(fixServerUrl(message.fileUrl))}', '_blank')">
+                        <div class="mb-2 ${isMobile ? 'mobile-image-bubble' : ''}">
+                            <img src="${sanitizeHTML(fixServerUrl(message.fileUrl))}" class="max-w-full rounded cursor-pointer ${isMobile ? 'mobile-message-image' : ''}" onclick="window.open('${sanitizeHTML(fixServerUrl(message.fileUrl))}', '_blank')">
                         </div>
                     ` : ''}
                     
                     ${message.messageType === 'file' ? `
-                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded flex items-center gap-2 cursor-pointer mobile-file-bubble" onclick="window.open('${sanitizeHTML(message.fileUrl)}', '_blank')">
-                            <svg class="w-4 h-4 md:w-4 md:h-4 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded flex items-center gap-2 cursor-pointer ${isMobile ? 'mobile-file-bubble' : ''}" onclick="window.open('${sanitizeHTML(message.fileUrl)}', '_blank')">
+                            <svg class="w-4 h-4 ${isMobile ? 'w-5 h-5' : 'md:w-4 md:h-4'}" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
                                 <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 102 0V3h4v1a1 1 0 102 0V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
                             </svg>
                             <div class="min-w-0">
-                                <p class="text-[10px] md:text-[10px] text-xs font-bold truncate">${sanitizeHTML(message.fileName)}</p>
-                                <p class="text-[10px] md:text-[10px] text-xs opacity-70">${formatFileSize(message.fileSize)}</p>
+                                <p class="text-[10px] ${isMobile ? 'text-xs' : 'md:text-[10px]'} font-bold truncate">${sanitizeHTML(message.fileName)}</p>
+                                <p class="text-[10px] ${isMobile ? 'text-xs' : 'md:text-[10px]'} opacity-70">${formatFileSize(message.fileSize)}</p>
                             </div>
                         </div>
                     ` : ''}
                     
-                    <p class="break-words mobile-message-text">${sanitizeHTML(message.content)}</p>
+                    <p class="break-words ${isMobile ? 'mobile-message-text' : ''}">${sanitizeHTML(message.content)}</p>
                     
-                    <div class="flex items-center justify-between mt-2 md:mt-1 mobile-message-meta">
-                        <span class="text-[10px] md:text-[10px] text-xs opacity-50 mobile-message-time">${formatTime(message.createdAt)}</span>
+                    <div class="flex items-center justify-between mt-2 ${isMobile ? 'md:mt-1 mobile-message-meta' : 'md:mt-1'}">
+                        <span class="text-[10px] ${isMobile ? 'text-xs mobile-message-time' : 'md:text-[10px] text-xs opacity-50'}">${formatTime(message.createdAt)}</span>
                         <div class="flex items-center gap-1">
-                            ${message.isEdited ? '<span class="text-[8px] md:text-[8px] text-xs opacity-50 italic mobile-message-edited">edited</span>' : ''}
+                            ${message.isEdited ? `<span class="text-[8px] ${isMobile ? 'text-xs mobile-message-edited' : 'md:text-[8px] text-xs opacity-50 italic'}">edited</span>` : ''}
                             ${isMine ? `
-                                <span class="text-[10px] md:text-[10px] text-xs opacity-50 message-status mobile-message-status" data-message-id="${message._id}">${message.status === 'read' ? '✓✓' : message.status === 'delivered' ? '✓' : ''}</span>
+                                <span class="text-[10px] ${isMobile ? 'text-xs mobile-message-status' : 'md:text-[10px] text-xs opacity-50 message-status'}" data-message-id="${message._id}">${message.status === 'read' ? '✓✓' : message.status === 'delivered' ? '✓' : ''}</span>
                             ` : ''}
                         </div>
                     </div>
                     
                     ${message.reactions && message.reactions.length > 0 ? `
-                        <div class="flex flex-wrap gap-1 mt-2 md:mt-2 message-reactions mobile-message-reactions" data-message-id="${message._id}">
+                        <div class="flex flex-wrap gap-1 mt-2 ${isMobile ? 'message-reactions mobile-message-reactions' : 'md:mt-2 message-reactions'}" data-message-id="${message._id}">
                             ${message.reactions.map(r => `
-                                <span class="text-xs md:text-xs text-sm bg-black bg-opacity-10 px-1 md:px-1 px-2 py-1 rounded cursor-pointer hover:bg-opacity-20 mobile-reaction" onclick="addReaction('${message._id}', '${r.emoji}')">${r.emoji}</span>
+                                <span class="text-xs ${isMobile ? 'text-sm mobile-reaction' : 'md:text-xs'} bg-black bg-opacity-10 px-1 ${isMobile ? 'px-2' : 'md:px-1'} py-1 rounded cursor-pointer hover:bg-opacity-20" onclick="addReaction('${message._id}', '${r.emoji}')">${r.emoji}</span>
                             `).join('')}
                         </div>
                     ` : ''}
                     
                     ${!message.isDeleted && isMine ? `
-                        <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 mobile-message-actions">
-                            <button onclick="editMessage('${message._id}', '${message.content.replace(/'/g, "\\'")}')" class="text-xs md:text-xs text-sm bg-black bg-opacity-20 rounded px-1 md:px-1 px-2 py-1 hover:bg-opacity-30 mobile-action-button">✏️</button>
-                            <button onclick="deleteMessage('${message._id}')" class="text-xs md:text-xs text-sm bg-black bg-opacity-20 rounded px-1 md:px-1 px-2 py-1 hover:bg-opacity-30 mobile-action-button">🗑️</button>
+                        <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 ${isMobile ? 'mobile-message-actions' : ''}">
+                            <button onclick="editMessage('${message._id}', '${message.content.replace(/'/g, "\\'")}')" class="text-xs ${isMobile ? 'text-sm mobile-action-button' : 'md:text-xs text-sm'} bg-black bg-opacity-20 rounded px-1 ${isMobile ? 'px-2' : 'md:px-1'} py-1 hover:bg-opacity-30">✏️</button>
+                            <button onclick="deleteMessage('${message._id}')" class="text-xs ${isMobile ? 'text-sm mobile-action-button' : 'md:text-xs text-sm'} bg-black bg-opacity-20 rounded px-1 ${isMobile ? 'px-2' : 'md:px-1'} py-1 hover:bg-opacity-30">🗑️</button>
                         </div>
                     ` : ''}
                 </div>
@@ -750,8 +923,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayConversations(conversations) {
         if (!conversationList) return;
         
+        const isMobile = window.innerWidth < 768;
+        
         if (conversations.length === 0) {
-            conversationList.innerHTML = '<div class="p-8 text-center text-gray-400"><p>No conversations yet. Start messaging to see conversations here.</p></div>';
+            if (isMobile) {
+                conversationList.innerHTML = `
+                    <div class="mobile-empty-state">
+                        <i data-lucide="message-circle" class="mobile-empty-state-icon"></i>
+                        <div class="mobile-empty-state-title">No conversations yet</div>
+                        <div class="mobile-empty-state-text">Start messaging to see conversations here</div>
+                    </div>
+                `;
+            } else {
+                conversationList.innerHTML = '<div class="p-8 text-center text-gray-400"><p>No conversations yet. Start messaging to see conversations here.</p></div>';
+            }
             return;
         }
 
@@ -764,20 +949,25 @@ document.addEventListener('DOMContentLoaded', () => {
                         `<img src="${fixServerUrl(c.user.profilePicture)}" class="w-full h-full rounded-full object-cover">` : 
                         c.user.fullName.charAt(0)
                     }
-                    <span class="online-status absolute bottom-0 right-0 w-3 h-3 md:w-3 md:h-3 w-4 h-4 rounded-full border-2 border-white ${false ? 'bg-green-500' : 'bg-gray-300'} mobile-online-indicator"></span>
+                    ${c.user.isOnline ? '<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full mobile-online-indicator"></div>' : ''}
                 </div>
                 <div class="flex-grow min-w-0 mobile-conversation-content">
-                    <div class="flex justify-between items-center mb-1 mobile-conversation-header">
-                        <h4 class="font-bold text-navy truncate mobile-conversation-name">${c.user.fullName}</h4>
-                        <span class="text-[10px] md:text-[10px] text-xs text-gray-400 mobile-conversation-time">${formatTime(c.createdAt)}</span>
+                    <div class="flex items-center justify-between mobile-conversation-header">
+                        <h3 class="font-semibold text-gray-900 truncate mobile-conversation-name">${c.user.fullName}</h3>
+                        <span class="text-xs text-gray-500 mobile-conversation-time">${formatTime(c.lastMessageTime)}</span>
                     </div>
-                    <p class="text-xs md:text-xs text-sm text-gray-500 truncate mobile-conversation-message">${c.lastMessage}</p>
+                    <div class="flex items-center justify-between mt-1">
+                        <p class="text-sm text-gray-600 truncate mobile-conversation-message">${c.lastMessage || 'No messages yet'}</p>
+                        ${c.unreadCount > 0 ? `<span class="bg-gold text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center mobile-unread-badge">${c.unreadCount}</span>` : ''}
+                    </div>
                 </div>
-                ${c.unreadCount > 0 ? `<span class="bg-gold text-navy text-[10px] md:text-[10px] text-xs font-bold px-2 py-0.5 md:px-2 md:py-0.5 px-3 py-1 rounded-full mobile-unread-badge">${c.unreadCount}</span>` : ''}
             </div>
-        `);
-
-        if (window.lucide) window.lucide.createIcons();
+        `).join('');
+        
+        // Re-initialize Lucide icons if available
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
         
         // Add mobile-specific conversation list enhancements
         if (window.innerWidth < 768) {
@@ -1013,6 +1203,61 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
+    // Send message function
+    async function sendMessage(content, orderId = null) {
+        if (!token || !currentRecipientId) {
+            console.error('Cannot send message: missing authentication or recipient');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    receiverId: currentRecipientId,
+                    content,
+                    productId: currentProductId || undefined,
+                    orderId: orderId || currentOrderId || undefined
+                })
+            });
+
+            if (response.ok) {
+                const message = await response.json();
+                console.log('Message sent successfully:', message);
+                
+                // Clear input and reload messages
+                if (messageInput) {
+                    messageInput.value = '';
+                }
+                await loadMessages();
+                loadConversations();
+                stopTyping();
+                
+                // Mobile: Focus back to input and scroll to bottom
+                if (window.innerWidth < 768) {
+                    setTimeout(() => {
+                        if (messageInput) messageInput.focus();
+                        if (messageContainer) messageContainer.scrollTop = messageContainer.scrollHeight;
+                    }, 100);
+                }
+                
+                return message;
+            } else {
+                console.error('Failed to send message:', response.status);
+                showToast('Failed to send message', 'error');
+                return null;
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+            showToast('Error sending message', 'error');
+            return null;
+        }
+    }
+
     // Message form handler
     messageForm.onsubmit = async (e) => {
         e.preventDefault();
@@ -1024,62 +1269,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Use socket for real-time delivery if available
-        if (socketConnected && socket) {
-            socket.emit('send_message', {
-                receiverId: currentRecipientId,
-                content,
-                productId: currentProductId || undefined,
-                orderId: currentOrderId || undefined
-            });
-            messageInput.value = '';
-            stopTyping();
-            
-            // Mobile: Focus back to input and scroll to bottom
-            if (window.innerWidth < 768) {
-                setTimeout(() => {
-                    messageInput.focus();
-                    messageContainer.scrollTop = messageContainer.scrollHeight;
-                }, 100);
-            }
-        } else {
-            // Fallback to HTTP
-            try {
-                const response = await fetch(`${API_BASE}/messages`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        receiverId: currentRecipientId,
-                        content,
-                        productId: currentProductId || undefined,
-                        orderId: currentOrderId || undefined
-                    })
-                });
-
-                if (response.ok) {
-                    messageInput.value = '';
-                    loadMessages();
-                    loadConversations();
-                    stopTyping();
-                    
-                    // Mobile: Focus back to input and scroll to bottom
-                    if (window.innerWidth < 768) {
-                        setTimeout(() => {
-                            messageInput.focus();
-                            messageContainer.scrollTop = messageContainer.scrollHeight;
-                        }, 100);
-                    }
-                } else {
-                    toast('Failed to send message', 'error');
-                }
-            } catch (error) {
-                console.error('Error sending message:', error);
-                toast('Error sending message', 'error');
-            }
-        }
+        await sendMessage(content);
     };
 
     // Mobile-specific input enhancements
@@ -1485,13 +1675,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         mobileMenu.classList.remove('active');
                         if (mobileMenuOverlay) {
                             mobileMenuOverlay.classList.add('hidden');
-                            showToast('Failed to send message', 'error');
                         }
                     } else {
                         mobileMenu.classList.add('active');
                         if (mobileMenuOverlay) {
                             mobileMenuOverlay.classList.remove('hidden');
-                            showToast('Message sent successfully!', 'success');
                         }
                     }
                 }
