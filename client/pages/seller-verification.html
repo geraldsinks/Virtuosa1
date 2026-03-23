@@ -247,133 +247,60 @@
 
     <main class="flex-grow container mx-auto px-4 py-8">
         <div class="max-w-4xl mx-auto">
-            <!-- Progress Steps -->
-            <div class="mb-8">
-                <div class="flex items-center justify-center space-x-4">
-                    <div class="flex items-center">
-                        <div id="step1-circle"
-                            class="w-8 h-8 bg-gold rounded-full flex items-center justify-center text-navy font-bold">1
+            <!-- Coming Soon Card -->
+            <div class="bg-white rounded-lg shadow-lg p-12 text-center">
+                <div class="mb-6">
+                    <i data-lucide="clock" class="w-16 h-16 text-gold mx-auto mb-4"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-navy mb-4">Coming Soon</h1>
+                <p class="text-xl text-gray-600 mb-8">Seller verification will be available soon. We're working hard to bring you the best selling experience.</p>
+                <div class="bg-gray-50 rounded-lg p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-navy mb-3">What to Expect:</h3>
+                    <div class="grid md:grid-cols-3 gap-4 text-left">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-6 h-6 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <svg class="w-3 h-3 text-navy" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Student Verification</h4>
+                                <p class="text-sm text-gray-600">Verify your student status securely</p>
+                            </div>
                         </div>
-                        <span class="ml-2 text-sm font-medium">Student Verification</span>
-                    </div>
-                    <div class="w-16 h-1 bg-gray-300"></div>
-                    <div class="flex items-center">
-                        <div id="step2-circle"
-                            class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">
-                            2</div>
-                        <span class="ml-2 text-sm font-medium">Become Seller</span>
-                    </div>
-                    <div class="w-16 h-1 bg-gray-300"></div>
-                    <div class="flex items-center">
-                        <div id="step3-circle"
-                            class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">
-                            3</div>
-                        <span class="ml-2 text-sm font-medium">Pay K30 Fee</span>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-6 h-6 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <svg class="w-3 h-3 text-navy" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Seller Features</h4>
+                                <p class="text-sm text-gray-600">Access powerful selling tools</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-6 h-6 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <svg class="w-3 h-3 text-navy" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Secure Payments</h4>
+                                <p class="text-sm text-gray-600">Protected transactions for everyone</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Verification Status Card -->
-            <div id="verification-card" class="bg-white rounded-lg shadow-lg p-6 mb-6">
-                <h2 class="text-2xl font-bold text-navy mb-4">Become a Verified Seller</h2>
-                <p class="text-gray-600 mb-6">Complete these steps to start selling on Virtuosa and unlock all seller
-                    features.</p>
-
-                <!-- Student Verification Status -->
-                <div class="border rounded-lg p-4 mb-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="font-semibold text-navy">Student Verification</h3>
-                            <p class="text-sm text-gray-600">Verify your student status with your university email</p>
-                        </div>
-                        <div id="student-status" class="text-sm font-medium"></div>
-                    </div>
-                </div>
-
-                <!-- Seller Role Status -->
-                <div class="border rounded-lg p-4 mb-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="font-semibold text-navy">Activate Seller Role</h3>
-                            <p class="text-sm text-gray-600">Enable seller features on your account</p>
-                        </div>
-                        <div id="seller-status" class="text-sm font-medium"></div>
-                    </div>
-                </div>
-
-                <!-- Verification Payment Status -->
-                <div class="border rounded-lg p-4 mb-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="font-semibold text-navy">Pay Verification Fee</h3>
-                            <p class="text-sm text-gray-600">One-time K30 fee for seller verification</p>
-                        </div>
-                        <div id="payment-status" class="text-sm font-medium"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div id="action-buttons" class="space-y-4">
-                <!-- Dynamic buttons will be inserted here -->
-            </div>
-
-            <!-- Benefits Section -->
-            <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
-                <h3 class="text-xl font-bold text-navy mb-4">Seller Benefits</h3>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div class="flex items-start space-x-3">
-                        <div class="w-6 h-6 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <svg class="w-3 h-3 text-navy" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold">Sell to Verified Students</h4>
-                            <p class="text-sm text-gray-600">Access a trusted community of verified student buyers</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start space-x-3">
-                        <div class="w-6 h-6 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <svg class="w-3 h-3 text-navy" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold">Escrow Protection</h4>
-                            <p class="text-sm text-gray-600">Secure payment system protects both buyers and sellers</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start space-x-3">
-                        <div class="w-6 h-6 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <svg class="w-3 h-3 text-navy" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold">Build Your Reputation</h4>
-                            <p class="text-sm text-gray-600">Get ratings and reviews to build trust with buyers</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start space-x-3">
-                        <div class="w-6 h-6 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <svg class="w-3 h-3 text-navy" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold">Seller Analytics</h4>
-                            <p class="text-sm text-gray-600">Track sales, views, and performance metrics</p>
-                        </div>
-                    </div>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="index.html" class="bg-gold text-navy px-8 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors inline-flex items-center justify-center">
+                        <i data-lucide="home" class="w-4 h-4 mr-2"></i>
+                        Back to Home
+                    </a>
+                    <a href="buyer-dashboard.html" class="bg-navy text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors inline-flex items-center justify-center">
+                        <i data-lucide="user" class="w-4 h-4 mr-2"></i>
+                        My Dashboard
+                    </a>
                 </div>
             </div>
         </div>

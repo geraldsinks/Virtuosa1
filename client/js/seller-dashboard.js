@@ -331,11 +331,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const data = await response.json();
                 if (response.ok) {
                     showMessage('Store settings saved successfully!');
-                    // Update local data and UI
-                    dashboardData.seller.storeName = data.storeName;
-                    dashboardData.seller.storeDescription = data.storeDescription;
-                    dashboardData.seller.storeSlug = data.storeSlug;
+                    // Update local data and UI - use buyer field since server returns seller info there
+                    if (!dashboardData.buyer) dashboardData.buyer = {};
+                    dashboardData.buyer.storeName = data.storeName;
+                    dashboardData.buyer.storeDescription = data.storeDescription;
+                    dashboardData.buyer.storeSlug = data.storeSlug;
                     updateUI();
+                    // Reset button state
+                    saveStoreBtn.disabled = false;
+                    saveStoreBtn.innerHTML = originalContent;
                 } else {
                     showMessage(data.message || 'Failed to save settings', true);
                     saveStoreBtn.disabled = false;
@@ -504,7 +508,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        container.innerHTML = activeListings.map(product => `
+        container.innerHTML = activeListings.map(product => {
+            const isPersistent = product.listingType === 'persistent';
+            const inventory = product.inventory || 1;
+            const totalSold = product.totalSold || 0;
+            const isOutOfStock = isPersistent && inventory <= 0;
+            const isLowStock = isPersistent && inventory <= 2 && inventory > 0;
+
+            return `
             <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 flex flex-col justify-between">
                 <div class="flex items-center space-x-4 mb-4">
                     <img src="${fixServerUrl(product.images?.[0]) || 'https://placehold.co/100x100?text=No+Image'}" 
@@ -513,24 +524,75 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <h3 class="font-bold text-navy truncate">${product.name}</h3>
                         <p class="text-gold font-bold">ZMW ${product.price}</p>
                         <p class="text-[10px] text-gray-500 uppercase">${product.category}</p>
+                        
+                        <!-- Inventory Status Badges -->
+                        <div class="flex flex-wrap gap-1 mt-2">
+                            ${isPersistent ? `
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <i class="fas fa-box mr-1"></i>Persistent
+                                </span>
+                            ` : `
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    <i class="fas fa-tag mr-1"></i>One-Time
+                                </span>
+                            `}
+                            ${isOutOfStock ? `
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <i class="fas fa-times-circle mr-1"></i>Out of Stock
+                                </span>
+                            ` : ''}
+                            ${isLowStock && !isOutOfStock ? `
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>Low Stock
+                                </span>
+                            ` : ''}
+                        </div>
                     </div>
                 </div>
-                <div class="flex gap-2 border-t pt-3 mt-auto">
-                    <button onclick="window.location.href='/pages/product-detail.html?id=${product._id}'"
-                        class="flex-1 bg-white border border-gray-200 text-navy text-xs py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors font-semibold flex items-center justify-center gap-1">
-                        <i data-lucide="eye" class="w-3 h-3"></i> View
-                    </button>
-                    <button onclick="editProduct('${product._id}')"
-                        class="flex-1 bg-white border border-gray-200 text-blue-600 text-xs py-2 px-3 rounded-lg hover:bg-blue-50 transition-colors font-semibold flex items-center justify-center gap-1">
-                        <i data-lucide="edit-2" class="w-3 h-3"></i> Edit
-                    </button>
-                    <button onclick="deleteProduct('${product._id}')"
-                        class="flex-1 bg-white border border-gray-200 text-red-600 text-xs py-2 px-3 rounded-lg hover:bg-red-50 transition-colors font-semibold flex items-center justify-center gap-1">
-                        <i data-lucide="trash-2" class="w-3 h-3"></i> Delete
-                    </button>
+                
+                ${isPersistent ? `
+                    <div class="text-sm text-gray-600 mb-3 bg-white p-2 rounded">
+                        <div class="flex items-center justify-between">
+                            <span><i class="fas fa-box mr-1"></i>Stock: ${inventory}</span>
+                            <span><i class="fas fa-shopping-cart mr-1"></i>Sold: ${totalSold}</span>
+                        </div>
+                    </div>
+                ` : ''}
+                
+                <div class="space-y-3 border-t pt-3 mt-auto">
+                    <!-- Primary Actions -->
+                    <div class="flex gap-2">
+                        <button onclick="window.location.href='/pages/product-detail.html?id=${product._id}'"
+                            class="flex-1 bg-white border border-gray-200 text-navy text-xs py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors font-semibold flex items-center justify-center gap-1">
+                            <i data-lucide="eye" class="w-3 h-3"></i> View
+                        </button>
+                        <button onclick="editProduct('${product._id}')"
+                            class="flex-1 bg-white border border-gray-200 text-blue-600 text-xs py-2 px-3 rounded-lg hover:bg-blue-50 transition-colors font-semibold flex items-center justify-center gap-1">
+                            <i data-lucide="edit-2" class="w-3 h-3"></i> Edit
+                        </button>
+                    </div>
+                    
+                    <!-- Secondary Actions -->
+                    <div class="flex gap-2">
+                        ${isPersistent ? `
+                            <button onclick="manageStock('${product._id}')" 
+                                class="flex-1 bg-green-50 border border-green-200 text-green-700 text-xs py-2 px-3 rounded-lg hover:bg-green-100 transition-colors font-semibold flex items-center justify-center gap-1">
+                                <i data-lucide="package" class="w-3 h-3"></i> Stock
+                            </button>
+                        ` : ''}
+                        <button onclick="convertListingType('${product._id}')" 
+                            class="flex-1 bg-purple-50 border border-purple-200 text-purple-700 text-xs py-2 px-3 rounded-lg hover:bg-purple-100 transition-colors font-semibold flex items-center justify-center gap-1">
+                            <i data-lucide="refresh-cw" class="w-3 h-3"></i> Convert
+                        </button>
+                        <button onclick="deleteProduct('${product._id}')"
+                            class="flex-1 bg-red-50 border border-red-200 text-red-700 text-xs py-2 px-3 rounded-lg hover:bg-red-100 transition-colors font-semibold flex items-center justify-center gap-1">
+                            <i data-lucide="trash-2" class="w-3 h-3"></i> Delete
+                        </button>
+                    </div>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
     }
 
     window.editProduct = (productId) => {
@@ -919,6 +981,245 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
         `;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
+    };
+
+    // Inventory Management Functions
+    window.manageStock = (productId) => {
+        const product = dashboardData.products.find(p => p._id === productId);
+        if (!product) return;
+
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+        modal.innerHTML = `
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-navy">Manage Stock</h3>
+                    <button onclick="this.closest('.fixed').remove()" 
+                            class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                    <p class="text-sm font-medium text-navy">${product.name}</p>
+                    <p class="text-xs text-gray-500">ZMW ${product.price} • ${product.category}</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <label class="block text-sm font-medium text-blue-900 mb-2">
+                            <i data-lucide="package" class="w-4 h-4 inline mr-1"></i>
+                            Current Stock Quantity
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="this.nextElementSibling.stepDown()" 
+                                    class="w-8 h-8 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors flex items-center justify-center">
+                                <i data-lucide="minus" class="w-3 h-3"></i>
+                            </button>
+                            <input type="number" id="stock-quantity" min="0" value="${product.inventory || 1}"
+                                   class="flex-1 px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-gold focus:outline-none text-center font-semibold">
+                            <button type="button" onclick="this.previousElementSibling.stepUp()" 
+                                    class="w-8 h-8 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors flex items-center justify-center">
+                                <i data-lucide="plus" class="w-3 h-3"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-blue-700 mt-1">Set to 0 to mark as out of stock</p>
+                    </div>
+                    
+                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                        <label class="block text-sm font-medium text-orange-900 mb-2">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1"></i>
+                            Low Stock Alert Threshold
+                        </label>
+                        <input type="number" id="low-stock-threshold" min="1" value="${product.lowStockThreshold || 2}"
+                               class="w-full px-3 py-2 border border-orange-300 rounded-lg focus:ring-2 focus:ring-gold focus:outline-none text-center font-semibold">
+                        <p class="text-xs text-orange-700 mt-1">Get notified when stock reaches this level</p>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button onclick="this.closest('.fixed').remove()" 
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                        Cancel
+                    </button>
+                    <button onclick="updateStock('${productId}')" 
+                            class="px-4 py-2 bg-gold text-navy rounded-lg hover:bg-yellow-400 transition-colors font-semibold flex items-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        Update Stock
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Re-initialize Lucide icons for the new modal
+        if (window.lucide) window.lucide.createIcons();
+    };
+
+    window.updateStock = async (productId) => {
+        try {
+            const quantity = parseInt(document.getElementById('stock-quantity').value) || 1;
+            const lowStockThreshold = parseInt(document.getElementById('low-stock-threshold').value) || 2;
+
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE}/products/${productId}/stock`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    inventory: quantity,
+                    lowStockThreshold: lowStockThreshold
+                })
+            });
+
+            if (response.ok) {
+                await loadDashboardData(); // Reload dashboard data
+                document.querySelector('.fixed').remove(); // Close modal
+                showMessage('Stock updated successfully', false);
+            } else {
+                throw new Error('Failed to update stock');
+            }
+        } catch (error) {
+            console.error('Error updating stock:', error);
+            showMessage('Failed to update stock', true);
+        }
+    };
+
+    window.convertListingType = (productId) => {
+        const product = dashboardData.products.find(p => p._id === productId);
+        if (!product) return;
+
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+        modal.innerHTML = `
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-navy">Convert Listing Type</h3>
+                    <button onclick="this.closest('.fixed').remove()" 
+                            class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                    <p class="text-sm font-medium text-navy">${product.name}</p>
+                    <p class="text-xs text-gray-500">ZMW ${product.price} • ${product.category}</p>
+                </div>
+                
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${product.listingType !== 'persistent' ? 'border-gold bg-gold/10' : 'border-gray-200'}">
+                        <input type="radio" name="listingType" value="one_time" ${product.listingType !== 'persistent' ? 'checked' : ''}
+                               class="w-4 h-4 text-gold">
+                        <div class="ml-3 flex-1">
+                            <div class="font-medium text-navy flex items-center">
+                                <i data-lucide="tag" class="w-4 h-4 mr-2"></i>
+                                One-Time Sale
+                            </div>
+                            <div class="text-sm text-gray-600 mt-1">Perfect for unique items or single quantities</div>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${product.listingType === 'persistent' ? 'border-gold bg-gold/10' : 'border-gray-200'}">
+                        <input type="radio" name="listingType" value="persistent" ${product.listingType === 'persistent' ? 'checked' : ''}
+                               class="w-4 h-4 text-gold">
+                        <div class="ml-3 flex-1">
+                            <div class="font-medium text-navy flex items-center">
+                                <i data-lucide="package" class="w-4 h-4 mr-2"></i>
+                                Persistent Listing
+                            </div>
+                            <div class="text-sm text-gray-600 mt-1">For multiple quantities with inventory tracking</div>
+                        </div>
+                    </label>
+                    
+                    <div id="inventory-field" class="${product.listingType === 'persistent' ? '' : 'hidden'}">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <label class="block text-sm font-medium text-blue-900 mb-2">
+                                <i data-lucide="package" class="w-4 h-4 inline mr-1"></i>
+                                Initial Stock Quantity
+                            </label>
+                            <input type="number" id="convert-inventory" min="1" value="${product.inventory || 1}"
+                                   class="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-gold focus:outline-none text-center font-semibold">
+                            <p class="text-xs text-blue-700 mt-1">How many items do you have available?</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button onclick="this.closest('.fixed').remove()" 
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                        Cancel
+                    </button>
+                    <button onclick="performConversion('${productId}')" 
+                            class="px-4 py-2 bg-gold text-navy rounded-lg hover:bg-yellow-400 transition-colors font-semibold flex items-center gap-2">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        Convert Listing
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Show/hide inventory field based on selection
+        modal.querySelectorAll('input[name="listingType"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const inventoryField = document.getElementById('inventory-field');
+                const labels = modal.querySelectorAll('label');
+                
+                // Update border styles
+                labels.forEach(label => {
+                    label.classList.remove('border-gold', 'bg-gold/10');
+                    label.classList.add('border-gray-200');
+                });
+                
+                // Highlight selected option
+                e.target.closest('label').classList.remove('border-gray-200');
+                e.target.closest('label').classList.add('border-gold', 'bg-gold/10');
+                
+                if (e.target.value === 'persistent') {
+                    inventoryField.classList.remove('hidden');
+                } else {
+                    inventoryField.classList.add('hidden');
+                }
+            });
+        });
+        
+        // Re-initialize Lucide icons for the new modal
+        if (window.lucide) window.lucide.createIcons();
+    };
+
+    window.performConversion = async (productId) => {
+        try {
+            const listingType = document.querySelector('input[name="listingType"]:checked').value;
+            const inventory = listingType === 'persistent' ? 
+                parseInt(document.getElementById('convert-inventory').value) || 1 : 1;
+
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE}/products/${productId}/listing-type`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    listingType,
+                    inventory
+                })
+            });
+
+            if (response.ok) {
+                await loadDashboardData(); // Reload dashboard data
+                document.querySelector('.fixed').remove(); // Close modal
+                showMessage('Listing type converted successfully', false);
+            } else {
+                throw new Error('Failed to convert listing type');
+            }
+        } catch (error) {
+            console.error('Error converting listing type:', error);
+            showMessage('Failed to convert listing type', true);
+        }
     };
 
     // Auto-refresh dashboard every 30 seconds

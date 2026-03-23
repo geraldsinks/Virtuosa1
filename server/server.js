@@ -3249,6 +3249,48 @@ app.put('/api/products/:productId/listing-type', authenticateToken, async (req, 
     }
 });
 
+// Update product stock
+app.put('/api/products/:productId/stock', authenticateToken, async (req, res) => {
+    try {
+        const { inventory, lowStockThreshold } = req.body;
+        
+        const product = await Product.findById(req.params.productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        // Check if user is the seller
+        if (product.seller.toString() !== req.user.userId) {
+            return res.status(403).json({ message: 'Only seller can update stock' });
+        }
+
+        // Update stock information
+        product.inventory = parseInt(inventory) || 1;
+        product.lowStockThreshold = parseInt(lowStockThreshold) || 2;
+        product.updatedAt = new Date();
+        
+        // Update status based on stock
+        if (product.inventory <= 0) {
+            product.status = 'Out of Stock';
+        } else if (product.status === 'Out of Stock') {
+            product.status = 'Active';
+        }
+
+        await product.save();
+
+        res.json({
+            message: 'Stock updated successfully',
+            inventory: product.inventory,
+            lowStockThreshold: product.lowStockThreshold,
+            status: product.status
+        });
+
+    } catch (error) {
+        console.error('Update stock error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // Get product sales history
 app.get('/api/products/:productId/sales', authenticateToken, async (req, res) => {
     try {
@@ -5382,6 +5424,12 @@ app.get('/api/seller/dashboard', authenticateToken, async (req, res) => {
         const soldItems = transactions.filter(t => t.status === 'Completed').length;
         const pendingTransactions = transactions.filter(t => ['Pending', 'Confirmed'].includes(t.status)).length;
 
+        // Calculate seller's rating and total reviews
+        const totalReviews = reviews.length;
+        const avgRating = totalReviews > 0 
+            ? reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews 
+            : 0;
+
         res.json({
             buyer: {
                 name: user.fullName,
@@ -5390,7 +5438,9 @@ app.get('/api/seller/dashboard', authenticateToken, async (req, res) => {
                 memberSince: user.createdAt,
                 tokenBalance: user.tokenBalance || 0,
                 totalTokensEarned: user.totalTokensEarned || 0,
-                totalTokensRedeemed: user.totalTokensRedeemed || 0
+                totalTokensRedeemed: user.totalTokensRedeemed || 0,
+                rating: avgRating,
+                totalReviews: totalReviews
             },
             stats: {
                 totalRevenue,

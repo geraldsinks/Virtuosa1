@@ -174,36 +174,57 @@ function setRating(rating) {
 
 // Load transactions for review creation
 async function loadTransactionsForReview() {
+    console.log('🔄 Loading transactions for review...');
+    
     try {
         const token = localStorage.getItem('token');
+        if (!token) {
+            console.log('❌ No token found');
+            document.getElementById('transactionSelect').innerHTML = '<option value="">Please log in to load transactions</option>';
+            return;
+        }
+
         const reviewType = document.getElementById('reviewType').value;
+        console.log('📋 Review type:', reviewType);
         
         if (!reviewType) {
             document.getElementById('transactionSelect').innerHTML = '<option value="">Select review type first</option>';
             return;
         }
 
+        console.log('🌐 Fetching transactions from:', `${API_BASE}/transactions?status=Completed`);
+        
         const response = await fetch(`${API_BASE}/transactions?status=Completed`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
 
+        console.log('📡 Transactions response status:', response.status);
+
         if (!response.ok) {
-            throw new Error('Failed to load transactions');
+            const errorData = await response.json().catch(() => ({}));
+            console.error('❌ Server error:', errorData);
+            throw new Error(errorData.message || 'Failed to load transactions');
         }
 
         const data = await response.json();
-        const transactions = data.transactions;
+        const transactions = data.transactions || [];
+        console.log('📦 Loaded transactions:', transactions);
         
         const select = document.getElementById('transactionSelect');
         select.innerHTML = '<option value="">Select a completed transaction</option>';
         
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        console.log('👤 Current user:', user);
+        
         transactions.forEach(transaction => {
             // Filter transactions based on review type
             const canReview = reviewType === 'Buyer to Seller' ? 
-                transaction.buyer._id === JSON.parse(localStorage.getItem('user')).id :
-                transaction.seller._id === JSON.parse(localStorage.getItem('user')).id;
+                transaction.buyer?._id === user.id :
+                transaction.seller?._id === user.id;
+            
+            console.log(`🔍 Transaction ${transaction._id} can review:`, canReview);
             
             if (canReview) {
                 const option = document.createElement('option');
@@ -212,9 +233,11 @@ async function loadTransactionsForReview() {
                 select.appendChild(option);
             }
         });
+
+        console.log('✅ Transactions loaded successfully');
     } catch (error) {
-        console.error('Error loading transactions:', error);
-        showError('Failed to load transactions');
+        console.error('❌ Error loading transactions:', error);
+        showError(error.message || 'Failed to load transactions');
     }
 }
 
@@ -222,18 +245,30 @@ async function loadTransactionsForReview() {
 async function createReview(event) {
     event.preventDefault();
     
+    console.log('📝 Creating review...');
+    
     try {
         const token = localStorage.getItem('token');
+        if (!token) {
+            showError('Please log in to create a review');
+            return;
+        }
+
         const reviewType = document.getElementById('reviewType').value;
         const transactionId = document.getElementById('transactionSelect').value;
         const rating = document.getElementById('ratingValue').value;
         const reviewText = document.getElementById('reviewText').value;
 
+        console.log('📝 Review data:', { reviewType, transactionId, rating, reviewText });
+
         if (!reviewType || !transactionId || rating === '0' || !reviewText) {
             showError('Please fill in all fields');
+            console.log('❌ Validation failed:', { reviewType, transactionId, rating, reviewText });
             return;
         }
 
+        console.log('🌐 Sending review to:', `${API_BASE}/reviews`);
+        
         const response = await fetch(`${API_BASE}/reviews`, {
             method: 'POST',
             headers: {
@@ -248,11 +283,16 @@ async function createReview(event) {
             })
         });
 
+        console.log('📡 Response status:', response.status);
+
         if (!response.ok) {
-            throw new Error('Failed to create review');
+            const errorData = await response.json().catch(() => ({}));
+            console.error('❌ Server error:', errorData);
+            throw new Error(errorData.message || 'Failed to create review');
         }
 
         const data = await response.json();
+        console.log('✅ Review created:', data);
         showSuccess('Review created successfully');
         
         // Reset form
@@ -264,10 +304,10 @@ async function createReview(event) {
         });
         
         // Reload my reviews
-        loadMyReviews();
+        await loadMyReviews();
     } catch (error) {
-        console.error('Error creating review:', error);
-        showError('Failed to create review');
+        console.error('❌ Error creating review:', error);
+        showError(error.message || 'Failed to create review');
     }
 }
 
@@ -324,15 +364,30 @@ async function loadReviewDetails(reviewId) {
 
 // Submit response to review
 async function submitResponse() {
+    console.log('💬 Submitting review response...');
+    
     try {
         const token = localStorage.getItem('token');
+        if (!token) {
+            showError('Please log in to submit a response');
+            return;
+        }
+
+        if (!currentReviewId) {
+            showError('No review selected for response');
+            return;
+        }
+
         const responseText = document.getElementById('responseText').value;
+        console.log('💬 Response data:', { currentReviewId, responseText });
 
         if (!responseText) {
             showError('Please enter a response');
             return;
         }
 
+        console.log('🌐 Sending response to:', `${API_BASE}/reviews/${currentReviewId}/respond`);
+        
         const response = await fetch(`${API_BASE}/reviews/${currentReviewId}/respond`, {
             method: 'POST',
             headers: {
@@ -344,17 +399,22 @@ async function submitResponse() {
             })
         });
 
+        console.log('📡 Response status:', response.status);
+
         if (!response.ok) {
-            throw new Error('Failed to submit response');
+            const errorData = await response.json().catch(() => ({}));
+            console.error('❌ Server error:', errorData);
+            throw new Error(errorData.message || 'Failed to submit response');
         }
 
         const data = await response.json();
+        console.log('✅ Response submitted:', data);
         showSuccess('Response submitted successfully');
         closeResponseModal();
-        loadReviewsAboutMe(); // Reload reviews about me
+        await loadReviewsAboutMe(); // Reload reviews about me
     } catch (error) {
-        console.error('Error submitting response:', error);
-        showError('Failed to submit response');
+        console.error('❌ Error submitting response:', error);
+        showError(error.message || 'Failed to submit response');
     }
 }
 

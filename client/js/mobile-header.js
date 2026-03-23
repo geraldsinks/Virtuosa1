@@ -10,11 +10,13 @@ function fixServerUrl(url) {
 // Make the helper function globally available
 window.fixServerUrl = fixServerUrl;
 
-document.addEventListener('DOMContentLoaded', function() {
-    initializeMobileHeader();
+document.addEventListener('DOMContentLoaded', async function() {
+    // Wait a bit for config.js to load if needed
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await initializeMobileHeader();
 });
 
-function initializeMobileHeader() {
+async function initializeMobileHeader() {
     // Mobile Menu Elements
     const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
     const mobileMenuButton = document.getElementById('mobile-menu-button'); // Messages page menu button
@@ -70,7 +72,7 @@ function initializeMobileHeader() {
     }
     
     // Initialize Cart Badge
-    updateCartBadge();
+    await updateCartBadge();
     
     // Handle authentication state
     updateAuthState();
@@ -267,18 +269,34 @@ function performSearch() {
 }
 
 // Cart Badge Functions
-function updateCartBadge() {
+async function updateCartBadge() {
     const cartBadgeCount = document.querySelector('.cart-badge-count');
     if (cartBadgeCount) {
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const itemCount = cart.reduce((total, item) => total + (item.quantity || 1), 0);
-        
-        cartBadgeCount.textContent = itemCount;
-        
-        if (itemCount > 0) {
-            cartBadgeCount.classList.remove('hidden');
-        } else {
-            cartBadgeCount.classList.add('hidden');
+        try {
+            // Use the same getCart function as cart.js for consistency
+            const cart = await getCart();
+            const itemCount = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+            
+            cartBadgeCount.textContent = itemCount;
+            
+            if (itemCount > 0) {
+                cartBadgeCount.classList.remove('hidden');
+            } else {
+                cartBadgeCount.classList.add('hidden');
+            }
+        } catch (error) {
+            console.error('Error updating cart badge:', error);
+            // Fallback to localStorage if getCart fails
+            const cart = JSON.parse(localStorage.getItem('virtuosa_cart') || '[]');
+            const itemCount = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+            
+            cartBadgeCount.textContent = itemCount;
+            
+            if (itemCount > 0) {
+                cartBadgeCount.classList.remove('hidden');
+            } else {
+                cartBadgeCount.classList.add('hidden');
+            }
         }
     }
 }
@@ -383,7 +401,9 @@ window.updateMobileCartBadge = updateCartBadge;
 window.updateMobileAuthState = updateAuthState;
 
 // Listen for cart updates
-window.addEventListener('cartUpdated', updateCartBadge);
+window.addEventListener('cartUpdated', async () => {
+    await updateCartBadge();
+});
 
 // Listen for authentication changes
 window.addEventListener('authStateChanged', updateAuthState);

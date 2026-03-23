@@ -179,6 +179,177 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(212, 175, 55, 0.7);
         }
+
+        /* Mobile Responsive Styles for Cash on Delivery */
+        @media (max-width: 767px) {
+            /* Main container adjustments */
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            /* Editorial header adjustments */
+            .serif-heading.text-5xl {
+                font-size: 2.5rem;
+                line-height: 1.2;
+            }
+
+            .editorial-text.text-lg {
+                font-size: 1rem;
+            }
+
+            /* Progress indicator mobile layout */
+            .glass-panel .flex.items-center.justify-between.mb-3 {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .glass-panel .flex.items-center.space-x-2 {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: stretch;
+            }
+
+            .glass-panel .flex.items-center.space-x-2 > div {
+                width: 100%;
+            }
+
+            /* Trust indicators mobile layout */
+            .glass-panel .flex.flex-wrap {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .glass-panel .flex.flex-wrap .flex {
+                justify-content: center;
+                padding: 1rem;
+                border-radius: 12px;
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            /* Grid layout adjustments */
+            .grid.grid-cols-1.lg\:grid-cols-3 {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            /* Glass panel adjustments */
+            .glass-panel {
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            /* Form field improvements */
+            .grid.grid-cols-1.md\:grid-cols-2 {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            input[type="text"], 
+            input[type="tel"], 
+            textarea {
+                font-size: 16px; /* Prevents zoom on iOS */
+                padding: 1rem;
+                min-height: 48px;
+                border-radius: 12px;
+            }
+
+            textarea {
+                min-height: 100px;
+                resize: vertical;
+            }
+
+            /* Labels for better mobile UX */
+            label {
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+                font-weight: 500;
+            }
+
+            /* Button improvements */
+            .gold-button {
+                padding: 1rem;
+                font-size: 1rem;
+                min-height: 48px;
+                border-radius: 12px;
+            }
+
+            /* Investment summary mobile fixes */
+            .lg\:col-span-1.mt-8 {
+                margin-top: 1rem;
+            }
+
+            .lg\:col-span-1 .glass-panel {
+                position: static;
+            }
+
+            /* Progress indicators in summary */
+            .flex.items-center.space-x-2.mb-4 {
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: stretch;
+            }
+
+            .flex.items-center.space-x-2.mb-4 > div {
+                width: 100%;
+            }
+
+            /* Text adjustments for mobile */
+            .text-2xl {
+                font-size: 1.5rem;
+            }
+
+            .text-lg {
+                font-size: 1.125rem;
+            }
+
+            /* Order items section */
+            #order-items {
+                min-height: 200px;
+            }
+
+            /* Floating badge adjustments */
+            .floating-badge {
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+
+        /* Small mobile devices (320px-479px) */
+        @media (max-width: 479px) {
+            .serif-heading.text-5xl {
+                font-size: 2rem;
+            }
+
+            .glass-panel {
+                padding: 1rem;
+            }
+
+            input[type="text"], 
+            input[type="tel"], 
+            textarea {
+                padding: 0.875rem;
+                font-size: 14px;
+            }
+
+            .gold-button {
+                padding: 0.875rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Medium mobile devices (480px-767px) */
+        @media (min-width: 480px) and (max-width: 767px) {
+            .grid.grid-cols-1.md\:grid-cols-2 {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+
+            .md\:col-span-2 {
+                grid-column: span 2;
+            }
+        }
     </style>
 </head>
 
@@ -382,11 +553,11 @@
             </div>
 
             <!-- Order Summary -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2">
-                    <div class="glass-panel p-8">
-                        <div class="flex items-center justify-between mb-6">
-                            <h2 class="serif-heading text-2xl font-light text-white">Your Selections</h2>
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
+                <div class="xl:col-span-2">
+                    <div class="glass-panel p-4 md:p-8">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+                            <h2 class="serif-heading text-xl md:text-2xl font-light text-white">Your Selections</h2>
                             <div class="floating-badge bg-gold text-navy px-3 py-1 rounded-full text-sm font-semibold">
                                 <span id="item-count">0</span> items
                             </div>
@@ -404,15 +575,15 @@
                 </div>
 
                 <!-- Delivery Details -->
-                <div class="lg:col-span-1">
-                    <div class="glass-panel p-8">
-                        <h2 class="serif-heading text-2xl font-light text-white mb-6">Delivery Details</h2>
+                <div class="xl:col-span-1">
+                    <div class="glass-panel p-4 md:p-8">
+                        <h2 class="serif-heading text-xl md:text-2xl font-light text-white mb-6">Delivery Details</h2>
                         
                         <div class="space-y-6">
                             <!-- Personal Information -->
                             <div class="border-t border-gray-600 pt-6">
                                 <h3 class="text-white font-light text-lg mb-4">Personal Information</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
                                         <input type="text" id="delivery-name" class="w-full px-4 py-3 border border-gray-600 rounded-lg bg-white bg-opacity-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent">
@@ -422,11 +593,11 @@
                                         <input type="tel" id="delivery-phone" class="w-full px-4 py-3 border border-gray-600 rounded-lg bg-white bg-opacity-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent">
                                     </div>
                                 </div>
-                                <div class="md:col-span-2">
+                                <div class="sm:col-span-2">
                                     <label class="block text-sm font-medium text-gray-300 mb-2">Delivery Address</label>
                                     <textarea id="delivery-address" rows="2" class="w-full px-4 py-2 border border-gray-600 rounded-lg bg-white bg-opacity-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent text-sm"></textarea>
                                 </div>
-                                <div class="md:col-span-2">
+                                <div class="sm:col-span-2">
                                     <label class="block text-sm font-medium text-gray-300 mb-2">Delivery Instructions</label>
                                     <input type="text" id="delivery-instructions" placeholder="e.g., Leave at campus gate, call before delivery" class="w-full px-4 py-2 border border-gray-600 rounded-lg bg-white bg-opacity-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent text-sm">
                                 </div>
@@ -434,14 +605,14 @@
                         </div>
 
                 <!-- Investment Summary -->
-                <div class="lg:col-span-1 mt-8">
-                    <div class="glass-panel p-8">
-                        <h2 class="serif-heading text-2xl font-light text-white mb-6">Investment Summary</h2>
+                <div class="xl:col-span-1 mt-6 lg:mt-8">
+                    <div class="glass-panel p-4 md:p-8">
+                        <h2 class="serif-heading text-xl md:text-2xl font-light text-white mb-6">Investment Summary</h2>
                         
                         <div class="space-y-6">
                             <!-- Value Breakdown -->
                             <div class="border-t border-gray-600 pt-6">
-                                <div class="flex justify-between items-center mb-4">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
                                     <span class="text-gray-300 text-sm">Your Tech Setup</span>
                                     <!-- Progress Indicator -->
                                     <div class="flex items-center space-x-2">

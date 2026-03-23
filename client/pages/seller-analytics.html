@@ -450,7 +450,7 @@
         });
 
         function populateAnalytics(data) {
-            const { seller, stats, recentTransactions, recentReviews, products } = data;
+            const { buyer: seller, stats, recentTransactions, recentReviews, products } = data;
             const allTx = recentTransactions || [];
             const allProducts = products || [];
 
@@ -458,7 +458,7 @@
             document.getElementById('kpi-revenue').textContent = `ZMW ${stats.totalRevenue.toFixed(2)}`;
             document.getElementById('kpi-sold').textContent = stats.soldItems;
             document.getElementById('kpi-listings').textContent = stats.activeListings;
-            document.getElementById('kpi-rating').textContent = seller.rating.toFixed(1);
+            document.getElementById('kpi-rating').textContent = (seller.rating || 0).toFixed(1);
             document.getElementById('kpi-rating-sub').textContent = `${seller.totalReviews ?? 0} review${(seller.totalReviews ?? 0) === 1 ? '' : 's'}`;
 
             const hasRevenue = stats.totalRevenue > 0;

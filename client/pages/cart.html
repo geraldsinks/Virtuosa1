@@ -188,6 +188,176 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(212, 175, 55, 0.7);
         }
+
+        /* Mobile Responsive Cart Styles */
+        @media (max-width: 767px) {
+            /* Main container adjustments */
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            /* Cart item layout fixes */
+            .cart-item {
+                margin-bottom: 1rem;
+            }
+
+            .cart-item .flex {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .cart-item .flex-shrink-0 {
+                flex-shrink: 1;
+            }
+
+            .cart-item .flex-grow {
+                flex-grow: 1;
+            }
+
+            /* Product image adjustments */
+            .cart-item img {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+                border-radius: 12px;
+            }
+
+            /* Text adjustments for mobile */
+            .cart-item h3 {
+                font-size: 1.125rem;
+                line-height: 1.4;
+                margin-bottom: 0.5rem;
+            }
+
+            .cart-item p {
+                font-size: 0.875rem;
+                margin-bottom: 1rem;
+            }
+
+            /* Quantity controls mobile layout */
+            .cart-item .flex.items-center.space-x-3 {
+                justify-content: center;
+                margin: 1rem 0;
+            }
+
+            .cart-item button.w-8.h-8 {
+                width: 2.5rem;
+                height: 2.5rem;
+                font-size: 1.125rem;
+            }
+
+            .cart-item span.px-2 {
+                font-size: 1rem;
+                padding: 0 0.75rem;
+            }
+
+            /* Price and remove button mobile layout */
+            .cart-item .text-right {
+                text-align: center;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                padding-top: 1rem;
+            }
+
+            .cart-item .text-right p {
+                font-size: 1.25rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .cart-item .text-right button {
+                width: 100%;
+                justify-content: center;
+                padding: 0.75rem;
+                border-radius: 8px;
+                background: rgba(239, 68, 68, 0.1);
+                border: 1px solid rgba(239, 68, 68, 0.3);
+            }
+
+            .cart-item .text-right button:hover {
+                background: rgba(239, 68, 68, 0.2);
+                border-color: rgba(239, 68, 68, 0.5);
+            }
+
+            /* Glass panel adjustments */
+            .glass-panel {
+                margin-bottom: 1rem;
+                padding: 1.5rem;
+            }
+
+            /* Investment Summary mobile adjustments */
+            .lg\:col-span-1 .glass-panel {
+                position: static;
+                margin-top: 2rem;
+            }
+
+            /* Action buttons mobile layout */
+            .gold-button, .glass-card[onclick] {
+                width: 100%;
+                margin-bottom: 0.75rem;
+                padding: 1rem;
+                font-size: 1rem;
+            }
+
+            /* Trust indicators mobile layout */
+            .glass-panel .flex.flex-wrap {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .glass-panel .flex.flex-wrap .flex {
+                justify-content: center;
+            }
+        }
+
+        /* Small mobile devices (320px-479px) */
+        @media (max-width: 479px) {
+            .cart-item img {
+                height: 150px;
+            }
+
+            .cart-item h3 {
+                font-size: 1rem;
+            }
+
+            .cart-item p {
+                font-size: 0.8rem;
+            }
+
+            .cart-item .text-right p {
+                font-size: 1.125rem;
+            }
+
+            /* Quantity controls even smaller */
+            .cart-item button.w-8.h-8 {
+                width: 2rem;
+                height: 2rem;
+                font-size: 1rem;
+            }
+        }
+
+        /* Medium mobile devices (480px-767px) */
+        @media (min-width: 480px) and (max-width: 767px) {
+            .cart-item .flex {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+
+            .cart-item img {
+                width: 120px;
+                height: 120px;
+            }
+
+            .cart-item .text-right {
+                text-align: right;
+                border-top: none;
+                padding-top: 0;
+            }
+
+            .cart-item .text-right button {
+                width: auto;
+            }
+        }
     </style>
 </head>
 
@@ -492,12 +662,12 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
                 <!-- Curated Items Section -->
-                <div class="lg:col-span-2">
-                    <div class="glass-panel p-8">
-                        <div class="flex items-center justify-between mb-6">
-                            <h2 class="serif-heading text-2xl font-light text-white">Your Collection</h2>
+                <div class="xl:col-span-2">
+                    <div class="glass-panel p-4 md:p-8">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+                            <h2 class="serif-heading text-xl md:text-2xl font-light text-white">Your Collection</h2>
                             <div class="floating-badge bg-gold text-navy px-3 py-1 rounded-full text-sm font-semibold">
                                 <span id="item-count">0</span> items
                                 <div class="hidden sm:inline ml-2">

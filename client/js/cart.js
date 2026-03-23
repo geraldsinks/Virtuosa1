@@ -706,6 +706,9 @@ async function updateCartIcon() {
             cartBadge.classList.add('hidden');
         }
     }
+
+    // Dispatch event to notify other components (like mobile-header.js)
+    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { count, cart } }));
 }
 
 async function renderCart() {
@@ -844,23 +847,23 @@ function renderItem(item) {
     console.log('📦 Rendering item:', { item, product, productId, imageUrl });
     
     return `
-        <div class="glass-card p-6 cart-item" style="animation-delay: ${Math.random() * 0.3}s">
-            <div class="flex items-start space-x-4">
-                <div class="flex-shrink-0">
-                    <img src="${fixServerUrl(imageUrl) || 'https://placehold.co/100x100?text=Product'}" alt="${product.name || 'Product'}" class="w-16 h-16 object-cover rounded-lg">
+        <div class="glass-card p-4 md:p-6 cart-item" style="animation-delay: ${Math.random() * 0.3}s">
+            <div class="flex flex-col md:flex-row md:items-start md:space-x-4 space-y-4 md:space-y-0">
+                <div class="flex-shrink-0 mx-auto md:mx-0">
+                    <img src="${fixServerUrl(imageUrl) || 'https://placehold.co/100x100?text=Product'}" alt="${product.name || 'Product'}" class="w-24 h-24 md:w-16 md:h-16 object-cover rounded-lg">
                 </div>
-                <div class="flex-grow min-w-0">
-                    <h3 class="text-white font-medium text-lg mb-1 serif-heading">${product.name || 'Product'}</h3>
+                <div class="flex-grow min-w-0 text-center md:text-left">
+                    <h3 class="text-white font-medium text-base md:text-lg mb-1 serif-heading">${product.name || 'Product'}</h3>
                     <p class="text-gray-400 text-sm mb-3 editorial-text">${product.category || 'Product'}</p>
-                    <div class="flex items-center space-x-3">
+                    <div class="flex items-center justify-center md:justify-start space-x-3">
                         <button onclick="updateQuantity('${productId}', -1)" class="w-8 h-8 rounded-full bg-white bg-opacity-20 text-white font-medium hover:bg-opacity-30 transition-all">−</button>
                         <span class="text-white font-semibold px-2">${item.quantity || 0}</span>
                         <button onclick="updateQuantity('${productId}', 1)" class="w-8 h-8 rounded-full bg-white bg-opacity-20 text-white font-medium hover:bg-opacity-30 transition-all">+</button>
                     </div>
                 </div>
-                <div class="text-right flex-shrink-0">
+                <div class="text-right flex-shrink-0 text-center md:text-right">
                     <p class="text-white font-semibold text-lg mb-2">ZMW ${((product.price || 0) * (item.quantity || 0)).toFixed(2)}</p>
-                    <button onclick="removeFromCart('${productId}')" class="text-gray-400 text-sm hover:text-red-400 transition-colors editorial-text">
+                    <button onclick="removeFromCart('${productId}')" class="text-gray-400 text-sm hover:text-red-400 transition-colors editorial-text inline-flex items-center justify-center md:justify-end">
                         <i class="fas fa-trash-alt mr-2"></i>
                         <span class="hidden sm:inline">Remove</span>
                     </button>
