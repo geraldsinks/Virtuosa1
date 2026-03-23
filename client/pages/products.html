@@ -1035,8 +1035,28 @@
             // Listen for category events from header
             window.addEventListener('virtuosaCategory', (e) => {
                 const category = e.detail?.category || null;
+                console.log('Category event received:', category);
+                
+                // Update current category
                 currentCategory = (category === 'Other') ? null : category;
-                applyFiltersAndRender();
+                
+                // Update URL to reflect the new category
+                const newUrl = currentCategory 
+                    ? `/products?category=${encodeURIComponent(currentCategory)}`
+                    : '/products';
+                
+                // Update browser history
+                history.pushState({}, '', newUrl);
+                
+                // Fetch fresh data for the new category
+                fetchProducts();
+            });
+
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', (e) => {
+                console.log('Popstate event detected, reloading products');
+                // Reload products when user navigates with back/forward buttons
+                fetchProducts();
             });
 
             // Initialize
