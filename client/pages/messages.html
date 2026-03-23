@@ -122,7 +122,13 @@
                 overscroll-behavior: none;
             }
 
-            .chat-container {
+            /* Main container should fill available space */
+            main.flex-grow {
+                height: calc(100vh - 60px);
+                margin-top: 60px;
+            }
+
+            .main-chat-container {
                 height: calc(100vh - 60px);
                 margin-top: 60px;
             }
@@ -351,7 +357,7 @@
             /* Mobile message container with proper padding */
             .mobile-message-container {
                 padding: 16px;
-                height: calc(100vh - 180px);
+                height: calc(100vh - 220px);
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 overscroll-behavior: contain;
@@ -380,6 +386,11 @@
                 display: none !important;
             }
             
+            /* Navigation - ensure hidden on mobile */
+            nav.desktop-only {
+                display: none !important;
+            }
+            
             /* Show minimal mobile header only for messages */
             .mobile-messages-header {
                 display: flex !important;
@@ -397,30 +408,75 @@
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
             
-            /* Adjust chat container height for mobile */
-            .chat-container {
+            /* Main container should account for mobile header */
+            main.flex-grow {
+                height: calc(100vh - 60px);
+                margin-top: 60px;
+            }
+            
+            .main-chat-container {
                 height: calc(100vh - 60px);
                 margin-top: 60px;
             }
             
             /* Fix message container scrolling - prevent elastic behavior */
+            /* Account for: mobile header (60px) + chat header (68px) + input area (80px) = 208px */
             .mobile-message-container {
-                height: calc(100vh - 180px); /* Account for header (60px) + chat header (60px) + input area (60px) */
+                height: calc(100vh - 228px);
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 padding: 12px;
-                overscroll-behavior: contain; /* Prevent elastic scrolling */
+                overscroll-behavior: contain;
                 position: relative;
-                margin-bottom: 0; /* Remove any bottom margin */
+                margin-bottom: 0;
             }
             
             /* Fix conversation list scrolling */
             #conversation-list {
-                height: calc(100vh - 140px); /* Account for header (60px) + sidebar header (80px) */
+                height: calc(100vh - 140px);
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
-                overscroll-behavior: contain; /* Prevent elastic scrolling */
+                overscroll-behavior: contain;
                 position: relative;
+            }
+            
+            /* Ensure chat area is visible on mobile */
+            #chat-area {
+                display: flex !important;
+                height: calc(100vh - 60px);
+            }
+            
+            /* Mobile chat header styling */
+            #chat-area #chat-header {
+                min-height: 68px;
+                padding: 12px 16px;
+                flex-shrink: 0;
+            }
+            
+            /* Mobile input area - ensure always visible */
+            #chat-area #input-area {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                min-height: 80px;
+                z-index: 50;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            }
+            
+            /* Mobile message form */
+            #chat-area #message-form {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 12px;
+            }
+            
+            /* Mobile message input field */
+            #chat-area #message-input {
+                font-size: 16px;
+                padding: 12px 16px;
+                min-height: 44px;
             }
             
             /* Fix mobile menu scrolling */
@@ -826,7 +882,7 @@
 
 
 
-    <main class="flex-grow flex overflow-hidden">
+    <main class="flex-grow flex overflow-hidden main-chat-container">
         <div class="container mx-auto flex h-full bg-white shadow-xl">
             <!-- Conversations Sidebar -->
             <div id="sidebar" class="w-full md:w-1/3 flex flex-col border-r border-gray-100 mobile-full">
