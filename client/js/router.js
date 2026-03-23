@@ -1169,5 +1169,9 @@ window.logout = function() {
 document.addEventListener('DOMContentLoaded', () => {
     if (window.router) {
         window.router.init();
+        // Update links to clean URLs after router is initialized
+        if (window.updateCleanLinks) {
+            setTimeout(() => window.updateCleanLinks(), 50);
+        }
     }
 });

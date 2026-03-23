@@ -75,6 +75,38 @@ class URLHelper {
             }
         }
         
+        // Fallback mapping when router is not available
+        const fallbackRoutes = {
+            '/pages/login.html': '/login',
+            '/pages/signup.html': '/signup',
+            '/pages/products.html': '/products',
+            '/pages/product-detail.html': '/product',
+            '/pages/cart.html': '/cart',
+            '/pages/orders.html': '/orders',
+            '/pages/order-details.html': '/order',
+            '/pages/seller.html': '/seller',
+            '/pages/seller-shop.html': '/seller-shop',
+            '/pages/buyer-dashboard.html': '/dashboard',
+            '/pages/seller-dashboard.html': '/seller-dashboard',
+            '/pages/admin-dashboard.html': '/admin',
+            '/pages/messages.html': '/messages',
+            '/pages/profile.html': '/profile',
+            '/pages/settings.html': '/settings',
+            '/pages/verify-email.html': '/verify-email',
+            '/pages/contact-support.html': '/contact',
+            '/pages/faq.html': '/faq',
+            '/pages/reviews.html': '/reviews',
+            '/pages/create-product.html': '/create-product',
+            '/pages/edit-product.html': '/edit-product',
+            '/pages/cash-on-delivery.html': '/cash-on-delivery',
+            '/pages/seller-verification.html': '/seller-verification'
+        };
+        
+        // Check fallback routes
+        if (fallbackRoutes[normalizedPath]) {
+            return fallbackRoutes[normalizedPath];
+        }
+        
         // Handle relative paths safely
         if (!normalizedPath.startsWith('/')) {
             normalizedPath = '/' + normalizedPath;
@@ -136,11 +168,21 @@ class URLHelper {
     }
 
     static init() {
-        // Update links when DOM is ready
+        // Wait for router to be available before updating links
+        const updateLinksWhenReady = () => {
+            if (window.router && window.router.routes) {
+                this.updatePageLinks();
+            } else {
+                // If router not ready yet, try again after a short delay
+                setTimeout(updateLinksWhenReady, 100);
+            }
+        };
+
+        // Update links when DOM is ready and router is available
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.updatePageLinks());
+            document.addEventListener('DOMContentLoaded', updateLinksWhenReady);
         } else {
-            this.updatePageLinks();
+            updateLinksWhenReady();
         }
     }
 }
@@ -150,3 +192,8 @@ URLHelper.init();
 
 // Export for use in other scripts
 window.URLHelper = URLHelper;
+
+// Also provide a global function to manually update links after dynamic content loads
+window.updateCleanLinks = () => {
+    URLHelper.updatePageLinks();
+};
