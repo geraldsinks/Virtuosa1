@@ -12,6 +12,21 @@ class URLHelper {
                 link.setAttribute('href', cleanUrl);
             }
         });
+        
+        // Also update category links that use query parameters
+        const categoryLinks = document.querySelectorAll('a[href*="category="]');
+        
+        categoryLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            const url = new URL(href, window.location.origin);
+            const category = url.searchParams.get('category');
+            
+            if (category) {
+                // Convert products.html?category=Electronics to /products/Electronics
+                const cleanUrl = `/products/${encodeURIComponent(category)}`;
+                link.setAttribute('href', cleanUrl);
+            }
+        });
     }
 
     static getCleanUrl(filePath) {
@@ -99,7 +114,26 @@ class URLHelper {
             '/pages/create-product.html': '/create-product',
             '/pages/edit-product.html': '/edit-product',
             '/pages/cash-on-delivery.html': '/cash-on-delivery',
-            '/pages/seller-verification.html': '/seller-verification'
+            '/pages/seller-verification.html': '/seller-verification',
+            '/pages/notifications.html': '/notifications',
+            '/pages/transactions.html': '/transactions',
+            '/pages/payment-options.html': '/payment-options',
+            '/pages/live-chat.html': '/live-chat',
+            '/pages/terms.html': '/terms',
+            '/pages/refund-policy.html': '/refund-policy',
+            '/pages/secure-transactions.html': '/secure-transactions',
+            '/pages/seller-benefits.html': '/seller-benefits',
+            '/pages/seller-guide.html': '/seller-guide',
+            '/pages/admin-users.html': '/admin-users',
+            '/pages/admin-seller-applications.html': '/admin-seller-applications',
+            '/pages/admin-mass-messaging.html': '/admin-mass-messaging',
+            '/pages/admin-retention.html': '/admin-retention',
+            '/pages/admin-asset-library.html': '/admin-asset-library',
+            '/pages/marketing-dashboard.html': '/marketing-dashboard',
+            '/pages/marketing.html': '/marketing',
+            '/pages/seller-analytics.html': '/seller-analytics',
+            '/pages/seller-orders.html': '/seller-orders',
+            '/pages/order-details.html': '/order-details'
         };
         
         // Check fallback routes

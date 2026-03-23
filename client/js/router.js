@@ -127,14 +127,34 @@ class CleanRouter {
             'my-products': '/pages/my-products.html',
             'mobile-money-payment': '/pages/mobile-money-payment.html',
             'cash-on-delivery': '/pages/cash-on-delivery.html',
-            'seller-verification': '/pages/seller-verification.html'
+            'seller-verification': '/pages/seller-verification.html',
+            'notifications': '/pages/notifications.html',
+            'transactions': '/pages/transactions.html',
+            'payment-options': '/pages/payment-options.html',
+            'live-chat': '/pages/live-chat.html',
+            'terms': '/pages/terms.html',
+            'refund-policy': '/pages/refund-policy.html',
+            'secure-transactions': '/pages/secure-transactions.html',
+            'seller-benefits': '/pages/seller-benefits.html',
+            'seller-guide': '/pages/seller-guide.html',
+            'admin-users': '/pages/admin-users.html',
+            'admin-seller-applications': '/pages/admin-seller-applications.html',
+            'admin-mass-messaging': '/pages/admin-mass-messaging.html',
+            'admin-retention': '/pages/admin-retention.html',
+            'admin-asset-library': '/pages/admin-asset-library.html',
+            'marketing-dashboard': '/pages/marketing-dashboard.html',
+            'marketing': '/pages/marketing.html',
+            'seller-analytics': '/pages/seller-analytics.html',
+            'seller-orders': '/pages/seller-orders.html',
+            'order-details': '/pages/order-details.html'
         };
         
         // Dynamic route patterns
         this.dynamicRoutes = {
             '/product/:id': '/pages/product-detail.html',
             '/order/:id': '/pages/order-details.html',
-            '/seller/:shop': '/pages/seller-shop.html'
+            '/seller/:shop': '/pages/seller-shop.html',
+            '/products/:category': '/pages/products.html'
         };
         
         // Loading state management

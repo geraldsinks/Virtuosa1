@@ -13,6 +13,10 @@
       "destination": "/pages/products.html"
     },
     {
+      "source": "/products/:category",
+      "destination": "/pages/products.html"
+    },
+    {
       "source": "/product/:id",
       "destination": "/pages/product-detail.html"
     },
@@ -99,6 +103,82 @@
     {
       "source": "/seller-verification",
       "destination": "/pages/seller-verification.html"
+    },
+    {
+      "source": "/notifications",
+      "destination": "/pages/notifications.html"
+    },
+    {
+      "source": "/transactions",
+      "destination": "/pages/transactions.html"
+    },
+    {
+      "source": "/payment-options",
+      "destination": "/pages/payment-options.html"
+    },
+    {
+      "source": "/live-chat",
+      "destination": "/pages/live-chat.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/pages/terms.html"
+    },
+    {
+      "source": "/refund-policy",
+      "destination": "/pages/refund-policy.html"
+    },
+    {
+      "source": "/secure-transactions",
+      "destination": "/pages/secure-transactions.html"
+    },
+    {
+      "source": "/seller-benefits",
+      "destination": "/pages/seller-benefits.html"
+    },
+    {
+      "source": "/seller-guide",
+      "destination": "/pages/seller-guide.html"
+    },
+    {
+      "source": "/admin-users",
+      "destination": "/pages/admin-users.html"
+    },
+    {
+      "source": "/admin-seller-applications",
+      "destination": "/pages/admin-seller-applications.html"
+    },
+    {
+      "source": "/admin-mass-messaging",
+      "destination": "/pages/admin-mass-messaging.html"
+    },
+    {
+      "source": "/admin-retention",
+      "destination": "/pages/admin-retention.html"
+    },
+    {
+      "source": "/admin-asset-library",
+      "destination": "/pages/admin-asset-library.html"
+    },
+    {
+      "source": "/marketing-dashboard",
+      "destination": "/pages/marketing-dashboard.html"
+    },
+    {
+      "source": "/marketing",
+      "destination": "/pages/marketing.html"
+    },
+    {
+      "source": "/seller-analytics",
+      "destination": "/pages/seller-analytics.html"
+    },
+    {
+      "source": "/seller-orders",
+      "destination": "/pages/seller-orders.html"
+    },
+    {
+      "source": "/order-details",
+      "destination": "/pages/order-details.html"
     },
     {
       "source": "/((?!pages/|js/|css/|assets/).*)",

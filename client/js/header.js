@@ -357,19 +357,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const categoryEvent = new CustomEvent('virtuosaCategory', { detail: { category: category } });
             window.dispatchEvent(categoryEvent);
         } else {
-            // Build correct path to products.html from any location
-            let productsPath = 'pages/products.html';
+            // Use clean URL for category navigation
+            const categoryPath = `/products/${encodeURIComponent(category)}`;
+            console.log('Navigating to clean category URL:', categoryPath);
             
-            // Check if we're in a subdirectory and adjust path accordingly
-            const pathname = window.location.pathname;
-            
-            // If we're already in /pages/ directory, use relative path
-            if (pathname.includes('/pages/')) {
-                productsPath = 'products.html';
+            if (window.router && window.router.navigate) {
+                window.router.navigate(categoryPath);
+            } else {
+                // Fallback to direct navigation
+                window.location.href = categoryPath;
             }
-            
-            console.log('Final products path:', productsPath);
-            window.location.href = `${productsPath}?category=${encodeURIComponent(category)}`;
         }
     };
 
