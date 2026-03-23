@@ -122,15 +122,15 @@
                 overscroll-behavior: none;
             }
 
-            /* Main container should fill available space */
+            /* Main container should fill available space - mobile header is hidden */
             main.flex-grow {
-                height: calc(100vh - 60px);
-                margin-top: 60px;
+                height: 100vh;
+                margin-top: 0;
             }
 
             .main-chat-container {
-                height: calc(100vh - 60px);
-                margin-top: 60px;
+                height: 100vh;
+                margin-top: 0;
             }
 
             .mobile-hidden {
@@ -391,9 +391,9 @@
                 display: none !important;
             }
             
-            /* Show minimal mobile header only for messages */
+            /* Mobile messages header - hidden by default since we use chat-header back button instead */
             .mobile-messages-header {
-                display: flex !important;
+                display: none;
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -408,21 +408,21 @@
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
             
-            /* Main container should account for mobile header */
+            /* Main container - mobile header is always hidden so full height */
             main.flex-grow {
-                height: calc(100vh - 60px);
-                margin-top: 60px;
+                height: 100vh;
+                margin-top: 0;
             }
             
             .main-chat-container {
-                height: calc(100vh - 60px);
-                margin-top: 60px;
+                height: 100vh;
+                margin-top: 0;
             }
             
             /* Fix message container scrolling - prevent elastic behavior */
-            /* Account for: mobile header (60px) + chat header (68px) + input area (80px) = 208px */
+            /* Account for: chat header (68px) + input area (80px) = 148px (mobile header is always hidden) */
             .mobile-message-container {
-                height: calc(100vh - 228px);
+                height: calc(100vh - 148px);
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 padding: 12px;
@@ -431,19 +431,19 @@
                 margin-bottom: 0;
             }
             
-            /* Fix conversation list scrolling */
+            /* Fix conversation list scrolling - full height since mobile header is hidden */
             #conversation-list {
-                height: calc(100vh - 140px);
+                height: 100vh;
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 overscroll-behavior: contain;
                 position: relative;
             }
             
-            /* Ensure chat area is visible on mobile */
+            /* Ensure chat area is visible on mobile - full height since mobile header is hidden */
             #chat-area {
                 display: flex !important;
-                height: calc(100vh - 60px);
+                height: 100vh;
             }
             
             /* Mobile chat header styling */
@@ -646,12 +646,12 @@
 
 <body class="bg-gray-50 flex flex-col h-screen overflow-hidden">
     
-    <!-- Minimal Mobile Messages Header (Hidden on Desktop) -->
+    <!-- Minimal Mobile Messages Header (Hidden by default - only shows on conversation list on mobile) -->
     <header class="mobile-messages-header hidden">
-        <!-- Left: Menu Button -->
-        <button id="mobile-menu-button" class="text-white hover:text-gold transition-colors p-2">
+        <!-- Left: Back Button - goes to previous page -->
+        <button id="mobile-messages-back-button" class="text-white hover:text-gold transition-colors p-2" onclick="history.back()">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
         </button>
 
@@ -661,8 +661,8 @@
         </div>
 
         <!-- Right: Empty space for balance -->
-        <div class="flex items-center space-x-2">
-            <!-- No search button - removed -->
+        <div class="w-10">
+            <!-- Spacer for balance -->
         </div>
     </header>
     
@@ -904,7 +904,7 @@
                 <div id="chat-header"
                     class="p-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10 mobile-chat-header">
                     <div class="flex items-center gap-3">
-                        <button onclick="showSidebar()" class="md:hidden mobile-touch-button p-2 hover:bg-gray-100 rounded-full">
+                        <button onclick="history.back()" class="md:hidden mobile-touch-button p-2 hover:bg-gray-100 rounded-full">
                             <i data-lucide="arrow-left" class="w-5 h-5"></i>
                         </button>
                         <div id="recipient-avatar"

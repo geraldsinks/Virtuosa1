@@ -338,12 +338,6 @@ document.addEventListener('DOMContentLoaded', () => {
             sidebar.classList.add('hidden');
             chatArea.classList.remove('hidden');
             chatArea.classList.add('flex');
-            
-            // Update mobile header title
-            const mobileTitle = document.querySelector('.mobile-messages-header h1');
-            if (mobileTitle && recipientName) {
-                mobileTitle.textContent = recipientName;
-            }
         } else {
             chatArea.classList.remove('hidden');
             chatArea.classList.add('flex');
