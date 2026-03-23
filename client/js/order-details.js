@@ -391,7 +391,7 @@ class OrderDetailsManager {
     messageOtherParty() {
         const otherParty = this.currentUserRole === 'seller' ? this.order.buyer : this.order.seller;
         if (otherParty?._id) {
-            window.location.href = `messages.html?${this.currentUserRole === 'seller' ? 'buyer' : 'seller'}=${otherParty._id}&order=${this.order._id}`;
+            window.location.href = `/messages?${this.currentUserRole === 'seller' ? 'buyer' : 'seller'}=${otherParty._id}&order=${this.order._id}`;
         }
     }
 

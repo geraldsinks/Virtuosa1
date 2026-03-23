@@ -844,7 +844,7 @@ function showSuccess(message) {
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = 'login.html';
+    window.location.href = '/login';
 }
 
 // Initialize transactions page

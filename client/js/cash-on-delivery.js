@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             showToast('Cart updated - some items were invalid and have been removed', 'warning');
             // Redirect to cart page to see updated cart
             setTimeout(() => {
-                window.location.href = 'cart.html';
+                window.location.href = '/cart';
             }, 3000);
         }
     } catch (error) {
@@ -166,7 +166,7 @@ async function placeCashOnDeliveryOrder() {
 
         if (cartItems.length === 0) {
             alert('Your cart is empty. Please add items before placing an order.');
-            window.location.href = 'cart.html';
+            window.location.href = '/cart';
             return;
         }
 
@@ -241,7 +241,7 @@ async function placeCashOnDeliveryOrder() {
 
             // Redirect to orders page
             setTimeout(() => {
-                window.location.href = 'orders.html';
+                window.location.href = '/orders';
             }, 3000);
 
         } else {
@@ -252,7 +252,7 @@ async function placeCashOnDeliveryOrder() {
             if (response.status === 401) {
                 alert('Your session has expired. Please log in again.');
                 setTimeout(() => {
-                    window.location.href = 'login.html';
+                    window.location.href = '/login';
                 }, 2000);
             } else if (response.status === 400) {
                 alert(error.message || 'Invalid order data. Please check your information and try again.');

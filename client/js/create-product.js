@@ -274,9 +274,9 @@ function showSuccessModal() {
 // View created product
 function viewProduct() {
     if (currentProductId) {
-        window.location.href = `products.html?id=${currentProductId}`;
+        window.location.href = `/products?id=${currentProductId}`;
     } else {
-        window.location.href = 'products.html';
+        window.location.href = '/products';
     }
 }
 
@@ -330,7 +330,7 @@ async function checkSellerStatus() {
         if (!user.isSeller) {
             // Redirect to seller verification page
             alert('You need to become a seller first. Redirecting to seller verification page...');
-            window.location.href = 'seller-verification.html';
+            window.location.href = '/seller-verification';
             return;
         }
         
@@ -346,7 +346,7 @@ async function checkSellerStatus() {
                     <div class="ml-3">
                         <p class="text-sm text-yellow-700">
                             <strong>Notice:</strong> Your seller account is not yet verified. 
-                            <a href="seller-verification.html" class="underline font-medium">Complete verification</a> 
+                            <a href="/seller-verification" class="underline font-medium">Complete verification</a> 
                             to unlock all seller features and increase buyer trust.
                         </p>
                     </div>

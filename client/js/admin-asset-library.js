@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
     
     if (!token) {
-        window.location.href = '/pages/login.html';
+        window.location.href = '/login';
         return;
     }
 
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
         console.error('Admin check failed:', error);
         // If API call fails, redirect to login (token might be expired)
-        window.location.href = '/pages/login.html';
+        window.location.href = '/login';
         return;
     }
 

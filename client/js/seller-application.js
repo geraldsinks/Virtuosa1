@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
     if (!token) {
         showToast('Please log in to apply as a seller', 'error');
-        setTimeout(() => { window.location.href = '/pages/login.html'; }, 1500);
+        setTimeout(() => { window.location.href = '/login'; }, 1500);
         return;
     }
 
@@ -129,10 +129,10 @@ async function checkApplicationStatus() {
                     <h2 class="text-2xl font-bold text-green-900 mb-2">You're an Approved Seller!</h2>
                     <p class="text-green-700 mb-4">Your application was approved. Start listing your items and reach customers across campus.</p>
                     <div class="flex flex-wrap justify-center gap-3">
-                        <a href="/pages/create-product.html" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold">
+                        <a href="/create-product" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold">
                             <i class="fas fa-plus mr-2"></i>Create Listing
                         </a>
-                        <a href="/pages/seller-dashboard.html" class="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition font-semibold">
+                        <a href="/seller-dashboard" class="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition font-semibold">
                             <i class="fas fa-tachometer-alt mr-2"></i>Seller Dashboard
                         </a>
                     </div>

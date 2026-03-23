@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!token) {
         console.log('No token found, redirecting to login');
-        window.location.href = '/pages/login.html';
+        window.location.href = '/login';
         return;
     }
 
@@ -152,21 +152,21 @@ function renderAdSliders(adSliders) {
                             <div class="space-y-2">
                                 <select id="ad-link-preset-${ad._id || ad.id}" class="w-full px-3 py-2 border border-gray-300 rounded-lg" onchange="updateAdLink('${ad._id || ad.id}')">
                                     <option value="">Select Category Link...</option>
-                                    <option value="/pages/products.html?category=Hot%20Deals" ${ad.link === '/pages/products.html?category=Hot%20Deals' ? 'selected' : ''}>Hot Deals</option>
-                                    <option value="/pages/products.html?category=Best%20Sellers" ${ad.link === '/pages/products.html?category=Best%20Sellers' ? 'selected' : ''}>Best Sellers</option>
-                                    <option value="/pages/products.html?category=Electronics" ${ad.link === '/pages/products.html?category=Electronics' ? 'selected' : ''}>Electronics</option>
-                                    <option value="/pages/products.html?category=Computers%20%26%20Software" ${ad.link === '/pages/products.html?category=Computers%20%26%20Software' ? 'selected' : ''}>Computers & Software</option>
-                                    <option value="/pages/products.html?category=Services" ${ad.link === '/pages/products.html?category=Services' ? 'selected' : ''}>Services</option>
-                                    <option value="/pages/products.html?category=Men%27s%20Clothing" ${ad.link === '/pages/products.html?category=Men%27s%20Clothing' ? 'selected' : ''}>Men's Clothing</option>
-                                    <option value="/pages/products.html?category=Women%27s%20Clothing" ${ad.link === '/pages/products.html?category=Women%27s%20Clothing' ? 'selected' : ''}>Women's Clothing</option>
-                                    <option value="/pages/products.html?category=Shoes" ${ad.link === '/pages/products.html?category=Shoes' ? 'selected' : ''}>Shoes</option>
-                                    <option value="/pages/products.html?category=Accessories" ${ad.link === '/pages/products.html?category=Accessories' ? 'selected' : ''}>Accessories</option>
-                                    <option value="/pages/products.html?category=Personal%20Care%20%26%20Beauty" ${ad.link === '/pages/products.html?category=Personal%20Care%20%26%20Beauty' ? 'selected' : ''}>Personal Care & Beauty</option>
-                                    <option value="/pages/products.html?category=Food%20%26%20Beverages" ${ad.link === '/pages/products.html?category=Food%20%26%20Beverages' ? 'selected' : ''}>Food & Beverages</option>
-                                    <option value="/pages/products.html?category=Sports%20%26%20Outdoors" ${ad.link === '/pages/products.html?category=Sports%20%26%20Outdoors' ? 'selected' : ''}>Sports & Outdoors</option>
-                                    <option value="/pages/products.html?category=Home%20%26%20Living" ${ad.link === '/pages/products.html?category=Home%20%26%20Living' ? 'selected' : ''}>Home & Living</option>
-                                    <option value="/pages/products.html?category=Watches%20%26%20Jewellery" ${ad.link === '/pages/products.html?category=Watches%20%26%20Jewellery' ? 'selected' : ''}>Watches & Jewellery</option>
-                                    <option value="/pages/seller.html" ${ad.link === '/pages/seller.html' ? 'selected' : ''}>Become a Seller</option>
+                                    <option value="/products?category=Hot%20Deals" ${ad.link === '/products?category=Hot%20Deals' ? 'selected' : ''}>Hot Deals</option>
+                                    <option value="/products?category=Best%20Sellers" ${ad.link === '/products?category=Best%20Sellers' ? 'selected' : ''}>Best Sellers</option>
+                                    <option value="/products?category=Electronics" ${ad.link === '/products?category=Electronics' ? 'selected' : ''}>Electronics</option>
+                                    <option value="/products?category=Computers%20%26%20Software" ${ad.link === '/products?category=Computers%20%26%20Software' ? 'selected' : ''}>Computers & Software</option>
+                                    <option value="/products?category=Services" ${ad.link === '/products?category=Services' ? 'selected' : ''}>Services</option>
+                                    <option value="/products?category=Men%27s%20Clothing" ${ad.link === '/products?category=Men%27s%20Clothing' ? 'selected' : ''}>Men's Clothing</option>
+                                    <option value="/products?category=Women%27s%20Clothing" ${ad.link === '/products?category=Women%27s%20Clothing' ? 'selected' : ''}>Women's Clothing</option>
+                                    <option value="/products?category=Shoes" ${ad.link === '/products?category=Shoes' ? 'selected' : ''}>Shoes</option>
+                                    <option value="/products?category=Accessories" ${ad.link === '/products?category=Accessories' ? 'selected' : ''}>Accessories</option>
+                                    <option value="/products?category=Personal%20Care%20%26%20Beauty" ${ad.link === '/products?category=Personal%20Care%20%26%20Beauty' ? 'selected' : ''}>Personal Care & Beauty</option>
+                                    <option value="/products?category=Food%20%26%20Beverages" ${ad.link === '/products?category=Food%20%26%20Beverages' ? 'selected' : ''}>Food & Beverages</option>
+                                    <option value="/products?category=Sports%20%26%20Outdoors" ${ad.link === '/products?category=Sports%20%26%20Outdoors' ? 'selected' : ''}>Sports & Outdoors</option>
+                                    <option value="/products?category=Home%20%26%20Living" ${ad.link === '/products?category=Home%20%26%20Living' ? 'selected' : ''}>Home & Living</option>
+                                    <option value="/products?category=Watches%20%26%20Jewellery" ${ad.link === '/products?category=Watches%20%26%20Jewellery' ? 'selected' : ''}>Watches & Jewellery</option>
+                                    <option value="/seller" ${ad.link === '/seller' ? 'selected' : ''}>Become a Seller</option>
                                     <option value="custom">Custom Link</option>
                                 </select>
                                 <input type="text" value="${ad.link || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg" id="ad-link-${ad._id || ad.id}" placeholder="Enter custom link...">
@@ -255,21 +255,21 @@ function renderCategoryCards(cards) {
                             <div class="space-y-2">
                                 <select id="card-link-preset-${card._id || card.id}" class="w-full px-3 py-2 border border-gray-300 rounded-lg" onchange="updateCardLink('${card._id || card.id}')">
                                     <option value="">Select Category Link...</option>
-                                    <option value="/pages/products.html?category=Hot%20Deals" ${card.link === '/pages/products.html?category=Hot%20Deals' ? 'selected' : ''}>Hot Deals</option>
-                                    <option value="/pages/products.html?category=Best%20Sellers" ${card.link === '/pages/products.html?category=Best%20Sellers' ? 'selected' : ''}>Best Sellers</option>
-                                    <option value="/pages/products.html?category=Electronics" ${card.link === '/pages/products.html?category=Electronics' ? 'selected' : ''}>Electronics</option>
-                                    <option value="/pages/products.html?category=Computers%20%26%20Software" ${card.link === '/pages/products.html?category=Computers%20%26%20Software' ? 'selected' : ''}>Computers & Software</option>
-                                    <option value="/pages/products.html?category=Services" ${card.link === '/pages/products.html?category=Services' ? 'selected' : ''}>Services</option>
-                                    <option value="/pages/products.html?category=Men%27s%20Clothing" ${card.link === '/pages/products.html?category=Men%27s%20Clothing' ? 'selected' : ''}>Men's Clothing</option>
-                                    <option value="/pages/products.html?category=Women%27s%20Clothing" ${card.link === '/pages/products.html?category=Women%27s%20Clothing' ? 'selected' : ''}>Women's Clothing</option>
-                                    <option value="/pages/products.html?category=Shoes" ${card.link === '/pages/products.html?category=Shoes' ? 'selected' : ''}>Shoes</option>
-                                    <option value="/pages/products.html?category=Accessories" ${card.link === '/pages/products.html?category=Accessories' ? 'selected' : ''}>Accessories</option>
-                                    <option value="/pages/products.html?category=Personal%20Care%20%26%20Beauty" ${card.link === '/pages/products.html?category=Personal%20Care%20%26%20Beauty' ? 'selected' : ''}>Personal Care & Beauty</option>
-                                    <option value="/pages/products.html?category=Food%20%26%20Beverages" ${card.link === '/pages/products.html?category=Food%20%26%20Beverages' ? 'selected' : ''}>Food & Beverages</option>
-                                    <option value="/pages/products.html?category=Sports%20%26%20Outdoors" ${card.link === '/pages/products.html?category=Sports%20%26%20Outdoors' ? 'selected' : ''}>Sports & Outdoors</option>
-                                    <option value="/pages/products.html?category=Home%20%26%20Living" ${card.link === '/pages/products.html?category=Home%20%26%20Living' ? 'selected' : ''}>Home & Living</option>
-                                    <option value="/pages/products.html?category=Watches%20%26%20Jewellery" ${card.link === '/pages/products.html?category=Watches%20%26%20Jewellery' ? 'selected' : ''}>Watches & Jewellery</option>
-                                    <option value="/pages/seller.html" ${card.link === '/pages/seller.html' ? 'selected' : ''}>Become a Seller</option>
+                                    <option value="/products?category=Hot%20Deals" ${card.link === '/products?category=Hot%20Deals' ? 'selected' : ''}>Hot Deals</option>
+                                    <option value="/products?category=Best%20Sellers" ${card.link === '/products?category=Best%20Sellers' ? 'selected' : ''}>Best Sellers</option>
+                                    <option value="/products?category=Electronics" ${card.link === '/products?category=Electronics' ? 'selected' : ''}>Electronics</option>
+                                    <option value="/products?category=Computers%20%26%20Software" ${card.link === '/products?category=Computers%20%26%20Software' ? 'selected' : ''}>Computers & Software</option>
+                                    <option value="/products?category=Services" ${card.link === '/products?category=Services' ? 'selected' : ''}>Services</option>
+                                    <option value="/products?category=Men%27s%20Clothing" ${card.link === '/products?category=Men%27s%20Clothing' ? 'selected' : ''}>Men's Clothing</option>
+                                    <option value="/products?category=Women%27s%20Clothing" ${card.link === '/products?category=Women%27s%20Clothing' ? 'selected' : ''}>Women's Clothing</option>
+                                    <option value="/products?category=Shoes" ${card.link === '/products?category=Shoes' ? 'selected' : ''}>Shoes</option>
+                                    <option value="/products?category=Accessories" ${card.link === '/products?category=Accessories' ? 'selected' : ''}>Accessories</option>
+                                    <option value="/products?category=Personal%20Care%20%26%20Beauty" ${card.link === '/products?category=Personal%20Care%20%26%20Beauty' ? 'selected' : ''}>Personal Care & Beauty</option>
+                                    <option value="/products?category=Food%20%26%20Beverages" ${card.link === '/products?category=Food%20%26%20Beverages' ? 'selected' : ''}>Food & Beverages</option>
+                                    <option value="/products?category=Sports%20%26%20Outdoors" ${card.link === '/products?category=Sports%20%26%20Outdoors' ? 'selected' : ''}>Sports & Outdoors</option>
+                                    <option value="/products?category=Home%20%26%20Living" ${card.link === '/products?category=Home%20%26%20Living' ? 'selected' : ''}>Home & Living</option>
+                                    <option value="/products?category=Watches%20%26%20Jewellery" ${card.link === '/products?category=Watches%20%26%20Jewellery' ? 'selected' : ''}>Watches & Jewellery</option>
+                                    <option value="/seller" ${card.link === '/seller' ? 'selected' : ''}>Become a Seller</option>
                                     <option value="custom">Custom Link</option>
                                 </select>
                                 <input type="text" value="${card.link || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg" id="card-link-${card._id || card.id}" placeholder="Enter custom link...">
@@ -507,7 +507,7 @@ function renderFallbackCategories(fallbackCategories) {
                 const displayTitle = override ? override.title : category.title || category.name;
                 const displayDescription = override ? override.description : category.description || category.name;
                 const displayImage = override ? override.image : category.image || `https://placehold.co/300x240?text=${encodeURIComponent(category.name)}`;
-                const displayLink = override ? override.link : `/pages/products.html?category=${encodeURIComponent(category.name)}`;
+                const displayLink = override ? override.link : `/products?category=${encodeURIComponent(category.name)}`;
                 const cardType = override ? override.cardType : (index % 3 === 0 ? 'rectangle' : 'square'); // Professional alternating pattern
 
                 return `
@@ -795,20 +795,20 @@ let currentPresetStyle = 'amazon'; // 'amazon', 'ebay', or 'rakuten'
 
 // Base categories data
 const BASE_CATEGORIES = [
-    { name: 'Electronics', title: 'Electronics', link: '/pages/products.html?category=Electronics' },
-    { name: 'Computers & Software', title: 'Computers & Software', link: '/pages/products.html?category=Computers%20%26%20Software' },
-    { name: 'Services', title: 'Services', link: '/pages/products.html?category=Services' },
-    { name: 'Watches & Jewellery', title: 'Watches & Jewellery', link: '/pages/products.html?category=Watches%20%26%20Jewellery' },
-    { name: 'Mens Clothing', title: 'Men\'s Clothing', link: '/pages/products.html?category=Men%27s%20Clothing' },
-    { name: 'Womens Clothing', title: 'Women\'s Clothing', link: '/pages/products.html?category=Women%27s%20Clothing' },
-    { name: 'Shoes', title: 'Shoes', link: '/pages/products.html?category=Shoes' },
-    { name: 'Accessories', title: 'Accessories', link: '/pages/products.html?category=Accessories' },
-    { name: 'Personal Care & Beauty', title: 'Personal Care & Beauty', link: '/pages/products.html?category=Personal%20Care%20%26%20Beauty' },
-    { name: 'Food & Beverages', title: 'Food & Beverages', link: '/pages/products.html?category=Food%20%26%20Beverages' },
-    { name: 'Sports & Outdoors', title: 'Sports & Outdoors', link: '/pages/products.html?category=Sports%20%26%20Outdoors' },
-    { name: 'Home & Living', title: 'Home & Living', link: '/pages/products.html?category=Home%20%26%20Living' },
-    { name: 'Hot Deals', title: 'Hot Deals', link: '/pages/products.html?category=Hot%20Deals' },
-    { name: 'Best Sellers', title: 'Best Sellers', link: '/pages/products.html?category=Best%20Sellers' }
+    { name: 'Electronics', title: 'Electronics', link: '/products?category=Electronics' },
+    { name: 'Computers & Software', title: 'Computers & Software', link: '/products?category=Computers%20%26%20Software' },
+    { name: 'Services', title: 'Services', link: '/products?category=Services' },
+    { name: 'Watches & Jewellery', title: 'Watches & Jewellery', link: '/products?category=Watches%20%26%20Jewellery' },
+    { name: 'Mens Clothing', title: 'Men\'s Clothing', link: '/products?category=Men%27s%20Clothing' },
+    { name: 'Womens Clothing', title: 'Women\'s Clothing', link: '/products?category=Women%27s%20Clothing' },
+    { name: 'Shoes', title: 'Shoes', link: '/products?category=Shoes' },
+    { name: 'Accessories', title: 'Accessories', link: '/products?category=Accessories' },
+    { name: 'Personal Care & Beauty', title: 'Personal Care & Beauty', link: '/products?category=Personal%20Care%20%26%20Beauty' },
+    { name: 'Food & Beverages', title: 'Food & Beverages', link: '/products?category=Food%20%26%20Beverages' },
+    { name: 'Sports & Outdoors', title: 'Sports & Outdoors', link: '/products?category=Sports%20%26%20Outdoors' },
+    { name: 'Home & Living', title: 'Home & Living', link: '/products?category=Home%20%26%20Living' },
+    { name: 'Hot Deals', title: 'Hot Deals', link: '/products?category=Hot%20Deals' },
+    { name: 'Best Sellers', title: 'Best Sellers', link: '/products?category=Best%20Sellers' }
 ];
 
 // Preset layouts with different arrangements

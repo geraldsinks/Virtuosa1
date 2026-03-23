@@ -362,7 +362,7 @@ class NotificationModal {
             type: data.notification.type,
             createdAt: data.timestamp,
             isRead: false,
-            link: '/pages/orders.html'
+            link: '/orders'
         };
         
         this.addNewNotification(notification);

@@ -4,7 +4,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
     if (!token) {
-        window.location.href = '/pages/login.html';
+        window.location.href = '/login';
         return;
     }
 
@@ -157,10 +157,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <h3 class="font-semibold text-green-800 mb-2">🎉 Congratulations!</h3>
                     <p class="text-sm text-green-700 mb-4">You're now a verified seller on Virtuosa. Start listing your items and reach thousands of student buyers.</p>
                     <div class="flex space-x-4">
-                        <a href="/pages/seller.html" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
+                        <a href="/seller" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
                             Go to Seller Dashboard
                         </a>
-                        <a href="/pages/profile.html" class="bg-navy text-white px-6 py-3 rounded-lg hover:bg-navy transition-colors font-semibold">
+                        <a href="/profile" class="bg-navy text-white px-6 py-3 rounded-lg hover:bg-navy transition-colors font-semibold">
                             Update Profile
                         </a>
                     </div>

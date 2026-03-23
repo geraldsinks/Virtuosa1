@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
     if (!token) {
-        window.location.href = '/pages/login.html';
+        window.location.href = '/login';
         return;
     }
 
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadNotifications(); // Reload notifications to show the new one
             
             // Show toast notification if not on notifications page
-            if (window.location.pathname !== '/pages/notifications.html') {
+            if (window.location.pathname !== '/notifications') {
                 showNotificationToast(notification);
             }
         });
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadNotifications(); // Reload to show order updates
             
             // Show toast for order updates
-            if (window.location.pathname !== '/pages/notifications.html') {
+            if (window.location.pathname !== '/notifications') {
                 showOrderUpdateToast(data);
             }
         });

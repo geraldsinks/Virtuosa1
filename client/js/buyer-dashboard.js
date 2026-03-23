@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
 
     if (!token) {
-        window.location.href = '/pages/login.html';
+        window.location.href = '/login';
         return;
     }
 
@@ -68,14 +68,14 @@ document.addEventListener('click', function(event) {
 window.logout = function() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/pages/login.html';
+    window.location.href = '/login';
 };
 
 async function loadDashboardData() {
     const token = localStorage.getItem('token');
     
     if (!token) {
-        window.location.href = '/pages/login.html';
+        window.location.href = '/login';
         return;
     }
 
@@ -352,7 +352,7 @@ async function loadRecommendations() {
 
 function createRecommendationHTML(product) {
     return `
-        <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer" onclick="window.location.href='/pages/product-detail.html?id=${product._id}'">
+        <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer" onclick="window.location.href='/product/${product._id}'">
             <div class="flex items-center">
                 <img src="${fixServerUrl(product.images?.[0]) || 'https://placehold.co/60x60?text=Product'}" 
                      alt="${product.name}" 

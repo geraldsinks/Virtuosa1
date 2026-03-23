@@ -1,0 +1,108 @@
+{
+  "rewrites": [
+    {
+      "source": "/login",
+      "destination": "/pages/login.html"
+    },
+    {
+      "source": "/signup", 
+      "destination": "/pages/signup.html"
+    },
+    {
+      "source": "/products",
+      "destination": "/pages/products.html"
+    },
+    {
+      "source": "/product/:id",
+      "destination": "/pages/product-detail.html"
+    },
+    {
+      "source": "/cart",
+      "destination": "/pages/cart.html"
+    },
+    {
+      "source": "/orders",
+      "destination": "/pages/orders.html"
+    },
+    {
+      "source": "/order/:id",
+      "destination": "/pages/order-details.html"
+    },
+    {
+      "source": "/seller",
+      "destination": "/pages/seller.html"
+    },
+    {
+      "source": "/seller/:shop",
+      "destination": "/pages/seller-shop.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/pages/buyer-dashboard.html"
+    },
+    {
+      "source": "/seller-dashboard",
+      "destination": "/pages/seller-dashboard.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/pages/admin-dashboard.html"
+    },
+    {
+      "source": "/messages",
+      "destination": "/pages/messages.html"
+    },
+    {
+      "source": "/profile",
+      "destination": "/pages/profile.html"
+    },
+    {
+      "source": "/settings",
+      "destination": "/pages/settings.html"
+    },
+    {
+      "source": "/verify-email",
+      "destination": "/pages/verify-email.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/pages/contact-support.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/pages/faq.html"
+    },
+    {
+      "source": "/reviews",
+      "destination": "/pages/reviews.html"
+    },
+    {
+      "source": "/create-product",
+      "destination": "/pages/create-product.html"
+    },
+    {
+      "source": "/edit-product",
+      "destination": "/pages/edit-product.html"
+    },
+    {
+      "source": "/my-products",
+      "destination": "/pages/my-products.html"
+    },
+    {
+      "source": "/mobile-money-payment",
+      "destination": "/pages/mobile-money-payment.html"
+    },
+    {
+      "source": "/cash-on-delivery",
+      "destination": "/pages/cash-on-delivery.html"
+    },
+    {
+      "source": "/seller-verification",
+      "destination": "/pages/seller-verification.html"
+    },
+    {
+      "source": "/((?!pages/|js/|css/|assets/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

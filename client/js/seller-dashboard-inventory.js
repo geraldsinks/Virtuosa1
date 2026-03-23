@@ -36,7 +36,7 @@ class SellerInventoryManager {
                 <div class="text-center py-8 col-span-full">
                     <i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i>
                     <p class="text-gray-500">You haven't listed any products yet</p>
-                    <button onclick="window.location.href='create-product.html'" 
+                    <button onclick="window.location.href='/create-product'" 
                             class="mt-4 bg-gold text-navy px-6 py-2 rounded-lg font-semibold hover:bg-yellow-400 transition-colors">
                         Create Your First Listing
                     </button>
@@ -111,7 +111,7 @@ class SellerInventoryManager {
                                     class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition-colors">
                                 <i class="fas fa-chart-line mr-1"></i>Sales
                             </button>
-                            <button onclick="window.location.href='edit-product.html?id=${product._id}'" 
+                            <button onclick="window.location.href='/edit-product?id=${product._id}'" 
                                     class="px-3 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600 transition-colors">
                                 <i class="fas fa-edit mr-1"></i>Edit
                             </button>

@@ -8,7 +8,7 @@ let userStatsChart = null;
 function checkAdminAccess() {
     const token = localStorage.getItem('token');
     if (!token) {
-        window.location.href = 'login.html';
+        window.location.href = '/login';
         return;
     }
 
@@ -25,7 +25,7 @@ function checkAdminAccess() {
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');
                     alert('Your session has expired. Please log in again.');
-                    window.location.href = 'login.html';
+                    window.location.href = '/login';
                     return;
                 }
                 throw new Error('Not authorized');
@@ -45,7 +45,7 @@ function checkAdminAccess() {
             if (error.message.includes('Failed to fetch') || error.message.includes('Not authorized')) {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
-                window.location.href = 'login.html';
+                window.location.href = '/login';
             }
         });
 }
@@ -68,7 +68,7 @@ async function loadDashboardData() {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 alert('Your session has expired. Please log in again.');
-                window.location.href = 'login.html';
+                window.location.href = '/login';
                 return;
             }
             throw new Error('Failed to load dashboard data');

@@ -443,12 +443,12 @@ async function handleSignup(event) {
             if (result.emailVerificationFailed) {
                 showMessage('Account created but email verification failed. Please contact support at virtuosa@gmail.com or try logging in and requesting a new verification email.', true);
                 setTimeout(() => {
-                    window.location.href = 'login.html';
+                    window.location.href = '/login';
                 }, 3000);
             } else {
                 showMessage('Account created successfully! Please check your student email for verification.');
                 setTimeout(() => {
-                    window.location.href = 'login.html';
+                    window.location.href = '/login';
                 }, 2000);
             }
         } else {

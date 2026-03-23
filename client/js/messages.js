@@ -494,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div>
                                 <p class="font-bold">Authentication Error</p>
                                 <p class="text-sm">${data.message}</p>
-                                <button onclick="location.href='/login.html'" class="mt-2 bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">
+                                <button onclick="location.href='/login'" class="mt-2 bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">
                                     Login Again
                                 </button>
                             </div>
@@ -591,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ` : ''}
                     
                     ${message.product ? `
-                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded-lg flex items-center gap-2 cursor-pointer mobile-product-bubble" onclick="window.location.href='/pages/product-detail.html?id=${sanitizeHTML(message.product._id)}'">
+                        <div class="mb-2 p-2 bg-black bg-opacity-10 rounded-lg flex items-center gap-2 cursor-pointer mobile-product-bubble" onclick="window.location.href='/product/${sanitizeHTML(message.product._id)}'">
                             <img src="${sanitizeHTML(fixServerUrl(message.product.images?.[0]))}" class="w-8 h-8 md:w-8 md:h-8 w-10 h-10 rounded object-cover">
                             <div class="min-w-0">
                                 <p class="text-[10px] md:text-[10px] text-xs font-bold truncate">${sanitizeHTML(message.product.name)}</p>

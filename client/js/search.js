@@ -112,7 +112,7 @@ class SearchManager {
         const query = this.searchInput.value.trim();
         if (query) {
             // Redirect to products page with search query
-            window.location.href = `/pages/products.html?search=${encodeURIComponent(query)}`;
+            window.location.href = `/products?q=${encodeURIComponent(query)}`;
         }
     }
 }

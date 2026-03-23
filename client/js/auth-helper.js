@@ -56,7 +56,7 @@
             localStorage.removeItem('userEmail');
             localStorage.removeItem('userFullName');
             
-            window.location.href = '/login.html';
+            window.location.href = '/login';
         },
         
         // Make authenticated API call with auto-refresh

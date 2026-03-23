@@ -227,20 +227,12 @@ function selectMobileSearchSuggestion(productName, productId) {
     console.log('Mobile search suggestion clicked:', productName);
     console.log('Current pathname:', window.location.pathname);
     
-    // Build correct path to product-detail.html from any location
-    let productDetailPath = 'pages/product-detail.html';
-    
-    // Check if we're in a subdirectory and adjust path accordingly
-    const pathname = window.location.pathname;
-    
-    // If we're already in /pages/ directory, use relative path
-    if (pathname.includes('/pages/')) {
-        productDetailPath = 'product-detail.html';
-    }
-    
+    // Use centralized routing for product detail navigation
+    const productDetailPath = `/product/${productId}`;
     console.log('Final mobile suggestion path:', productDetailPath);
+    
     // Redirect to product detail page
-    window.location.href = `${productDetailPath}?id=${productId}`;
+    window.location.href = productDetailPath;
 }
 
 function performSearch() {
@@ -251,20 +243,12 @@ function performSearch() {
         console.log('Mobile search for:', query);
         console.log('Current pathname:', window.location.pathname);
         
-        // Build correct path to products.html from any location
-        let productsPath = 'pages/products.html';
-        
-        // Check if we're in a subdirectory and adjust path accordingly
-        const pathname = window.location.pathname;
-        
-        // If we're already in /pages/ directory, use relative path
-        if (pathname.includes('/pages/')) {
-            productsPath = 'products.html';
-        }
-        
+        // Use centralized routing for products search
+        const productsPath = `/products?q=${encodeURIComponent(query)}`;
         console.log('Final mobile search path:', productsPath);
+        
         // Redirect to products page with search query
-        window.location.href = `${productsPath}?q=${encodeURIComponent(query)}`;
+        window.location.href = productsPath;
     }
 }
 
@@ -323,7 +307,7 @@ function updateAuthState() {
                 </svg>
                 <span class="mobile-auth-label hidden ml-1 text-sm">Dashboard</span>
             `;
-            mobileLoginLink.href = '/pages/buyer-dashboard.html';
+            mobileLoginLink.href = '/dashboard';
         }
 
         // Update greeting in header if it exists
@@ -353,7 +337,7 @@ function updateAuthState() {
                 </svg>
                 <span class="mobile-auth-label hidden ml-1 text-sm">Sign in</span>
             `;
-            mobileLoginLink.href = '/pages/login.html';
+            mobileLoginLink.href = '/login';
         }
         if (mobileSellerSection) mobileSellerSection.style.display = 'none';
         if (mobileAdminSection) mobileAdminSection.style.display = 'none';

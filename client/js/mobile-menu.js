@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 signLink.addEventListener('click', function(e) {
                     e.preventDefault();
                     localStorage.clear();
-                    window.location.href = 'login.html';
+                    window.location.href = '/login';
                 });
             }
         }

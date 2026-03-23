@@ -151,7 +151,7 @@ class TokenManager {
         // Show user notification
         this.showNotification('Session Expired', message, 'error', () => {
             // Redirect to login
-            window.location.href = '/login.html';
+            window.location.href = '/login';
         });
 
         // Clear all storage on session expiration

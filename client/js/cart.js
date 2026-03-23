@@ -170,7 +170,7 @@ async function validateAndFixCart() {
             await updateCartIcon();
             
             // If on cart page, re-render
-            if (window.location.pathname.includes('cart.html')) {
+            if (window.location.pathname.includes('/cart') || window.location.pathname.includes('cart.html')) {
                 renderCart();
             }
         }
@@ -331,7 +331,7 @@ async function addToCart(product, quantity = 1) {
                 console.log('💾 Refreshed cart from backend:', cart);
                 
                 // If we're on the cart page, re-render to show the new item
-                if (window.location.pathname.includes('cart.html')) {
+                if (window.location.pathname.includes('/cart') || window.location.pathname.includes('cart.html')) {
                     setTimeout(() => renderCart(), 100);
                 }
             } else {
@@ -368,7 +368,7 @@ async function addToCart(product, quantity = 1) {
                 await updateCartIcon();
                 
                 // If we're on the cart page, re-render to show the new item
-                if (window.location.pathname.includes('cart.html')) {
+                if (window.location.pathname.includes('/cart') || window.location.pathname.includes('cart.html')) {
                     setTimeout(() => renderCart(), 100);
                 }
             }
@@ -399,7 +399,7 @@ async function addToCart(product, quantity = 1) {
             await updateCartIcon();
             
             // If we're on the cart page, re-render to show the new item
-            if (window.location.pathname.includes('cart.html')) {
+            if (window.location.pathname.includes('/cart') || window.location.pathname.includes('cart.html')) {
                 setTimeout(() => renderCart(), 100);
             }
         }
@@ -542,7 +542,7 @@ document.addEventListener('click', (e) => {
 
 // Store previous page before navigating to cart
 document.addEventListener('click', (e) => {
-    const cartLink = e.target.closest('a[href*="cart.html"]');
+    const cartLink = e.target.closest('a[href*="/cart"]');
     if (cartLink && !e.ctrlKey && !e.metaKey) {
         // Store current page before navigating to cart
         sessionStorage.setItem('previousPage', window.location.href);
@@ -594,7 +594,7 @@ async function removeFromCart(productId) {
     await saveCart(updatedCart);
 
     // If we're on the cart page, re-render
-    if (window.location.pathname.includes('cart.html')) {
+    if (window.location.pathname.includes('/cart') || window.location.pathname.includes('cart.html')) {
         renderCart();
     }
     
@@ -671,7 +671,7 @@ async function updateQuantity(productId, delta) {
         console.log('💾 Cart saved with new quantity');
 
         // If we're on the cart page, re-render
-        if (window.location.pathname.includes('cart.html')) {
+        if (window.location.pathname.includes('/cart') || window.location.pathname.includes('cart.html')) {
             renderCart();
         }
         
@@ -1092,10 +1092,10 @@ function finalizeSelection() {
     
     if (method === 'mobile-money') {
         // Redirect to mobile money payment page
-        window.location.href = 'mobile-money-payment.html';
+        window.location.href = '/mobile-money-payment';
     } else if (method === 'cash-on-delivery') {
         // Redirect to cash on delivery confirmation page
-        window.location.href = 'cash-on-delivery.html';
+        window.location.href = '/cash-on-delivery';
     }
 }
 
@@ -1110,9 +1110,9 @@ function getItDelivered() {
     
     // Same logic as finalizeSelection but with different messaging
     if (method === 'mobile-money') {
-        window.location.href = 'mobile-money-payment.html';
+        window.location.href = '/mobile-money-payment';
     } else if (method === 'cash-on-delivery') {
-        window.location.href = 'cash-on-delivery.html';
+        window.location.href = '/cash-on-delivery';
     }
 }
 
@@ -1131,7 +1131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await updateCartIcon();
     
     // If we're on the cart page, render it
-    if (window.location.pathname.includes('cart.html')) {
+    if (window.location.pathname.includes('/cart') || window.location.pathname.includes('cart.html')) {
         await renderCart();
         
         // Setup continue shopping button
@@ -1157,21 +1157,21 @@ function setupContinueShoppingButton() {
             
             if (category) {
                 // Go back to the same category
-                continueBtn.href = `products.html?category=${encodeURIComponent(category)}`;
+                continueBtn.href = `/products?category=${encodeURIComponent(category)}`;
                 console.log('📂 Continuing to category:', category);
                 return;
             } else {
                 // Go back to products page
-                continueBtn.href = 'products.html';
+                continueBtn.href = '/products';
                 console.log('📂 Continuing to products page');
                 return;
             }
         }
         
-        // Check if previous page was product-detail.html
-        if (previousPage.includes('product-detail.html')) {
+        // Check if previous page was product detail
+        if (previousPage.includes('/product/')) {
             // Go back to products page (could be enhanced to get product category)
-            continueBtn.href = 'products.html';
+            continueBtn.href = '/products';
             console.log('📂 Continuing from product detail to products');
             return;
         }

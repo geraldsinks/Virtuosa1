@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.notificationModal.open();
                 } else {
                     // Fallback to notifications page
-                    window.location.href = '/pages/notifications.html';
+                    window.location.href = '/notifications';
                 }
             });
         });
@@ -276,13 +276,13 @@ document.addEventListener('DOMContentLoaded', () => {
             sessionStorage.clear();
 
             console.log('✅ Logout successful, storage cleared');
-            window.location.href = '/pages/login.html';
+            window.location.href = '/login';
         } catch (error) {
             console.error('Logout error:', error);
             // Fallback: Clear storage anyway and redirect
             localStorage.clear();
             sessionStorage.clear();
-            window.location.href = '/pages/login.html';
+            window.location.href = '/login';
         }
     };
 
@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // If we're already on the products page, we can update the list dynamically
         // instead of a full page reload if the products.js is set up to listen
-        if (window.location.pathname.includes('products.html')) {
+        if (window.location.pathname.includes('products.html') || window.location.pathname.includes('/products')) {
             const searchEvent = new CustomEvent('virtuosaSearch', { detail: { query: trimmedQuery } });
             window.dispatchEvent(searchEvent);
         } else {
@@ -353,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Category clicked:', category);
         console.log('Current pathname:', window.location.pathname);
 
-        if (window.location.pathname.includes('products.html')) {
+        if (window.location.pathname.includes('products.html') || window.location.pathname.includes('/products')) {
             const categoryEvent = new CustomEvent('virtuosaCategory', { detail: { category: category } });
             window.dispatchEvent(categoryEvent);
         } else {
@@ -511,19 +511,11 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Desktop search suggestion clicked:', productName);
         console.log('Current pathname:', window.location.pathname);
         
-        // Build correct path to product-detail.html from any location
-        let productDetailPath = 'pages/product-detail.html';
-        
-        // Check if we're in a subdirectory and adjust path accordingly
-        const pathname = window.location.pathname;
-        
-        // If we're already in /pages/ directory, use relative path
-        if (pathname.includes('/pages/')) {
-            productDetailPath = 'product-detail.html';
-        }
-        
+        // Use centralized routing for product detail navigation
+        const productDetailPath = `/product/${productId}`;
         console.log('Final desktop suggestion path:', productDetailPath);
+        
         // Redirect to product detail page
-        window.location.href = `${productDetailPath}?id=${productId}`;
+        window.location.href = productDetailPath;
     }
 });
