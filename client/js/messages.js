@@ -668,7 +668,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Helper functions for real-time updates
     function addMessageToUI(message) {
-        const isMine = message.sender === userId;
+        const senderId = (message.sender && typeof message.sender === 'object') ? message.sender._id : message.sender;
+        const isMine = senderId === userId;
         const messageHtml = createMessageHTML(message, isMine);
         
         if (messageContainer) {
@@ -1115,8 +1116,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         messageContainer.innerHTML = messages.map(m => {
-            const isMine = m.sender === userId;
-            console.log(`Message from ${m.sender}, isMine: ${isMine}, userId: ${userId}`);
+            const senderId = (m.sender && typeof m.sender === 'object') ? m.sender._id : m.sender;
+            const isMine = senderId === userId;
+            console.log(`Message from ${senderId}, isMine: ${isMine}, userId: ${userId}`);
             return createMessageHTML(m, isMine);
         }).join('');
 
