@@ -635,6 +635,12 @@
             body.mobile-chat-active #mobile-menu-toggle { display: none !important; }
             body.mobile-chat-active #mobile-chat-back-button { display: flex; }
             
+            /* Hide all global headers when chat is active to show only the chat header */
+            body.mobile-chat-active .mobile-messages-header,
+            body.mobile-chat-active .site-header {
+                display: none !important;
+            }
+            
             /* Add top padding to conversation list to account for mobile header */
             #sidebar #conversation-list {
                 padding-top: 0;
@@ -710,7 +716,7 @@
                 z-index: 20;
             }
 
-            /* Mobile message container with proper height calculation */
+            /* Mobile message container with proper layout */
             #chat-area #message-container {
                 flex: 1;
                 overflow-y: auto;
@@ -719,8 +725,6 @@
                 padding: 12px;
                 background: #f9fafb;
                 min-height: 0;
-                /* Account for header (68px) + input area (80px + safe area) */
-                height: calc(100vh - 68px - 80px - env(safe-area-inset-bottom));
             }
 
             /* Mobile input area with proper positioning and safe area */

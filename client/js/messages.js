@@ -1317,33 +1317,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Handle keyboard appearance/disappearance
         let originalViewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
         
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', () => {
-                const currentHeight = window.visualViewport.height;
-                const heightDiff = originalViewportHeight - currentHeight;
-                
-                if (heightDiff > 150) { // Keyboard is likely visible
-                    // Adjust chat container height
-                    const chatArea = document.getElementById('chat-area');
-                    if (chatArea) {
-                        chatArea.style.height = `calc(100vh - ${currentHeight + 100}px)`;
-                    }
-                    
-                    // Scroll to bottom
-                    setTimeout(() => {
-                        if (messageContainer) {
-                            messageContainer.scrollTop = messageContainer.scrollHeight;
-                        }
-                    }, 300);
-                } else { // Keyboard is hidden
-                    // Reset chat container height
-                    const chatArea = document.getElementById('chat-area');
-                    if (chatArea) {
-                        chatArea.style.height = '';
-                    }
-                }
-            });
-        }
+        // Mobile viewport handling is now handled primarily by CSS (100dvh and flexbox)
+
 
         // Handle input focus on mobile
         messageInput.addEventListener('focus', () => {
