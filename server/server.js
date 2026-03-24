@@ -1324,6 +1324,7 @@ const userSchema = new mongoose.Schema({
     fullName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    gender: { type: String, enum: ['Male', 'Female', 'Prefer not to say'], default: 'Prefer not to say', required: true },
     university: { type: String, required: true },
     phoneNumber: { type: String, required: true },
     agreedToTerms: { type: Boolean, required: true },
@@ -2246,9 +2247,9 @@ verifyTransporters();
 
 // Enhanced Signup endpoint with student verification
 app.post('/api/auth/signup', async (req, res) => {
-    const { fullName, email, password, university, phoneNumber, studentEmail, agreedToTerms } = req.body;
+    const { fullName, email, password, university, phoneNumber, studentEmail, gender, agreedToTerms } = req.body;
 
-    if (!fullName || !email || !password || !university || !phoneNumber || !studentEmail || !agreedToTerms) {
+    if (!fullName || !email || !password || !university || !phoneNumber || !studentEmail || !gender || !agreedToTerms) {
         return res.status(400).json({ success: false, message: 'All fields are required' });
     }
 
@@ -2277,6 +2278,7 @@ app.post('/api/auth/signup', async (req, res) => {
             fullName,
             email: normalizedEmail,
             password: hashedPassword,
+            gender,
             university,
             phoneNumber,
             studentEmail: normalizedStudentEmail,

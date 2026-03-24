@@ -391,11 +391,12 @@ async function handleSignup(event) {
     const university = document.getElementById('signup-university')?.value;
     let phoneNumber = document.getElementById('signup-phone')?.value;
     const studentEmail = document.getElementById('signup-student-email')?.value;
-    const password = document.getElementById('signup-password-input')?.value;
-    const confirmPassword = document.getElementById('signup-confirm-password-input')?.value;
+    const password = document.getElementById('signup-password')?.value;
+    const confirmPassword = document.getElementById('signup-confirm-password')?.value;
+    const gender = document.getElementById('signup-gender')?.value;
     const agreedToTerms = document.getElementById('signup-agreedToTerms')?.checked;
 
-    if (!fullName || !email || !university || !phoneNumber || !studentEmail || !password || !confirmPassword) {
+    if (!fullName || !email || !university || !phoneNumber || !studentEmail || !password || !confirmPassword || !gender) {
         showMessage('Please fill in all fields.', true);
         return;
     }
@@ -430,7 +431,7 @@ async function handleSignup(event) {
         const response = await fetch(`${BASE_API_URL}/signup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fullName, email, password, university, phoneNumber, studentEmail, agreedToTerms })
+            body: JSON.stringify({ fullName, email, password, university, phoneNumber, studentEmail, gender, agreedToTerms })
         });
 
         console.log('Response status:', response.status);
@@ -620,6 +621,15 @@ function renderAuthComponent(type) {
                         <option value="University of Zambia">University of Zambia</option>
                         <option value="Copperbelt University">Copperbelt University</option>
                         <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="signup-gender" class="form-label block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                    <select id="signup-gender" name="gender" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50">
+                        <option value="">Select your gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Prefer not to say">Prefer not to say</option>
                     </select>
                 </div>
                 <div>
