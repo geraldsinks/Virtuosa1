@@ -772,6 +772,11 @@ async function renderCart() {
         `;
     }
 
+    // Update item count element
+    const itemCountElement = document.getElementById('item-count');
+    const totalQuantity = cart.reduce((total, item) => total + (item.quantity || 0), 0);
+    if (itemCountElement) itemCountElement.textContent = totalQuantity.toString();
+
     cartItemsContainer.innerHTML = html;
 }
 

@@ -111,6 +111,11 @@ function renderOrderSummary() {
             </div>
         `;
     }).join('');
+
+    // Update item count element
+    const itemCountElement = document.getElementById('item-count');
+    const totalQuantity = cartItems.reduce((total, item) => total + (item.quantity || 0), 0);
+    if (itemCountElement) itemCountElement.textContent = totalQuantity.toString();
 }
 
 // Load user data into delivery form
