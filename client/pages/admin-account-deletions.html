@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Deletion Management - Virtuosa Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    
+    <!-- Mobile Header Structure (320px-480px) -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Row 1: Utilities and Branding -->
+        <div class="v-container mobile-header-row-1">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-2 mobile-header-actions">
+                    <!-- Cart Icon with Badge -->
+                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                    </a>
+                    
+                    <!-- Combined Notifications (includes messages) -->
+                    <a href="notifications.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <i class="fas fa-bell"></i>
+                        <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="v-container v-header-row desktop-header">
+            <div class="v-header-row-upper">
+                <div class="v-header-logo">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                </div>
+                <div class="v-header-search">
+                    <div class="relative">
+                        <input id="home-search-input" type="text"
+                            placeholder="Search campus marketplace..."
+                            class="w-full text-sm focus:outline-none focus:ring-1 focus:ring-gold"
+                            autocomplete="off">
+                        <button id="home-search-button" class="flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div id="home-search-suggestions"
+                            class="absolute top-full left-0 mt-1 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-h-96 overflow-y-auto hidden z-[60]">
+                        </div>
+                    </div>
+                </div>
+                <div id="user-info-container" class="v-header-actions">
+                    <a href="login.html" id="login-link"
+                        class="text-white hover:text-gold transition-colors font-medium hidden md:flex flex-col items-start leading-tight group">
+                        <span class="text-[10px] text-gray-400 font-normal">Welcome</span>
+                        <div class="flex items-center -mt-0.5">
+                            <span class="text-sm font-semibold">Sign In</span>
+                            <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60 group-hover:rotate-180 transition-transform"></i>
+                        </div>
+                    </a>
+                    <div id="user-menu" class="relative hidden">
+                        <button onclick="toggleUserMenu()"
+                            class="text-white hover:text-gold transition-colors font-medium flex flex-col items-start leading-tight">
+                            <span id="user-greeting" class="text-[10px] text-gray-400 font-normal"></span>
+                            <div class="flex items-center -mt-0.5">
+                                <span class="text-sm font-semibold">My Account</span>
+                                <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60"></i>
+                            </div>
+                        </button>
+                        <div id="user-dropdown"
+                            class="absolute right-0 top-full mt-2 w-56 bg-navy rounded-xl shadow-2xl z-[60] py-4 text-white hidden border border-gray-800">
+                            <div class="px-4 pb-4 border-b border-gray-800 mb-2">
+                                <a href="profile.html" class="bg-button-gold text-white text-center py-2 px-4 rounded-lg text-sm block font-semibold hover:bg-gold transition-colors">My Profile</a>
+                            </div>
+                            <div class="px-2">
+                                <a href="buyer-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-th-large mr-3 text-gray-400"></i>Dashboard
+                                </a>
+                                <a href="orders.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-shopping-bag mr-3 text-gray-400"></i>My Orders
+                                </a>
+                                <div id="seller-links" class="hidden">
+                                    <div class="border-t border-gray-800 my-1"></div>
+                                    <a href="seller-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-green-400">
+                                        <i class="fas fa-store mr-3"></i>Seller Panel
+                                    </a>
+                                </div>
+                                <div id="admin-link" class="hidden">
+                                    <div class="border-t border-gray-800 my-1"></div>
+                                    <a href="admin-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-red-400">
+                                        <i class="fas fa-cog mr-3"></i>Admin Panel
+                                    </a>
+                                </div>
+                                <div class="border-t border-gray-800 my-2"></div>
+                                <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gray-300">
+                                    <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="messages.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <i class="fas fa-envelope text-lg"></i>
+                        <span class="badge message-badge-count hidden">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Messages</span>
+                    </a>
+
+                    <a href="notifications.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span id="notification-badge-count" class="badge hidden">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Alerts</span>
+                    </a>
+
+                    <a href="cart.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="badge cart-badge-count">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Cart</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow py-8">
+        <div class="container mx-auto px-4">
+            <!-- Header -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-navy mb-2">Account Deletion Requests</h1>
+                        <p class="text-gray-600">Review and manage user account deletion requests</p>
+                    </div>
+                    <a href="admin-dashboard.html" class="text-navy hover:text-gold font-medium">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Pending Requests</p>
+                            <p id="pendingCount" class="text-2xl font-bold text-orange-600">-</p>
+                        </div>
+                        <div class="bg-orange-100 p-3 rounded-full">
+                            <i class="fas fa-clock text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Approved Today</p>
+                            <p id="approvedTodayCount" class="text-2xl font-bold text-green-600">-</p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Rejected Today</p>
+                            <p id="rejectedTodayCount" class="text-2xl font-bold text-red-600">-</p>
+                        </div>
+                        <div class="bg-red-100 p-3 rounded-full">
+                            <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Total Requests</p>
+                            <p id="totalCount" class="text-2xl font-bold text-navy">-</p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <i class="fas fa-list text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status Filter</label>
+                        <select id="statusFilter" onchange="loadDeletionRequests()" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="all">All Requests</option>
+                            <option value="Pending" selected>Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                        <input type="text" id="searchInput" placeholder="Search by name or email..." 
+                               onkeyup="searchRequests()" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="refreshData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-sync-alt mr-2"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Requests Table -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requestsTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Requests will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div id="pagination" class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    <!-- Pagination will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Request Details Modal -->
+    <div id="requestModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-navy">Deletion Request Details</h3>
+                <button onclick="closeRequestModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="requestDetails">
+                <!-- Request details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Modal -->
+    <div id="actionModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-md w-full p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="actionModalTitle" class="text-xl font-bold text-navy">Confirm Action</h3>
+                <button onclick="closeActionModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <p id="actionModalMessage" class="text-gray-700 mb-4"></p>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Admin Notes</label>
+                    <textarea id="adminNotes" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Add notes about this decision..."></textarea>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeActionModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium">
+                    Cancel
+                </button>
+                <button id="confirmActionBtn" onclick="confirmAction()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script>
+        let currentPage = 1;
+        const pageSize = 20;
+        let currentRequestId = null;
+        let currentAction = null;
+        let allRequests = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/pages/login.html';
+                return;
+            }
+
+            await loadDeletionRequests();
+        });
+
+        async function loadDeletionRequests(page = 1) {
+            try {
+                const status = document.getElementById('statusFilter').value;
+                const response = await fetch(`${API_BASE}/admin/account-deletion-requests?status=${status}&page=${page}&limit=${pageSize}`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    allRequests = data.requests;
+                    renderRequestsTable(data.requests);
+                    renderPagination(data.pagination);
+                    updateStats(data.requests);
+                } else {
+                    throw new Error('Failed to load deletion requests');
+                }
+            } catch (error) {
+                console.error('Load requests error:', error);
+                showToast('Failed to load deletion requests', 'error');
+            }
+        }
+
+        function renderRequestsTable(requests) {
+            const tbody = document.getElementById('requestsTableBody');
+            
+            if (requests.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                            <i class="fas fa-inbox text-4xl mb-2"></i>
+                            <p>No deletion requests found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = requests.map(request => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <img class="h-10 w-10 rounded-full" src="${request.user.profilePicture || 'https://placehold.co/40x40?text=No+Photo'}" alt="">
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${request.user.fullName}</div>
+                                <div class="text-sm text-gray-500">${request.user.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900 max-w-xs truncate" title="${request.reason}">
+                            ${request.reason}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            ${request.status === 'Pending' ? 'bg-orange-100 text-orange-800' : ''}
+                            ${request.status === 'Approved' ? 'bg-green-100 text-green-800' : ''}
+                            ${request.status === 'Rejected' ? 'bg-red-100 text-red-800' : ''}">
+                            ${request.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${new Date(request.createdAt).toLocaleDateString()}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="viewRequest('${request._id}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        ${request.status === 'Pending' ? `
+                            <button onclick="showActionModal('${request._id}', 'approve')" class="text-green-600 hover:text-green-900 mr-3">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                            <button onclick="showActionModal('${request._id}', 'reject')" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderPagination(pagination) {
+            const container = document.getElementById('pagination');
+            
+            if (pagination.pages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '<div class="flex items-center justify-between">';
+            html += '<div class="text-sm text-gray-700">';
+            html += `Showing ${((pagination.current - 1) * pageSize) + 1} to ${Math.min(pagination.current * pageSize, pagination.total)} of ${pagination.total} results`;
+            html += '</div>';
+            
+            html += '<div class="flex items-center space-x-2">';
+            
+            // Previous button
+            if (pagination.current > 1) {
+                html += `<button onclick="loadDeletionRequests(${pagination.current - 1})" class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50">Previous</button>`;
+            }
+            
+            // Page numbers
+            for (let i = 1; i <= pagination.pages; i++) {
+                if (i === pagination.current) {
+                    html += `<button class="px-3 py-1 bg-blue-600 text-white rounded-md">${i}</button>`;
+                } else if (Math.abs(i - pagination.current) <= 2) {
+                    html += `<button onclick="loadDeletionRequests(${i})" class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50">${i}</button>`;
+                }
+            }
+            
+            // Next button
+            if (pagination.current < pagination.pages) {
+                html += `<button onclick="loadDeletionRequests(${pagination.current + 1})" class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50">Next</button>`;
+            }
+            
+            html += '</div></div>';
+            container.innerHTML = html;
+        }
+
+        function updateStats(requests) {
+            const pending = requests.filter(r => r.status === 'Pending').length;
+            const today = new Date().toDateString();
+            const approvedToday = requests.filter(r => r.status === 'Approved' && new Date(r.processedAt).toDateString() === today).length;
+            const rejectedToday = requests.filter(r => r.status === 'Rejected' && new Date(r.processedAt).toDateString() === today).length;
+
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('approvedTodayCount').textContent = approvedToday;
+            document.getElementById('rejectedTodayCount').textContent = rejectedToday;
+            document.getElementById('totalCount').textContent = requests.length;
+        }
+
+        async function viewRequest(requestId) {
+            try {
+                const response = await fetch(`${API_BASE}/admin/account-deletion-requests/${requestId}`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+
+                if (response.ok) {
+                    const request = await response.json();
+                    showRequestDetails(request);
+                } else {
+                    throw new Error('Failed to load request details');
+                }
+            } catch (error) {
+                console.error('View request error:', error);
+                showToast('Failed to load request details', 'error');
+            }
+        }
+
+        function showRequestDetails(request) {
+            const detailsDiv = document.getElementById('requestDetails');
+            detailsDiv.innerHTML = `
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-2">User Information</h4>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex items-center mb-4">
+                                <img class="h-16 w-16 rounded-full" src="${request.user.profilePicture || 'https://placehold.co/64x64?text=No+Photo'}" alt="">
+                                <div class="ml-4">
+                                    <div class="text-lg font-medium text-gray-900">${request.user.fullName}</div>
+                                    <div class="text-sm text-gray-500">${request.user.email}</div>
+                                    <div class="text-sm text-gray-500">${request.user.phoneNumber}</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="font-medium">University:</span> ${request.user.university || 'N/A'}
+                                </div>
+                                <div>
+                                    <span class="font-medium">Member Since:</span> ${new Date(request.user.createdAt).toLocaleDateString()}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-2">Deletion Reason</h4>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <p class="text-gray-700">${request.reason}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-2">Request Status</h4>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex items-center mb-2">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    ${request.status === 'Pending' ? 'bg-orange-100 text-orange-800' : ''}
+                                    ${request.status === 'Approved' ? 'bg-green-100 text-green-800' : ''}
+                                    ${request.status === 'Rejected' ? 'bg-red-100 text-red-800' : ''}">
+                                    ${request.status}
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                <p>Submitted: ${new Date(request.createdAt).toLocaleDateString()} ${new Date(request.createdAt).toLocaleTimeString()}</p>
+                                ${request.processedAt ? `
+                                    <p>Processed: ${new Date(request.processedAt).toLocaleDateString()} ${new Date(request.processedAt).toLocaleTimeString()}</p>
+                                    <p>Processed by: ${request.processedBy?.fullName || 'Unknown'}</p>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    ${request.adminNotes ? `
+                        <div>
+                            <h4 class="font-semibold text-gray-900 mb-2">Admin Notes</h4>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <p class="text-gray-700">${request.adminNotes}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${request.status === 'Pending' ? `
+                        <div class="flex justify-end space-x-3 pt-4 border-t">
+                            <button onclick="showActionModal('${request._id}', 'reject')" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                                <i class="fas fa-times mr-2"></i>Reject Request
+                            </button>
+                            <button onclick="showActionModal('${request._id}', 'approve')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                <i class="fas fa-check mr-2"></i>Approve Deletion
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('requestModal').classList.remove('hidden');
+        }
+
+        function showActionModal(requestId, action) {
+            currentRequestId = requestId;
+            currentAction = action;
+            
+            const title = document.getElementById('actionModalTitle');
+            const message = document.getElementById('actionModalMessage');
+            const confirmBtn = document.getElementById('confirmActionBtn');
+            
+            if (action === 'approve') {
+                title.textContent = 'Approve Account Deletion';
+                message.textContent = 'Are you sure you want to approve this account deletion request? This action cannot be undone and will permanently delete the user\'s account and all associated data.';
+                confirmBtn.className = 'px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium';
+                confirmBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Approve Deletion';
+            } else {
+                title.textContent = 'Reject Account Deletion';
+                message.textContent = 'Are you sure you want to reject this account deletion request? The user will be notified and can submit a new request if needed.';
+                confirmBtn.className = 'px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium';
+                confirmBtn.innerHTML = '<i class="fas fa-times mr-2"></i>Reject Request';
+            }
+            
+            document.getElementById('adminNotes').value = '';
+            document.getElementById('actionModal').classList.remove('hidden');
+        }
+
+        async function confirmAction() {
+            try {
+                const adminNotes = document.getElementById('adminNotes').value;
+                const endpoint = currentAction === 'approve' ? 'approve' : 'reject';
+                
+                const response = await fetch(`${API_BASE}/admin/account-deletion-requests/${currentRequestId}/${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ adminNotes })
+                });
+
+                if (response.ok) {
+                    showToast(`Request ${currentAction}d successfully`, 'success');
+                    closeActionModal();
+                    closeRequestModal();
+                    await loadDeletionRequests(currentPage);
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.message || `Failed to ${currentAction} request`);
+                }
+            } catch (error) {
+                console.error('Confirm action error:', error);
+                showToast(error.message || `Failed to ${currentAction} request`, 'error');
+            }
+        }
+
+        function closeRequestModal() {
+            document.getElementById('requestModal').classList.add('hidden');
+        }
+
+        function closeActionModal() {
+            document.getElementById('actionModal').classList.add('hidden');
+            currentRequestId = null;
+            currentAction = null;
+        }
+
+        function searchRequests() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredRequests = allRequests.filter(request => 
+                request.user.fullName.toLowerCase().includes(searchTerm) ||
+                request.user.email.toLowerCase().includes(searchTerm)
+            );
+            renderRequestsTable(filteredRequests);
+        }
+
+        function refreshData() {
+            loadDeletionRequests(currentPage);
+        }
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'fixed top-4 right-4 z-50 space-y-2';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 p-4 ${
+                type === 'success' ? 'border-l-4 border-green-500' :
+                type === 'error' ? 'border-l-4 border-red-500' :
+                'border-l-4 border-blue-500'
+            }`;
+
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas ${
+                            type === 'success' ? 'fa-check-circle text-green-500' :
+                            type === 'error' ? 'fa-exclamation-circle text-red-500' :
+                            'fa-info-circle text-blue-500'
+                        }"></i>
+                    </div>
+                    <div class="ml-3 w-0 flex-1">
+                        <p class="text-sm font-medium text-gray-900">${message}</p>
+                    </div>
+                    <div class="ml-4 flex-shrink-0 flex">
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" class="inline-flex text-gray-400 hover:text-gray-500">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(toast);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+    </script>
+    <script src="../js/header.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/mobile-header.js"></script>
+</body>
+
+</html>

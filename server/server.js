@@ -2105,6 +2105,21 @@ const subscriptionSchema = new mongoose.Schema({
 const Subscription = mongoose.model('Subscription', subscriptionSchema);
 console.log('Subscription model created successfully');
 
+// Account Deletion Request Schema
+const accountDeletionRequestSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    reason: { type: String, required: true },
+    status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
+    adminNotes: String,
+    processedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    processedAt: Date,
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
+});
+
+const AccountDeletionRequest = mongoose.model('AccountDeletionRequest', accountDeletionRequestSchema);
+console.log('AccountDeletionRequest model created successfully');
+
 // Production-ready Brevo email configuration for Render Startup Tier
 const productionTransporter = nodemailer.createTransport({
     host: 'smtp-relay.brevo.com',
@@ -4780,63 +4795,48 @@ app.put('/api/user/profile', authenticateToken, async (req, res) => {
 
         await user.save();
         res.json({ message: 'Profile updated successfully', user });
-    // Configure Multer for profile pictures
-const profilePictureStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadDir = path.join(__dirname, '../client/uploads/profiles');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'profile-' + req.user.userId + '-' + uniqueSuffix + path.extname(file.originalname));
+    } catch (error) {
+        console.error('Profile update error:', error);
+        res.status(500).json({ message: 'Failed to update profile' });
     }
 });
 
-const profilePictureUpload = multer({
-    storage: profilePictureStorage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = /jpeg|jpg|png|gif|webp/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-        if (extname && mimetype) {
-            return cb(null, true);
-        }
-        cb(new Error('Only images (jpeg, jpg, png, gif, webp) are allowed'));
-    }
-});
-} catch (error) {
-    console.error('Update profile error:', error);
-    res.status(500).json({ message: 'Server error' });
-}
-});
-
-// Upload profile picture
-app.post('/api/user/profile-picture', authenticateToken, profilePictureUpload.single('profilePicture'), async (req, res) => {
+// Request account deletion
+app.post('/api/user/request-account-deletion', authenticateToken, async (req, res) => {
     try {
-        const user = await User.findById(req.user.userId);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+        const userId = req.user.userId;
+        const { reason } = req.body;
+
+        // Check if user already has a pending deletion request
+        const existingRequest = await AccountDeletionRequest.findOne({
+            user: userId,
+            status: 'Pending'
+        });
+
+        if (existingRequest) {
+            return res.status(400).json({ 
+                message: 'You already have a pending account deletion request' 
+            });
         }
 
-        if (!req.file) {
-            return res.status(400).json({ message: 'No file uploaded' });
-        }
+        // Create new deletion request
+        const deletionRequest = new AccountDeletionRequest({
+            user: userId,
+            reason: reason || 'User requested account deletion'
+        });
 
-        // Update user profile picture URL with Cloudinary URL
-        user.profilePicture = req.file.path;
-        await user.save();
+        await deletionRequest.save();
 
-        res.json({
-            message: 'Profile picture uploaded successfully',
-            profilePicture: user.profilePicture
+        // Log the request for admin monitoring
+        console.log(`🗑️ Account deletion request submitted by user ${userId}`);
+
+        res.json({ 
+            message: 'Account deletion request submitted successfully. Awaiting admin approval.',
+            requestId: deletionRequest._id
         });
     } catch (error) {
-        console.error('Upload profile picture error:', error);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Account deletion request error:', error);
+        res.status(500).json({ message: 'Failed to submit deletion request' });
     }
 });
 
@@ -5299,6 +5299,187 @@ app.post('/api/admin/seller-applications/:id/reject', authenticateAdmin, async (
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+// Admin: Get account deletion requests
+app.get('/api/admin/account-deletion-requests', authenticateAdmin, async (req, res) => {
+    try {
+        const { status, page = 1, limit = 20 } = req.query;
+        const query = {};
+        
+        if (status && status !== 'all') {
+            query.status = status;
+        }
+
+        const requests = await AccountDeletionRequest.find(query)
+            .populate('user', 'fullName email university phoneNumber createdAt profilePicture')
+            .populate('processedBy', 'fullName email')
+            .sort({ createdAt: -1 })
+            .limit(limit * 1)
+            .skip((page - 1) * limit);
+
+        const total = await AccountDeletionRequest.countDocuments(query);
+
+        res.json({
+            requests,
+            pagination: {
+                current: parseInt(page),
+                pages: Math.ceil(total / limit),
+                total
+            }
+        });
+    } catch (error) {
+        console.error('Get deletion requests error:', error);
+        res.status(500).json({ message: 'Failed to fetch deletion requests' });
+    }
+});
+
+// Admin: Get single deletion request details
+app.get('/api/admin/account-deletion-requests/:id', authenticateAdmin, async (req, res) => {
+    try {
+        const request = await AccountDeletionRequest.findById(req.params.id)
+            .populate('user', 'fullName email university phoneNumber createdAt profilePicture')
+            .populate('processedBy', 'fullName email');
+
+        if (!request) {
+            return res.status(404).json({ message: 'Deletion request not found' });
+        }
+
+        res.json(request);
+    } catch (error) {
+        console.error('Get deletion request error:', error);
+        res.status(500).json({ message: 'Failed to fetch deletion request' });
+    }
+});
+
+// Admin: Approve account deletion request
+app.post('/api/admin/account-deletion-requests/:id/approve', authenticateAdmin, async (req, res) => {
+    try {
+        const deletionRequest = await AccountDeletionRequest.findById(req.params.id);
+        if (!deletionRequest) {
+            return res.status(404).json({ message: 'Deletion request not found' });
+        }
+
+        if (deletionRequest.status !== 'Pending') {
+            return res.status(400).json({ message: 'This request has already been processed' });
+        }
+
+        const { adminNotes } = req.body;
+
+        // Update request status
+        deletionRequest.status = 'Approved';
+        deletionRequest.adminNotes = adminNotes || '';
+        deletionRequest.processedBy = req.user.userId;
+        deletionRequest.processedAt = new Date();
+        await deletionRequest.save();
+
+        // Get user details for deletion
+        const user = await User.findById(deletionRequest.user);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Perform actual account deletion
+        await deleteUserAccount(user._id);
+
+        console.log(`🗑️ Account deletion approved and executed for user ${user._id} by admin ${req.user.userId}`);
+
+        res.json({ message: 'Account deletion approved and executed successfully' });
+    } catch (error) {
+        console.error('Approve deletion request error:', error);
+        res.status(500).json({ message: 'Failed to approve deletion request' });
+    }
+});
+
+// Admin: Reject account deletion request
+app.post('/api/admin/account-deletion-requests/:id/reject', authenticateAdmin, async (req, res) => {
+    try {
+        const deletionRequest = await AccountDeletionRequest.findById(req.params.id);
+        if (!deletionRequest) {
+            return res.status(404).json({ message: 'Deletion request not found' });
+        }
+
+        if (deletionRequest.status !== 'Pending') {
+            return res.status(400).json({ message: 'This request has already been processed' });
+        }
+
+        const { adminNotes } = req.body;
+        if (!adminNotes) {
+            return res.status(400).json({ message: 'Please provide rejection notes' });
+        }
+
+        // Update request status
+        deletionRequest.status = 'Rejected';
+        deletionRequest.adminNotes = adminNotes;
+        deletionRequest.processedBy = req.user.userId;
+        deletionRequest.processedAt = new Date();
+        await deletionRequest.save();
+
+        // Notify user about rejection
+        const user = await User.findById(deletionRequest.user);
+        if (user) {
+            const notification = new Notification({
+                user: user._id,
+                title: 'Account Deletion Request Rejected',
+                message: 'Your account deletion request has been reviewed and rejected. If you have questions, please contact support.',
+                type: 'Account'
+            });
+            await notification.save();
+        }
+
+        console.log(`❌ Account deletion request rejected for user ${deletionRequest.user} by admin ${req.user.userId}`);
+
+        res.json({ message: 'Account deletion request rejected successfully' });
+    } catch (error) {
+        console.error('Reject deletion request error:', error);
+        res.status(500).json({ message: 'Failed to reject deletion request' });
+    }
+});
+
+// Helper function to delete user account and all associated data
+async function deleteUserAccount(userId) {
+    try {
+        // Delete user's products
+        await Product.deleteMany({ user: userId });
+        
+        // Delete user's transactions
+        await Transaction.deleteMany({ $or: [{ buyer: userId }, { seller: userId }] });
+        
+        // Delete user's reviews
+        await Review.deleteMany({ $or: [{ reviewer: userId }, { reviewedUser: userId }] });
+        
+        // Delete user's notifications
+        await Notification.deleteMany({ user: userId });
+        
+        // Delete user's messages
+        await Message.deleteMany({ $or: [{ sender: userId }, { receiver: userId }] });
+        
+        // Delete user's cart
+        await Cart.deleteMany({ user: userId });
+        
+        // Delete user's seller application
+        await SellerApplication.deleteMany({ user: userId });
+        
+        // Delete user's subscription
+        await Subscription.deleteMany({ user: userId });
+        
+        // Delete user's token transactions
+        await TokenTransaction.deleteMany({ user: userId });
+        
+        // Delete user's product drafts
+        await ProductDraft.deleteMany({ user: userId });
+        
+        // Delete user's deletion requests
+        await AccountDeletionRequest.deleteMany({ user: userId });
+        
+        // Finally, delete the user
+        await User.findByIdAndDelete(userId);
+        
+        console.log(`✅ Successfully deleted account and all data for user ${userId}`);
+    } catch (error) {
+        console.error(`❌ Error deleting user account ${userId}:`, error);
+        throw error;
+    }
+}
 
 // Process seller verification payment (K30)
 app.post('/api/seller/verify-payment', authenticateToken, async (req, res) => {
