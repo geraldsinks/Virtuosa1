@@ -287,28 +287,40 @@
                 opacity: 1;
             }
 
-            /* Enhanced mobile message bubbles */
+            /* Enhanced mobile message bubbles - COMPACT */
+            /* Responsive mobile message bubbles - COMPACT */
             .message-bubble {
-                max-width: 85% !important;
-                margin: 12px 0;
-                font-size: 16px;
-                line-height: 1.5;
-                padding: 12px 16px;
-                border-radius: 18px;
+                max-width: 85%;
+                margin: 4px 0;
+                font-size: 14px;
+                line-height: 1.4;
+                padding: 10px 14px;
+                border-radius: 16px;
                 word-wrap: break-word;
                 overflow-wrap: break-word;
+                filter: drop-shadow(0 1px 1px rgba(0,0,0,0.05));
+                position: relative;
+            }
+
+            /* Adjust max-width on wider mobiles/tablets */
+            @media (min-width: 480px) and (max-width: 767px) {
+                .message-bubble {
+                    max-width: 70%;
+                }
             }
 
             .message-bubble.sent {
                 background: #0A1128;
                 color: white;
                 margin-left: auto;
+                border-bottom-right-radius: 4px;
             }
 
             .message-bubble.received {
                 background: #f3f4f6;
                 color: #1f2937;
                 margin-right: auto;
+                border-bottom-left-radius: 4px;
             }
 
             /* Mobile message content with better tap targets */
@@ -600,13 +612,14 @@
                 display: none !important;
             }
             
-            /* Mobile messages header - visible on conversation list */
+            /* Unified Mobile Header Logic */
             .mobile-messages-header {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 12px 16px;
-                padding-top: calc(12px + env(safe-area-inset-top));
+                padding: 0 16px;
+                height: 60px;
+                padding-top: env(safe-area-inset-top);
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -617,24 +630,30 @@
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
             
-            /* Hide mobile header when chat is active */
-            body.mobile-chat-active .mobile-messages-header {
-                display: none;
-            }
+            /* Show menu toggle on list view, back button on chat view */
+            #mobile-chat-back-button { display: none; }
+            body.mobile-chat-active #mobile-menu-toggle { display: none !important; }
+            body.mobile-chat-active #mobile-chat-back-button { display: flex; }
             
             /* Add top padding to conversation list to account for mobile header */
-            #conversation-list {
+            #sidebar #conversation-list {
+                padding-top: 0;
+            }
+            
+            #sidebar {
                 padding-top: calc(60px + env(safe-area-inset-top));
             }
             
-            /* Main container - mobile header is always hidden so full height */
+            /* Main container - ensure it fills height without overflow issues */
             main.flex-grow {
-                height: 100vh;
+                height: 100dvh;
                 margin-top: 0;
+                display: flex;
+                flex-direction: column;
             }
             
             .main-chat-container {
-                height: 100vh;
+                height: 100dvh;
                 margin-top: 0;
             }
             
@@ -943,23 +962,38 @@
 
 <body class="bg-gray-50 flex flex-col h-screen overflow-hidden">
     
-    <!-- Mobile Messages Header (Navy, visible on conversation list) -->
+    <!-- Unified Header for Messages -->
     <header class="mobile-messages-header bg-navy text-white shadow-lg fixed top-0 left-0 right-0 z-50 safe-area-top">
-        <!-- Left: Back Button - goes to previous page -->
-        <button id="mobile-messages-back-button" class="text-white hover:text-gold transition-colors p-2" onclick="history.back()">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-        </button>
-
-        <!-- Center: Messages Title -->
-        <div class="flex-1 text-center">
-            <h1 class="text-lg font-bold text-gold">Messages</h1>
+        <!-- Left Side: Toggleable Button -->
+        <div class="flex items-center w-12">
+            <!-- Hamburger Menu (List View) -->
+            <button id="mobile-menu-toggle" class="text-white hover:text-gold transition-colors p-2" onclick="window.openMobileMenu()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            
+            <!-- Back Button (Chat View) -->
+            <button id="mobile-chat-back-button" class="text-white hover:text-gold transition-colors p-2 hidden" onclick="window.backToConversations()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
         </div>
 
-        <!-- Right: Empty space for balance -->
-        <div class="w-10">
-            <!-- Spacer for balance -->
+        <!-- Center: Dynamic Title -->
+        <div class="flex-1 text-center">
+            <h1 id="mobile-header-title" class="text-lg font-bold text-gold">Messages</h1>
+        </div>
+
+        <!-- Right Side: Utils (Cart) -->
+        <div class="flex items-center justify-end w-12">
+            <a href="cart.html" class="relative text-white hover:text-gold transition-colors p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span class="cart-badge-count absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">0</span>
+            </a>
         </div>
     </header>
     

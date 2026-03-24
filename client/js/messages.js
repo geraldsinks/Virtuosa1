@@ -353,11 +353,15 @@ document.addEventListener('DOMContentLoaded', () => {
             // Prevent body scroll when chat is active
             document.body.style.overflow = 'hidden';
             
-            // Show mobile header when going back to conversations
+            // Handle mobile header transitions
             const mobileHeader = document.querySelector('.mobile-messages-header');
-            if (mobileHeader) {
-                mobileHeader.classList.add('hidden');
-            }
+            const mobileTitle = document.getElementById('mobile-header-title');
+            const menuBtn = document.getElementById('mobile-menu-toggle-btn');
+            const backBtn = document.getElementById('mobile-chat-back-button');
+            
+            if (mobileTitle) mobileTitle.textContent = recipientName || 'Chat';
+            if (menuBtn) menuBtn.classList.add('hidden');
+            if (backBtn) backBtn.classList.remove('hidden');
             
         } else {
             // Desktop behavior
@@ -410,11 +414,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Restore body scroll
             document.body.style.overflow = '';
             
-            // Show mobile header when back to conversations
-            const mobileHeader = document.querySelector('.mobile-messages-header');
-            if (mobileHeader) {
-                mobileHeader.classList.remove('hidden');
-            }
+            // Restore mobile header state
+            const mobileTitle = document.getElementById('mobile-header-title');
+            const menuBtn = document.getElementById('mobile-menu-toggle-btn');
+            const backBtn = document.getElementById('mobile-chat-back-button');
+            
+            if (mobileTitle) mobileTitle.textContent = 'Messages';
+            if (menuBtn) menuBtn.classList.remove('hidden');
+            if (backBtn) backBtn.classList.add('hidden');
             
             // Clear active conversation
             activeConversationId = null;
