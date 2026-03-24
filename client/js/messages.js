@@ -615,98 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Mobile keyboard and viewport handling
-    function initializeMobileKeyboardHandling() {
-        if (window.innerWidth >= 768) return; // Only on mobile
-        
-        const messageInput = document.getElementById('message-input');
-        const messageContainer = document.getElementById('message-container');
-        const chatArea = document.getElementById('chat-area');
-        
-        if (!messageInput || !messageContainer) return;
-        
-        // Handle keyboard show/hide on mobile
-        let originalViewportHeight = window.innerHeight;
-        
-        // Store original viewport height
-        const updateViewportHeight = () => {
-            originalViewportHeight = window.innerHeight;
-        };
-        
-        window.addEventListener('resize', updateViewportHeight);
-        
-        // Handle input focus (keyboard show)
-        messageInput.addEventListener('focus', () => {
-            console.log('📱 Mobile keyboard shown');
-            
-            // Wait for keyboard to appear
-            setTimeout(() => {
-                const currentViewportHeight = window.innerHeight;
-                const heightDifference = originalViewportHeight - currentViewportHeight;
-                
-                if (heightDifference > 150) { // Keyboard is likely shown
-                    console.log('📱 Keyboard detected, adjusting layout');
-                    
-                    // Adjust message container height for keyboard
-                    if (chatArea && messageContainer) {
-                        const headerHeight = 68; // Approximate header height
-                        const inputHeight = 80; // Approximate input height
-                        const safeAreaBottom = env(safe-area-inset-bottom) || 0;
-                        
-                        messageContainer.style.height = `${currentViewportHeight - headerHeight - inputHeight - safeAreaBottom}px`;
-                        messageContainer.scrollTop = messageContainer.scrollHeight;
-                    }
-                }
-            }, 300);
-        });
-        
-        // Handle input blur (keyboard hide)
-        messageInput.addEventListener('blur', () => {
-            console.log('📱 Mobile keyboard hidden');
-            
-            // Reset message container height
-            setTimeout(() => {
-                if (messageContainer && chatArea) {
-                    messageContainer.style.height = '';
-                    messageContainer.scrollTop = messageContainer.scrollHeight;
-                }
-            }, 100);
-        });
-        
-        // Handle visual viewport API if available
-        if ('visualViewport' in window) {
-            window.visualViewport.addEventListener('resize', () => {
-                const viewport = window.visualViewport;
-                const heightDifference = originalViewportHeight - viewport.height;
-                
-                if (messageContainer && chatArea) {
-                    if (heightDifference > 150) { // Keyboard is shown
-                        const headerHeight = 68;
-                        const inputHeight = 80;
-                        const safeAreaBottom = env(safe-area-inset-bottom) || 0;
-                        
-                        messageContainer.style.height = `${viewport.height - headerHeight - inputHeight - safeAreaBottom}px`;
-                    } else {
-                        messageContainer.style.height = '';
-                    }
-                    messageContainer.scrollTop = messageContainer.scrollHeight;
-                }
-            });
-        }
-    }
-    
-    // Helper function to get safe area inset
-    function env(cssVar) {
-        if (typeof CSS !== 'undefined' && CSS.supports && CSS.supports('env', cssVar)) {
-            return parseInt(getComputedStyle(document.documentElement).getPropertyValue(cssVar)) || 0;
-        }
-        return 0;
-    }
-    
-    // Initialize mobile keyboard handling
-    if (window.innerWidth < 768) {
-        initializeMobileKeyboardHandling();
-    }
+    // Mobile keyboard handling is now handled primarily by CSS and browser defaults
     
     // Handle orientation changes
     window.addEventListener('orientationchange', () => {
@@ -790,7 +699,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isMobile = window.innerWidth < 768;
         
         return `
-            <div class="flex ${isMine ? 'justify-end' : 'justify-start'} message-bubble ${mobileMessageClass}" data-message-id="${sanitizeHTML(message._id)}">
+            <div class="flex ${isMine ? 'justify-end sent' : 'justify-start received'} message-bubble ${mobileMessageClass}" data-message-id="${sanitizeHTML(message._id)}">
                 <div class="max-w-[75%] ${isMobile ? 'max-w-[85%]' : 'md:max-w-[75%]'} p-3 ${isMobile ? 'p-4' : 'md:p-3'} rounded-2xl text-sm ${isMobile ? 'text-base' : 'md:text-sm'} shadow-sm ${messageClass} relative group message-content">
                     ${message.replyTo ? `
                         <div class="mb-2 p-2 bg-black bg-opacity-10 rounded text-xs ${isMobile ? 'opacity-70 mobile-reply-bubble' : 'md:text-xs opacity-70'}">
