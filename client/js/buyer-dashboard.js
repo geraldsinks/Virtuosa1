@@ -66,15 +66,26 @@ document.addEventListener('click', function(event) {
 
 // Logout function
 window.logout = function() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/login';
+    if (window.authManager) {
+        window.authManager.logout();
+    } else {
+        // Fallback
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+    }
 };
 
 async function loadDashboardData() {
-    const token = localStorage.getItem('token');
+    if (!window.authManager) {
+        console.error('AuthManager not available');
+        showErrorState();
+        return;
+    }
+
+    const userData = await window.authManager.getUserData();
     
-    if (!token) {
+    if (!userData) {
         window.location.href = '/login';
         return;
     }
@@ -83,18 +94,7 @@ async function loadDashboardData() {
         // Show loading states
         showLoadingStates();
 
-        // Fetch user data
-        const userResponse = await fetch(`${API_BASE}/user/profile`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (!userResponse.ok) {
-            throw new Error('Failed to load user data');
-        }
-
-        const userData = await userResponse.json();
-        
-        // Update welcome message
+        // Update welcome message with fresh data
         document.getElementById('buyer-name').textContent = userData.fullName || 'Buyer';
         
         // Update token balance display
@@ -523,16 +523,45 @@ function showLoadingStates() {
 function showErrorState() {
     const container = document.querySelector('.container .grid');
     if (container) {
-        container.innerHTML = `
-            <div class="col-span-full text-center py-16">
-                <i data-lucide="alert-circle" class="w-16 h-16 mx-auto mb-4 text-red-500"></i>
-                <h2 class="text-2xl font-bold text-gray-900 mb-2">Dashboard Error</h2>
-                <p class="text-gray-600 mb-6">Unable to load your dashboard. Please try again later.</p>
-                <button onclick="location.reload()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">
-                    <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>Try Again
-                </button>
-            </div>
-        `;
+        // Clear existing content safely
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+        
+        // Create error elements safely
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'col-span-full text-center py-16';
+        
+        const icon = document.createElement('i');
+        icon.setAttribute('data-lucide', 'alert-circle');
+        icon.className = 'w-16 h-16 mx-auto mb-4 text-red-500';
+        
+        const title = document.createElement('h2');
+        title.className = 'text-2xl font-bold text-gray-900 mb-2';
+        title.textContent = 'Dashboard Error';
+        
+        const message = document.createElement('p');
+        message.className = 'text-gray-600 mb-6';
+        message.textContent = 'Unable to load your dashboard. Please try again later.';
+        
+        const button = document.createElement('button');
+        button.className = 'bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition';
+        button.onclick = () => location.reload();
+        
+        const buttonIcon = document.createElement('i');
+        buttonIcon.setAttribute('data-lucide', 'refresh-cw');
+        buttonIcon.className = 'w-4 h-4 mr-2';
+        
+        const buttonText = document.createTextNode('Try Again');
+        
+        button.appendChild(buttonIcon);
+        button.appendChild(buttonText);
+        errorDiv.appendChild(icon);
+        errorDiv.appendChild(title);
+        errorDiv.appendChild(message);
+        errorDiv.appendChild(button);
+        container.appendChild(errorDiv);
+        
         if (window.lucide) {
             window.lucide.createIcons();
         }

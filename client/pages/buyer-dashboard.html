@@ -364,90 +364,43 @@
                 </div>
             </div>
         </div>
-    </nav>
-</header>
 
-<!-- Mobile Navigation Menu Overlay -->
-<div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
-<div class="mobile-menu-content">
-    <div class="mobile-menu-header">
-        <div class="text-xl font-bold text-gold">Menu</div>
-        <button id="mobile-menu-close" class="mobile-menu-close">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
-    </div>
-
-    <div class="mobile-menu-section">
-        <div class="mobile-menu-title">Account</div>
-        <a href="login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
-            <i class="fas fa-sign-in-alt"></i>
-            <span id="mobile-menu-sign-text">Sign In</span>
-        </a>
-        <a href="profile.html" class="mobile-menu-link">
-            <i class="fas fa-user"></i>
-            <span>My Profile</span>
-        </a>
-        <a href="buyer-dashboard.html" class="mobile-menu-link">
-            <i class="fas fa-tachometer-alt"></i>
-            <span>Dashboard</span>
-        </a>
-        <a href="orders.html" class="mobile-menu-link">
-            <i class="fas fa-shopping-bag"></i>
-            <span>My Orders</span>
-        </a>
-        <a href="transactions.html" class="mobile-menu-link">
-            <i class="fas fa-exchange-alt"></i>
-            <span>Transactions</span>
-        </a>
-        <a href="reviews.html" class="mobile-menu-link">
-            <i class="fas fa-star"></i>
-            <span>My Reviews</span>
-        </a>
-    </div>
-
-    <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
-        <div class="mobile-menu-title">Seller Tools</div>
-        <a href="seller-dashboard.html" class="mobile-menu-link">
-            <i class="fas fa-store"></i>
-            <span>Seller Dashboard</span>
-        </a>
-        <a href="create-product.html" class="mobile-menu-link">
-            <i class="fas fa-plus-circle"></i>
-            <span>Add Product</span>
-        </a>
-        <a href="seller-analytics.html" class="mobile-menu-link">
-            <i class="fas fa-chart-line"></i>
-            <span>Analytics</span>
-        </a>
-        <a href="seller-orders.html" class="mobile-menu-link">
-            <i class="fas fa-box"></i>
-            <span>Orders</span>
-        </a>
-    </div>
-
-    <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
-        <div class="mobile-menu-title">Admin Panel</div>
-        <a href="admin-dashboard.html" class="mobile-menu-link">
-            <i class="fas fa-cog"></i>
-            <span>Admin Dashboard</span>
-        </a>
-        <a href="admin-seller-applications.html" class="mobile-menu-link">
-            <i class="fas fa-user-check"></i>
-            <span>Seller Applications</span>
-        </a>
-        <a href="admin-mass-messaging.html" class="mobile-menu-link">
-            <i class="fas fa-bullhorn"></i>
-            <span>Mass Messaging</span>
-        </a>
-        <a href="admin-retention.html" class="mobile-menu-link">
-            <i class="fas fa-chart-line"></i>
-            <span>Retention</span>
-        </a>
-    </div>
+        <!-- Dashboard Content -->
+        <div class="container mx-auto px-4 py-8">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="stat-card bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm">Active Orders</p>
+                            <p class="text-3xl font-bold" id="active-orders">0</p>
+                        </div>
                         <div class="bg-white/20 p-3 rounded-lg">
-                            <i data-lucide="heart" class="w-6 h-6"></i>
+                            <i data-lucide="package" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm">Completed Orders</p>
+                            <p class="text-3xl font-bold" id="completed-orders">0</p>
+                        </div>
+                        <div class="bg-white/20 p-3 rounded-lg">
+                            <i data-lucide="check-circle" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm">Total Spent</p>
+                            <p class="text-3xl font-bold" id="total-spent">ZMW 0</p>
+                        </div>
+                        <div class="bg-white/20 p-3 rounded-lg">
+                            <i data-lucide="credit-card" class="w-6 h-6"></i>
                         </div>
                     </div>
                 </div>
@@ -582,6 +535,7 @@
                             <!-- Loading state -->
                             <div class="flex items-center justify-center py-8">
                                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gold"></div>
+                                <span class="ml-3 text-gray-500">Loading recommendations...</span>
                             </div>
                         </div>
                     </div>
@@ -606,9 +560,11 @@
     </footer>
 
     <script src="/js/config.js"></script>
+    <script src="/js/auth-manager.js"></script>
     <script src="/js/header.js"></script>
     <script src="/js/cart.js"></script>
     <script src="/js/mobile-header.js"></script>
+    <script src="/js/mobile-menu.js"></script>
     <script src="/js/buyer-dashboard.js"></script>
     
     <!-- Clean URL Support -->
