@@ -1350,12 +1350,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         function handleSwipeGesture() {
-            const swipeThreshold = 50;
+            const swipeThreshold = 100; // Increased from 50
             const deltaX = touchEndX - touchStartX;
             const deltaY = Math.abs(touchEndY - touchStartY);
             
             // Only handle horizontal swipes with minimal vertical movement
-            if (Math.abs(deltaX) > swipeThreshold && deltaY < 100) {
+            if (Math.abs(deltaX) > swipeThreshold && deltaY < 50) { // Decreased vertical allowance from 100
                 if (deltaX > 0) {
                     // Swipe right - show sidebar
                     showSidebar();
