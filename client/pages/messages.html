@@ -801,27 +801,7 @@
                 transform: scale(0.95);
             }
             
-            /* Fix mobile menu scrolling */
-            .mobile-menu-content {
-                height: calc(100vh - 60px);
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-                overscroll-behavior: contain;
-                margin-top: 60px;
-                position: fixed;
-                top: 0;
-                left: -100%;
-                width: 80%;
-                max-width: 300px;
-                background: white;
-                transition: left 0.3s ease;
-                z-index: 1000; /* Higher than overlay */
-                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-            }
-            
-            .mobile-menu-content.active {
-                left: 0;
-            }
+            /* Mobile menu styles are handled by style.css */
             
             /* Make input area always visible and properly positioned */
             .mobile-input-area {

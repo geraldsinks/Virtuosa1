@@ -83,19 +83,35 @@ async function initializeMobileHeader() {
 
 // Mobile Menu Functions
 function openMobileMenu() {
+    console.log('📱 Opening mobile menu');
     const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+    const mobileMenuContent = document.querySelector('.mobile-menu-content');
+    
     if (mobileMenuOverlay) {
         mobileMenuOverlay.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevent background scrolling
     }
+    
+    if (mobileMenuContent) {
+        mobileMenuContent.classList.add('active');
+    }
+    
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
 }
 
 function closeMobileMenu() {
+    console.log('📱 Closing mobile menu');
     const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+    const mobileMenuContent = document.querySelector('.mobile-menu-content');
+    
     if (mobileMenuOverlay) {
         mobileMenuOverlay.classList.remove('active');
-        document.body.style.overflow = ''; // Restore scrolling
     }
+    
+    if (mobileMenuContent) {
+        mobileMenuContent.classList.remove('active');
+    }
+    
+    document.body.style.overflow = ''; // Restore scrolling
 }
 
 // Mobile Search Functions
