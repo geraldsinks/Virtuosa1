@@ -843,7 +843,10 @@
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'
-                        }
+                        },
+                        body: JSON.stringify({ 
+                            reason: 'User requested account deletion through profile page' 
+                        })
                     });
 
                     if (response.ok) {

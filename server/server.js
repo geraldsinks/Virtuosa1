@@ -4801,11 +4801,39 @@ app.put('/api/user/profile', authenticateToken, async (req, res) => {
     }
 });
 
+// Rate limiting middleware
+const rateLimit = require('express-rate-limit');
+
+// Rate limit for account deletion requests (1 request per hour per user)
+const deletionRequestRateLimit = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 1, // limit each IP to 1 request per windowMs
+    message: { message: 'Too many deletion requests, please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 // Request account deletion
-app.post('/api/user/request-account-deletion', authenticateToken, async (req, res) => {
+app.post('/api/user/request-account-deletion', deletionRequestRateLimit, authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
-        const { reason } = req.body;
+        let { reason } = req.body;
+
+        // Input validation
+        if (reason && typeof reason !== 'string') {
+            return res.status(400).json({ message: 'Invalid reason format' });
+        }
+        
+        if (reason && reason.length > 1000) {
+            return res.status(400).json({ message: 'Reason too long (max 1000 characters)' });
+        }
+
+        // Sanitize reason to prevent XSS
+        if (reason) {
+            reason = reason.replace(/<script[^>]*>.*?<\/script>/gi, '')
+                        .replace(/<[^>]*>?/gm, '')
+                        .trim();
+        }
 
         // Check if user already has a pending deletion request
         const existingRequest = await AccountDeletionRequest.findOne({
@@ -5363,27 +5391,46 @@ app.post('/api/admin/account-deletion-requests/:id/approve', authenticateAdmin, 
             return res.status(400).json({ message: 'This request has already been processed' });
         }
 
-        const { adminNotes } = req.body;
-
-        // Update request status
-        deletionRequest.status = 'Approved';
-        deletionRequest.adminNotes = adminNotes || '';
-        deletionRequest.processedBy = req.user.userId;
-        deletionRequest.processedAt = new Date();
-        await deletionRequest.save();
-
-        // Get user details for deletion
-        const user = await User.findById(deletionRequest.user);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+        // Double-check status to prevent race conditions
+        const freshRequest = await AccountDeletionRequest.findById(req.params.id);
+        if (freshRequest.status !== 'Pending') {
+            return res.status(400).json({ message: 'Request already processed by another admin' });
         }
 
-        // Perform actual account deletion
-        await deleteUserAccount(user._id);
+        const { adminNotes } = req.body;
 
-        console.log(`🗑️ Account deletion approved and executed for user ${user._id} by admin ${req.user.userId}`);
+        // Use transaction for data integrity
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        
+        try {
+            // Update request status
+            deletionRequest.status = 'Approved';
+            deletionRequest.adminNotes = adminNotes || '';
+            deletionRequest.processedBy = req.user.userId;
+            deletionRequest.processedAt = new Date();
+            await deletionRequest.save({ session });
 
-        res.json({ message: 'Account deletion approved and executed successfully' });
+            // Get user details for deletion
+            const user = await User.findById(deletionRequest.user).session(session);
+            if (!user) {
+                await session.abortTransaction();
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            // Perform actual account deletion
+            await deleteUserAccount(user._id, session);
+
+            await session.commitTransaction();
+            console.log(`🗑️ Account deletion approved and executed for user ${user._id} by admin ${req.user.userId}`);
+
+            res.json({ message: 'Account deletion approved and executed successfully' });
+        } catch (error) {
+            await session.abortTransaction();
+            throw error;
+        } finally {
+            session.endSession();
+        }
     } catch (error) {
         console.error('Approve deletion request error:', error);
         res.status(500).json({ message: 'Failed to approve deletion request' });
@@ -5402,33 +5449,61 @@ app.post('/api/admin/account-deletion-requests/:id/reject', authenticateAdmin, a
             return res.status(400).json({ message: 'This request has already been processed' });
         }
 
+        // Double-check status to prevent race conditions
+        const freshRequest = await AccountDeletionRequest.findById(req.params.id);
+        if (freshRequest.status !== 'Pending') {
+            return res.status(400).json({ message: 'Request already processed by another admin' });
+        }
+
         const { adminNotes } = req.body;
-        if (!adminNotes) {
+        if (!adminNotes || adminNotes.trim().length === 0) {
             return res.status(400).json({ message: 'Please provide rejection notes' });
         }
 
-        // Update request status
-        deletionRequest.status = 'Rejected';
-        deletionRequest.adminNotes = adminNotes;
-        deletionRequest.processedBy = req.user.userId;
-        deletionRequest.processedAt = new Date();
-        await deletionRequest.save();
-
-        // Notify user about rejection
-        const user = await User.findById(deletionRequest.user);
-        if (user) {
-            const notification = new Notification({
-                user: user._id,
-                title: 'Account Deletion Request Rejected',
-                message: 'Your account deletion request has been reviewed and rejected. If you have questions, please contact support.',
-                type: 'Account'
-            });
-            await notification.save();
+        // Validate admin notes length
+        if (adminNotes.length > 1000) {
+            return res.status(400).json({ message: 'Admin notes too long (max 1000 characters)' });
         }
 
-        console.log(`❌ Account deletion request rejected for user ${deletionRequest.user} by admin ${req.user.userId}`);
+        // Sanitize admin notes
+        const sanitizedNotes = adminNotes.replace(/<script[^>]*>.*?<\/script>/gi, '')
+                                   .replace(/<[^>]*>?/gm, '')
+                                   .trim();
 
-        res.json({ message: 'Account deletion request rejected successfully' });
+        // Use transaction for data integrity
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        
+        try {
+            // Update request status
+            deletionRequest.status = 'Rejected';
+            deletionRequest.adminNotes = sanitizedNotes;
+            deletionRequest.processedBy = req.user.userId;
+            deletionRequest.processedAt = new Date();
+            await deletionRequest.save({ session });
+
+            // Notify user about rejection
+            const user = await User.findById(deletionRequest.user).session(session);
+            if (user) {
+                const notification = new Notification({
+                    user: user._id,
+                    title: 'Account Deletion Request Rejected',
+                    message: 'Your account deletion request has been reviewed and rejected. If you have questions, please contact support.',
+                    type: 'Account'
+                });
+                await notification.save({ session });
+            }
+
+            await session.commitTransaction();
+            console.log(`❌ Account deletion request rejected for user ${deletionRequest.user} by admin ${req.user.userId}`);
+
+            res.json({ message: 'Account deletion request rejected successfully' });
+        } catch (error) {
+            await session.abortTransaction();
+            throw error;
+        } finally {
+            session.endSession();
+        }
     } catch (error) {
         console.error('Reject deletion request error:', error);
         res.status(500).json({ message: 'Failed to reject deletion request' });
@@ -5436,43 +5511,45 @@ app.post('/api/admin/account-deletion-requests/:id/reject', authenticateAdmin, a
 });
 
 // Helper function to delete user account and all associated data
-async function deleteUserAccount(userId) {
+async function deleteUserAccount(userId, session = null) {
     try {
+        const options = session ? { session } : {};
+        
         // Delete user's products
-        await Product.deleteMany({ user: userId });
+        await Product.deleteMany({ user: userId }, options);
         
         // Delete user's transactions
-        await Transaction.deleteMany({ $or: [{ buyer: userId }, { seller: userId }] });
+        await Transaction.deleteMany({ $or: [{ buyer: userId }, { seller: userId }] }, options);
         
         // Delete user's reviews
-        await Review.deleteMany({ $or: [{ reviewer: userId }, { reviewedUser: userId }] });
+        await Review.deleteMany({ $or: [{ reviewer: userId }, { reviewedUser: userId }] }, options);
         
         // Delete user's notifications
-        await Notification.deleteMany({ user: userId });
+        await Notification.deleteMany({ user: userId }, options);
         
         // Delete user's messages
-        await Message.deleteMany({ $or: [{ sender: userId }, { receiver: userId }] });
+        await Message.deleteMany({ $or: [{ sender: userId }, { receiver: userId }] }, options);
         
         // Delete user's cart
-        await Cart.deleteMany({ user: userId });
+        await Cart.deleteMany({ user: userId }, options);
         
         // Delete user's seller application
-        await SellerApplication.deleteMany({ user: userId });
+        await SellerApplication.deleteMany({ user: userId }, options);
         
         // Delete user's subscription
-        await Subscription.deleteMany({ user: userId });
+        await Subscription.deleteMany({ user: userId }, options);
         
         // Delete user's token transactions
-        await TokenTransaction.deleteMany({ user: userId });
+        await TokenTransaction.deleteMany({ user: userId }, options);
         
         // Delete user's product drafts
-        await ProductDraft.deleteMany({ user: userId });
+        await ProductDraft.deleteMany({ user: userId }, options);
         
         // Delete user's deletion requests
-        await AccountDeletionRequest.deleteMany({ user: userId });
+        await AccountDeletionRequest.deleteMany({ user: userId }, options);
         
         // Finally, delete the user
-        await User.findByIdAndDelete(userId);
+        await User.findByIdAndDelete(userId, options);
         
         console.log(`✅ Successfully deleted account and all data for user ${userId}`);
     } catch (error) {

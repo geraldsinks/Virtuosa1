@@ -267,11 +267,13 @@
     </main>
 
     <!-- Request Details Modal -->
-    <div id="requestModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div id="requestModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4" 
+         role="dialog" aria-modal="true" aria-labelledby="requestModalTitle">
         <div class="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-bold text-navy">Deletion Request Details</h3>
-                <button onclick="closeRequestModal()" class="text-gray-400 hover:text-gray-600">
+                <h3 id="requestModalTitle" class="text-xl font-bold text-navy">Deletion Request Details</h3>
+                <button onclick="closeRequestModal()" class="text-gray-400 hover:text-gray-600" 
+                        aria-label="Close modal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -283,11 +285,13 @@
     </div>
 
     <!-- Action Modal -->
-    <div id="actionModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div id="actionModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4" 
+         role="dialog" aria-modal="true" aria-labelledby="actionModalTitle">
         <div class="bg-white rounded-lg max-w-md w-full p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 id="actionModalTitle" class="text-xl font-bold text-navy">Confirm Action</h3>
-                <button onclick="closeActionModal()" class="text-gray-400 hover:text-gray-600">
+                <button onclick="closeActionModal()" class="text-gray-400 hover:text-gray-600" 
+                        aria-label="Close modal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -296,8 +300,10 @@
                 <p id="actionModalMessage" class="text-gray-700 mb-4"></p>
                 
                 <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Admin Notes</label>
-                    <textarea id="adminNotes" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Add notes about this decision..."></textarea>
+                    <label for="adminNotes" class="block text-sm font-semibold text-gray-700 mb-2">Admin Notes</label>
+                    <textarea id="adminNotes" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                              placeholder="Add notes about this decision..." aria-describedby="adminNotesHelp"></textarea>
+                    <p id="adminNotesHelp" class="text-xs text-gray-500 mt-1">Optional notes about this decision</p>
                 </div>
             </div>
             
@@ -371,16 +377,16 @@
                 <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
-                            <img class="h-10 w-10 rounded-full" src="${request.user.profilePicture || 'https://placehold.co/40x40?text=No+Photo'}" alt="">
+                            <img class="h-10 w-10 rounded-full" src="${escapeHtml(request.user.profilePicture || 'https://placehold.co/40x40?text=No+Photo')}" alt="">
                             <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-900">${request.user.fullName}</div>
-                                <div class="text-sm text-gray-500">${request.user.email}</div>
+                                <div class="text-sm font-medium text-gray-900">${escapeHtml(request.user.fullName || 'Unknown')}</div>
+                                <div class="text-sm text-gray-500">${escapeHtml(request.user.email || 'No email')}</div>
                             </div>
                         </div>
                     </td>
                     <td class="px-6 py-4">
-                        <div class="text-sm text-gray-900 max-w-xs truncate" title="${request.reason}">
-                            ${request.reason}
+                        <div class="text-sm text-gray-900 max-w-xs truncate" title="${escapeHtml(request.reason || 'No reason provided')}">
+                            ${escapeHtml(request.reason || 'No reason provided')}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -388,21 +394,21 @@
                             ${request.status === 'Pending' ? 'bg-orange-100 text-orange-800' : ''}
                             ${request.status === 'Approved' ? 'bg-green-100 text-green-800' : ''}
                             ${request.status === 'Rejected' ? 'bg-red-100 text-red-800' : ''}">
-                            ${request.status}
+                            ${escapeHtml(request.status)}
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${new Date(request.createdAt).toLocaleDateString()}
+                        ${request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'N/A'}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onclick="viewRequest('${request._id}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                        <button onclick="viewRequest('${escapeHtml(request._id)}')" class="text-blue-600 hover:text-blue-900 mr-3">
                             <i class="fas fa-eye"></i> View
                         </button>
                         ${request.status === 'Pending' ? `
-                            <button onclick="showActionModal('${request._id}', 'approve')" class="text-green-600 hover:text-green-900 mr-3">
+                            <button onclick="showActionModal('${escapeHtml(request._id)}', 'approve')" class="text-green-600 hover:text-green-900 mr-3">
                                 <i class="fas fa-check"></i> Approve
                             </button>
-                            <button onclick="showActionModal('${request._id}', 'reject')" class="text-red-600 hover:text-red-900">
+                            <button onclick="showActionModal('${escapeHtml(request._id)}', 'reject')" class="text-red-600 hover:text-red-900">
                                 <i class="fas fa-times"></i> Reject
                             </button>
                         ` : ''}
@@ -452,8 +458,16 @@
         function updateStats(requests) {
             const pending = requests.filter(r => r.status === 'Pending').length;
             const today = new Date().toDateString();
-            const approvedToday = requests.filter(r => r.status === 'Approved' && new Date(r.processedAt).toDateString() === today).length;
-            const rejectedToday = requests.filter(r => r.status === 'Rejected' && new Date(r.processedAt).toDateString() === today).length;
+            const approvedToday = requests.filter(r => 
+                r.status === 'Approved' && 
+                r.processedAt && 
+                new Date(r.processedAt).toDateString() === today
+            ).length;
+            const rejectedToday = requests.filter(r => 
+                r.status === 'Rejected' && 
+                r.processedAt && 
+                new Date(r.processedAt).toDateString() === today
+            ).length;
 
             document.getElementById('pendingCount').textContent = pending;
             document.getElementById('approvedTodayCount').textContent = approvedToday;
@@ -487,19 +501,19 @@
                         <h4 class="font-semibold text-gray-900 mb-2">User Information</h4>
                         <div class="bg-gray-50 rounded-lg p-4">
                             <div class="flex items-center mb-4">
-                                <img class="h-16 w-16 rounded-full" src="${request.user.profilePicture || 'https://placehold.co/64x64?text=No+Photo'}" alt="">
+                                <img class="h-16 w-16 rounded-full" src="${escapeHtml(request.user?.profilePicture || 'https://placehold.co/64x64?text=No+Photo')}" alt="">
                                 <div class="ml-4">
-                                    <div class="text-lg font-medium text-gray-900">${request.user.fullName}</div>
-                                    <div class="text-sm text-gray-500">${request.user.email}</div>
-                                    <div class="text-sm text-gray-500">${request.user.phoneNumber}</div>
+                                    <div class="text-lg font-medium text-gray-900">${escapeHtml(request.user?.fullName || 'Unknown')}</div>
+                                    <div class="text-sm text-gray-500">${escapeHtml(request.user?.email || 'No email')}</div>
+                                    <div class="text-sm text-gray-500">${escapeHtml(request.user?.phoneNumber || 'No phone')}</div>
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-4 text-sm">
                                 <div>
-                                    <span class="font-medium">University:</span> ${request.user.university || 'N/A'}
+                                    <span class="font-medium">University:</span> ${escapeHtml(request.user?.university || 'N/A')}
                                 </div>
                                 <div>
-                                    <span class="font-medium">Member Since:</span> ${new Date(request.user.createdAt).toLocaleDateString()}
+                                    <span class="font-medium">Member Since:</span> ${request.user?.createdAt ? new Date(request.user.createdAt).toLocaleDateString() : 'N/A'}
                                 </div>
                             </div>
                         </div>
@@ -508,7 +522,7 @@
                     <div>
                         <h4 class="font-semibold text-gray-900 mb-2">Deletion Reason</h4>
                         <div class="bg-gray-50 rounded-lg p-4">
-                            <p class="text-gray-700">${request.reason}</p>
+                            <p class="text-gray-700">${escapeHtml(request.reason || 'No reason provided')}</p>
                         </div>
                     </div>
 
@@ -520,14 +534,14 @@
                                     ${request.status === 'Pending' ? 'bg-orange-100 text-orange-800' : ''}
                                     ${request.status === 'Approved' ? 'bg-green-100 text-green-800' : ''}
                                     ${request.status === 'Rejected' ? 'bg-red-100 text-red-800' : ''}">
-                                    ${request.status}
+                                    ${escapeHtml(request.status)}
                                 </span>
                             </div>
                             <div class="text-sm text-gray-600">
-                                <p>Submitted: ${new Date(request.createdAt).toLocaleDateString()} ${new Date(request.createdAt).toLocaleTimeString()}</p>
+                                <p>Submitted: ${request.createdAt ? new Date(request.createdAt).toLocaleDateString() + ' ' + new Date(request.createdAt).toLocaleTimeString() : 'N/A'}</p>
                                 ${request.processedAt ? `
                                     <p>Processed: ${new Date(request.processedAt).toLocaleDateString()} ${new Date(request.processedAt).toLocaleTimeString()}</p>
-                                    <p>Processed by: ${request.processedBy?.fullName || 'Unknown'}</p>
+                                    <p>Processed by: ${escapeHtml(request.processedBy?.fullName || 'Unknown')}</p>
                                 ` : ''}
                             </div>
                         </div>
@@ -537,17 +551,17 @@
                         <div>
                             <h4 class="font-semibold text-gray-900 mb-2">Admin Notes</h4>
                             <div class="bg-gray-50 rounded-lg p-4">
-                                <p class="text-gray-700">${request.adminNotes}</p>
+                                <p class="text-gray-700">${escapeHtml(request.adminNotes)}</p>
                             </div>
                         </div>
                     ` : ''}
 
                     ${request.status === 'Pending' ? `
                         <div class="flex justify-end space-x-3 pt-4 border-t">
-                            <button onclick="showActionModal('${request._id}', 'reject')" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                            <button onclick="showActionModal('${escapeHtml(request._id)}', 'reject')" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                                 <i class="fas fa-times mr-2"></i>Reject Request
                             </button>
-                            <button onclick="showActionModal('${request._id}', 'approve')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <button onclick="showActionModal('${escapeHtml(request._id)}', 'approve')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                                 <i class="fas fa-check mr-2"></i>Approve Deletion
                             </button>
                         </div>
@@ -555,7 +569,14 @@
                 </div>
             `;
 
-            document.getElementById('requestModal').classList.remove('hidden');
+            const modal = document.getElementById('requestModal');
+            modal.classList.remove('hidden');
+            
+            // Focus management for accessibility
+            const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (focusableElements.length > 0) {
+                focusableElements[0].focus();
+            }
         }
 
         function showActionModal(requestId, action) {
@@ -579,7 +600,14 @@
             }
             
             document.getElementById('adminNotes').value = '';
-            document.getElementById('actionModal').classList.remove('hidden');
+            const modal = document.getElementById('actionModal');
+            modal.classList.remove('hidden');
+            
+            // Focus management for accessibility
+            setTimeout(() => {
+                const adminNotesInput = document.getElementById('adminNotes');
+                adminNotesInput.focus();
+            }, 100);
         }
 
         async function confirmAction() {
@@ -624,10 +652,18 @@
         function searchRequests() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const filteredRequests = allRequests.filter(request => 
-                request.user.fullName.toLowerCase().includes(searchTerm) ||
-                request.user.email.toLowerCase().includes(searchTerm)
+                (request.user?.fullName && request.user.fullName.toLowerCase().includes(searchTerm)) ||
+                (request.user?.email && request.user.email.toLowerCase().includes(searchTerm))
             );
             renderRequestsTable(filteredRequests);
+        }
+
+        // HTML escaping function to prevent XSS
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         function refreshData() {
