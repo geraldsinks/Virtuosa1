@@ -319,10 +319,22 @@
     <script src="../js/cart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
+            // Check for both query parameters and path parameters
             const urlParams = new URLSearchParams(window.location.search);
             const sellerId = urlParams.get('sellerId');
-            const shopSlug = urlParams.get('shop');
-            const identifier = shopSlug || sellerId;
+            const shopSlug = urlParams.get('shop'); // This will be set by router for clean URLs
+            
+            // Extract shop slug from clean URL path as fallback (e.g., /seller/my-shop)
+            let pathShopSlug = null;
+            if (!shopSlug) {
+                const pathParts = window.location.pathname.split('/');
+                const sellerIndex = pathParts.indexOf('seller');
+                if (sellerIndex !== -1 && sellerIndex + 1 < pathParts.length) {
+                    pathShopSlug = pathParts[sellerIndex + 1];
+                }
+            }
+            
+            const identifier = shopSlug || pathShopSlug || sellerId;
 
             if (!identifier) {
                 window.location.href = 'products.html';

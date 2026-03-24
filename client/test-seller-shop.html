@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Shop Test - Virtuosa</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Seller Shop Functionality Test</h1>
+    
+    <div class="test-section info">
+        <h3>Test Clean URL Access</h3>
+        <p>These links test the seller shop clean URLs:</p>
+        <button onclick="testShopUrl('test-shop')">Test /seller/test-shop</button>
+        <button onclick="testShopUrl('johns-store')">Test /seller/johns-store</button>
+        <button onclick="testShopUrl('invalid-shop')">Test /seller/invalid-shop (should show 404)</button>
+    </div>
+
+    <div class="test-section info">
+        <h3>Test Query Parameter Access</h3>
+        <p>These links test the traditional query parameter URLs:</p>
+        <button onclick="testShopUrlWithQuery('sellerId', '507f1f77bcf86cd799439011')">Test ?sellerId=507f1f77bcf86cd799439011</button>
+        <button onclick="testShopUrlWithQuery('shop', 'test-shop')">Test ?shop=test-shop</button>
+    </div>
+
+    <div class="test-section info">
+        <h3>Test Non-Logged-In Access</h3>
+        <p>Verifies that non-logged-in users can access seller shops:</p>
+        <button onclick="testNonLoggedInAccess()">Test Non-Logged-In Shop Access</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const API_BASE = window.location.origin + '/api';
+        
+        function testShopUrl(shopSlug) {
+            const url = `/seller/${shopSlug}`;
+            window.open(url, '_blank');
+            addResult(`Testing clean URL: ${url}`, 'info');
+        }
+        
+        function testShopUrlWithQuery(param, value) {
+            const url = `/pages/seller-shop.html?${param}=${value}`;
+            window.open(url, '_blank');
+            addResult(`Testing query URL: ${url}`, 'info');
+        }
+        
+        function testNonLoggedInAccess() {
+            // Clear any existing token
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            
+            // Test API access without authentication
+            fetch(`${API_BASE}/seller/shop/test-shop`)
+                .then(response => {
+                    if (response.ok) {
+                        addResult('✅ API allows non-logged-in access', 'success');
+                        return response.json();
+                    } else {
+                        addResult(`❌ API returned status: ${response.status}`, 'error');
+                    }
+                })
+                .then(data => {
+                    if (data) {
+                        addResult(`✅ Shop data structure: ${Object.keys(data).join(', ')}`, 'success');
+                    }
+                })
+                .catch(error => {
+                    addResult(`❌ API error: ${error.message}`, 'error');
+                });
+        }
+        
+        function addResult(message, type) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-section ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            results.appendChild(div);
+        }
+        
+        // Test API_BASE configuration
+        addResult(`API Base: ${API_BASE}`, 'info');
+    </script>
+</body>
+</html>

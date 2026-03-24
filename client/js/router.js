@@ -586,7 +586,11 @@ class CleanRouter {
             // For clean URLs, do a full page redirect to ensure proper loading
             if (path.includes('/') && !path.includes('.html')) {
                 // This is a clean URL - redirect to the actual HTML file
-                window.location.href = finalUrl;
+                // Pass route parameters as query parameters for the target page
+                const queryString = Object.keys(routeParams).length > 0 
+                    ? '?' + new URLSearchParams(routeParams).toString() 
+                    : '';
+                window.location.href = finalUrl + queryString;
                 return;
             }
             
