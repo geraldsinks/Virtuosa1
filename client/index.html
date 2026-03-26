@@ -722,6 +722,10 @@
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" defer></script>
     <script src="/js/notification-modal.js" defer></script>
     <script>
+        // Declare global variables before DOMContentLoaded
+        let homeAllProducts = [];
+        let categoryGrid, adCardsWrapper, homeSearchInput, homeSearchButton, homeSearchSuggestions;
+
         document.addEventListener('DOMContentLoaded', () => {
             if (window.isIndexScriptRunning) return;
             window.isIndexScriptRunning = true;
@@ -921,9 +925,6 @@
                 fallback.textContent = 'Image unavailable';
                 img.parentElement.appendChild(fallback);
             }
-
-            let homeAllProducts = [];
-            let categoryGrid, adCardsWrapper, homeSearchInput, homeSearchButton, homeSearchSuggestions;
 
             // Enhanced fetch function with timeout and retry
             async function fetchWithTimeout(url, options = {}, retries = 3, timeout = 10000) {
