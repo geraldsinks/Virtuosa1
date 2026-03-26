@@ -1,7 +1,53 @@
 const dns = require('node:dns');
-dns.setServers(['8.8.8.8', '8.8.4.4']); // Force Google DNS
+
+// Validate and configure DNS servers from environment or use Google DNS as fallback
+function validateDnsServers(servers) {
+    const validServers = [];
+    const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    
+    try {
+        if (!Array.isArray(servers)) {
+            console.warn('DNS servers must be an array, using defaults');
+            return ['8.8.8.8', '8.8.4.4'];
+        }
+        
+        servers.forEach(server => {
+            if (typeof server !== 'string') {
+                console.warn('Invalid DNS server type, skipping:', typeof server);
+                return;
+            }
+            
+            const trimmed = server.trim();
+            if (!trimmed) {
+                console.warn('Empty DNS server string, skipping');
+                return;
+            }
+            
+            if (ipRegex.test(trimmed)) {
+                validServers.push(trimmed);
+            } else {
+                console.warn('Invalid DNS server IP, skipping:', server);
+            }
+        });
+    } catch (error) {
+        console.error('Error validating DNS servers:', error);
+        return ['8.8.8.8', '8.8.4.4'];
+    }
+    
+    return validServers.length > 0 ? validServers : ['8.8.8.8', '8.8.4.4'];
+}
+
+const dnsServers = process.env.DNS_SERVERS ? 
+    validateDnsServers(process.env.DNS_SERVERS.split(',')) : 
+    ['8.8.8.8', '8.8.4.4'];
+
+dns.setServers(dnsServers);
+if (process.env.NODE_ENV !== 'production') {
+    console.log(`DNS servers configured: ${dnsServers.join(', ')}`);
+}
 
 const express = require('express');
+const compression = require('compression');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -38,6 +84,31 @@ uploadDirs.forEach(dir => {
 });
 
 const app = express();
+
+// Enable gzip compression for all responses
+app.use(compression({
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  },
+  level: 6,
+  threshold: 2048,
+}));
+
+// Apply compression to static assets
+app.use(express.static(path.join(__dirname, '../client'), {
+  maxAge: '1d',
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
+
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
@@ -51,7 +122,6 @@ app.use(cors( {
     credentials: true
 }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../client')));
 // Serve uploads from the correct directory based on environment
 const uploadsPath = path.join(basePath, 'uploads');
 console.log('📂 Serving uploads from:', uploadsPath);
