@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Virtuosa - Products</title>
+    <meta name="description" content="Browse all products on Virtuosa. Shop textbooks, electronics, fashion, and more from students on your campus.">
+    <link rel="canonical" href="https://virtuosazm.com/products">
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
@@ -13,12 +15,28 @@
     <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
     <meta name="theme-color" content="#0A1128">
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
+    
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Virtuosa",
+      "url": "https://virtuosazm.com",
+      "logo": "https://virtuosazm.com/favicon-enhanced.svg",
+      "sameAs": [
+        "https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr",
+        "https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr"
+      ],
+      "description": "Zambia's premier student trading platform for campus marketplaces."
+    }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
     <style>
         body {
@@ -147,6 +165,20 @@
             margin-top: 0.75rem;
             border-radius: 0.75rem;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Skeleton Pulse Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .skeleton-product-card {
+            background: #e5e7eb;
+            border-radius: 12px;
+            height: 420px;
         }
     </style>
 </head>
@@ -501,10 +533,17 @@
                 </div>
 
                 <!-- Products Grid -->
-                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    <!-- Products will be dynamically inserted here -->
+                <div class="flex-grow">
+                    <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Skeleton Placeholders -->
+                        <div class="skeleton-product-card animate-pulse"></div>
+                        <div class="skeleton-product-card animate-pulse"></div>
+                        <div class="skeleton-product-card animate-pulse"></div>
+                        <div class="skeleton-product-card animate-pulse"></div>
+                        <div class="skeleton-product-card animate-pulse"></div>
+                        <div class="skeleton-product-card animate-pulse"></div>
+                    </div>
                 </div>
-
                 <!-- Loading State -->
                 <div id="loading-state" class="text-center py-12">
                     <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gold"></div>
@@ -520,6 +559,67 @@
     </footer>
 
     <!-- Load dependencies first -->
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-auto border-t border-gray-800">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">About Us</h3>
+                <p class="text-sm">Virtuosa is a student trading platform connecting buyers and sellers for books,
+                    electronics, and more. Join our community to trade smarter!</p>
+                <a href="/about" class="text-sm hover:text-gold transition-colors mt-2 inline-block">Learn more &rarr;</a>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Become a Seller</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/seller" class="hover:text-gold transition-colors">Start Selling</a></li>
+                    <li><a href="/seller-guide" class="hover:text-gold transition-colors">Seller Guide</a></li>
+                    <li><a href="/seller-benefits" class="hover:text-gold transition-colors">Seller Benefits</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Payments</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/payment-options" class="hover:text-gold transition-colors">Payment Options</a></li>
+                    <li><a href="/secure-transactions" class="hover:text-gold transition-colors">Secure Transactions</a></li>
+                    <li><a href="/refund-policy" class="hover:text-gold transition-colors">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Help and Contact</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/faq" class="hover:text-gold transition-colors">FAQ</a></li>
+                    <li><a href="/contact" class="hover:text-gold transition-colors">Contact Support</a></li>
+                    <li><a href="/live-chat" class="hover:text-gold transition-colors">Live Chat</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Follow Us</h3>
+                <div class="flex space-x-4">
+                    <a href="https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr" target="_blank"
+                        class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://x.com" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-x-twitter fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr" target="_blank"
+                        class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 text-center text-sm">
+            <div class="mb-2">
+                <a href="/terms" class="hover:text-gold transition-colors">Terms</a>
+                <span class="mx-2">|</span>
+                <a href="/privacy" class="hover:text-gold transition-colors">Privacy Policy</a>
+                <span class="mx-2">|</span>
+                <a href="/refund-policy" class="hover:text-gold transition-colors">Refund Policy</a>
+            </div>
+            &copy; 2026 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
     <script src="../js/config.js"></script>
     <script src="../js/auth-helper.js"></script>
     <script src="../js/cart.js"></script>
@@ -752,7 +852,12 @@
                     return `
                         <div class="product-card bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group ${isOutOfStock ? 'opacity-75' : ''}">
                             <div class="relative">
-                                <img src="${image}" alt="${product.name}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
+                                <img src="${image}" 
+                                     alt="${product.name} - ${product.category || 'Product'} on Virtuosa" 
+                                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                                     width="300"
+                                     height="300"
+                                     loading="lazy" />
                                 <div class="absolute top-2 left-2 flex gap-1">
                                     ${isVerified ? `
                                         <span class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full text-[10px] font-semibold border border-emerald-200">

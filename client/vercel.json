@@ -181,6 +181,14 @@
       "destination": "/pages/order-details.html"
     },
     {
+      "source": "/about",
+      "destination": "/pages/about.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/pages/privacy.html"
+    },
+    {
       "source": "/((?!pages/|js/|css/|assets/).*)",
       "destination": "/index.html"
     }

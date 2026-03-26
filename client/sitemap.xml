@@ -3,7 +3,7 @@
 
   <!-- Homepage -->
   <url>
-    <loc>https://virtuosa1.vercel.app/</loc>
+    <loc>https://virtuosazm.com/</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
@@ -11,28 +11,28 @@
 
   <!-- Main Public Pages -->
   <url>
-    <loc>https://virtuosa1.vercel.app/products</loc>
+    <loc>https://virtuosazm.com/products</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://virtuosa1.vercel.app/seller</loc>
+    <loc>https://virtuosazm.com/seller</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://virtuosa1.vercel.app/faq</loc>
+    <loc>https://virtuosazm.com/faq</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://virtuosa1.vercel.app/contact</loc>
+    <loc>https://virtuosazm.com/contact</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -40,35 +40,49 @@
 
   <!-- Informational / Trust Pages -->
   <url>
-    <loc>https://virtuosa1.vercel.app/seller-benefits</loc>
+    <loc>https://virtuosazm.com/about</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://virtuosa1.vercel.app/seller-guide</loc>
+    <loc>https://virtuosazm.com/seller-benefits</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://virtuosa1.vercel.app/terms</loc>
+    <loc>https://virtuosazm.com/seller-guide</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://virtuosa1.vercel.app/refund-policy</loc>
+    <loc>https://virtuosazm.com/terms</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://virtuosa1.vercel.app/secure-transactions</loc>
+    <loc>https://virtuosazm.com/refund-policy</loc>
+    <lastmod>2026-03-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://virtuosazm.com/secure-transactions</loc>
+    <lastmod>2026-03-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://virtuosazm.com/privacy</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -76,14 +90,14 @@
 
   <!-- Auth Pages -->
   <url>
-    <loc>https://virtuosa1.vercel.app/login</loc>
+    <loc>https://virtuosazm.com/login</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
-    <loc>https://virtuosa1.vercel.app/signup</loc>
+    <loc>https://virtuosazm.com/signup</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

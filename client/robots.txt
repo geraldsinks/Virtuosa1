@@ -1,5 +1,5 @@
 # Virtuosa - robots.txt
-# https://virtuosa1.vercel.app
+# https://virtuosazm.com
 
 User-agent: *
 
@@ -9,6 +9,8 @@ Allow: /products
 Allow: /seller
 Allow: /faq
 Allow: /contact
+Allow: /about
+Allow: /privacy
 Allow: /seller-benefits
 Allow: /seller-guide
 Allow: /terms
@@ -54,4 +56,4 @@ Disallow: /assets/
 Disallow: /pages/
 
 # Sitemap location
-Sitemap: https://virtuosa1.vercel.app/sitemap.xml
+Sitemap: https://virtuosazm.com/sitemap.xml

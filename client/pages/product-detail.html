@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Details - Virtuosa</title>
+    <meta name="description" content="View product details, pricing, and seller information on Virtuosa — Zambia's student trading platform.">
+    <link rel="canonical" href="https://virtuosazm.com/product">
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
@@ -12,12 +14,41 @@
     <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
     <meta name="theme-color" content="#0A1128">
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
+
+    <!-- Open Graph / Facebook (Defaults) -->
+    <meta property="og:type" content="product">
+    <meta property="og:url" content="https://virtuosazm.com/product-detail">
+    <meta property="og:title" content="Virtuosa Professional Marketplace">
+    <meta property="og:description" content="Safe, verified campus marketplace for Zambian students.">
+    <meta property="og:image" content="https://virtuosazm.com/favicon-enhanced.svg">
+
+    <!-- Twitter (Defaults) -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Virtuosa Professional Marketplace">
+    <meta property="twitter:description" content="Safe, verified campus marketplace for Zambian students.">
+    <meta property="twitter:image" content="https://virtuosazm.com/favicon-enhanced.svg">
+
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Virtuosa",
+      "url": "https://virtuosazm.com",
+      "logo": "https://virtuosazm.com/favicon-enhanced.svg",
+      "sameAs": [
+        "https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr",
+        "https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr"
+      ],
+      "description": "Zambia's premier student trading platform for campus marketplaces."
+    }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
     <style>
         body { font-family: 'Montserrat', sans-serif; }
@@ -247,7 +278,7 @@
                 <!-- Product Images -->
                 <div class="space-y-4">
                     <div class="product-image-container bg-white shadow-sm border border-gray-100">
-                        <img id="main-product-image" src="" alt="" class="product-image">
+                        <img id="main-product-image" src="" alt="Product image" class="product-image" width="600" height="600" loading="eager">
                     </div>
                     <div id="thumbnail-container" class="grid grid-cols-4 gap-4">
                         <!-- Thumbnails will be injected here -->
@@ -387,6 +418,33 @@
             document.getElementById('product-category').textContent = product.category || 'General';
             document.getElementById('product-description').textContent = product.description || 'No description available for this item.';
             
+            // Update page title and meta for SEO
+            const productName = product.name;
+            const productDesc = (product.description || '').substring(0, 150);
+            const productImg = images.length > 0 ? fixServerUrl(images[0]) : 'https://virtuosazm.com/favicon-enhanced.svg';
+            const productUrl = window.location.href;
+
+            document.title = `${productName} - Virtuosa`;
+            const metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) metaDesc.content = `${productName} - ${product.category || 'Product'} on Virtuosa. ${productDesc}`;
+            
+            // Dynamic OG Tags
+            const ogTags = {
+                'og:title': productName,
+                'og:description': productDesc,
+                'og:image': productImg,
+                'og:url': productUrl,
+                'twitter:title': productName,
+                'twitter:description': productDesc,
+                'twitter:image': productImg
+            };
+
+            Object.entries(ogTags).forEach(([property, content]) => {
+                let element = document.querySelector(`meta[property="${property}"]`) || 
+                             document.querySelector(`meta[name="${property}"]`);
+                if (element) element.setAttribute('content', content);
+            });
+            
             const price = parseFloat(product.price);
             document.getElementById('product-price').textContent = `K${price.toLocaleString()}`;
             
@@ -405,6 +463,8 @@
             // Images
             const mainImage = document.getElementById('main-product-image');
             const images = product.images || [];
+            const productAlt = `${product.name} - ${product.category || 'Product'} on Virtuosa`;
+            mainImage.alt = productAlt;
             if (images.length > 0) {
                 mainImage.src = fixServerUrl(images[0]);
                 
@@ -412,7 +472,7 @@
                 images.forEach((img, idx) => {
                     const thumb = document.createElement('div');
                     thumb.className = `cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${idx === 0 ? 'border-gold' : 'border-transparent hover:border-gray-300'}`;
-                    thumb.innerHTML = `<img src="${fixServerUrl(img)}" class="w-full h-full object-cover">`;
+                    thumb.innerHTML = `<img src="${fixServerUrl(img)}" alt="${product.name} - image ${idx + 1}" class="w-full h-full object-cover" width="150" height="150" loading="lazy">`;
                     thumb.onclick = () => {
                         mainImage.src = fixServerUrl(img);
                         document.querySelectorAll('#thumbnail-container div').forEach(d => d.classList.remove('border-gold'));
@@ -422,7 +482,35 @@
                 });
             } else {
                 mainImage.src = 'https://placehold.co/600x400?text=No+Image';
+                mainImage.alt = 'No product image available';
             }
+            
+            // Inject Product JSON-LD Schema for Google Rich Results
+            const isInStock = product.status !== 'Out of Stock' && product.status !== 'Sold';
+            const schemaData = {
+                "@context": "https://schema.org/",
+                "@type": "Product",
+                "name": product.name,
+                "description": product.description || '',
+                "category": product.category || '',
+                "image": images.length > 0 ? images.map(img => fixServerUrl(img)) : [],
+                "offers": {
+                    "@type": "Offer",
+                    "price": price.toFixed(2),
+                    "priceCurrency": "ZMW",
+                    "availability": isInStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+                    "seller": {
+                        "@type": "Organization",
+                        "name": product.seller?.storeName || product.seller?.name || 'Virtuosa Seller'
+                    }
+                }
+            };
+            if (product.condition) schemaData.itemCondition = product.condition === 'New' ? 'https://schema.org/NewCondition' : 'https://schema.org/UsedCondition';
+            
+            const schemaScript = document.createElement('script');
+            schemaScript.type = 'application/ld+json';
+            schemaScript.textContent = JSON.stringify(schemaData);
+            document.head.appendChild(schemaScript);
 
             // Seller Info
             document.getElementById('seller-name').textContent = product.seller?.storeName || product.seller?.name || 'Virtuosa Seller';

@@ -891,6 +891,25 @@ async function seedInitialMarketingData() {
         }
 
         console.log('✅ Marketing data seeding completed');
+
+        // Seed About Page if empty
+        const aboutCount = await AboutPage.countDocuments();
+        if (aboutCount === 0) {
+            await AboutPage.create({
+                title: 'About Virtuosa',
+                mission: 'Connecting campus communities through safe and reliable student-to-student commerce.',
+                vision: 'The leading digital marketplace for tertiary institutions in Zambia.',
+                story: 'Founded in 2024, Virtuosa was built specifically for the Zambian student experience. We understand the challenges of finding textbooks, electronics, and essentials on campus, and we are here to bridge that gap.',
+                team: [
+                    { name: 'Gerald Sinkamba', role: 'Founder', bio: 'Visionary leader driving the Virtuosa mission.', image: 'https://placehold.co/400x400/0A1128/FFFFFF?text=Founder' },
+                    { name: 'Lead 1', role: 'Products and operations lead', bio: 'Managing the platform flow and user experience.', image: 'https://placehold.co/400x400/0A1128/FFFFFF?text=Product+Lead' },
+                    { name: 'Lead 2', role: 'Marketing and communications lead', bio: 'Spreading the Virtuosa word across campuses.', image: 'https://placehold.co/400x400/0A1128/FFFFFF?text=Marketing+Lead' },
+                    { name: 'Lead 3', role: 'University success lead', bio: 'Ensuring every campus community thrives.', image: 'https://placehold.co/400x400/0A1128/FFFFFF?text=Success+Lead' },
+                    { name: 'Lead 4', role: 'Organizer and Secretary', bio: 'Keeping the Virtuosa engine running smoothly.', image: 'https://placehold.co/400x400/0A1128/FFFFFF?text=Admin+Lead' }
+                ]
+            });
+            console.log('🎯 Seeded default About Page content');
+        }
     } catch (error) {
         console.error('❌ Error seeding marketing data:', error);
     }
@@ -1194,6 +1213,44 @@ app.delete('/api/marketing/category-cards/:id', authenticateToken, isAdmin, asyn
         res.json({ message: 'Category card deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting category card' });
+    }
+});
+
+// --- About Page API ---
+
+// Public GET endpoint
+app.get('/api/public/about', async (req, res) => {
+    try {
+        const aboutData = await AboutPage.findOne().populate('updatedBy', 'fullName');
+        if (!aboutData) {
+            return res.status(404).json({ message: 'About page data not found' });
+        }
+        res.json(aboutData);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching about page content' });
+    }
+});
+
+// Admin UPDATE endpoint
+app.put('/api/admin/about', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const updateData = {
+            ...req.body,
+            updatedBy: req.user.userId,
+            updatedAt: new Date()
+        };
+        
+        let aboutData = await AboutPage.findOne();
+        if (aboutData) {
+            aboutData = await AboutPage.findByIdAndUpdate(aboutData._id, updateData, { new: true });
+        } else {
+            aboutData = new AboutPage(updateData);
+            await aboutData.save();
+        }
+        
+        res.json(aboutData);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating about page content' });
     }
 });
 
@@ -1867,6 +1924,27 @@ const bannerSchema = new mongoose.Schema({
 });
 
 const Banner = mongoose.model('Banner', bannerSchema);
+
+// About Page Schema
+const aboutPageSchema = new mongoose.Schema({
+    title: { type: String, default: 'About Virtuosa' },
+    mission: { type: String, default: 'To empower students through a safe, campus-focused trading ecosystem.' },
+    vision: { type: String, default: 'To be the primary marketplace for every student in Zambia.' },
+    story: { type: String, default: 'Virtuosa started with a simple idea: make campus trading safer and easier for everyone.' },
+    heroImage: { type: String, default: 'https://placehold.co/1200x400/0A1128/FFFFFF?text=About+Virtuosa' },
+    team: [{
+        name: { type: String, required: true },
+        role: { type: String, required: true },
+        bio: String,
+        image: String
+    }],
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    updatedAt: { type: Date, default: Date.now }
+});
+
+const AboutPage = mongoose.model('AboutPage', aboutPageSchema);
+
+console.log('Marketing, Banner and AboutPage models created successfully');
 
 // A+ Content / Product Enhancement Schema
 const contentEnhancementSchema = new mongoose.Schema({

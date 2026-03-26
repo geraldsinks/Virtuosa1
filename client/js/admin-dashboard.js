@@ -327,6 +327,8 @@ function showTab(tabName) {
         loadApplications();
     } else if (tabName === 'retention') {
         loadRetentionStats();
+    } else if (tabName === 'about') {
+        loadAboutData();
     }
 }
 
@@ -1001,4 +1003,113 @@ function handleDatabaseReset() {
         resetBtn.innerHTML = originalText;
         resetBtn.disabled = false;
     });
+}
+// Load About Page Data
+async function loadAboutData() {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL}/api/public/about`);
+        const data = await response.json();
+
+        if (response.ok) {
+            document.getElementById('about-title-input').value = data.title || '';
+            document.getElementById('about-mission-input').value = data.mission || '';
+            document.getElementById('about-vision-input').value = data.vision || '';
+            document.getElementById('about-story-input').value = data.story || '';
+            document.getElementById('about-hero-input').value = data.heroImage || '';
+            
+            renderTeamInputs(data.team || []);
+        }
+    } catch (error) {
+        console.error('Error loading about data:', error);
+        showError('Failed to load about page data');
+    }
+}
+
+// Render Team Member Inputs
+function renderTeamInputs(team) {
+    const container = document.getElementById('admin-team-list');
+    container.innerHTML = '';
+
+    // Ensure we always show 5 slots (as per user requirement)
+    const displayTeam = [...team];
+    while (displayTeam.length < 5) {
+        displayTeam.push({ name: '', role: '', bio: '', image: '' });
+    }
+
+    displayTeam.forEach((member, index) => {
+        const card = document.createElement('div');
+        card.className = 'bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4';
+        card.innerHTML = `
+            <div class="flex items-center justify-between border-b pb-2 mb-4">
+                <span class="text-xs font-bold text-gray-500 uppercase">Member ${index + 1}</span>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Name</label>
+                <input type="text" class="team-name w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value="${member.name || ''}">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Role</label>
+                <input type="text" class="team-role w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value="${member.role || ''}">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Bio</label>
+                <textarea class="team-bio w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" rows="2">${member.bio || ''}</textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Image URL</label>
+                <input type="text" class="team-image w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value="${member.image || ''}">
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Save About Page Data
+async function saveAboutData() {
+    try {
+        const token = localStorage.getItem('token');
+        const teamCards = document.querySelectorAll('#admin-team-list > div');
+        const team = [];
+
+        teamCards.forEach(card => {
+            const name = card.querySelector('.team-name').value;
+            const role = card.querySelector('.team-role').value;
+            if (name && role) {
+                team.push({
+                    name,
+                    role,
+                    bio: card.querySelector('.team-bio').value,
+                    image: card.querySelector('.team-image').value
+                });
+            }
+        });
+
+        const aboutData = {
+            title: document.getElementById('about-title-input').value,
+            mission: document.getElementById('about-mission-input').value,
+            vision: document.getElementById('about-vision-input').value,
+            story: document.getElementById('about-story-input').value,
+            heroImage: document.getElementById('about-hero-input').value,
+            team
+        };
+
+        const response = await fetch(`${API_URL}/api/admin/about`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(aboutData)
+        });
+
+        if (response.ok) {
+            showSuccess('About page updated successfully!');
+        } else {
+            throw new Error('Failed to update about page');
+        }
+    } catch (error) {
+        console.error('Error saving about data:', error);
+        showError('Failed to save changes');
+    }
 }

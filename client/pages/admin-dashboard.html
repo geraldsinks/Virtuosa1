@@ -601,6 +601,10 @@
                     class="tab-button py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">
                     <i class="fas fa-archive mr-2"></i>Data Retention
                 </button>
+                <button onclick="showTab('about')"
+                    class="tab-button py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">
+                    <i class="fas fa-info-circle mr-2"></i>About Page
+                </button>
             </nav>
         </div>
 
@@ -751,7 +755,62 @@
                 </div>
             </div>
         </div>
-    </div>
+        <!-- About Page Tab -->
+        <div id="aboutTab" class="tab-content p-6 hidden">
+            <div class="mb-8 flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-navy font-montserrat">Manage About Page</h3>
+                    <p class="text-sm text-gray-500">Edit company mission, vision, and team members.</p>
+                </div>
+                <button onclick="saveAboutData()" class="bg-navy text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-all font-bold shadow-lg">
+                    <i class="fas fa-save mr-2"></i>Save Changes
+                </button>
+            </div>
+
+            <!-- Content Sections -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <div class="space-y-6">
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Page Title</label>
+                        <input type="text" id="about-title-input" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. About Virtuosa">
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Our Mission</label>
+                        <textarea id="about-mission-input" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Enter mission statement..."></textarea>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Our Vision</label>
+                        <textarea id="about-vision-input" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Enter vision statement..."></textarea>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Hero Image URL</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="about-hero-input" class="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://example.com/banner.jpg">
+                            <button onclick="window.location.href='admin-asset-library.html'" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors" title="Select from Library">
+                                <i class="fas fa-images"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Company Story</label>
+                        <textarea id="about-story-input" rows="8" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="The story of Virtuosa..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Section Management -->
+            <div class="border-t border-gray-200 pt-10">
+                <div class="flex items-center justify-between mb-8">
+                    <h4 class="text-lg font-bold text-navy font-montserrat uppercase tracking-widest">Team Members (The Core 5)</h4>
+                    <span class="text-xs bg-gold bg-opacity-20 text-navy px-3 py-1 rounded-full font-semibold">Max 5 Members</span>
+                </div>
+                <div id="admin-team-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Team member inputs will be injected here via JavaScript -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Dispute Resolution Modal -->
