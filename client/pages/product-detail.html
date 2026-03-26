@@ -58,18 +58,8 @@
         .bg-button-gold { background-color: #C19A6B; }
         .hover-bg-button-gold:hover { background-color: #A98B68; }
         .product-image-container { aspect-ratio: 1/1; overflow: hidden; border-radius: 1rem; }
-        .product-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; contain: layout style paint; }
+        .product-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
         .product-image:hover { transform: scale(1.05); }
-        
-        /* CLS Prevention */
-        body {
-            font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
-            font-display: swap;
-        }
-        
-        .thumbnail-container img {
-            contain: layout style paint;
-        }
     </style>
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen">
@@ -482,7 +472,7 @@
                 images.forEach((img, idx) => {
                     const thumb = document.createElement('div');
                     thumb.className = `cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${idx === 0 ? 'border-gold' : 'border-transparent hover:border-gray-300'}`;
-                    thumb.innerHTML = `<img src="${fixServerUrl(img)}" alt="${product.name} - image ${idx + 1}" class="w-full h-full object-cover" width="150" height="150" loading="lazy" style="contain: layout style paint;">`;
+                    thumb.innerHTML = `<img src="${fixServerUrl(img)}" alt="${product.name} - image ${idx + 1}" class="w-full h-full object-cover" width="150" height="150" loading="lazy">`;
                     thumb.onclick = () => {
                         mainImage.src = fixServerUrl(img);
                         document.querySelectorAll('#thumbnail-container div').forEach(d => d.classList.remove('border-gold'));
