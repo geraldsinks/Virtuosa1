@@ -1,0 +1,57 @@
+# Virtuosa - robots.txt
+# https://virtuosa1.vercel.app
+
+User-agent: *
+
+# Allow public pages
+Allow: /
+Allow: /products
+Allow: /seller
+Allow: /faq
+Allow: /contact
+Allow: /seller-benefits
+Allow: /seller-guide
+Allow: /terms
+Allow: /refund-policy
+Allow: /secure-transactions
+Allow: /login
+Allow: /signup
+
+# Disallow authenticated / private pages
+Disallow: /dashboard
+Disallow: /seller-dashboard
+Disallow: /admin
+Disallow: /admin-users
+Disallow: /admin-seller-applications
+Disallow: /admin-mass-messaging
+Disallow: /admin-retention
+Disallow: /admin-asset-library
+Disallow: /profile
+Disallow: /settings
+Disallow: /orders
+Disallow: /order/
+Disallow: /messages
+Disallow: /notifications
+Disallow: /transactions
+Disallow: /reviews
+Disallow: /cart
+Disallow: /payment-options
+Disallow: /create-product
+Disallow: /edit-product
+Disallow: /seller-verification
+Disallow: /seller-analytics
+Disallow: /seller-orders
+Disallow: /marketing
+Disallow: /marketing-dashboard
+Disallow: /live-chat
+Disallow: /cash-on-delivery
+Disallow: /verify-email
+
+# Disallow static/internal assets
+Disallow: /js/
+Disallow: /css/
+Disallow: /assets/
+Disallow: /pages/
+
+# Sitemap location
+Sitemap: https://virtuosa1.vercel.app/sitemap.xml
