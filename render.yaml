@@ -12,7 +12,7 @@ services:
       - key: RENDER
         value: "true"
       - key: FRONTEND_URL
-        value: "https://virtuosa1.vercel.app"
+        value: "https://virtuosazm.com"
       - key: MONGODB_URI
         sync: false
       - key: JWT_SECRET
