@@ -19,8 +19,32 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+    @font-face {
+      font-family: 'Montserrat';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/montserrat/v25/JTUHjIg1_i6t8kCHKm4532VJOt5-QNFgpCtr6Ew-.woff2) format('woff2');
+    }
+    @font-face {
+      font-family: 'Montserrat';
+      font-style: normal;
+      font-weight: 600;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/montserrat/v25/JTUHjIg1_i6t8kCHKm4532VJOt5-QNFgpCuM73w-.woff2) format('woff2');
+    }
+    @font-face {
+      font-family: 'Montserrat';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/montserrat/v25/JTUHjIg1_i6t8kCHKm4532VJOt5-QNFgpCuM73w-.woff2) format('woff2');
+    }
+    </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/cls-prevention.js" defer></script>
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -219,6 +243,38 @@
             background: #e5e7eb;
             border-radius: 12px;
             height: 380px;
+            contain: layout style paint;
+        }
+
+        /* CLS Prevention: Reserve space for dynamic content */
+        #ad-slider {
+            aspect-ratio: 16/9;
+            max-height: 320px;
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200% 100%;
+            animation: loading-shimmer 1.5s infinite;
+        }
+
+        @keyframes loading-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Prevent layout shift for category images */
+        .category-image {
+            aspect-ratio: 16/9;
+            background: #f3f4f6;
+        }
+
+        /* Reserve space for product cards */
+        .product-card {
+            contain: layout style paint;
+        }
+
+        /* Ensure stable font loading */
+        body {
+            font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+            font-display: swap;
         }
     </style>
 </head>
