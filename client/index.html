@@ -726,6 +726,13 @@
             if (window.isIndexScriptRunning) return;
             window.isIndexScriptRunning = true;
 
+            // Initialize DOM elements
+            categoryGrid = document.getElementById('category-grid');
+            adCardsWrapper = document.getElementById('ad-cards-wrapper');
+            homeSearchInput = document.getElementById('home-search-input');
+            homeSearchButton = document.getElementById('home-search-button');
+            homeSearchSuggestions = document.getElementById('home-search-suggestions');
+
             // Enhanced URL validation and sanitization function
             function sanitizeUrl(url, fallbackUrl = '/') {
                 if (!url || typeof url !== 'string') return fallbackUrl;
@@ -792,35 +799,116 @@
                 return url;
             }
 
-            // Image URL processing cache
-            const webpUrlCache = new Map();
-            const maxCacheSize = 1000;
+            // Image URL processing cache with proper LRU implementation
+            class ImageUrlCache {
+                constructor(maxSize = 1000) {
+                    this.cache = new Map();
+                    this.maxSize = maxSize;
+                }
 
-            // Optimized WebP URL generation function with caching
-            function generateWebpUrl(imageUrl) {
-                if (!imageUrl) return imageUrl;
+                get(key) {
+                    if (this.cache.has(key)) {
+                        // Move to end (most recently used)
+                        const value = this.cache.get(key);
+                        this.cache.delete(key);
+                        this.cache.set(key, value);
+                        return value;
+                    }
+                    return null;
+                }
+
+                set(key, value) {
+                    // Remove existing entry if present
+                    if (this.cache.has(key)) {
+                        this.cache.delete(key);
+                    }
+                    // Evict oldest if at capacity
+                    else if (this.cache.size >= this.maxSize) {
+                        const firstKey = this.cache.keys().next().value;
+                        this.cache.delete(firstKey);
+                    }
+                    this.cache.set(key, value);
+                }
+            }
+
+            const webpUrlCache = new ImageUrlCache(1000);
+
+            // Unified Cloudinary URL optimization function
+            function generateOptimizedCloudinaryUrl(imageUrl, width, height, preserveExistingTransforms = false) {
+                if (!imageUrl || typeof imageUrl !== 'string') {
+                    return imageUrl;
+                }
+
+                if (!imageUrl.includes('res.cloudinary.com')) {
+                    return imageUrl;
+                }
+
+                // Validate dimensions
+                width = Math.max(1, Math.min(3000, parseInt(width) || 400));
+                height = Math.max(1, Math.min(3000, parseInt(height) || 280));
+
+                try {
+                    const uploadIndex = imageUrl.indexOf('/upload/');
+                    if (uploadIndex === -1) {
+                        console.warn('Invalid Cloudinary URL structure:', imageUrl);
+                        return imageUrl;
+                    }
+
+                    const cloudinaryBase = imageUrl.substring(0, uploadIndex + 8); // +8 for '/upload/'
+                    const remainingPath = imageUrl.substring(uploadIndex + 8);
+
+                    let optimizedUrl;
+                    const newTransforms = `q_auto,f_auto,w_${width},h_${height},c_fill`;
+
+                    if (preserveExistingTransforms && remainingPath.includes('/')) {
+                        // Preserve existing transformations and add ours
+                        const pathIndex = remainingPath.indexOf('/');
+                        const existingTransforms = remainingPath.substring(0, pathIndex);
+                        const imagePath = remainingPath.substring(pathIndex);
+                        
+                        // Combine transformations, avoiding duplicates
+                        const combinedTransforms = existingTransforms ? `${existingTransforms},${newTransforms}` : newTransforms;
+                        optimizedUrl = cloudinaryBase + combinedTransforms + imagePath;
+                    } else {
+                        // Strip existing transformations and apply new ones
+                        const cleanImagePath = remainingPath.includes('/') ? 
+                            remainingPath.substring(remainingPath.indexOf('/') + 1) : remainingPath;
+                        optimizedUrl = cloudinaryBase + newTransforms + '/' + cleanImagePath;
+                    }
+
+                    return optimizedUrl;
+                } catch (error) {
+                    console.error('Error processing Cloudinary URL:', error);
+                    return imageUrl;
+                }
+            }
+
+            function generateWebpUrl(imageUrl, width = 768, height = 280) {
+                if (!imageUrl || typeof imageUrl !== 'string') return imageUrl;
+                
+                // Create cache key based on URL and dimensions
+                const cacheKey = `${imageUrl}|${width}x${height}`;
                 
                 // Check cache first
-                if (webpUrlCache.has(imageUrl)) {
-                    return webpUrlCache.get(imageUrl);
+                const cachedResult = webpUrlCache.get(cacheKey);
+                if (cachedResult) {
+                    return cachedResult;
                 }
                 
                 let webpUrl;
-                // Use regex for more efficient URL processing
                 if (imageUrl.includes('placehold.co')) {
                     webpUrl = imageUrl.replace(/placehold\.co/, 'placehold.co/webp');
                 } else if (imageUrl.includes('api.virtuosazm.com')) {
                     webpUrl = imageUrl.includes('?') ? `${imageUrl}&format=webp` : `${imageUrl}?format=webp`;
+                } else if (imageUrl.includes('res.cloudinary.com')) {
+                    // Use unified Cloudinary function with preserve mode
+                    webpUrl = generateOptimizedCloudinaryUrl(imageUrl, width, height, true);
                 } else {
-                    webpUrl = imageUrl; // For external URLs (Cloudinary, etc.), don't modify
+                    webpUrl = imageUrl; // For other external URLs, don't modify
                 }
                 
-                // Cache the result (implement LRU eviction if cache is full)
-                if (webpUrlCache.size >= maxCacheSize) {
-                    const firstKey = webpUrlCache.keys().next().value;
-                    webpUrlCache.delete(firstKey);
-                }
-                webpUrlCache.set(imageUrl, webpUrl);
+                // Cache the result with proper LRU handling
+                webpUrlCache.set(cacheKey, webpUrl);
                 
                 return webpUrl;
             }
@@ -834,14 +922,8 @@
                 img.parentElement.appendChild(fallback);
             }
 
-            // Move DOM element declarations inside DOMContentLoaded to prevent race conditions
-            const categoryGrid = document.getElementById('category-grid');
-            const adCardsWrapper = document.getElementById('ad-cards-wrapper');
-            const homeSearchInput = document.getElementById('home-search-input');
-            const homeSearchButton = document.getElementById('home-search-button');
-            const homeSearchSuggestions = document.getElementById('home-search-suggestions');
-
             let homeAllProducts = [];
+            let categoryGrid, adCardsWrapper, homeSearchInput, homeSearchButton, homeSearchSuggestions;
 
             // Enhanced fetch function with timeout and retry
             async function fetchWithTimeout(url, options = {}, retries = 3, timeout = 10000) {
@@ -939,7 +1021,6 @@
 
             function renderCategoryCards(categoryCards) {
                 // Add null check for categoryGrid element
-                const categoryGrid = document.getElementById('category-grid');
                 if (!categoryGrid) {
                     console.error('Category grid element not found');
                     return;
@@ -971,14 +1052,19 @@
                 <div class="${cardClass}">
                 <div class="overflow-hidden bg-gray-100">
                 <picture>
-                  <source srcset="${webpUrl}" type="image/webp">
+                  <source srcset="${generateOptimizedCloudinaryUrl(imageUrl, 400, isRectangle ? 200 : 140)} 400w,
+                          ${generateOptimizedCloudinaryUrl(imageUrl, 768, isRectangle ? 384 : 280)} 768w,
+                          ${generateOptimizedCloudinaryUrl(imageUrl, 1200, isRectangle ? 600 : 400)} 1200w" 
+                          type="image/webp">
                   <img src="${imageUrl}" 
-                 srcset="${imageUrl} 1x, ${imageUrl.replace(/400x200/g, isRectangle ? '800x400' : '800x400')} 2x"
-                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                 srcset="${generateOptimizedCloudinaryUrl(imageUrl, 400, isRectangle ? 200 : 140)} 400w,
+                         ${generateOptimizedCloudinaryUrl(imageUrl, 768, isRectangle ? 384 : 280)} 768w,
+                         ${generateOptimizedCloudinaryUrl(imageUrl, 1200, isRectangle ? 600 : 400)} 1200w"
+                 sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 25vw"
                  alt="${card.title} - ${card.description || 'Browse on Virtuosa'}" 
                  class="category-image"
                  width="${isRectangle ? '800' : '400'}"
-                 height="200"
+                 height="${isRectangle ? '400' : '280'}"
                  loading="${index < 4 ? 'eager' : 'lazy'}"
                  decoding="async"
                  onerror="handleImageError(this)">
