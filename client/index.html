@@ -15,11 +15,273 @@
     <link rel="apple-touch-icon" href="favicon-enhanced.svg">
     <meta name="theme-color" content="#0A1128">
     
-    <script src="https://cdn.tailwindcss.com" defer></script>
+    <!-- Critical Resource Hints for LCP Optimization -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.gstatic.com/s/montserrat/v25/JTUHjIg1_i6t8kCHKm4532VJOt5-QNFgpCtr6Ew-.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="https://cdn.tailwindcss.com" as="script">
+    
+    <script src="https://cdn.tailwindcss.com" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+    /* Critical CSS for LCP Optimization - Above the fold styles */
+    body {
+        font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+        font-display: swap;
+        background-color: #f3f4f6;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Header styles (above fold) */
+    .bg-navy { background-color: #0A1128; }
+    .text-white { color: white; }
+    .shadow-lg { box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
+    .sticky { position: sticky; top: 0; }
+    .z-50 { z-index: 50; }
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .text-gold { color: #FFD700; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+    .w-6 { width: 1.5rem; }
+    .h-6 { height: 1.5rem; }
+    .relative { position: relative; }
+    .w-full { width: 100%; }
+    .h-80 { height: 20rem; }
+    .overflow-hidden { overflow: hidden; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+    .bg-cover { background-size: cover; }
+    .bg-center { background-position: center; }
+    .cursor-pointer { cursor: pointer; }
+    .absolute { position: absolute; }
+    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+    .bg-black { background-color: black; }
+    .bg-opacity-40 { background-color: rgba(0, 0, 0, 0.4); }
+    .text-center { text-align: center; }
+    .text-4xl { font-size: 2.25rem; }
+    .md\:text-5xl { font-size: 3rem; }
+    .font-bold { font-weight: 700; }
+    .mb-4 { margin-bottom: 1rem; }
+    .text-xl { font-size: 1.25rem; }
+    .md\:text-2xl { font-size: 1.5rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .text-lg { font-size: 1.125rem; }
+    .mb-8 { margin-bottom: 2rem; }
+    .bg-gold { background-color: #FFD700; }
+    .text-navy { color: #0A1128; }
+    .px-8 { padding-left: 2rem; padding-right: 2rem; }
+    .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+    .rounded-full { border-radius: 9999px; }
+    .transition-colors { transition-property: color, background-color, border-color; }
+    .hover\:bg-yellow-400:hover { background-color: #facc15; }
+    .left-4 { left: 1rem; }
+    .top-1\/2 { top: 50%; }
+    .transform { transform: translateY(-50%); }
+    .p-2 { padding: 0.5rem; }
+    .bg-opacity-50 { background-color: rgba(0, 0, 0, 0.5); }
+    .hover\:bg-opacity-75:hover { background-color: rgba(0, 0, 0, 0.75); }
+    .right-4 { right: 1rem; }
+
+    /* Navigation container styles */
+    .nav-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-items {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    @media (min-width: 768px) {
+        .nav-items {
+            gap: 1.5rem;
+        }
+        
+        #desktop-all-menu {
+            display: flex !important;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .nav-items {
+            gap: 2rem;
+        }
+    }
+
+    .ad-card {
+        transition: opacity 0.5s ease-in-out;
+    }
+
+    .category-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        transform-origin: center;
+    }
+
+    .category-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .category-image {
+        width: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+    .category-card:hover .category-image {
+        transform: scale(1.1);
+    }
+
+    .square-card .category-image {
+        height: 200px;
+    }
+
+    .rectangle-card .category-image {
+        height: 200px;
+    }
+
+    .category-content {
+        padding: 1.25rem;
+        text-align: center;
+        background: linear-gradient(to top, rgba(10, 17, 40, 0.05), transparent);
+    }
+
+    .category-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #0A1128;
+        line-height: 1.2;
+        margin-bottom: 0.25rem;
+    }
+
+    .category-description {
+        font-size: 0.8rem;
+        color: #6B7280;
+        margin-top: 0.25rem;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .category-link {
+        margin-top: 1rem;
+        display: inline-block;
+        color: #ffffff;
+        background-color: #0A1128;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        padding: 0.5rem 1.25rem;
+        border-radius: 9999px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(10, 17, 40, 0.2);
+    }
+
+    .category-card:hover .category-link {
+        background-color: #FFD700;
+        color: #0A1128;
+        box-shadow: 0 6px 12px rgba(255, 215, 0, 0.3);
+    }
+
+    /* Competitive Layout Spacing */
+    #category-grid {
+        display: grid;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+        gap: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+        #category-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 1024px) {
+        #category-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    .col-span-2 {
+        grid-column: span 2 / span 2;
+    }
+
+    .gradient-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 80px;
+        background: linear-gradient(to bottom, rgba(10, 17, 40, 0.8), rgba(10, 17, 40, 0));
+        z-index: -1;
+    }
+
+    .category-grid-section {
+        position: relative;
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+    }
+
+    /* Skeleton Pulse Animation */
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    .animate-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    .skeleton-card {
+        background: #e5e7eb;
+        border-radius: 12px;
+        height: 380px;
+        contain: layout style paint;
+    }
+
+    /* CLS Prevention: Reserve space for dynamic content */
+    #ad-slider {
+        aspect-ratio: 16/9;
+        max-height: 320px;
+        background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+        background-size: 200% 100%;
+        animation: loading-shimmer 1.5s infinite;
+    }
+
+    @keyframes loading-shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* Prevent layout shift for category images */
+    .category-image {
+        aspect-ratio: 16/9;
+        background: #f3f4f6;
+    }
+
+    /* Reserve space for product cards */
+    .product-card {
+        contain: layout style paint;
+    }
+
+    /* Ensure stable font loading */
+    body {
+        font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+        font-display: swap;
+    }
+
+    /* Font face declarations for faster loading */
     @font-face {
       font-family: 'Montserrat';
       font-style: normal;
@@ -42,8 +304,11 @@
       src: url(https://fonts.gstatic.com/s/montserrat/v25/JTUHjIg1_i6t8kCHKm4532VJOt5-QNFgpCuM73w-.woff2) format('woff2');
     }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="css/style.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="css/style.css"></noscript>
+    <script src="js/lcp-optimization.js" defer></script>
     <script src="js/cls-prevention.js" defer></script>
     
     <!-- Open Graph / Facebook -->
@@ -708,9 +973,23 @@
     </nav>
     <section class="ad-slider-section bg-gray-100 py-6">
         <div class="container mx-auto px-4 relative">
-            <div id="ad-slider" class="overflow-hidden relative w-full h-80 rounded-lg shadow-xl">
+            <div id="ad-slider" class="overflow-hidden relative w-full h-80 rounded-lg shadow-xl" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div id="ad-cards-wrapper" class="flex transition-transform duration-500 ease-in-out h-full">
-                    <!-- Ad sliders will be dynamically loaded from database -->
+                    <!-- Critical: Pre-load hero ad to improve LCP -->
+                    <div class="ad-card flex-none w-full h-full bg-cover bg-center rounded-lg shadow-lg relative cursor-pointer" 
+                         style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4MCIgaGVpZ2h0PSI0MDAiIHZpZXdCb3g9IjAgMCAxMjgwIDQwMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iNDAwIiBmaWxsPSJ1cmwoI2dyYWQwXzBfMSkiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZDBfMF8xIiB4MT0iMCIgeTE9IjAiIHgyPSIxMjgwIiB5Mj0iNDAwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiMwQTEyMjgiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZENzAwIi8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPHRleHQgeD0iNjQwIiB5PSIxODAiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjQ4IiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VmlydHVvc2E8L3RleHQ+Cjx0ZXh0IHg9IjY0MCIgeT0iMjQwIiBmaWxsPSJ3aGl0ZSIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+WmFtYmlhJ3MgU3R1ZGVudCBNYXJrZXRwbGFjZTwvdGV4dD4KPHRleHQgeD0iNjQwIiB5PSIyODAiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5CdXkgJiBTZWxsIG9uIENhbXB1czwvdGV4dD4KPC9zdmc+');">
+                        <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center rounded-lg">
+                            <div class="text-center text-white">
+                                <h2 class="text-4xl md:text-5xl font-bold mb-4">Virtuosa</h2>
+                                <p class="text-xl md:text-2xl mb-6">Zambia's Student Marketplace</p>
+                                <p class="text-lg mb-8">Buy & Sell on Campus</p>
+                                <button class="bg-gold text-navy px-8 py-3 rounded-full font-bold text-lg hover:bg-yellow-400 transition-colors">
+                                    Start Trading
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Additional ad cards will be loaded dynamically -->
                 </div>
             </div>
             <button id="prev-ad"
@@ -725,8 +1004,6 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-            </button>
                 </svg>
             </button>
         </div>
