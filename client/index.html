@@ -754,8 +754,8 @@
     <script src="/js/ad-slider.js"></script>
     <script src="/js/header.js"></script>
     <script src="/js/cart.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="/js/notification-modal.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.isIndexScriptRunning) return;
@@ -840,7 +840,7 @@
                 }
 
                 // Unified rendering: trust the cardType (square/rectangle) from data
-                categoryGrid.innerHTML = activeCards.map(card => {
+                categoryGrid.innerHTML = activeCards.map((card, index) => {
                     const isRectangle = card.cardType === 'rectangle';
                     const cardClass = isRectangle ? 'category-card rectangle-card col-span-full md:col-span-2' : 'category-card square-card';
                     

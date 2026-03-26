@@ -149,12 +149,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         const logoutBtn = userDropdown.querySelector('button[onclick*="logout"]');
                         if (logoutBtn) {
                             try {
-                                // Check if logoutBtn is actually a child of userDropdown
-                                if (userDropdown.contains(logoutBtn)) {
-                                    userDropdown.insertBefore(messagesLink, logoutBtn);
-                                } else {
-                                    userDropdown.appendChild(messagesLink);
-                                }
+                                // Use parentNode to ensure we're calling insertBefore on the correct element
+                                logoutBtn.parentNode.insertBefore(messagesLink, logoutBtn);
                             } catch (error) {
                                 console.warn('insertBefore failed, using appendChild fallback:', error);
                                 userDropdown.appendChild(messagesLink);
