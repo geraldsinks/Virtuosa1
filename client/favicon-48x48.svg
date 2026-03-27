@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- Background circle -->
+  <circle cx="24" cy="24" r="24" fill="#0A1128"/>
+  
+  <!-- V letter in gold -->
+  <path d="M12 12 L24 36 L36 12" stroke="#FFD700" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Small marketplace dots -->
+  <circle cx="15" cy="18" r="2.25" fill="#FFD700"/>
+  <circle cx="33" cy="18" r="2.25" fill="#FFD700"/>
+  <circle cx="24" cy="30" r="2.25" fill="#FFD700"/>
+</svg>

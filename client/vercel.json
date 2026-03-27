@@ -189,7 +189,11 @@
       "destination": "/pages/privacy.html"
     },
     {
-      "source": "/((?!pages/|js/|css/|assets/).*)",
+      "source": "/google599540073f4a96fd.html",
+      "destination": "/google599540073f4a96fd.html"
+    },
+    {
+      "source": "/((?!pages/|js/|css/|assets/|google599540073f4a96fd.html).*)",
       "destination": "/index.html"
     }
   ]
