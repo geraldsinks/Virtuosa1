@@ -1309,84 +1309,56 @@ function previewAboutPage() {
     // Create hierarchical preview structure
     let teamPreviewHtml = '';
     if (team.length > 0) {
-        // Separate team members by role hierarchy
-        const founders = team.filter(member => 
+        // Find the founder (first one with 'founder' or 'ceo' in role)
+        const founder = team.find(member => 
             member.role.toLowerCase().includes('founder') || 
             member.role.toLowerCase().includes('ceo')
         );
         
-        const leads = team.filter(member => 
+        // Get all other team members (excluding the founder)
+        const otherMembers = team.filter(member => 
             !member.role.toLowerCase().includes('founder') && 
-            !member.role.toLowerCase().includes('ceo') &&
-            (member.role.toLowerCase().includes('lead') || 
-             member.role.toLowerCase().includes('manager') ||
-             member.role.toLowerCase().includes('director'))
-        );
-        
-        const members = team.filter(member => 
-            !member.role.toLowerCase().includes('founder') && 
-            !member.role.toLowerCase().includes('ceo') &&
-            !member.role.toLowerCase().includes('lead') && 
-            !member.role.toLowerCase().includes('manager') &&
-            !member.role.toLowerCase().includes('director')
+            !member.role.toLowerCase().includes('ceo')
         );
 
-        teamPreviewHtml = '<div class="space-y-8">';
+        teamPreviewHtml = '<div class="space-y-12">';
         
-        // Leadership section
-        if (founders.length > 0) {
+        // Founder section
+        if (founder) {
             teamPreviewHtml += `
-                <div>
-                    <h4 class="text-lg font-bold text-navy mb-4 text-center">Leadership</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
-                        ${founders.map(member => `
-                            <div class="bg-white border border-gray-200 rounded-lg p-4 text-center shadow-sm w-48">
-                                <div class="w-16 h-16 mx-auto mb-3 rounded-full overflow-hidden bg-gray-200">
-                                    <img src="${member.image}" alt="${member.name}" class="w-full h-full object-cover" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER.replace(/'/g, "\\'")}'">
-                                </div>
-                                <h5 class="font-bold text-navy mb-1 text-sm">${member.name}</h5>
-                                <p class="text-gold text-xs font-semibold mb-1">${member.role}</p>
-                                <p class="text-gray-600 text-xs line-clamp-2">${member.bio || 'Team member description'}</p>
+                <div class="text-center">
+                    <h4 class="text-lg font-bold text-navy mb-6">Founder & CEO</h4>
+                    <div class="flex justify-center">
+                        <div class="relative group inline-block">
+                            <div class="w-32 h-32 rounded-full overflow-hidden bg-gray-200 shadow-lg border-3 border-gold transform transition-all duration-500 hover:scale-105">
+                                <img src="${founder.image}" alt="${founder.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER.replace(/'/g, "\\'")}'">
                             </div>
-                        `).join('')}
+                            <div class="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-gold text-navy font-bold py-1 px-4 rounded-full text-xs shadow-md">
+                                ${founder.role}
+                            </div>
+                            <h5 class="text-base font-bold mt-6 mb-1">${founder.name}</h5>
+                            <p class="text-gray-600 text-sm max-w-48 mx-auto line-clamp-2">${founder.bio || 'Founder description'}</p>
+                        </div>
                     </div>
                 </div>
             `;
         }
 
-        // Team Leads section
-        if (leads.length > 0) {
+        // Team members section
+        if (otherMembers.length > 0) {
             teamPreviewHtml += `
                 <div>
-                    <h4 class="text-md font-semibold text-navy mb-4 text-center">Team Leads</h4>
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 justify-items-center">
-                        ${leads.map(member => `
-                            <div class="bg-white border border-gray-200 rounded-lg p-3 text-center shadow-sm w-32">
-                                <div class="w-12 h-12 mx-auto mb-2 rounded-full overflow-hidden bg-gray-200">
-                                    <img src="${member.image}" alt="${member.name}" class="w-full h-full object-cover" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER.replace(/'/g, "\\'")}'">
+                    <h4 class="text-md font-semibold text-navy mb-6 text-center">Our Team</h4>
+                    <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 justify-items-center">
+                        ${otherMembers.map(member => `
+                            <div class="relative group text-center">
+                                <div class="w-20 h-20 rounded-full overflow-hidden bg-gray-200 shadow-md border-2 border-gold/50 transform transition-all duration-500 hover:scale-105 hover:border-gold mx-auto">
+                                    <img src="${member.image}" alt="${member.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER.replace(/'/g, "\\'")}'">
                                 </div>
-                                <h5 class="font-bold text-navy mb-1 text-xs">${member.name}</h5>
-                                <p class="text-gold text-xs font-semibold">${member.role}</p>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        // Team Members section
-        if (members.length > 0) {
-            teamPreviewHtml += `
-                <div>
-                    <h4 class="text-md font-semibold text-navy mb-4 text-center">Team Members</h4>
-                    <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 justify-items-center">
-                        ${members.map(member => `
-                            <div class="bg-white border border-gray-200 rounded-lg p-2 text-center shadow-sm w-24">
-                                <div class="w-10 h-10 mx-auto mb-1 rounded-full overflow-hidden bg-gray-200">
-                                    <img src="${member.image}" alt="${member.name}" class="w-full h-full object-cover" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER.replace(/'/g, "\\'")}'">
+                                <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gold text-navy font-semibold py-0.5 px-2 rounded-full text-xs shadow-sm">
+                                    ${member.role}
                                 </div>
-                                <h5 class="font-bold text-navy text-xs">${member.name}</h5>
-                                <p class="text-gold text-xs">${member.role}</p>
+                                <h5 class="text-xs font-bold mt-3 mb-1">${member.name}</h5>
                             </div>
                         `).join('')}
                     </div>
@@ -1583,7 +1555,7 @@ async function saveAboutData() {
             team
         };
 
-        const response = await fetch(`${API_BASE}/api/admin/about`, {
+        const response = await fetch(`${API_BASE}/admin/about`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
