@@ -1288,7 +1288,7 @@ function previewAboutPage() {
     const story = escapeHtml(document.getElementById('about-story-input').value.trim() || 'Our company story');
     const heroImage = escapeHtml(document.getElementById('about-hero-input').value.trim() || FALLBACK_IMAGES.HERO);
     
-    // Gather team members
+    // Gather team members with hierarchy logic
     const teamCards = document.querySelectorAll('#admin-team-list > div');
     const team = [];
     
@@ -1305,6 +1305,97 @@ function previewAboutPage() {
             team.push({ name, role, bio, image: escapeHtml(image) || FALLBACK_IMAGES.TEAM_MEMBER });
         }
     });
+
+    // Create hierarchical preview structure
+    let teamPreviewHtml = '';
+    if (team.length > 0) {
+        // Separate team members by role hierarchy
+        const founders = team.filter(member => 
+            member.role.toLowerCase().includes('founder') || 
+            member.role.toLowerCase().includes('ceo')
+        );
+        
+        const leads = team.filter(member => 
+            !member.role.toLowerCase().includes('founder') && 
+            !member.role.toLowerCase().includes('ceo') &&
+            (member.role.toLowerCase().includes('lead') || 
+             member.role.toLowerCase().includes('manager') ||
+             member.role.toLowerCase().includes('director'))
+        );
+        
+        const members = team.filter(member => 
+            !member.role.toLowerCase().includes('founder') && 
+            !member.role.toLowerCase().includes('ceo') &&
+            !member.role.toLowerCase().includes('lead') && 
+            !member.role.toLowerCase().includes('manager') &&
+            !member.role.toLowerCase().includes('director')
+        );
+
+        teamPreviewHtml = '<div class="space-y-8">';
+        
+        // Leadership section
+        if (founders.length > 0) {
+            teamPreviewHtml += `
+                <div>
+                    <h4 class="text-lg font-bold text-navy mb-4 text-center">Leadership</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+                        ${founders.map(member => `
+                            <div class="bg-white border border-gray-200 rounded-lg p-4 text-center shadow-sm w-48">
+                                <div class="w-16 h-16 mx-auto mb-3 rounded-full overflow-hidden bg-gray-200">
+                                    <img src="${member.image}" alt="${member.name}" class="w-full h-full object-cover" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER.replace(/'/g, "\\'")}'">
+                                </div>
+                                <h5 class="font-bold text-navy mb-1 text-sm">${member.name}</h5>
+                                <p class="text-gold text-xs font-semibold mb-1">${member.role}</p>
+                                <p class="text-gray-600 text-xs line-clamp-2">${member.bio || 'Team member description'}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Team Leads section
+        if (leads.length > 0) {
+            teamPreviewHtml += `
+                <div>
+                    <h4 class="text-md font-semibold text-navy mb-4 text-center">Team Leads</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 justify-items-center">
+                        ${leads.map(member => `
+                            <div class="bg-white border border-gray-200 rounded-lg p-3 text-center shadow-sm w-32">
+                                <div class="w-12 h-12 mx-auto mb-2 rounded-full overflow-hidden bg-gray-200">
+                                    <img src="${member.image}" alt="${member.name}" class="w-full h-full object-cover" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER.replace(/'/g, "\\'")}'">
+                                </div>
+                                <h5 class="font-bold text-navy mb-1 text-xs">${member.name}</h5>
+                                <p class="text-gold text-xs font-semibold">${member.role}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Team Members section
+        if (members.length > 0) {
+            teamPreviewHtml += `
+                <div>
+                    <h4 class="text-md font-semibold text-navy mb-4 text-center">Team Members</h4>
+                    <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 justify-items-center">
+                        ${members.map(member => `
+                            <div class="bg-white border border-gray-200 rounded-lg p-2 text-center shadow-sm w-24">
+                                <div class="w-10 h-10 mx-auto mb-1 rounded-full overflow-hidden bg-gray-200">
+                                    <img src="${member.image}" alt="${member.name}" class="w-full h-full object-cover" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER.replace(/'/g, "\\'")}'">
+                                </div>
+                                <h5 class="font-bold text-navy text-xs">${member.name}</h5>
+                                <p class="text-gold text-xs">${member.role}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        teamPreviewHtml += '</div>';
+    }
 
     // Create preview modal
     const modal = document.createElement('div');
@@ -1352,21 +1443,10 @@ function previewAboutPage() {
                     </div>
                     
                     <!-- Team Preview -->
-                    ${team.length > 0 ? `
+                    ${teamPreviewHtml ? `
                         <div class="mb-8">
                             <h3 class="text-2xl font-bold text-navy mb-6 text-center">Meet Our Team</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                ${team.map(member => `
-                                    <div class="bg-white border border-gray-200 rounded-lg p-6 text-center shadow-sm">
-                                        <div class="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden bg-gray-200">
-                                            <img src="${member.image}" alt="${member.name}" class="w-full h-full object-cover" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER.replace(/'/g, "\\'")}'">
-                                        </div>
-                                        <h4 class="font-bold text-navy mb-2">${member.name}</h4>
-                                        <p class="text-gold text-sm font-semibold mb-2">${member.role}</p>
-                                        <p class="text-gray-600 text-sm">${member.bio || 'Team member description'}</p>
-                                    </div>
-                                `).join('')}
-                            </div>
+                            ${teamPreviewHtml}
                         </div>
                     ` : ''}
                     
