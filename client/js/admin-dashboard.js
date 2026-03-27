@@ -1029,22 +1029,23 @@ async function loadAboutData() {
             </div>
         `;
         
-        const response = await fetch(`${API_BASE}/api/public/about`);
+        const response = await fetch(`${API_BASE}/public/about`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const data = await response.json();
 
-        if (response.ok) {
-            // Restore original content and populate data
-            aboutTab.innerHTML = originalContent;
-            document.getElementById('about-title-input').value = data.title || '';
-            document.getElementById('about-mission-input').value = data.mission || '';
-            document.getElementById('about-vision-input').value = data.vision || '';
-            document.getElementById('about-story-input').value = data.story || '';
-            document.getElementById('about-hero-input').value = data.heroImage || '';
-            
-            renderTeamInputs(data.team || []);
-        } else {
-            throw new Error(data.message || 'Failed to load about page data');
-        }
+        // Restore original content and populate data
+        aboutTab.innerHTML = originalContent;
+        document.getElementById('about-title-input').value = data.title || '';
+        document.getElementById('about-mission-input').value = data.mission || '';
+        document.getElementById('about-vision-input').value = data.vision || '';
+        document.getElementById('about-story-input').value = data.story || '';
+        document.getElementById('about-hero-input').value = data.heroImage || '';
+        
+        renderTeamInputs(data.team || []);
     } catch (error) {
         console.error('Error loading about data:', error);
         

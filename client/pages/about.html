@@ -266,11 +266,15 @@
                 storyText.innerHTML = '<div class="inline-flex items-center"><div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700 mr-2"></div>Loading...</div>';
                 teamGrid.innerHTML = '<div class="col-span-full text-center py-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div><p class="text-gray-600">Loading team information...</p></div>';
 
-                const response = await fetch(`${API_BASE}/api/public/about`);
+                const response = await fetch(`${API_BASE}/public/about`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const data = await response.json();
 
-                if (response.ok) {
-                    // Update content with fetched data
+                // Update content with fetched data
                     heroTitle.textContent = data.title || originalTitle;
                     heroSubtitle.textContent = data.subtitle || originalSubtitle;
                     missionText.textContent = data.mission || originalMission;
@@ -311,10 +315,7 @@
                     } else {
                         teamGrid.innerHTML = '<div class="col-span-full text-center py-8"><p class="text-gray-400">Team information will be available soon.</p></div>';
                     }
-                } else {
-                    throw new Error(data.message || 'Failed to load about page data');
-                }
-            } catch (error) {
+                } catch (error) {
                 console.error('Error loading about data:', error);
                 
                 // Show user-friendly error messages
