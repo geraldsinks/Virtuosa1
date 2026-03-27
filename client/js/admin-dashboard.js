@@ -1007,11 +1007,26 @@ function handleDatabaseReset() {
 // Load About Page Data
 async function loadAboutData() {
     try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}/api/public/about`);
+        // Show loading state
+        const aboutTab = document.getElementById('aboutTab');
+        if (!aboutTab) {
+            console.error('About tab element not found');
+            return;
+        }
+        const originalContent = aboutTab.innerHTML;
+        aboutTab.innerHTML = `
+            <div class="flex items-center justify-center py-12">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-3"></div>
+                <span class="text-gray-600">Loading about page data...</span>
+            </div>
+        `;
+        
+        const response = await fetch(`${API_BASE}/api/public/about`);
         const data = await response.json();
 
         if (response.ok) {
+            // Restore original content and populate data
+            aboutTab.innerHTML = originalContent;
             document.getElementById('about-title-input').value = data.title || '';
             document.getElementById('about-mission-input').value = data.mission || '';
             document.getElementById('about-vision-input').value = data.vision || '';
@@ -1019,10 +1034,26 @@ async function loadAboutData() {
             document.getElementById('about-hero-input').value = data.heroImage || '';
             
             renderTeamInputs(data.team || []);
+        } else {
+            throw new Error(data.message || 'Failed to load about page data');
         }
     } catch (error) {
         console.error('Error loading about data:', error);
-        showError('Failed to load about page data');
+        
+        // Show user-friendly error message
+        const aboutTab = document.getElementById('aboutTab');
+        aboutTab.innerHTML = `
+            <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                <div class="text-red-600 mb-3">
+                    <i class="fas fa-exclamation-triangle text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-red-900 mb-2">Failed to Load About Page Data</h3>
+                <p class="text-red-700 mb-4">${error.message || 'Unable to connect to the server. Please check your internet connection and try again.'}</p>
+                <button onclick="loadAboutData()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                    <i class="fas fa-redo mr-2"></i>Try Again
+                </button>
+            </div>
+        `;
     }
 }
 
@@ -1031,70 +1062,446 @@ function renderTeamInputs(team) {
     const container = document.getElementById('admin-team-list');
     container.innerHTML = '';
 
-    // Ensure we always show 5 slots (as per user requirement)
+    // Start with existing team members
     const displayTeam = [...team];
-    while (displayTeam.length < 5) {
+    
+    // Add at least one empty slot if no team members
+    if (displayTeam.length === 0) {
         displayTeam.push({ name: '', role: '', bio: '', image: '' });
     }
 
     displayTeam.forEach((member, index) => {
         const card = document.createElement('div');
-        card.className = 'bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4';
+        card.className = 'bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4 relative';
         card.innerHTML = `
             <div class="flex items-center justify-between border-b pb-2 mb-4">
-                <span class="text-xs font-bold text-gray-500 uppercase">Member ${index + 1}</span>
+                <span class="text-xs font-bold text-gray-500 uppercase">Team Member ${index + 1}</span>
+                ${displayTeam.length > 1 ? `
+                    <button type="button" onclick="removeTeamMember(${index})" class="text-red-500 hover:text-red-700 transition-colors">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                ` : ''}
             </div>
             <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Name</label>
-                <input type="text" class="team-name w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value="${member.name || ''}">
+                <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Name <span class="text-red-500">*</span></label>
+                <input type="text" class="team-name w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="${member.name || ''}" placeholder="Enter team member name">
             </div>
             <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Role</label>
-                <input type="text" class="team-role w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value="${member.role || ''}">
+                <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Role <span class="text-red-500">*</span></label>
+                <input type="text" class="team-role w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="${member.role || ''}" placeholder="e.g. CEO, Founder, Developer">
             </div>
             <div>
                 <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Bio</label>
-                <textarea class="team-bio w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" rows="2">${member.bio || ''}</textarea>
+                <textarea class="team-bio w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="2" placeholder="Brief description of their role and expertise">${member.bio || ''}</textarea>
             </div>
             <div>
                 <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Image URL</label>
-                <input type="text" class="team-image w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value="${member.image || ''}">
+                <div class="flex gap-2">
+                    <input type="text" class="team-image w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="${member.image || ''}" placeholder="https://example.com/photo.jpg" onchange="previewTeamImage(this, ${index})">
+                    <button type="button" onclick="window.location.href='admin-asset-library.html'" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors" title="Select from Library">
+                        <i class="fas fa-images"></i>
+                    </button>
+                </div>
+                <div id="team-preview-${index}" class="mt-2 hidden">
+                    <img src="" alt="Preview" class="w-16 h-16 rounded-full object-cover border-2 border-gray-300">
+                </div>
             </div>
         `;
         container.appendChild(card);
     });
+
+    // Add "Add Team Member" button
+    const addButton = document.createElement('div');
+    addButton.className = 'col-span-full';
+    addButton.innerHTML = `
+        <button type="button" onclick="addTeamMember()" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-500 hover:text-blue-600 transition-colors">
+            <i class="fas fa-plus mr-2"></i>Add Team Member
+        </button>
+    `;
+    container.appendChild(addButton);
+}
+
+// Add new team member
+function addTeamMember() {
+    const container = document.getElementById('admin-team-list');
+    const addButton = container.lastElementChild;
+    
+    const newIndex = container.children.length - 1; // Exclude add button
+    const card = document.createElement('div');
+    card.className = 'bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4 relative';
+    card.innerHTML = `
+        <div class="flex items-center justify-between border-b pb-2 mb-4">
+            <span class="text-xs font-bold text-gray-500 uppercase">Team Member ${newIndex + 1}</span>
+            <button type="button" onclick="removeTeamMember(${newIndex})" class="text-red-500 hover:text-red-700 transition-colors">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Name <span class="text-red-500">*</span></label>
+            <input type="text" class="team-name w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter team member name">
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Role <span class="text-red-500">*</span></label>
+            <input type="text" class="team-role w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. CEO, Founder, Developer">
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Bio</label>
+            <textarea class="team-bio w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="2" placeholder="Brief description of their role and expertise"></textarea>
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Image URL</label>
+            <div class="flex gap-2">
+                <input type="text" class="team-image w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="https://example.com/photo.jpg" onchange="previewTeamImage(this, ${newIndex})">
+                <button type="button" onclick="window.location.href='admin-asset-library.html'" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors" title="Select from Library">
+                    <i class="fas fa-images"></i>
+                </button>
+            </div>
+            <div id="team-preview-${newIndex}" class="mt-2 hidden">
+                <img src="" alt="Preview" class="w-16 h-16 rounded-full object-cover border-2 border-gray-300">
+            </div>
+        </div>
+    `;
+    
+    container.insertBefore(card, addButton);
+    
+    // Focus on the name field of the new member
+    card.querySelector('.team-name').focus();
+}
+
+// Remove team member
+function removeTeamMember(index) {
+    if (!confirm('Are you sure you want to remove this team member?')) return;
+    
+    const container = document.getElementById('admin-team-list');
+    const cards = container.querySelectorAll(':not(:last-child)'); // Exclude add button
+    
+    if (cards[index]) {
+        cards[index].remove();
+        
+        // Re-index remaining members
+        updateTeamMemberIndices();
+    }
+}
+
+// Update team member indices after removal
+let isUpdatingIndices = false;
+function updateTeamMemberIndices() {
+    if (isUpdatingIndices) return;
+    isUpdatingIndices = true;
+    
+    const container = document.getElementById('admin-team-list');
+    const cards = container.querySelectorAll(':not(:last-child)');
+    
+    cards.forEach((card, index) => {
+        const titleElement = card.querySelector('.text-xs.font-bold.text-gray-500');
+        if (titleElement) {
+            titleElement.textContent = `Team Member ${index + 1}`;
+        }
+        
+        // Update remove button onclick
+        const removeBtn = card.querySelector('button[onclick^="removeTeamMember"]');
+        if (removeBtn) {
+            removeBtn.setAttribute('onclick', `removeTeamMember(${index})`);
+        }
+        
+        // Update image input onchange
+        const imageInput = card.querySelector('.team-image');
+        if (imageInput) {
+            imageInput.setAttribute('onchange', `previewTeamImage(this, ${index})`);
+        }
+        
+        // Update preview div id
+        const previewDiv = card.querySelector('[id^="team-preview-"]');
+        if (previewDiv) {
+            previewDiv.id = `team-preview-${index}`;
+        }
+    });
+    
+    isUpdatingIndices = false;
+}
+
+// Preview team member image
+function previewTeamImage(input, index) {
+    const previewDiv = document.getElementById(`team-preview-${index}`);
+    
+    // Add null check for previewDiv
+    if (!previewDiv) {
+        console.error(`Preview div with ID team-preview-${index} not found`);
+        return;
+    }
+    
+    const previewImg = previewDiv.querySelector('img');
+    
+    // Add null check for previewImg
+    if (!previewImg) {
+        console.error(`Image element not found in preview div team-preview-${index}`);
+        return;
+    }
+    
+    if (input.value.trim()) {
+        // Validate URL before setting as image source
+        if (!isValidUrl(input.value.trim())) {
+            previewDiv.classList.add('hidden');
+            showError('Invalid image URL. Please enter a valid HTTP/HTTPS URL.');
+            return;
+        }
+        
+        previewImg.src = input.value;
+        previewImg.onerror = function() {
+            previewDiv.classList.add('hidden');
+            showError('Invalid image URL. Please check the URL and try again.');
+        };
+        previewImg.onload = function() {
+            previewDiv.classList.remove('hidden');
+        };
+    } else {
+        previewDiv.classList.add('hidden');
+    }
+}
+
+// HTML Sanitization Utility
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// URL Validation Utility
+function isValidUrl(string) {
+    try {
+        const url = new URL(string);
+        return (url.protocol === 'http:' || url.protocol === 'https:') && 
+               !string.toLowerCase().startsWith('javascript:');
+    } catch (_) {
+        return false;
+    }
+}
+
+// Preview About Page
+function previewAboutPage() {
+    // Gather current form data
+    const title = escapeHtml(document.getElementById('about-title-input').value.trim() || 'About Virtuosa');
+    const mission = escapeHtml(document.getElementById('about-mission-input').value.trim() || 'Our mission statement');
+    const vision = escapeHtml(document.getElementById('about-vision-input').value.trim() || 'Our vision statement');
+    const story = escapeHtml(document.getElementById('about-story-input').value.trim() || 'Our company story');
+    const heroImage = escapeHtml(document.getElementById('about-hero-input').value.trim() || FALLBACK_IMAGES.HERO);
+    
+    // Gather team members
+    const teamCards = document.querySelectorAll('#admin-team-list > div');
+    const team = [];
+    
+    teamCards.forEach((card) => {
+        // Skip add button
+        if (card.querySelector('button[onclick="addTeamMember()"]')) return;
+        
+        const name = escapeHtml(card.querySelector('.team-name').value.trim());
+        const role = escapeHtml(card.querySelector('.team-role').value.trim());
+        const bio = escapeHtml(card.querySelector('.team-bio').value.trim());
+        const image = card.querySelector('.team-image').value.trim();
+        
+        if (name && role) {
+            team.push({ name, role, bio, image: escapeHtml(image) || FALLBACK_IMAGES.TEAM_MEMBER });
+        }
+    });
+
+    // Create preview modal
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 z-50 overflow-y-auto';
+    modal.innerHTML = `
+        <div class="min-h-screen px-4 py-8">
+            <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-xl">
+                <!-- Preview Header -->
+                <div class="bg-navy text-white p-6 rounded-t-lg flex items-center justify-between">
+                    <h2 class="text-xl font-bold">About Page Preview</h2>
+                    <button onclick="this.closest('.fixed').remove()" class="text-white hover:text-gold transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Preview Content -->
+                <div class="p-6 max-h-[80vh] overflow-y-auto">
+                    <!-- Hero Section Preview -->
+                    <div class="relative h-64 bg-navy rounded-lg overflow-hidden mb-8">
+                        <img src="${heroImage}" alt="Hero" class="w-full h-full object-cover opacity-40" onerror="this.src='${FALLBACK_IMAGES.HERO}'">
+                        <div class="absolute inset-0 flex items-center justify-center text-center">
+                            <div>
+                                <h1 class="text-4xl font-bold text-white mb-4">${title}</h1>
+                                <p class="text-lg text-gray-300">Empowering the next generation of Zambian entrepreneurs</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mission & Vision Preview -->
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-bold text-navy mb-3">Our Mission</h3>
+                            <p class="text-gray-700">${mission}</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-bold text-navy mb-3">Our Vision</h3>
+                            <p class="text-gray-700">${vision}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Story Preview -->
+                    <div class="bg-gray-50 p-6 rounded-lg mb-8">
+                        <h3 class="text-lg font-bold text-navy mb-3">Our Story</h3>
+                        <p class="text-gray-700">${story}</p>
+                    </div>
+                    
+                    <!-- Team Preview -->
+                    ${team.length > 0 ? `
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-bold text-navy mb-6 text-center">Meet Our Team</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                ${team.map(member => `
+                                    <div class="bg-white border border-gray-200 rounded-lg p-6 text-center shadow-sm">
+                                        <div class="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden bg-gray-200">
+                                            <img src="${member.image}" alt="${member.name}" class="w-full h-full object-cover" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER}'">
+                                        </div>
+                                        <h4 class="font-bold text-navy mb-2">${member.name}</h4>
+                                        <p class="text-gold text-sm font-semibold mb-2">${member.role}</p>
+                                        <p class="text-gray-600 text-sm">${member.bio || 'Team member description'}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- Preview Actions -->
+                    <div class="flex justify-end space-x-4 pt-6 border-t">
+                        <button onclick="this.closest('.fixed').remove()" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                            Close Preview
+                        </button>
+                        <button onclick="this.closest('.fixed').remove(); saveAboutData();" class="bg-navy text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-save mr-2"></i>Save & Publish
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Close on escape key
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            cleanupModal();
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+    
+    // Close on background click
+    const handleBackgroundClick = (e) => {
+        if (e.target === modal) {
+            cleanupModal();
+        }
+    };
+    modal.addEventListener('click', handleBackgroundClick);
+    
+    // Cleanup function to remove modal and event listeners
+    function cleanupModal() {
+        if (modal && modal.parentNode) {
+            modal.remove();
+        }
+        document.removeEventListener('keydown', handleEscape);
+        modal.removeEventListener('click', handleBackgroundClick);
+    }
 }
 
 // Save About Page Data
 async function saveAboutData() {
     try {
         const token = localStorage.getItem('token');
+        
+        // Validate required fields
+        const title = document.getElementById('about-title-input').value.trim();
+        const mission = document.getElementById('about-mission-input').value.trim();
+        const vision = document.getElementById('about-vision-input').value.trim();
+        const story = document.getElementById('about-story-input').value.trim();
+        
+        if (!title) {
+            showError('Page title is required');
+            document.getElementById('about-title-input').focus();
+            return;
+        }
+        
+        if (!mission) {
+            showError('Mission statement is required');
+            document.getElementById('about-mission-input').focus();
+            return;
+        }
+        
+        if (!vision) {
+            showError('Vision statement is required');
+            document.getElementById('about-vision-input').focus();
+            return;
+        }
+        
+        if (!story) {
+            showError('Company story is required');
+            document.getElementById('about-story-input').focus();
+            return;
+        }
+        
+        // Show loading state
+        const saveBtn = document.querySelector('button[onclick="saveAboutData()"]');
+        if (!saveBtn) {
+            console.error('Save button not found');
+            return;
+        }
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+        saveBtn.disabled = true;
+        
         const teamCards = document.querySelectorAll('#admin-team-list > div');
         const team = [];
 
-        teamCards.forEach(card => {
-            const name = card.querySelector('.team-name').value;
-            const role = card.querySelector('.team-role').value;
+        // Validate team members
+        let hasValidTeamMember = false;
+        teamCards.forEach((card, index) => {
+            // Skip the add button
+            if (card.querySelector('button[onclick="addTeamMember()"]')) return;
+            
+            const name = card.querySelector('.team-name').value.trim();
+            const role = card.querySelector('.team-role').value.trim();
+            const bio = card.querySelector('.team-bio').value.trim();
+            const image = card.querySelector('.team-image').value.trim();
+            
             if (name && role) {
-                team.push({
-                    name,
-                    role,
-                    bio: card.querySelector('.team-bio').value,
-                    image: card.querySelector('.team-image').value
-                });
+                hasValidTeamMember = true;
+                team.push({ name, role, bio, image });
+            } else if (name || role) {
+                // Partial team member - show error
+                const missingField = !name ? 'Name' : 'Role';
+                const errorMessage = `Team Member ${index + 1}: ${missingField} is required (both name and role must be provided)`;
+                showError(errorMessage);
+                
+                // Focus on the problematic field
+                const problematicField = !name ? card.querySelector('.team-name') : card.querySelector('.team-role');
+                if (problematicField) {
+                    problematicField.focus();
+                }
+                return;
             }
         });
+        
+        if (!hasValidTeamMember) {
+            showError('At least one team member with name and role is required');
+            return;
+        }
 
         const aboutData = {
-            title: document.getElementById('about-title-input').value,
-            mission: document.getElementById('about-mission-input').value,
-            vision: document.getElementById('about-vision-input').value,
-            story: document.getElementById('about-story-input').value,
-            heroImage: document.getElementById('about-hero-input').value,
+            title,
+            mission,
+            vision,
+            story,
+            heroImage: document.getElementById('about-hero-input').value.trim(),
             team
         };
 
-        const response = await fetch(`${API_URL}/api/admin/about`, {
+        const response = await fetch(`${API_BASE}/api/admin/about`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -1103,13 +1510,38 @@ async function saveAboutData() {
             body: JSON.stringify(aboutData)
         });
 
+        const result = await response.json();
+        
         if (response.ok) {
             showSuccess('About page updated successfully!');
         } else {
-            throw new Error('Failed to update about page');
+            throw new Error(result.message || 'Failed to update about page');
         }
     } catch (error) {
         console.error('Error saving about data:', error);
-        showError('Failed to save changes');
+        
+        // Show specific error message
+        let errorMessage = 'Failed to save changes';
+        if (error.message.includes('401') || error.message.includes('403')) {
+            errorMessage = 'Your session has expired. Please log in again.';
+            setTimeout(() => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            }, 2000);
+        } else if (error.message.includes('Failed to fetch')) {
+            errorMessage = 'Network error. Please check your internet connection and try again.';
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+        
+        showError(errorMessage);
+    } finally {
+        // Reset button state
+        const saveBtn = document.querySelector('button[onclick="saveAboutData()"]');
+        if (saveBtn) {
+            saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Save Changes';
+            saveBtn.disabled = false;
+        }
     }
 }
