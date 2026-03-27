@@ -304,22 +304,50 @@
                             !member.role.toLowerCase().includes('ceo')
                         );
 
-                        // Display founder at the top (prominent circular card)
+                        // Display founder at the top (prominent circular card with modern styling)
                         if (founder) {
                             const founderSection = document.createElement('div');
-                            founderSection.className = 'flex justify-center mb-16';
+                            founderSection.className = 'flex justify-center mb-20 animate-fade-in-up';
                             founderSection.innerHTML = `
-                                <div class="text-center">
-                                    <h3 class="text-2xl font-bold text-gold mb-8">Founder & CEO</h3>
+                                <div class="text-center relative">
+                                    <!-- Background decorative elements -->
+                                    <div class="absolute -top-8 -left-8 w-16 h-16 bg-gold/10 rounded-full blur-xl"></div>
+                                    <div class="absolute -bottom-8 -right-8 w-20 h-20 bg-navy/10 rounded-full blur-xl"></div>
+                                    
+                                    <h3 class="text-3xl font-bold text-gold mb-10 tracking-wider animate-pulse-glow">Founder & CEO</h3>
                                     <div class="relative group inline-block">
-                                        <div class="w-48 h-48 rounded-full overflow-hidden bg-dark-navy shadow-2xl border-4 border-gold transform transition-all duration-500 hover:scale-105">
-                                            <img src="${founder.image || FALLBACK_IMAGES.TEAM_MEMBER}" alt="${founder.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER}'">
+                                        <!-- Main avatar container with glassmorphism -->
+                                        <div class="relative">
+                                            <div class="w-56 h-56 rounded-full overflow-hidden bg-gradient-to-br from-gold/20 via-navy/10 to-gold/20 backdrop-blur-sm border border-white/20 shadow-2xl transform transition-all duration-700 hover:scale-110 hover:rotate-1 hover:shadow-gold-glow">
+                                                <img src="${founder.image || FALLBACK_IMAGES.TEAM_MEMBER}" alt="${founder.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER}'">
+                                                
+                                                <!-- Overlay gradient -->
+                                                <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                            </div>
+                                            
+                                            <!-- Floating role badge -->
+                                            <div class="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-gold to-gold-dark text-navy font-bold py-2 px-8 rounded-full text-sm shadow-xl border border-white/30 backdrop-blur-sm animate-bounce-subtle">
+                                                ${founder.role}
+                                            </div>
+                                            
+                                            <!-- Status indicator -->
+                                            <div class="absolute top-4 right-4 w-4 h-4 bg-green-400 rounded-full border-2 border-white shadow-lg animate-pulse"></div>
                                         </div>
-                                        <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-gold text-navy font-bold py-2 px-6 rounded-full text-sm shadow-lg">
-                                            ${founder.role}
+                                        
+                                        <!-- Name and bio with modern typography -->
+                                        <div class="mt-12 space-y-4">
+                                            <h3 class="text-3xl font-bold font-montserrat text-white tracking-wide">${founder.name}</h3>
+                                            <div class="max-w-lg mx-auto">
+                                                <p class="text-gray-300 leading-relaxed text-lg italic font-light">${founder.bio || ''}</p>
+                                            </div>
                                         </div>
-                                        <h3 class="text-xl font-bold mt-8 mb-2 font-montserrat">${founder.name}</h3>
-                                        <p class="text-gray-400 max-w-md mx-auto leading-relaxed">${founder.bio || ''}</p>
+                                        
+                                        <!-- Decorative elements -->
+                                        <div class="flex justify-center space-x-2 mt-6">
+                                            <div class="w-2 h-2 bg-gold rounded-full animate-pulse" style="animation-delay: 0s"></div>
+                                            <div class="w-2 h-2 bg-gold rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
+                                            <div class="w-2 h-2 bg-gold rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
+                                        </div>
                                     </div>
                                 </div>
                             `;
@@ -329,14 +357,15 @@
                         // Display all other team members at the same level below
                         if (otherMembers.length > 0) {
                             const teamSection = document.createElement('div');
-                            teamSection.className = 'space-y-8';
-                            teamSection.innerHTML = '<h3 class="text-xl font-semibold text-gold text-center mb-8">Our Team</h3>';
+                            teamSection.className = 'space-y-12 animate-fade-in-up';
+                            teamSection.style.animationDelay = '0.3s';
+                            teamSection.innerHTML = '<h3 class="text-2xl font-bold text-gold text-center mb-12 tracking-wider">Our Amazing Team</h3>';
                             
                             const teamCardsContainer = document.createElement('div');
                             teamCardsContainer.className = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 justify-items-center';
                             
                             otherMembers.forEach((member, index) => {
-                                const card = createTeamCard(member, false);
+                                const card = createModernTeamCard(member, index);
                                 teamCardsContainer.appendChild(card);
                             });
                             
@@ -347,21 +376,48 @@
                         teamGrid.innerHTML = '<div class="col-span-full text-center py-8"><p class="text-gray-400">Team information will be available soon.</p></div>';
                     }
 
-                    // Helper function to create circular team cards
-                    function createTeamCard(member, isLarge = false) {
+                    // Helper function to create modern team cards with glassmorphism and animations
+                    function createModernTeamCard(member, index) {
                         const card = document.createElement('div');
                         
-                        // Medium circular card for all team members
-                        card.className = 'relative group text-center';
+                        // Modern circular card for team members with glassmorphism
+                        card.className = `relative group text-center animate-fade-in-up`;
+                        card.style.animationDelay = `${0.5 + (index * 0.1)}s`;
+                        
                         card.innerHTML = `
-                            <div class="w-32 h-32 rounded-full overflow-hidden bg-dark-navy shadow-lg border-2 border-gold/50 transform transition-all duration-500 hover:scale-105 hover:border-gold mx-auto">
-                                <img src="${member.image || FALLBACK_IMAGES.TEAM_MEMBER}" alt="${member.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER}'">
+                            <div class="relative">
+                                <!-- Main avatar with glassmorphism effect -->
+                                <div class="relative w-36 h-36 rounded-full overflow-hidden bg-gradient-to-br from-white/10 via-gold/5 to-white/5 backdrop-blur-md border border-white/20 shadow-xl transform transition-all duration-500 hover:scale-110 hover:-rotate-2 hover:shadow-2xl hover:shadow-gold/30 group-hover:border-gold/50 mx-auto">
+                                    <img src="${member.image || FALLBACK_IMAGES.TEAM_MEMBER}" alt="${member.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-110" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER}'">
+                                    
+                                    <!-- Hover overlay -->
+                                    <div class="absolute inset-0 bg-gradient-to-t from-gold/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    
+                                    <!-- Subtle inner glow -->
+                                    <div class="absolute inset-2 rounded-full border border-gold/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                </div>
+                                
+                                <!-- Floating role badge with modern design -->
+                                <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-gold to-gold-dark text-navy font-semibold py-1.5 px-4 rounded-full text-xs shadow-lg border border-white/40 backdrop-blur-sm animate-bounce-subtle whitespace-nowrap">
+                                    ${member.role}
+                                </div>
+                                
+                                <!-- Status indicator for active team members -->
+                                <div class="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full border border-white shadow-md animate-pulse opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             </div>
-                            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gold text-navy font-semibold py-1 px-3 rounded-full text-xs shadow-md">
-                                ${member.role}
+                            
+                            <!-- Name and bio with modern typography -->
+                            <div class="mt-8 space-y-2">
+                                <h3 class="text-lg font-bold font-montserrat text-white tracking-wide group-hover:text-gold transition-colors duration-300">${member.name}</h3>
+                                <div class="max-w-32 mx-auto">
+                                    <p class="text-gray-400 text-sm leading-relaxed line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">${member.bio || ''}</p>
+                                </div>
                             </div>
-                            <h3 class="text-sm font-bold mt-4 mb-1 font-montserrat">${member.name}</h3>
-                            <p class="text-gray-400 text-xs leading-relaxed max-w-32 mx-auto line-clamp-2">${member.bio || ''}</p>
+                            
+                            <!-- Hover effect indicator -->
+                            <div class="flex justify-center mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                <div class="w-6 h-1 bg-gradient-to-r from-transparent via-gold to-transparent rounded-full"></div>
+                            </div>
                         `;
                         
                         return card;
