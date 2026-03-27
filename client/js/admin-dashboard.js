@@ -1004,6 +1004,14 @@ function handleDatabaseReset() {
         resetBtn.disabled = false;
     });
 }
+
+// HTML Sanitization Utility
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Load About Page Data
 async function loadAboutData() {
     try {
@@ -1048,7 +1056,7 @@ async function loadAboutData() {
                     <i class="fas fa-exclamation-triangle text-2xl"></i>
                 </div>
                 <h3 class="text-lg font-semibold text-red-900 mb-2">Failed to Load About Page Data</h3>
-                <p class="text-red-700 mb-4">${error.message || 'Unable to connect to the server. Please check your internet connection and try again.'}</p>
+                <p class="text-red-700 mb-4">${escapeHtml(error.message) || 'Unable to connect to the server. Please check your internet connection and try again.'}</p>
                 <button onclick="loadAboutData()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
                     <i class="fas fa-redo mr-2"></i>Try Again
                 </button>
@@ -1259,13 +1267,6 @@ function previewTeamImage(input, index) {
     }
 }
 
-// HTML Sanitization Utility
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
 // URL Validation Utility
 function isValidUrl(string) {
     try {
@@ -1322,7 +1323,7 @@ function previewAboutPage() {
                 <div class="p-6 max-h-[80vh] overflow-y-auto">
                     <!-- Hero Section Preview -->
                     <div class="relative h-64 bg-navy rounded-lg overflow-hidden mb-8">
-                        <img src="${heroImage}" alt="Hero" class="w-full h-full object-cover opacity-40" onerror="this.src='${FALLBACK_IMAGES.HERO}'">
+                        <img src="${heroImage}" alt="Hero" class="w-full h-full object-cover opacity-40" onerror="this.src='${FALLBACK_IMAGES.HERO.replace(/'/g, "\\'")}'">
                         <div class="absolute inset-0 flex items-center justify-center text-center">
                             <div>
                                 <h1 class="text-4xl font-bold text-white mb-4">${title}</h1>
@@ -1357,7 +1358,7 @@ function previewAboutPage() {
                                 ${team.map(member => `
                                     <div class="bg-white border border-gray-200 rounded-lg p-6 text-center shadow-sm">
                                         <div class="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden bg-gray-200">
-                                            <img src="${member.image}" alt="${member.name}" class="w-full h-full object-cover" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER}'">
+                                            <img src="${member.image}" alt="${member.name}" class="w-full h-full object-cover" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER.replace(/'/g, "\\'")}'">
                                         </div>
                                         <h4 class="font-bold text-navy mb-2">${member.name}</h4>
                                         <p class="text-gold text-sm font-semibold mb-2">${member.role}</p>
