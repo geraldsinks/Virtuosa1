@@ -168,9 +168,9 @@ const getUserRoleInfo = async (userId) => {
         // Check for admin status using multiple criteria
         let userRole = user.role || 'user';
         
-        // If user has admin status, set role to 'CEO' for frontend display
+        // If user has admin status, set role to 'admin' (CEO and admin are same)
         if (user.isAdmin === true || user.isAdmin === 'true') {
-            userRole = 'CEO';
+            userRole = 'admin';
         }
         
         const roleInfo = ROLE_PERMISSIONS[userRole];

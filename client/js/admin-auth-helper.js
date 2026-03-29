@@ -62,7 +62,7 @@ async function checkAdminAccess() {
     const roleInfo = await response.json();
     console.log('Admin access check - role info:', roleInfo);
     
-    // Check if user role is admin, CEO, or has admin permissions
+    // Check if user role is admin, CEO, or has admin permissions (admin and CEO are same)
     if (roleInfo.role !== 'admin' && roleInfo.role !== 'CEO' && !roleInfo.permissions.includes('*')) {
         alert('Access denied. Admin privileges required.');
         window.location.href = '/pages/buyer-dashboard.html';

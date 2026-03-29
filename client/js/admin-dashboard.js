@@ -9,28 +9,16 @@ let userPermissions = [];
 // Debug: Log ROLE_NAVIGATION on load
 console.log('🔧 ROLE_NAVIGATION loaded:', Object.keys(ROLE_NAVIGATION));
 console.log('🔧 CEO config exists:', 'CEO' in ROLE_NAVIGATION);
+console.log('🔧 Admin config exists:', 'admin' in ROLE_NAVIGATION);
 if ('CEO' in ROLE_NAVIGATION) {
     console.log('🔧 CEO cards count:', ROLE_NAVIGATION['CEO'].cards.length);
+}
+if ('admin' in ROLE_NAVIGATION) {
+    console.log('🔧 Admin cards count:', ROLE_NAVIGATION['admin'].cards.length);
 }
 
 // Role-based navigation configuration
 const ROLE_NAVIGATION = {
-    'CEO': {
-        // CEO/Super Admin - has access to everything
-        cards: [
-            { href: 'admin-asset-library.html', title: 'Asset Library', desc: 'Manage marketing assets and banners', icon: 'fas fa-images', color: 'blue' },
-            { href: 'admin-seller-applications.html', title: 'Seller Requests', desc: 'Review and approve applications', icon: 'fas fa-user-check', color: 'green' },
-            { href: 'admin-mass-messaging.html', title: 'Mass Messaging', desc: 'Send announcements to users', icon: 'fas fa-bullhorn', color: 'purple' },
-            { href: 'admin-retention.html', title: 'Message Retention', desc: 'Manage message data and policies', icon: 'fas fa-archive', color: 'orange' },
-            { href: 'admin-account-deletions.html', title: 'Account Deletions', desc: 'Review and manage deletion requests', icon: 'fas fa-user-times', color: 'red' },
-            { href: 'admin-maintenance.html', title: 'Maintenance', desc: 'Manage system maintenance', icon: 'fas fa-tools', color: 'yellow' },
-            { href: 'admin-transactions.html', title: 'Transactions', desc: 'Manage transactions and escrow', icon: 'fas fa-exchange-alt', color: 'indigo' },
-            { href: 'admin-disputes.html', title: 'Disputes', desc: 'Handle user disputes', icon: 'fas fa-gavel', color: 'pink' },
-            { href: 'admin-support.html', title: 'Support Tickets', desc: 'Manage customer support tickets', icon: 'fas fa-headset', color: 'teal' },
-            { href: 'admin-live-chat.html', title: 'Live Chat', desc: 'Monitor live customer chat', icon: 'fas fa-comments', color: 'cyan' },
-            { href: 'strategic-analytics.html', title: 'Strategic Analytics', desc: 'View strategic insights', icon: 'fas fa-chart-line', color: 'gold' }
-        ]
-    },
     'admin': {
         // Admin - has access to everything
         cards: [
@@ -103,11 +91,7 @@ function loadRoleBasedNavigation() {
     // Try to get role config, with fallbacks
     let roleConfig = ROLE_NAVIGATION[userRole];
     if (!roleConfig) {
-        console.log('Role config not found for:', userRole, 'trying fallback to CEO');
-        roleConfig = ROLE_NAVIGATION['CEO'];
-    }
-    if (!roleConfig) {
-        console.log('CEO config not found, trying admin fallback');
+        console.log('Role config not found for:', userRole, 'trying fallback to admin');
         roleConfig = ROLE_NAVIGATION['admin'];
     }
     
