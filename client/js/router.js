@@ -139,6 +139,7 @@ class CleanRouter {
             'seller-guide': '/pages/seller-guide.html',
             'admin-users': '/pages/admin-users.html',
             'admin-seller-applications': '/pages/admin-seller-applications.html',
+            'admin-account-deletions': '/pages/admin-account-deletions.html',
             'admin-mass-messaging': '/pages/admin-mass-messaging.html',
             'admin-retention': '/pages/admin-retention.html',
             'admin-asset-library': '/pages/admin-asset-library.html',

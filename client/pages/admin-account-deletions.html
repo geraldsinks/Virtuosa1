@@ -349,6 +349,12 @@
                     renderRequestsTable(data.requests);
                     renderPagination(data.pagination);
                     updateStats(data.requests);
+                } else if (response.status === 401 || response.status === 403) {
+                    // Authentication or authorization error - redirect to login
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/pages/login.html';
+                    return;
                 } else {
                     throw new Error('Failed to load deletion requests');
                 }
@@ -484,6 +490,12 @@
                 if (response.ok) {
                     const request = await response.json();
                     showRequestDetails(request);
+                } else if (response.status === 401 || response.status === 403) {
+                    // Authentication or authorization error - redirect to login
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/pages/login.html';
+                    return;
                 } else {
                     throw new Error('Failed to load request details');
                 }
@@ -629,6 +641,12 @@
                     closeActionModal();
                     closeRequestModal();
                     await loadDeletionRequests(currentPage);
+                } else if (response.status === 401 || response.status === 403) {
+                    // Authentication or authorization error - redirect to login
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/pages/login.html';
+                    return;
                 } else {
                     const error = await response.json();
                     throw new Error(error.message || `Failed to ${currentAction} request`);

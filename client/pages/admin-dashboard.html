@@ -127,6 +127,9 @@
                                     <a href="admin-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-red-400">
                                         <i class="fas fa-cog mr-3"></i>Admin Panel
                                     </a>
+                                    <a href="strategic-analytics.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gold">
+                                        <i class="fas fa-chart-line mr-3"></i>Strategic Analytics
+                                    </a>
                                 </div>
                                 <div class="border-t border-gray-800 my-2"></div>
                                 <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gray-300">
@@ -256,6 +259,10 @@
                 <i class="fas fa-cog"></i>
                 <span>Admin Dashboard</span>
             </a>
+            <a href="strategic-analytics.html" class="mobile-menu-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Strategic Analytics</span>
+            </a>
         </div>
 
         <div class="mobile-menu-section">
@@ -289,66 +296,8 @@
         </div>
 
         <!-- Admin Navigation Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <a href="admin-asset-library.html" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-blue-500 group">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="font-semibold text-gray-900 mb-1">Asset Library</h3>
-                        <p class="text-sm text-gray-600">Manage marketing assets and banners</p>
-                    </div>
-                    <div class="bg-blue-50 p-3 rounded-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-images text-blue-600 text-xl"></i>
-                    </div>
-                </div>
-            </a>
-            
-            <a href="admin-seller-applications.html" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-green-500 group">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="font-semibold text-gray-900 mb-1">Seller Requests</h3>
-                        <p class="text-sm text-gray-600">Review and approve applications</p>
-                    </div>
-                    <div class="bg-green-50 p-3 rounded-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-user-check text-green-600 text-xl"></i>
-                    </div>
-                </div>
-            </a>
-            
-            <a href="admin-mass-messaging.html" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-purple-500 group">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="font-semibold text-gray-900 mb-1">Mass Messaging</h3>
-                        <p class="text-sm text-gray-600">Send announcements to users</p>
-                    </div>
-                    <div class="bg-purple-50 p-3 rounded-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-bullhorn text-purple-600 text-xl"></i>
-                    </div>
-                </div>
-            </a>
-            
-            <a href="admin-retention.html" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-orange-500 group">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="font-semibold text-gray-900 mb-1">Message Retention</h3>
-                        <p class="text-sm text-gray-600">Manage message data and policies</p>
-                    </div>
-                    <div class="bg-orange-50 p-3 rounded-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-archive text-orange-600 text-xl"></i>
-                    </div>
-                </div>
-            </a>
-            
-            <a href="admin-account-deletions.html" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-red-500 group">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="font-semibold text-gray-900 mb-1">Account Deletions</h3>
-                        <p class="text-sm text-gray-600">Review and manage deletion requests</p>
-                    </div>
-                    <div class="bg-red-50 p-3 rounded-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-user-times text-red-600 text-xl"></i>
-                    </div>
-                </div>
-            </a>
+        <div id="admin-nav-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Navigation cards will be dynamically loaded based on user role -->
         </div>
 
         <!-- Period Selector -->

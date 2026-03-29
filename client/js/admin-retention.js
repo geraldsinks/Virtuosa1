@@ -85,6 +85,13 @@ class AdminRetentionManagement {
                 const stats = await response.json();
                 console.log('✅ Statistics loaded:', stats);
                 this.updateStatsDisplay(stats);
+            } else if (response.status === 401 || response.status === 403) {
+                // Authentication or authorization error - redirect to login
+                console.error('❌ Authentication error:', response.status);
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+                return;
             } else {
                 console.error('❌ Response not OK:', response.status, response.statusText);
                 const errorText = await response.text();
@@ -152,6 +159,13 @@ class AdminRetentionManagement {
                 }
                 
                 console.log('✅ Configuration loaded');
+            } else if (response.status === 401 || response.status === 403) {
+                // Authentication or authorization error - redirect to login
+                console.error('❌ Authentication error in loadConfig:', response.status);
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+                return;
             } else {
                 throw new Error('Failed to load configuration');
             }
@@ -223,6 +237,13 @@ class AdminRetentionManagement {
                 this.closeConfigModal();
                 this.showSuccess('Configuration saved successfully');
                 console.log('✅ Configuration saved');
+            } else if (response.status === 401 || response.status === 403) {
+                // Authentication or authorization error - redirect to login
+                console.error('❌ Authentication error in saveConfig:', response.status);
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+                return;
             } else {
                 throw new Error('Failed to save configuration');
             }
@@ -258,6 +279,13 @@ class AdminRetentionManagement {
                 await this.loadArchive();
                 
                 console.log('✅ Cleanup completed:', result);
+            } else if (response.status === 401 || response.status === 403) {
+                // Authentication or authorization error - redirect to login
+                console.error('❌ Authentication error in runCleanup:', response.status);
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+                return;
             } else {
                 throw new Error('Cleanup failed');
             }
@@ -295,6 +323,13 @@ class AdminRetentionManagement {
                 const data = await response.json();
                 this.updateArchiveDisplay(data);
                 console.log('✅ Archive loaded:', data.archives.length, 'items');
+            } else if (response.status === 401 || response.status === 403) {
+                // Authentication or authorization error - redirect to login
+                console.error('❌ Authentication error in loadArchive:', response.status);
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+                return;
             } else {
                 throw new Error('Failed to load archive');
             }
@@ -422,6 +457,13 @@ class AdminRetentionManagement {
                 await this.loadStats();
                 
                 console.log('✅ Message restored:', result);
+            } else if (response.status === 401 || response.status === 403) {
+                // Authentication or authorization error - redirect to login
+                console.error('❌ Authentication error in restoreMessage:', response.status);
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+                return;
             } else {
                 throw new Error('Failed to restore message');
             }

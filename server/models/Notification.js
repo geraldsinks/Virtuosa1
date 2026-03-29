@@ -29,7 +29,13 @@ const notificationSchema = new mongoose.Schema({
             'system',              // System notifications
             'message',            // New message
             'review_received',    // New review received
-            'token_earned'        // Tokens earned
+            'token_earned',        // Tokens earned
+            'dispute_filed',       // New dispute filed (seller)
+            'dispute_response',    // Seller responded to dispute (buyer)
+            'dispute_message',     // New message in dispute
+            'dispute_resolved',    // Dispute resolved (both parties)
+            'dispute_withdrawn',   // Dispute withdrawn (seller)
+            'dispute_escalated'    // High priority dispute (admin)
         ],
         required: true
     },

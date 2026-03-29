@@ -3,8 +3,147 @@
 let currentDisputeId = null;
 let revenueChart = null;
 let userStatsChart = null;
+let userRole = null;
+let userPermissions = [];
 
-// Check if user is admin
+// Role-based navigation configuration
+const ROLE_NAVIGATION = {
+    'admin': {
+        // CEO/Super Admin - has access to everything
+        cards: [
+            { href: 'admin-asset-library.html', title: 'Asset Library', desc: 'Manage marketing assets and banners', icon: 'fas fa-images', color: 'blue' },
+            { href: 'admin-seller-applications.html', title: 'Seller Requests', desc: 'Review and approve applications', icon: 'fas fa-user-check', color: 'green' },
+            { href: 'admin-mass-messaging.html', title: 'Mass Messaging', desc: 'Send announcements to users', icon: 'fas fa-bullhorn', color: 'purple' },
+            { href: 'admin-retention.html', title: 'Message Retention', desc: 'Manage message data and policies', icon: 'fas fa-archive', color: 'orange' },
+            { href: 'admin-account-deletions.html', title: 'Account Deletions', desc: 'Review and manage deletion requests', icon: 'fas fa-user-times', color: 'red' },
+            { href: 'admin-maintenance.html', title: 'Maintenance', desc: 'Manage system maintenance', icon: 'fas fa-tools', color: 'yellow' },
+            { href: 'admin-transactions.html', title: 'Transactions', desc: 'Manage transactions and escrow', icon: 'fas fa-exchange-alt', color: 'indigo' },
+            { href: 'admin-disputes.html', title: 'Disputes', desc: 'Handle user disputes', icon: 'fas fa-gavel', color: 'pink' },
+            { href: 'strategic-analytics.html', title: 'Strategic Analytics', desc: 'View strategic insights', icon: 'fas fa-chart-line', color: 'gold' }
+        ]
+    },
+    'marketing_lead': {
+        cards: [
+            { href: 'admin-mass-messaging.html', title: 'Mass Messaging', desc: 'Send announcements to users', icon: 'fas fa-bullhorn', color: 'purple' },
+            { href: 'admin-asset-library.html', title: 'Asset Library', desc: 'Manage marketing assets and banners', icon: 'fas fa-images', color: 'blue' },
+            { href: 'admin-seller-applications.html', title: 'Marketing Management', desc: 'Manage promotional content', icon: 'fas fa-bullhorn', color: 'green' },
+            { href: 'admin-about.html', title: 'About Page Editor', desc: 'Edit about page content', icon: 'fas fa-edit', color: 'orange' }
+        ]
+    },
+    'support_lead': {
+        cards: [
+            { href: 'admin-account-deletions.html', title: 'Account Deletions', desc: 'Review and manage deletion requests', icon: 'fas fa-user-times', color: 'red' },
+            { href: 'admin-disputes.html', title: 'Disputes', desc: 'Handle user disputes', icon: 'fas fa-gavel', color: 'pink' },
+            { href: 'admin-support.html', title: 'Contact Support', desc: 'Manage support tickets', icon: 'fas fa-headset', color: 'blue' },
+            { href: 'admin-live-chat.html', title: 'Live Chat', desc: 'Monitor live chat', icon: 'fas fa-comments', color: 'green' }
+        ]
+    },
+    'products_lead': {
+        cards: [
+            { href: 'admin-maintenance.html', title: 'Maintenance Mode', desc: 'Control system maintenance', icon: 'fas fa-tools', color: 'yellow' },
+            { href: 'admin-mass-messaging.html', title: 'Mass Messaging', desc: 'Send maintenance updates', icon: 'fas fa-bullhorn', color: 'purple' },
+            { href: 'admin-maintenance-reports.html', title: 'Maintenance Reports', desc: 'View maintenance analytics', icon: 'fas fa-chart-bar', color: 'blue' },
+            { href: 'admin-ui-queries.html', title: 'UI/UX Queries', desc: 'Manage user interface feedback', icon: 'fas fa-palette', color: 'orange' }
+        ]
+    },
+    'transaction_safety_lead': {
+        cards: [
+            { href: 'admin-transactions.html', title: 'Transaction System', desc: 'Manage transactions and escrow', icon: 'fas fa-exchange-alt', color: 'indigo' },
+            { href: 'admin-disputes.html', title: 'Disputes', desc: 'Handle user disputes', icon: 'fas fa-gavel', color: 'pink' },
+            { href: 'admin-transaction-reports.html', title: 'Transaction Reports', desc: 'View transaction analytics', icon: 'fas fa-chart-line', color: 'blue' },
+            { href: 'admin-risk-management.html', title: 'Risk Management', desc: 'Monitor high-risk activities', icon: 'fas fa-shield-alt', color: 'red' }
+        ]
+    },
+    'strategy_growth_lead': {
+        cards: [
+            { href: 'strategic-analytics.html', title: 'User Analytics', desc: 'View user behavior analytics', icon: 'fas fa-users', color: 'blue' },
+            { href: 'strategic-analytics.html', title: 'Strategic Analytics', desc: 'View strategic insights', icon: 'fas fa-chart-line', color: 'gold' },
+            { href: 'admin-analytics-reports.html', title: 'Analytics Reports', desc: 'Generate analytical reports', icon: 'fas fa-file-chart', color: 'green' },
+            { href: 'admin-growth-metrics.html', title: 'Growth Metrics', desc: 'Monitor growth indicators', icon: 'fas fa-rocket', color: 'purple' }
+        ]
+    }
+};
+
+// Load role-based navigation
+function loadRoleBasedNavigation() {
+    const navCardsContainer = document.getElementById('admin-nav-cards');
+    if (!navCardsContainer) return;
+
+    const roleCards = ROLE_NAVIGATION[userRole] || ROLE_NAVIGATION['admin'];
+    
+    navCardsContainer.innerHTML = roleCards.map(card => `
+        <a href="${card.href}" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-${card.color}-500 group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-1">${card.title}</h3>
+                    <p class="text-sm text-gray-600">${card.desc}</p>
+                </div>
+                <div class="bg-${card.color}-50 p-3 rounded-lg group-hover:scale-110 transition-transform">
+                    <i class="${card.icon} text-${card.color}-600 text-xl"></i>
+                </div>
+            </div>
+        </a>
+    `).join('');
+}
+
+// Get user role information
+function getUserRoleInfo() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/login';
+        return;
+    }
+
+    fetch(`${API_BASE}/admin/role-info`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                alert('Your session has expired. Please log in again.');
+                window.location.href = '/login';
+                return;
+            }
+            throw new Error('Failed to get role information');
+        }
+        return response.json();
+    })
+    .then(roleInfo => {
+        userRole = roleInfo.role;
+        userPermissions = roleInfo.permissions;
+        
+        // Update dashboard header with role information
+        updateDashboardHeader(roleInfo);
+        
+        // Load role-based navigation
+        loadRoleBasedNavigation();
+        
+        // Load dashboard data
+        loadDashboardData();
+    })
+    .catch(error => {
+        console.error('Failed to get role info:', error);
+        // Fall back to checking admin status
+        checkAdminAccess();
+    });
+}
+
+// Update dashboard header with role information
+function updateDashboardHeader(roleInfo) {
+    const header = document.querySelector('h1');
+    const subtitle = document.querySelector('p.text-gray-600');
+    
+    if (header && subtitle) {
+        header.textContent = `${roleInfo.description} Dashboard`;
+        subtitle.textContent = `Manage ${roleInfo.description.toLowerCase()} functions for the Virtuosa platform`;
+    }
+}
+
+// Check if user is admin (legacy function)
 function checkAdminAccess() {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -37,6 +176,11 @@ function checkAdminAccess() {
             if (user.email !== 'admin@virtuosa.com' && user.role !== 'admin' && user.isAdmin !== 'true' && user.isAdmin !== true) {
                 alert('Access denied. Admin privileges required.');
                 window.location.href = '/pages/buyer-dashboard.html';
+            } else {
+                // Set role as admin for backward compatibility
+                userRole = 'admin';
+                loadRoleBasedNavigation();
+                loadDashboardData();
             }
         })
         .catch(error => {
@@ -928,9 +1072,8 @@ async function loadRetentionConfig() {
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function () {
-    checkAdminAccess();
-    loadDashboardData();
-
+    getUserRoleInfo(); // Use new role-based system
+    
     // Add event listeners for filters
     document.getElementById('userSearch')?.addEventListener('input', () => loadUsers());
     document.getElementById('userRoleFilter')?.addEventListener('change', () => loadUsers());

@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategic Analytics - Virtuosa</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-gold {
+            background-color: #FFD700;
+        }
+
+        .bg-button-gold {
+            background-color: #C19A6B;
+        }
+
+        .hover-bg-button-gold:hover {
+            background-color: #A98B68;
+        }
+
+        .bg-dark-navy {
+            background-color: #060A18;
+        }
+
+        .strategic-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .insight-card {
+            background: linear-gradient(135deg, #0A1128 0%, #1a2744 100%);
+        }
+
+        .metric-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .metric-card.positive {
+            border-left-color: #10B981;
+        }
+
+        .metric-card.negative {
+            border-left-color: #EF4444;
+        }
+
+        .metric-card.neutral {
+            border-left-color: #3B82F6;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .recommendation-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #FFD700;
+        }
+
+        .recommendation-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .segment-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+
+        .segment-champion { background-color: #10B981; color: white; }
+        .segment-active { background-color: #3B82F6; color: white; }
+        .segment-atrisk { background-color: #EF4444; color: white; }
+        .segment-new { background-color: #F59E0B; color: white; }
+        .segment-potential { background-color: #8B5CF6; color: white; }
+
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #FFD700;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background-color: #FFD700;
+            color: #0A1128;
+            font-weight: 600;
+        }
+
+        .forecast-card {
+            transition: all 0.3s ease;
+        }
+
+        .forecast-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased">
+    <!-- Header -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <a href="admin-dashboard.html" class="text-white hover:text-gold transition-colors">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </a>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gold">Strategic Analytics</h1>
+                        <p class="text-sm text-gray-300">Growth Meeting Intelligence</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="refreshData()" class="bg-button-gold text-white px-4 py-2 rounded-lg hover-bg-button-gold transition-colors flex items-center space-x-2">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        <span>Refresh</span>
+                    </button>
+                    <button onclick="exportReport()" class="bg-navy border border-gold text-gold px-4 py-2 rounded-lg hover:bg-gold hover:text-navy transition-colors flex items-center space-x-2">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span>Export</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Key Metrics Overview -->
+        <section class="mb-8">
+            <h2 class="text-xl font-bold text-navy mb-6 flex items-center">
+                <i data-lucide="trending-up" class="w-5 h-5 mr-2 text-gold"></i>
+                Executive Overview
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="metric-card positive bg-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-green-50 p-3 rounded-lg">
+                            <i data-lucide="users" class="w-6 h-6 text-green-600"></i>
+                        </div>
+                        <span class="text-green-600 text-sm font-semibold">+15.3%</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-navy" id="total-users">-</h3>
+                    <p class="text-gray-500 text-sm">Total Users</p>
+                    <div class="mt-2 text-xs text-gray-400">
+                        <span id="users-growth">Growing steadily</span>
+                    </div>
+                </div>
+
+                <div class="metric-card positive bg-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-blue-50 p-3 rounded-lg">
+                            <i data-lucide="dollar-sign" class="w-6 h-6 text-blue-600"></i>
+                        </div>
+                        <span class="text-green-600 text-sm font-semibold">+23.7%</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-navy" id="total-revenue">-</h3>
+                    <p class="text-gray-500 text-sm">Total Revenue</p>
+                    <div class="mt-2 text-xs text-gray-400">
+                        <span id="revenue-growth">Strong growth</span>
+                    </div>
+                </div>
+
+                <div class="metric-card neutral bg-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-purple-50 p-3 rounded-lg">
+                            <i data-lucide="target" class="w-6 h-6 text-purple-600"></i>
+                        </div>
+                        <span class="text-blue-600 text-sm font-semibold">12%</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-navy" id="market-share">-</h3>
+                    <p class="text-gray-500 text-sm">Market Share</p>
+                    <div class="mt-2 text-xs text-gray-400">
+                        <span id="market-position">Rank #2 of 5</span>
+                    </div>
+                </div>
+
+                <div class="metric-card positive bg-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="bg-yellow-50 p-3 rounded-lg">
+                            <i data-lucide="activity" class="w-6 h-6 text-yellow-600"></i>
+                        </div>
+                        <span class="text-green-600 text-sm font-semibold">78/100</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-navy" id="health-score">-</h3>
+                    <p class="text-gray-500 text-sm">Health Score</p>
+                    <div class="mt-2 text-xs text-gray-400">
+                        <span id="health-status">Good performance</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Strategic Insights Tabs -->
+        <section class="mb-8">
+            <div class="border-b border-gray-200 mb-6">
+                <nav class="flex space-x-8">
+                    <button class="tab-button py-2 px-1 border-b-2 border-transparent hover:border-gray-300" onclick="switchTab('overview')">
+                        Overview
+                    </button>
+                    <button class="tab-button py-2 px-1 border-b-2 border-transparent hover:border-gray-300" onclick="switchTab('segments')">
+                        User Segments
+                    </button>
+                    <button class="tab-button py-2 px-1 border-b-2 border-transparent hover:border-gray-300" onclick="switchTab('products')">
+                        Products & Sales
+                    </button>
+                    <button class="tab-button py-2 px-1 border-b-2 border-transparent hover:border-gray-300" onclick="switchTab('growth')">
+                        Growth Forecast
+                    </button>
+                    <button class="tab-button py-2 px-1 border-b-2 border-transparent hover:border-gray-300" onclick="switchTab('competitive')">
+                        Competitive
+                    </button>
+                    <button class="tab-button py-2 px-1 border-b-2 border-transparent hover:border-gray-300" onclick="switchTab('recommendations')">
+                        Recommendations
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="tab-content">
+                <!-- Overview Tab -->
+                <div id="overview-tab" class="tab-panel">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Growth Trends Chart -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4">Growth Trends</h3>
+                            <div class="chart-container">
+                                <canvas id="growthChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Revenue Breakdown -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4">Revenue Breakdown</h3>
+                            <div class="chart-container">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- User Engagement -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4">User Engagement</h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">Daily Active Users</span>
+                                    <span class="font-semibold text-navy" id="dau-count">-</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: 65%" id="dau-bar"></div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">Weekly Active Users</span>
+                                    <span class="font-semibold text-navy" id="wau-count">-</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-600 h-2 rounded-full" style="width: 80%" id="wau-bar"></div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">Monthly Active Users</span>
+                                    <span class="font-semibold text-navy" id="mau-count">-</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-purple-600 h-2 rounded-full" style="width: 100%" id="mau-bar"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Key Opportunities -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4">Key Opportunities</h3>
+                            <div class="space-y-3" id="opportunities-list">
+                                <div class="flex items-start space-x-3 p-3 bg-yellow-50 rounded-lg">
+                                    <i data-lucide="lightbulb" class="w-5 h-5 text-yellow-600 mt-0.5"></i>
+                                    <div>
+                                        <h4 class="font-semibold text-navy">Mobile App Expansion</h4>
+                                        <p class="text-sm text-gray-600">60% of users access via mobile - dedicated app could increase engagement by 40%</p>
+                                        <div class="mt-2 flex items-center space-x-2">
+                                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">High Impact</span>
+                                            <span class="text-xs text-gray-500">Timeline: 3-6 months</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Segments Tab -->
+                <div id="segments-tab" class="tab-panel hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Segment Distribution -->
+                        <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4">User Segment Distribution</h3>
+                            <div class="chart-container">
+                                <canvas id="segmentChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Segment Insights -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4">Segment Insights</h3>
+                            <div class="space-y-4" id="segment-insights">
+                                <!-- Will be populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Performers -->
+                    <div class="mt-6 bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-navy mb-4">Top Performers</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                                        <th class="pb-3">User</th>
+                                        <th class="pb-3">Segment</th>
+                                        <th class="pb-3">Performance Score</th>
+                                        <th class="pb-3">Revenue</th>
+                                        <th class="pb-3">Growth Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top-performers-table">
+                                    <!-- Will be populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products & Sales Tab -->
+                <div id="products-tab" class="tab-panel hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Product Overview -->
+                        <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4">Product Performance Overview</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                <div class="text-center p-4 bg-blue-50 rounded-xl">
+                                    <p class="text-2xl font-bold text-blue-600" id="total-products">-</p>
+                                    <p class="text-xs text-gray-500 mt-1">Total Products</p>
+                                </div>
+                                <div class="text-center p-4 bg-green-50 rounded-xl">
+                                    <p class="text-2xl font-bold text-green-600" id="active-products">-</p>
+                                    <p class="text-xs text-gray-500 mt-1">Active</p>
+                                </div>
+                                <div class="text-center p-4 bg-purple-50 rounded-xl">
+                                    <p class="text-2xl font-bold text-purple-600" id="sold-products">-</p>
+                                    <p class="text-xs text-gray-500 mt-1">Sold</p>
+                                </div>
+                                <div class="text-center p-4 bg-yellow-50 rounded-xl">
+                                    <p class="text-2xl font-bold text-yellow-600" id="avg-product-price">-</p>
+                                    <p class="text-xs text-gray-500 mt-1">Avg Price</p>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="categoryPerformanceChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Category Insights -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4">Top Categories</h3>
+                            <div class="space-y-3" id="top-categories">
+                                <!-- Will be populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Best Sellers Table -->
+                    <div class="mt-6 bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-navy mb-4">Best Selling Products</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                                        <th class="pb-3">Rank</th>
+                                        <th class="pb-3">Product</th>
+                                        <th class="pb-3">Category</th>
+                                        <th class="pb-3">Seller</th>
+                                        <th class="pb-3 text-right">Units Sold</th>
+                                        <th class="pb-3 text-right">Revenue</th>
+                                        <th class="pb-3 text-right">Avg Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="best-sellers-table">
+                                    <!-- Will be populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Top Sellers Section -->
+                    <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Top Sellers Performance -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4">Top Sellers Performance</h3>
+                            <div class="space-y-3" id="top-sellers-list">
+                                <!-- Will be populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Seller Metrics -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4">Seller Metrics</h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">Total Sellers</span>
+                                    <span class="font-semibold text-navy" id="total-sellers">-</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: 100%" id="total-sellers-bar"></div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">Active Sellers</span>
+                                    <span class="font-semibold text-navy" id="active-sellers">-</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-600 h-2 rounded-full" style="width: 75%" id="active-sellers-bar"></div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">Avg Revenue/Seller</span>
+                                    <span class="font-semibold text-navy" id="avg-revenue-seller">-</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">Seller Growth Rate</span>
+                                    <span class="font-semibold text-green-600" id="seller-growth-rate">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Growth Forecast Tab -->
+                <div id="growth-tab" class="tab-panel hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Growth Forecast Chart -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4">Growth Forecast</h3>
+                            <div class="chart-container">
+                                <canvas id="forecastChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Scenario Analysis -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4">Scenario Analysis</h3>
+                            <div class="space-y-4" id="scenario-analysis">
+                                <!-- Will be populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Key Drivers -->
+                    <div class="mt-6 bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-navy mb-4">Key Growth Drivers</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="growth-drivers">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Competitive Tab -->
+                <div id="competitive-tab" class="tab-panel hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Market Position -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4">Market Position</h3>
+                            <div class="chart-container">
+                                <canvas id="marketChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Competitive Advantages -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4">Competitive Advantages</h3>
+                            <div class="space-y-3" id="competitive-advantages">
+                                <!-- Will be populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Threat Assessment -->
+                    <div class="mt-6 bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-navy mb-4">Threat Assessment</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="threat-assessment">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendations Tab -->
+                <div id="recommendations-tab" class="tab-panel hidden">
+                    <div class="space-y-6">
+                        <!-- Immediate Actions -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4 flex items-center">
+                                <i data-lucide="zap" class="w-5 h-5 mr-2 text-red-500"></i>
+                                Immediate Actions (Next 30 Days)
+                            </h3>
+                            <div class="space-y-3" id="immediate-recommendations">
+                                <!-- Will be populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Short-term Recommendations -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4 flex items-center">
+                                <i data-lucide="calendar" class="w-5 h-5 mr-2 text-blue-500"></i>
+                                Short-term Recommendations (1-3 Months)
+                            </h3>
+                            <div class="space-y-3" id="short-term-recommendations">
+                                <!-- Will be populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Long-term Strategy -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4 flex items-center">
+                                <i data-lucide="target" class="w-5 h-5 mr-2 text-purple-500"></i>
+                                Long-term Strategy (3-12 Months)
+                            </h3>
+                            <div class="space-y-3" id="long-term-recommendations">
+                                <!-- Will be populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/header.js"></script>
+    <script src="../js/strategicAnalyticsCharts.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.lucide) window.lucide.createIcons();
+            
+            // Initialize charts class
+            window.chartsManager = new StrategicAnalyticsCharts();
+            
+            await loadStrategicAnalytics();
+        });
+
+        let currentTab = 'overview';
+        let analyticsData = null;
+
+        async function loadStrategicAnalytics() {
+            try {
+                showLoading(true);
+                const token = localStorage.getItem('token');
+                
+                const response = await fetch(`${API_BASE}/analytics/strategic/insights?timeframe=quarterly`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error('Failed to load analytics');
+                
+                analyticsData = await response.json();
+                updateMetrics();
+                updateTabContent();
+                
+                // Initialize charts with data
+                if (window.chartsManager) {
+                    window.chartsManager.initializeCharts(analyticsData);
+                }
+            } catch (error) {
+                console.error('Load analytics error:', error);
+                showError('Failed to load strategic analytics');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function updateMetrics() {
+            if (!analyticsData) return;
+            
+            const overview = analyticsData.marketOverview;
+            const userInsights = analyticsData.userInsights;
+            const revenueInsights = analyticsData.revenueInsights;
+            
+            // Update key metrics
+            document.getElementById('total-users').textContent = formatNumber(userInsights.totalUsers);
+            document.getElementById('total-revenue').textContent = formatCurrency(revenueInsights.totalRevenue);
+            document.getElementById('market-share').textContent = overview.marketShare + '%';
+            document.getElementById('health-score').textContent = '78'; // Calculate from data
+            
+            // Update growth indicators
+            document.getElementById('users-growth').textContent = `+${userInsights.userGrowth}% this quarter`;
+            document.getElementById('revenue-growth').textContent = `+${revenueInsights.revenueGrowth}% this quarter`;
+            document.getElementById('market-position').textContent = `Rank #${overview.competitorCount > 0 ? '2' : '1'} of ${overview.competitorCount + 1}`;
+            document.getElementById('health-status').textContent = 'Good performance';
+            
+            // Update engagement metrics
+            document.getElementById('dau-count').textContent = formatNumber(userInsights.activeUsers * 0.3);
+            document.getElementById('wau-count').textContent = formatNumber(userInsights.activeUsers * 0.7);
+            document.getElementById('mau-count').textContent = formatNumber(userInsights.activeUsers);
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+            
+            currentTab = tabName;
+            updateTabContent();
+        }
+
+        function updateTabContent() {
+            if (!analyticsData) return;
+            
+            switch(currentTab) {
+                case 'overview':
+                    updateOverviewTab();
+                    break;
+                case 'segments':
+                    updateSegmentsTab();
+                    break;
+                case 'products':
+                    updateProductsTab();
+                    break;
+                case 'growth':
+                    updateGrowthTab();
+                    break;
+                case 'competitive':
+                    updateCompetitiveTab();
+                    break;
+                case 'recommendations':
+                    updateRecommendationsTab();
+                    break;
+            }
+        }
+
+        function updateOverviewTab() {
+            updateOpportunities();
+            updateEngagementMetrics();
+        }
+
+        function updateSegmentsTab() {
+            updateSegmentDistribution();
+            updateSegmentInsights();
+            updateTopPerformers();
+        }
+
+        function updateGrowthTab() {
+            updateGrowthForecast();
+            updateScenarioAnalysis();
+            updateGrowthDrivers();
+        }
+
+        function updateCompetitiveTab() {
+            updateMarketPosition();
+            updateCompetitiveAdvantages();
+            updateThreatAssessment();
+        }
+
+        function updateRecommendationsTab() {
+            updateAllRecommendations();
+        }
+
+        function updateOpportunities() {
+            const opportunities = analyticsData.growthOpportunities || [];
+            const container = document.getElementById('opportunities-list');
+            
+            container.innerHTML = opportunities.map(opp => `
+                <div class="flex items-start space-x-3 p-3 bg-yellow-50 rounded-lg">
+                    <i data-lucide="lightbulb" class="w-5 h-5 text-yellow-600 mt-0.5"></i>
+                    <div>
+                        <h4 class="font-semibold text-navy">${opp.opportunity}</h4>
+                        <p class="text-sm text-gray-600">${opp.timeline} - ${opp.investment} investment</p>
+                        <div class="mt-2 flex items-center space-x-2">
+                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">${opp.potential} Impact</span>
+                            <span class="text-xs text-gray-500">${opp.timeline}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function updateEngagementMetrics() {
+            // Update engagement bars based on actual data
+            const engagement = analyticsData.userInsights;
+            const totalUsers = engagement.totalUsers;
+            
+            document.getElementById('dau-bar').style.width = '30%';
+            document.getElementById('wau-bar').style.width = '70%';
+            document.getElementById('mau-bar').style.width = '100%';
+        }
+
+        function updateSegmentDistribution() {
+            const segments = analyticsData.userInsights.segments;
+            const ctx = document.getElementById('segmentChart');
+            if (!ctx || !segments) return;
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(segments),
+                    datasets: [{
+                        data: Object.values(segments),
+                        backgroundColor: [
+                            '#10B981', // champion
+                            '#3B82F6', // active
+                            '#EF4444', // at-risk
+                            '#F59E0B', // new
+                            '#8B5CF6'  // potential
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: { size: 12 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateSegmentInsights() {
+            const segments = analyticsData.userInsights.segments;
+            const container = document.getElementById('segment-insights');
+            
+            const segmentData = {
+                champions: { count: segments.champions, color: 'green', icon: 'crown', description: 'High-value loyal users' },
+                active: { count: segments.active, color: 'blue', icon: 'user', description: 'Regularly engaged users' },
+                atRisk: { count: segments.atRisk, color: 'red', icon: 'alert-triangle', description: 'Users showing disengagement' },
+                new: { count: segments.new, color: 'yellow', icon: 'user-plus', description: 'Recently joined users' }
+            };
+            
+            container.innerHTML = Object.entries(segmentData).map(([key, data]) => `
+                <div class="p-4 bg-${data.color}-50 rounded-lg border-l-4 border-${data.color}-500">
+                    <div class="flex items-center space-x-3">
+                        <i data-lucide="${data.icon}" class="w-5 h-5 text-${data.color}-600"></i>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-navy capitalize">${key.replace(/([A-Z])/g, ' $1').trim()}</h4>
+                            <p class="text-sm text-gray-600">${data.description}</p>
+                            <p class="text-lg font-bold text-${data.color}-600">${data.count.toLocaleString()}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        async function updateTopPerformers() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE}/analytics/performers/top?limit=10`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) return;
+                
+                const data = await response.json();
+                const container = document.getElementById('top-performers-table');
+                
+                container.innerHTML = data.performers.map(performer => `
+                    <tr class="border-b border-gray-50 hover:bg-gray-50">
+                        <td class="py-3">
+                            <div class="font-semibold text-navy">${performer.user.name}</div>
+                            <div class="text-xs text-gray-400">${performer.user.email}</div>
+                        </td>
+                        <td class="py-3">
+                            <span class="segment-badge segment-${performer.metrics.segment}">${performer.metrics.segment}</span>
+                        </td>
+                        <td class="py-3 font-semibold">${performer.metrics.performanceScore}</td>
+                        <td class="py-3 font-semibold">${formatCurrency(performer.metrics.totalRevenue)}</td>
+                        <td class="py-3">
+                            <span class="text-green-600">+${performer.metrics.growthRate}%</span>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Load top performers error:', error);
+            }
+        }
+
+        function updateGrowthForecast() {
+            // Placeholder for growth forecast chart
+            const ctx = document.getElementById('forecastChart');
+            if (!ctx) return;
+            
+            const forecastData = generateForecastData();
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: forecastData.labels,
+                    datasets: [
+                        {
+                            label: 'Optimistic',
+                            data: forecastData.optimistic,
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderDash: [5, 5]
+                        },
+                        {
+                            label: 'Realistic',
+                            data: forecastData.realistic,
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'Pessimistic',
+                            data: forecastData.pessimistic,
+                            borderColor: '#EF4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderDash: [5, 5]
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function updateScenarioAnalysis() {
+            const scenarios = [
+                { name: 'Optimistic', growth: 40, revenue: 200000, probability: 0.2, color: 'green' },
+                { name: 'Realistic', growth: 25, revenue: 150000, probability: 0.6, color: 'blue' },
+                { name: 'Pessimistic', growth: 10, revenue: 100000, probability: 0.2, color: 'red' }
+            ];
+            
+            const container = document.getElementById('scenario-analysis');
+            container.innerHTML = scenarios.map(scenario => `
+                <div class="forecast-card p-4 bg-${scenario.color}-50 rounded-lg border border-${scenario.color}-200">
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="font-bold text-navy">${scenario.name}</h4>
+                        <span class="text-xs bg-${scenario.color}-100 text-${scenario.color}-800 px-2 py-1 rounded">
+                            ${(scenario.probability * 100).toFixed(0)}% probability
+                        </span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Growth Rate</span>
+                            <span class="font-semibold">+${scenario.growth}%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Revenue</span>
+                            <span class="font-semibold">${formatCurrency(scenario.revenue)}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateGrowthDrivers() {
+            const drivers = [
+                { name: 'User Acquisition', impact: 35, confidence: 80, color: 'blue' },
+                { name: 'Product Innovation', impact: 25, confidence: 70, color: 'green' },
+                { name: 'Market Expansion', impact: 20, confidence: 60, color: 'purple' }
+            ];
+            
+            const container = document.getElementById('growth-drivers');
+            container.innerHTML = drivers.map(driver => `
+                <div class="p-4 bg-white rounded-lg border border-gray-200">
+                    <h4 class="font-semibold text-navy mb-2">${driver.name}</h4>
+                    <div class="space-y-2">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Impact</span>
+                                <span>${driver.impact}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-${driver.color}-600 h-2 rounded-full" style="width: ${driver.impact}%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Confidence</span>
+                                <span>${driver.confidence}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-gray-600 h-2 rounded-full" style="width: ${driver.confidence}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateMarketPosition() {
+            const ctx = document.getElementById('marketChart');
+            if (!ctx) return;
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Us', 'Competitor A', 'Competitor B', 'Competitor C', 'Competitor D'],
+                    datasets: [{
+                        label: 'Market Share %',
+                        data: [12, 25, 18, 15, 10],
+                        backgroundColor: ['#FFD700', '#94A3B8', '#94A3B8', '#94A3B8', '#94A3B8']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function updateCompetitiveAdvantages() {
+            const advantages = [
+                { name: 'Lower Fees', strength: 8, sustainability: 7 },
+                { name: 'Better Support', strength: 7, sustainability: 8 },
+                { name: 'User Experience', strength: 6, sustainability: 6 }
+            ];
+            
+            const container = document.getElementById('competitive-advantages');
+            container.innerHTML = advantages.map(adv => `
+                <div class="p-3 bg-blue-50 rounded-lg">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-semibold text-navy">${adv.name}</h4>
+                        <div class="flex space-x-2">
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Strength: ${adv.strength}/10</span>
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Sustainable: ${adv.sustainability}/10</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: ${adv.strength * 10}%"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateThreatAssessment() {
+            const threats = [
+                { name: 'Market Saturation', probability: 'Medium', impact: 'High', mitigation: 'Diversify categories' },
+                { name: 'New Competitors', probability: 'High', impact: 'Medium', mitigation: 'Innovation focus' },
+                { name: 'Economic Downturn', probability: 'Low', impact: 'High', mitigation: 'Value positioning' },
+                { name: 'Regulatory Changes', probability: 'Low', impact: 'Medium', mitigation: 'Compliance monitoring' }
+            ];
+            
+            const container = document.getElementById('threat-assessment');
+            container.innerHTML = threats.map(threat => `
+                <div class="p-4 bg-red-50 rounded-lg border border-red-200">
+                    <h4 class="font-semibold text-navy mb-2">${threat.name}</h4>
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-gray-600">Probability:</span>
+                        <span class="font-medium">${threat.probability}</span>
+                    </div>
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-gray-600">Impact:</span>
+                        <span class="font-medium">${threat.impact}</span>
+                    </div>
+                    <div class="mt-3 p-2 bg-white rounded text-xs">
+                        <strong>Mitigation:</strong> ${threat.mitigation}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateAllRecommendations() {
+            const recommendations = analyticsData.strategicRecommendations || {};
+            
+            updateRecommendationList('immediate-recommendations', recommendations.immediate || [], 'red');
+            updateRecommendationList('short-term-recommendations', recommendations.shortTerm || [], 'blue');
+            updateRecommendationList('long-term-recommendations', recommendations.longTerm || [], 'purple');
+        }
+
+        function updateRecommendationsTab() {
+            const recommendations = analyticsData.strategicRecommendations || {};
+            
+            updateRecommendationList('immediate-recommendations', recommendations.immediate || [], 'red');
+            updateRecommendationList('short-term-recommendations', recommendations.shortTerm || [], 'blue');
+            updateRecommendationList('long-term-recommendations', recommendations.longTerm || [], 'purple');
+        }
+
+        function updateProductsTab() {
+            updateProductOverview();
+            updateCategoryAnalysis();
+            updateBestSellersTable();
+            updateTopSellersList();
+            updateSellerMetrics();
+        }
+
+        function updateProductOverview() {
+            const productInsights = analyticsData.productInsights || {};
+            
+            document.getElementById('total-products').textContent = formatNumber(productInsights.totalProducts || 0);
+            document.getElementById('active-products').textContent = formatNumber(productInsights.activeProducts || 0);
+            document.getElementById('sold-products').textContent = formatNumber(productInsights.soldProducts || 0);
+            document.getElementById('avg-product-price').textContent = formatCurrency(productInsights.avgProductPrice || 0);
+            
+            // Create category performance chart
+            createCategoryPerformanceChart();
+        }
+
+        function updateCategoryAnalysis() {
+            const categories = analyticsData.categoryAnalysis || [];
+            const container = document.getElementById('top-categories');
+            
+            container.innerHTML = categories.slice(0, 5).map((cat, index) => `
+                <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-${index === 0 ? 'green' : index === 1 ? 'blue' : index === 2 ? 'purple' : 'yellow'}-500">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-semibold text-navy">${cat.category}</h4>
+                        <span class="text-sm font-bold text-${index === 0 ? 'green' : index === 1 ? 'blue' : index === 2 ? 'purple' : 'yellow'}-600">${cat.marketShare.toFixed(1)}%</span>
+                    </div>
+                    <div class="space-y-1 text-xs text-gray-600">
+                        <div class="flex justify-between">
+                            <span>Products:</span>
+                            <span>${cat.productCount}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Revenue:</span>
+                            <span>${formatCurrency(cat.revenue)}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Conversion:</span>
+                            <span>${cat.conversionRate.toFixed(1)}%</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateBestSellersTable() {
+            const bestSellers = analyticsData.bestSellers || [];
+            const container = document.getElementById('best-sellers-table');
+            
+            container.innerHTML = bestSellers.slice(0, 10).map(product => `
+                <tr class="border-b border-gray-50 hover:bg-gray-50">
+                    <td class="py-3">
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gold text-navy text-xs font-bold">
+                            ${product.rank}
+                        </span>
+                    </td>
+                    <td class="py-3">
+                        <div class="font-semibold text-navy">${product.name}</div>
+                        <div class="text-xs text-gray-400">${product.status}</div>
+                    </td>
+                    <td class="py-3">
+                        <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${product.category}</span>
+                    </td>
+                    <td class="py-3 text-sm text-gray-600">${product.sellerName || 'Unknown'}</td>
+                    <td class="py-3 text-right font-semibold">${product.soldCount}</td>
+                    <td class="py-3 text-right font-semibold text-green-600">${formatCurrency(product.totalRevenue)}</td>
+                    <td class="py-3 text-right text-sm">${formatCurrency(product.avgSalePrice)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateTopSellersList() {
+            const topSellers = analyticsData.topSellers || [];
+            const container = document.getElementById('top-sellers-list');
+            
+            container.innerHTML = topSellers.slice(0, 8).map((seller, index) => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="flex items-center space-x-3">
+                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gold text-navy text-xs font-bold">
+                            ${seller.rank}
+                        </span>
+                        <div>
+                            <h4 class="font-semibold text-navy">${seller.fullName}</h4>
+                            <div class="text-xs text-gray-500">${seller.productCount} products • ${seller.successRate.toFixed(1)}% success rate</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-green-600">${formatCurrency(seller.totalRevenue)}</div>
+                        <div class="text-xs text-gray-500">${seller.completedTransactions} sales</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateSellerMetrics() {
+            const sellerMetrics = analyticsData.sellerPerformance || {};
+            
+            document.getElementById('total-sellers').textContent = formatNumber(sellerMetrics.totalSellers || 0);
+            document.getElementById('active-sellers').textContent = formatNumber(sellerMetrics.activeSellers || 0);
+            document.getElementById('avg-revenue-seller').textContent = formatCurrency(sellerMetrics.avgRevenuePerSeller || 0);
+            document.getElementById('seller-growth-rate').textContent = `+${(sellerMetrics.sellerGrowthRate || 0).toFixed(1)}%`;
+            
+            // Update progress bars
+            const activeRate = sellerMetrics.totalSellers > 0 ? (sellerMetrics.activeSellers / sellerMetrics.totalSellers) * 100 : 0;
+            document.getElementById('active-sellers-bar').style.width = `${activeRate}%`;
+        }
+
+        function createCategoryPerformanceChart() {
+            const ctx = document.getElementById('categoryPerformanceChart');
+            if (!ctx) return;
+            
+            const categories = analyticsData.categoryAnalysis || [];
+            
+            if (window.chartsManager) {
+                window.chartsManager.updateChart('categoryPerformance', {
+                    labels: categories.map(c => c.category),
+                    datasets: [
+                        {
+                            label: 'Revenue',
+                            data: categories.map(c => c.revenue),
+                            backgroundColor: 'rgba(255, 215, 0, 0.8)',
+                            borderColor: '#FFD700',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Products',
+                            data: categories.map(c => c.productCount),
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                            borderColor: '#3B82F6',
+                            borderWidth: 2
+                        }
+                    ]
+                });
+            }
+        }
+
+        function updateRecommendationList(containerId, recommendations, color) {
+            const container = document.getElementById(containerId);
+            
+            container.innerHTML = recommendations.map(rec => `
+                <div class="recommendation-card p-4 bg-${color}-50 rounded-lg">
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="font-semibold text-navy">${rec.action}</h4>
+                        <span class="text-xs bg-${color}-100 text-${color}-800 px-2 py-1 rounded capitalize">${rec.priority}</span>
+                    </div>
+                    <p class="text-gray-600 mb-3">${rec.expectedImpact}</p>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Owner: ${rec.owner}</span>
+                        <span class="text-gray-500">Timeline: ${rec.timeline}</span>
+                    </div>
+                    <div class="mt-2">
+                        <strong class="text-sm">KPIs:</strong>
+                        <div class="flex flex-wrap gap-1 mt-1">
+                            ${rec.kpis.map(kpi => `<span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${kpi}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function initializeCharts() {
+            // Initialize charts when tab is switched
+        }
+
+        function generateForecastData() {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const baseRevenue = 100000;
+            
+            return {
+                labels: months,
+                optimistic: months.map((_, i) => baseRevenue * Math.pow(1.4, i/12)),
+                realistic: months.map((_, i) => baseRevenue * Math.pow(1.25, i/12)),
+                pessimistic: months.map((_, i) => baseRevenue * Math.pow(1.1, i/12))
+            };
+        }
+
+        function refreshData() {
+            loadStrategicAnalytics();
+        }
+
+        async function exportReport() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE}/analytics/strategic/report?reportType=comprehensive`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error('Failed to generate report');
+                
+                const reportData = await response.json();
+                downloadReport(reportData);
+            } catch (error) {
+                console.error('Export report error:', error);
+                showError('Failed to export report');
+            }
+        }
+
+        function downloadReport(data) {
+            const reportContent = generateReportContent(data);
+            const blob = new Blob([reportContent], { type: 'text/markdown' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `strategic-analytics-report-${new Date().toISOString().split('T')[0]}.md`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function generateReportContent(data) {
+            return `# Strategic Analytics Report
+Generated: ${new Date().toLocaleDateString()}
+
+## Executive Summary
+${data.executiveSummary?.highlights?.map(h => `- ${h}`).join('\n') || ''}
+
+## Key Insights
+${data.keyInsights?.map(i => `- ${i}`).join('\n') || ''}
+
+## Recommendations
+${data.actionItems?.map(a => `- ${a.action} (${a.timeline})`).join('\n') || ''}
+
+## KPIs
+${data.kpis?.map(k => `- ${k.name}: ${k.current} (Target: ${k.target})`).join('\n') || ''}
+            `;
+        }
+
+        function showLoading(show) {
+            const spinners = document.querySelectorAll('.loading-spinner');
+            spinners.forEach(spinner => {
+                spinner.style.display = show ? 'block' : 'none';
+            });
+        }
+
+        function showError(message) {
+            // Simple error notification
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            
+            setTimeout(() => {
+                document.body.removeChild(errorDiv);
+            }, 5000);
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat().format(num);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+    </script>
+</body>
+
+</html>

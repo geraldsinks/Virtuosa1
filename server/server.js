@@ -63,6 +63,7 @@ const cloudinary = require('./config/cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const NotificationService = require('./services/notificationService');
 const webpush = require('web-push');
+const { checkRoleAccess, checkAnyRoleAccess, getUserRoleInfo, isAdmin } = require('./middleware/roleBasedAccess');
 require('dotenv').config({ path: path.join(__dirname, 'config/.env') });
 
 // Ensure uploads directories exist on startup
@@ -187,6 +188,11 @@ app.use(cors( {
     credentials: true
 }));
 app.use(express.json());
+
+// Maintenance middleware for API routes
+const { checkMaintenance } = require('./middleware/maintenance');
+app.use('/api', checkMaintenance);
+
 // Serve uploads from the correct directory based on environment
 const uploadsPath = path.join(basePath, 'uploads');
 console.log('📂 Serving uploads from:', uploadsPath);
@@ -312,46 +318,8 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
 // Admin mass messaging endpoints
 
 // Get user statistics for targeting
-app.get('/api/admin/users/stats', authenticateToken, async (req, res) => {
+app.get('/api/admin/users/stats', authenticateToken, checkRoleAccess('mass_messaging'), async (req, res) => {
     try {
-        // Verify admin access
-        const adminUser = await User.findById(req.user.userId);
-        console.log('Admin stats access attempt by user:', adminUser);
-        console.log('Admin access granted, proceeding with stats aggregation');
-
-        if (!adminUser) {
-            console.log('Admin user not found');
-            return res.status(403).json({ message: 'User not found' });
-        }
-
-        // Check admin access with multiple methods
-        const isAdmin = adminUser.email === 'admin@virtuosa.com' ||
-            adminUser.role === 'admin' ||
-            adminUser.isAdmin === true ||
-            adminUser.isAdmin === 'true';
-
-        console.log('Admin check results:', {
-            email: adminUser.email,
-            role: adminUser.role,
-            isAdmin: adminUser.isAdmin,
-            isAdminString: adminUser.isAdmin?.toString(),
-            finalResult: isAdmin
-        });
-
-        if (!isAdmin) {
-            console.log('Admin access denied for user:', adminUser.email);
-            return res.status(403).json({
-                message: 'Admin access required',
-                user: {
-                    email: adminUser.email,
-                    role: adminUser.role,
-                    isAdmin: adminUser.isAdmin
-                }
-            });
-        }
-
-        console.log('Admin access granted, proceeding with stats aggregation');
-
         const stats = await User.aggregate([
             {
                 $group: {
@@ -385,42 +353,6 @@ app.get('/api/admin/users/stats', authenticateToken, async (req, res) => {
 // Get users by criteria for targeting
 app.get('/api/admin/users/target', authenticateToken, async (req, res) => {
     try {
-        // Verify admin access
-        const adminUser = await User.findById(req.user.userId);
-        console.log('Target users access attempt by user:', adminUser);
-
-        if (!adminUser) {
-            console.log('Admin user not found for target users');
-            return res.status(403).json({ message: 'User not found' });
-        }
-
-        // Check admin access with multiple methods
-        const isAdmin = adminUser.email === 'admin@virtuosa.com' ||
-            adminUser.role === 'admin' ||
-            adminUser.isAdmin === true ||
-            adminUser.isAdmin === 'true';
-
-        console.log('Target users admin check results:', {
-            email: adminUser.email,
-            role: adminUser.role,
-            isAdmin: adminUser.isAdmin,
-            finalResult: isAdmin
-        });
-
-        if (!isAdmin) {
-            console.log('Target users admin access denied for user:', adminUser.email);
-            return res.status(403).json({
-                message: 'Admin access required',
-                user: {
-                    email: adminUser.email,
-                    role: adminUser.role,
-                    isAdmin: adminUser.isAdmin
-                }
-            });
-        }
-
-        console.log('Target users admin access granted');
-
         const {
             userType, // 'all', 'buyers', 'sellers', 'verifiedSellers', 'proSellers'
             verifiedOnly, // boolean
@@ -479,44 +411,8 @@ app.get('/api/admin/users/target', authenticateToken, async (req, res) => {
 });
 
 // Send mass promotion message
-app.post('/api/admin/messages/send-mass', authenticateToken, async (req, res) => {
+app.post('/api/admin/messages/send-mass', authenticateToken, checkRoleAccess('mass_messaging'), async (req, res) => {
     try {
-        // Verify admin access
-        const adminUser = await User.findById(req.user.userId);
-        console.log('Send mass message access attempt by user:', adminUser);
-
-        if (!adminUser) {
-            console.log('Admin user not found for send mass message');
-            return res.status(403).json({ message: 'User not found' });
-        }
-
-        // Check admin access with multiple methods
-        const isAdmin = adminUser.email === 'admin@virtuosa.com' ||
-            adminUser.role === 'admin' ||
-            adminUser.isAdmin === true ||
-            adminUser.isAdmin === 'true';
-
-        console.log('Send mass message admin check results:', {
-            email: adminUser.email,
-            role: adminUser.role,
-            isAdmin: adminUser.isAdmin,
-            finalResult: isAdmin
-        });
-
-        if (!isAdmin) {
-            console.log('Send mass message admin access denied for user:', adminUser.email);
-            return res.status(403).json({
-                message: 'Admin access required',
-                user: {
-                    email: adminUser.email,
-                    role: adminUser.role,
-                    isAdmin: adminUser.isAdmin
-                }
-            });
-        }
-
-        console.log('Send mass message admin access granted');
-
         const {
             title,
             content,
@@ -640,19 +536,13 @@ app.post('/api/admin/messages/send-mass', authenticateToken, async (req, res) =>
 });
 
 // Get mass message history
-app.get('/api/admin/messages/mass-history', authenticateToken, async (req, res) => {
+app.get('/api/admin/messages/mass-history', authenticateToken, checkRoleAccess('mass_messaging'), async (req, res) => {
     try {
-        // Verify admin access
-        const adminUser = await User.findById(req.user.userId);
-        if (!adminUser || (adminUser.email !== 'admin@virtuosa.com' && adminUser.role !== 'admin' && adminUser.isAdmin !== true)) {
-            return res.status(403).json({ message: 'Admin access required' });
-        }
-
         const { page = 1, limit = 10 } = req.query;
 
         const massMessages = await Message.find({
             isMassMessage: true,
-            sender: adminUser._id
+            sender: req.user.userId
         })
             .populate('receiver', 'fullName email isBuyer isSeller')
             .sort({ createdAt: -1 })
@@ -661,7 +551,7 @@ app.get('/api/admin/messages/mass-history', authenticateToken, async (req, res) 
 
         const total = await Message.countDocuments({
             isMassMessage: true,
-            sender: adminUser._id
+            sender: req.user.userId
         });
 
         res.json({
@@ -679,25 +569,21 @@ app.get('/api/admin/messages/mass-history', authenticateToken, async (req, res) 
     }
 });
 
-// --- Marketing Admin Dashboard API ---
+// --- Role-Based Admin Dashboard API ---
 
-// Middleware to check for Admin access (using existing logic)
-const isAdmin = async (req, res, next) => {
+// Get user role information
+app.get('/api/admin/role-info', authenticateToken, async (req, res) => {
     try {
-        const user = await User.findById(req.user.userId);
-        if (!user) return res.status(403).json({ message: 'User not found' });
-
-        const adminCheck = user.email === 'admin@virtuosa.com' ||
-            user.role === 'admin' ||
-            user.isAdmin === true ||
-            user.isAdmin === 'true';
-
-        if (!adminCheck) return res.status(403).json({ message: 'Admin access required' });
-        next();
+        const roleInfo = await getUserRoleInfo(req.user.userId);
+        if (!roleInfo) {
+            return res.status(404).json({ message: 'User role not found' });
+        }
+        res.json(roleInfo);
     } catch (error) {
-        res.status(500).json({ message: 'Server error in admin check' });
+        console.error('Error getting role info:', error);
+        res.status(500).json({ message: 'Server error' });
     }
-};
+});
 
 // Promotions Routes
 app.get('/api/marketing/promotions', async (req, res) => {
@@ -714,7 +600,7 @@ app.get('/api/marketing/promotions', async (req, res) => {
     }
 });
 
-app.post('/api/marketing/promotions', authenticateToken, isAdmin, async (req, res) => {
+app.post('/api/marketing/promotions', authenticateToken, checkRoleAccess('marketing_management'), async (req, res) => {
     try {
         const promoData = req.body;
         promoData.createdBy = req.user.userId;
@@ -727,7 +613,7 @@ app.post('/api/marketing/promotions', authenticateToken, isAdmin, async (req, re
     }
 });
 
-app.put('/api/marketing/promotions/:id', authenticateToken, isAdmin, async (req, res) => {
+app.put('/api/marketing/promotions/:id', authenticateToken, checkRoleAccess('marketing_management'), async (req, res) => {
     try {
         const promotion = await Promotion.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!promotion) return res.status(404).json({ message: 'Promotion not found' });
@@ -737,7 +623,7 @@ app.put('/api/marketing/promotions/:id', authenticateToken, isAdmin, async (req,
     }
 });
 
-app.delete('/api/marketing/promotions/:id', authenticateToken, isAdmin, async (req, res) => {
+app.delete('/api/marketing/promotions/:id', authenticateToken, checkRoleAccess('marketing_management'), async (req, res) => {
     try {
         await Promotion.findByIdAndDelete(req.params.id);
         res.json({ message: 'Promotion deleted successfully' });
@@ -1129,7 +1015,7 @@ const profilePictureUpload = multer({
 });
 
 // Marketing Asset Upload Endpoint
-app.post('/api/marketing/assets/upload', authenticateToken, isAdmin, marketingUpload.single('asset'), async (req, res) => {
+app.post('/api/marketing/assets/upload', authenticateToken, checkRoleAccess('asset_library'), marketingUpload.single('asset'), async (req, res) => {
     try {
         console.log('🔍 Marketing upload request received');
         console.log('🔍 File:', req.file);
@@ -1171,7 +1057,7 @@ app.post('/api/marketing/assets/upload', authenticateToken, isAdmin, marketingUp
     }
 });
 
-app.get('/api/marketing/assets', authenticateToken, isAdmin, async (req, res) => {
+app.get('/api/marketing/assets', authenticateToken, checkRoleAccess('asset_library'), async (req, res) => {
     try {
         const assets = await MarketingAsset.find().sort({ createdAt: -1 });
         res.json(assets);
@@ -1180,7 +1066,7 @@ app.get('/api/marketing/assets', authenticateToken, isAdmin, async (req, res) =>
     }
 });
 
-app.delete('/api/marketing/assets/:id', authenticateToken, isAdmin, async (req, res) => {
+app.delete('/api/marketing/assets/:id', authenticateToken, checkRoleAccess('asset_library'), async (req, res) => {
     try {
         const asset = await MarketingAsset.findById(req.params.id);
         if (!asset) return res.status(404).json({ message: 'Asset not found' });
@@ -1367,7 +1253,7 @@ app.get('/api/public/about', async (req, res) => {
 });
 
 // Admin UPDATE endpoint
-app.put('/api/admin/about', authenticateToken, isAdmin, async (req, res) => {
+app.put('/api/admin/about', authenticateToken, checkRoleAccess('about_page_editing'), async (req, res) => {
     try {
         const updateData = {
             ...req.body,
@@ -4678,7 +4564,7 @@ app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
 });
 
 // Get user analytics (admin)
-app.get('/api/admin/user-analytics', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/user-analytics', authenticateToken, checkRoleAccess('user_analytics'), async (req, res) => {
     try {
         const { period = '30' } = req.query;
         const daysAgo = new Date();
@@ -4908,7 +4794,7 @@ app.get('/api/admin/transactions', authenticateAdmin, async (req, res) => {
 });
 
 // Resolve dispute
-app.post('/api/admin/disputes/:id/resolve', authenticateAdmin, async (req, res) => {
+app.post('/api/admin/disputes/:id/resolve', authenticateToken, checkRoleAccess('disputes'), async (req, res) => {
     try {
         const { resolution, winner } = req.body;
 
@@ -5775,7 +5661,7 @@ app.post('/api/admin/seller-applications/:id/reject', authenticateAdmin, async (
 });
 
 // Admin: Get account deletion requests
-app.get('/api/admin/account-deletion-requests', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/account-deletion-requests', authenticateToken, checkRoleAccess('account_deletion'), async (req, res) => {
     try {
         const { status, page = 1, limit = 20 } = req.query;
         const query = {};
@@ -5808,7 +5694,7 @@ app.get('/api/admin/account-deletion-requests', authenticateAdmin, async (req, r
 });
 
 // Admin: Get single deletion request details
-app.get('/api/admin/account-deletion-requests/:id', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/account-deletion-requests/:id', authenticateToken, checkRoleAccess('account_deletion'), async (req, res) => {
     try {
         const request = await AccountDeletionRequest.findById(req.params.id)
             .populate('user', 'fullName email university phoneNumber createdAt profilePicture')
@@ -5826,7 +5712,7 @@ app.get('/api/admin/account-deletion-requests/:id', authenticateAdmin, async (re
 });
 
 // Admin: Approve account deletion request
-app.post('/api/admin/account-deletion-requests/:id/approve', authenticateAdmin, async (req, res) => {
+app.post('/api/admin/account-deletion-requests/:id/approve', authenticateToken, checkRoleAccess('account_deletion'), async (req, res) => {
     try {
         const deletionRequest = await AccountDeletionRequest.findById(req.params.id);
         if (!deletionRequest) {
@@ -5884,7 +5770,7 @@ app.post('/api/admin/account-deletion-requests/:id/approve', authenticateAdmin, 
 });
 
 // Admin: Reject account deletion request
-app.post('/api/admin/account-deletion-requests/:id/reject', authenticateAdmin, async (req, res) => {
+app.post('/api/admin/account-deletion-requests/:id/reject', authenticateToken, checkRoleAccess('account_deletion'), async (req, res) => {
     try {
         const deletionRequest = await AccountDeletionRequest.findById(req.params.id);
         if (!deletionRequest) {
@@ -8988,5 +8874,661 @@ async function updateSellerRating(sellerId) {
         console.error('Update seller rating error:', error);
     }
 }
+
+// Dispute Management Routes
+const disputeController = require('./controllers/disputeController');
+
+// File a new dispute (buyer only)
+app.post('/api/disputes/file', authenticateToken, disputeController.fileDispute);
+
+// Upload evidence for dispute
+app.post('/api/disputes/:disputeId/evidence', authenticateToken, disputeController.upload, disputeController.uploadEvidence);
+
+// Get dispute details
+app.get('/api/disputes/:disputeId', authenticateToken, disputeController.getDispute);
+
+// Get user's disputes (both buyer and seller)
+app.get('/api/disputes/user', authenticateToken, disputeController.getUserDisputes);
+
+// Add message to dispute
+app.post('/api/disputes/:disputeId/message', authenticateToken, disputeController.addMessage);
+
+// Seller responds to dispute
+app.post('/api/disputes/:disputeId/respond', authenticateToken, disputeController.sellerRespond);
+
+// Admin dispute management
+app.get('/api/disputes/admin', authenticateToken, disputeController.getAdminDisputes);
+
+// Assign dispute to admin
+app.put('/api/disputes/:disputeId/assign', authenticateToken, disputeController.assignDispute);
+
+// Resolve dispute
+app.put('/api/disputes/:disputeId/resolve', authenticateToken, disputeController.resolveDispute);
+
+// Get dispute statistics
+app.get('/api/disputes/stats', authenticateToken, disputeController.getDisputeStats);
+
+// Withdraw dispute (buyer only)
+app.put('/api/disputes/:disputeId/withdraw', authenticateToken, disputeController.withdrawDispute);
+
+// ==================== TRANSACTION MANAGEMENT API ENDPOINTS ====================
+
+const TransactionController = require('./controllers/transactionController');
+
+// Get all transactions for admin
+app.get('/api/admin/transactions', authenticateToken, checkRoleAccess('transaction_system'), TransactionController.getTransactions);
+
+// Get transaction by ID
+app.get('/api/admin/transactions/:id', authenticateToken, checkRoleAccess('transaction_system'), TransactionController.getTransaction);
+
+// Create new transaction
+app.post('/api/admin/transactions', authenticateToken, checkRoleAccess('transaction_system'), TransactionController.createTransaction);
+
+// Update transaction status
+app.put('/api/admin/transactions/:id/status', authenticateToken, checkRoleAccess('transaction_system'), TransactionController.updateTransactionStatus);
+
+// Confirm transaction (buyer/seller confirmation)
+app.post('/api/admin/transactions/:id/confirm', authenticateToken, checkRoleAccess('transaction_system'), TransactionController.confirmTransaction);
+
+// Release escrow
+app.post('/api/admin/transactions/:id/release-escrow', authenticateToken, checkRoleAccess('transaction_system'), TransactionController.releaseEscrow);
+
+// Add message to transaction
+app.post('/api/admin/transactions/:id/message', authenticateToken, checkRoleAccess('transaction_system'), TransactionController.addMessage);
+
+// Add admin note
+app.post('/api/admin/transactions/:id/note', authenticateToken, checkRoleAccess('transaction_system'), TransactionController.addAdminNote);
+
+// Add risk flag
+app.post('/api/admin/transactions/:id/risk-flag', authenticateToken, checkRoleAccess('transaction_system'), TransactionController.addRiskFlag);
+
+// Process refund
+app.post('/api/admin/transactions/:id/refund', authenticateToken, checkRoleAccess('transaction_system'), TransactionController.processRefund);
+
+// Get transaction statistics
+app.get('/api/admin/transactions/stats', authenticateToken, checkRoleAccess('transaction_reports'), TransactionController.getTransactionStats);
+
+// Get high-risk transactions
+app.get('/api/admin/transactions/high-risk', authenticateToken, checkRoleAccess('transaction_reports'), TransactionController.getHighRiskTransactions);
+
+// ==================== MAINTENANCE SYSTEM API ENDPOINTS ====================
+
+const Maintenance = require('./models/Maintenance');
+const { requireMaintenanceAccess } = require('./middleware/maintenance');
+const NotificationService = require('./services/notificationService');
+
+// Get maintenance status (public endpoint)
+app.get('/api/maintenance/status', async (req, res) => {
+    try {
+        const activeMaintenance = await Maintenance.getActive();
+        const upcomingMaintenance = await Maintenance.getUpcoming(7);
+        
+        res.json({
+            isActive: !!activeMaintenance,
+            activeMaintenance: activeMaintenance ? activeMaintenance.toSummary() : null,
+            upcomingMaintenance: upcomingMaintenance.map(m => m.toSummary()),
+            timestamp: new Date()
+        });
+    } catch (error) {
+        console.error('Get maintenance status error:', error);
+        res.status(500).json({ error: 'Failed to get maintenance status' });
+    }
+});
+
+// Admin: Get all maintenance records
+app.get('/api/admin/maintenance', authenticateToken, checkRoleAccess('maintenance_mode'), async (req, res) => {
+    try {
+        const { status, page = 1, limit = 20 } = req.query;
+        let query = {};
+        
+        if (status && status !== 'all') {
+            query.status = status;
+        }
+        
+        const skip = (page - 1) * limit;
+        
+        const maintenance = await Maintenance.find(query)
+            .populate('createdBy', 'fullName email')
+            .populate('lastUpdatedBy', 'fullName email')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+            
+        const total = await Maintenance.countDocuments(query);
+        
+        res.json({
+            maintenance,
+            total,
+            pages: Math.ceil(total / limit),
+            currentPage: parseInt(page)
+        });
+    } catch (error) {
+        console.error('Get maintenance records error:', error);
+        res.status(500).json({ error: 'Failed to get maintenance records' });
+    }
+});
+
+// Admin: Get single maintenance record
+app.get('/api/admin/maintenance/:id', authenticateToken, checkRoleAccess('maintenance_mode'), async (req, res) => {
+    try {
+        const maintenance = await Maintenance.findById(req.params.id)
+            .populate('createdBy', 'fullName email')
+            .populate('lastUpdatedBy', 'fullName email')
+            .populate('targetUsers', 'fullName email')
+            .populate('reports.reportedBy', 'fullName email');
+            
+        if (!maintenance) {
+            return res.status(404).json({ error: 'Maintenance record not found' });
+        }
+        
+        res.json(maintenance);
+    } catch (error) {
+        console.error('Get maintenance record error:', error);
+        res.status(500).json({ error: 'Failed to get maintenance record' });
+    }
+});
+
+// Admin: Create new maintenance record
+app.post('/api/admin/maintenance', authenticateToken, checkRoleAccess('maintenance_mode'), async (req, res) => {
+    try {
+        const maintenanceData = {
+            ...req.body,
+            createdBy: req.user.userId
+        };
+        
+        const maintenance = new Maintenance(maintenanceData);
+        await maintenance.save();
+        
+        // If this is an immediate activation, activate it
+        if (maintenanceData.isActive && maintenanceData.status === 'active') {
+            await maintenance.activate();
+        }
+        
+        // Schedule notifications if needed
+        if (maintenanceData.notificationSettings?.sendEmail || 
+            maintenanceData.notificationSettings?.sendPush || 
+            maintenanceData.notificationSettings?.sendInApp) {
+            // TODO: Schedule maintenance notifications
+            console.log(`📅 Maintenance notifications scheduled for: ${maintenance.title}`);
+        }
+        
+        const populatedMaintenance = await Maintenance.findById(maintenance._id)
+            .populate('createdBy', 'fullName email');
+            
+        res.status(201).json(populatedMaintenance);
+    } catch (error) {
+        console.error('Create maintenance error:', error);
+        res.status(500).json({ error: 'Failed to create maintenance record' });
+    }
+});
+
+// Admin: Update maintenance record
+app.put('/api/admin/maintenance/:id', authenticateToken, checkRoleAccess('maintenance_mode'), async (req, res) => {
+    try {
+        const maintenance = await Maintenance.findById(req.params.id);
+        if (!maintenance) {
+            return res.status(404).json({ error: 'Maintenance record not found' });
+        }
+        
+        const updateData = {
+            ...req.body,
+            lastUpdatedBy: req.user.userId
+        };
+        
+        Object.assign(maintenance, updateData);
+        await maintenance.save();
+        
+        // Handle status changes
+        if (req.body.status === 'active' && !maintenance.isActive) {
+            await maintenance.activate();
+        } else if (req.body.status === 'completed' && maintenance.isActive) {
+            await maintenance.deactivate();
+        }
+        
+        const populatedMaintenance = await Maintenance.findById(maintenance._id)
+            .populate('createdBy', 'fullName email')
+            .populate('lastUpdatedBy', 'fullName email');
+            
+        res.json(populatedMaintenance);
+    } catch (error) {
+        console.error('Update maintenance error:', error);
+        res.status(500).json({ error: 'Failed to update maintenance record' });
+    }
+});
+
+// Admin: Activate maintenance immediately
+app.post('/api/admin/maintenance/:id/activate', authenticateToken, checkRoleAccess('maintenance_mode'), async (req, res) => {
+    try {
+        const maintenance = await Maintenance.findById(req.params.id);
+        if (!maintenance) {
+            return res.status(404).json({ error: 'Maintenance record not found' });
+        }
+        
+        await maintenance.activate();
+        
+        // Send immediate notifications
+        // TODO: Send maintenance start notifications
+        
+        res.json({ message: 'Maintenance activated successfully', maintenance: maintenance.toSummary() });
+    } catch (error) {
+        console.error('Activate maintenance error:', error);
+        res.status(500).json({ error: 'Failed to activate maintenance' });
+    }
+});
+
+// Admin: Deactivate maintenance immediately
+app.post('/api/admin/maintenance/:id/deactivate', authenticateToken, checkRoleAccess('maintenance_mode'), async (req, res) => {
+    try {
+        const maintenance = await Maintenance.findById(req.params.id);
+        if (!maintenance) {
+            return res.status(404).json({ error: 'Maintenance record not found' });
+        }
+        
+        await maintenance.deactivate();
+        
+        // Send completion notifications
+        // TODO: Send maintenance completion notifications
+        
+        res.json({ message: 'Maintenance deactivated successfully', maintenance: maintenance.toSummary() });
+    } catch (error) {
+        console.error('Deactivate maintenance error:', error);
+        res.status(500).json({ error: 'Failed to deactivate maintenance' });
+    }
+});
+
+// Admin: Add maintenance report
+app.post('/api/admin/maintenance/:id/reports', authenticateToken, checkRoleAccess('maintenance_reports'), async (req, res) => {
+    try {
+        const maintenance = await Maintenance.findById(req.params.id);
+        if (!maintenance) {
+            return res.status(404).json({ error: 'Maintenance record not found' });
+        }
+        
+        const reportData = {
+            ...req.body,
+            reportedBy: req.user.userId
+        };
+        
+        await maintenance.addReport(reportData);
+        
+        res.json({ message: 'Report added successfully' });
+    } catch (error) {
+        console.error('Add maintenance report error:', error);
+        res.status(500).json({ error: 'Failed to add maintenance report' });
+    }
+});
+
+// Admin: Get maintenance statistics
+app.get('/api/admin/maintenance/stats', authenticateToken, requireMaintenanceAccess, async (req, res) => {
+    try {
+        const { period = 30 } = req.query;
+        
+        const stats = await Maintenance.getStats(parseInt(period));
+        const activeMaintenance = await Maintenance.getActive();
+        const upcomingMaintenance = await Maintenance.getUpcoming(7);
+        
+        res.json({
+            period: parseInt(period),
+            statistics: stats,
+            isActive: !!activeMaintenance,
+            activeMaintenance: activeMaintenance ? activeMaintenance.toSummary() : null,
+            upcomingCount: upcomingMaintenance.length,
+            upcomingMaintenance: upcomingMaintenance.map(m => m.toSummary())
+        });
+    } catch (error) {
+        console.error('Get maintenance stats error:', error);
+        res.status(500).json({ error: 'Failed to get maintenance statistics' });
+    }
+});
+
+// Admin: Send maintenance notifications
+app.post('/api/admin/maintenance/:id/notify', authenticateToken, requireMaintenanceAccess, async (req, res) => {
+    try {
+        const maintenance = await Maintenance.findById(req.params.id);
+        if (!maintenance) {
+            return res.status(404).json({ error: 'Maintenance record not found' });
+        }
+        
+        const { channels, customMessage } = req.body;
+        
+        let notifiedUsers = 0;
+        let messagesSent = 0;
+        
+        // Target users based on maintenance settings
+        let targetUsers = [];
+        if (maintenance.targetAudience === 'all_users') {
+            targetUsers = await User.find({ isActive: true });
+        } else if (maintenance.targetAudience === 'specific_users') {
+            targetUsers = await User.find({ _id: { $in: maintenance.targetUsers } });
+        } else {
+            // Add more targeting logic as needed
+            targetUsers = await User.find({ isActive: true });
+        }
+        
+        // Send notifications through selected channels
+        for (const user of targetUsers) {
+            const notificationData = {
+                recipient: user._id,
+                type: 'system',
+                title: maintenance.messageContent?.headline || maintenance.title,
+                message: customMessage || maintenance.messageContent?.body || maintenance.description,
+                priority: maintenance.priority === 'critical' ? 'critical' : 'high',
+                data: {
+                    maintenanceId: maintenance._id,
+                    actionUrl: maintenance.messageContent?.actionUrl,
+                    scheduledStartTime: maintenance.scheduledStartTime,
+                    scheduledEndTime: maintenance.scheduledEndTime
+                }
+            };
+            
+            try {
+                if (channels.includes('inapp')) {
+                    await NotificationService.createNotification(notificationData);
+                    messagesSent++;
+                }
+                
+                if (channels.includes('email') && user.email) {
+                    // TODO: Send email notification
+                    messagesSent++;
+                }
+                
+                if (channels.includes('push') && user.pushSubscription) {
+                    // TODO: Send push notification
+                    messagesSent++;
+                }
+                
+                notifiedUsers++;
+            } catch (notificationError) {
+                console.error(`Failed to notify user ${user._id}:`, notificationError);
+            }
+        }
+        
+        // Update metrics
+        maintenance.metrics.usersNotified += notifiedUsers;
+        maintenance.metrics.messagesSent += messagesSent;
+        await maintenance.save();
+        
+        res.json({
+            message: 'Notifications sent successfully',
+            notifiedUsers,
+            messagesSent,
+            channels
+        });
+    } catch (error) {
+        console.error('Send maintenance notifications error:', error);
+        res.status(500).json({ error: 'Failed to send maintenance notifications' });
+    }
+});
+
+// Admin: Delete maintenance record
+app.delete('/api/admin/maintenance/:id', authenticateToken, requireMaintenanceAccess, async (req, res) => {
+    try {
+        const maintenance = await Maintenance.findById(req.params.id);
+        if (!maintenance) {
+            return res.status(404).json({ error: 'Maintenance record not found' });
+        }
+        
+        // Don't allow deletion of active maintenance
+        if (maintenance.isActive) {
+            return res.status(400).json({ error: 'Cannot delete active maintenance record' });
+        }
+        
+        await Maintenance.findByIdAndDelete(req.params.id);
+        
+        res.json({ message: 'Maintenance record deleted successfully' });
+    } catch (error) {
+        console.error('Delete maintenance error:', error);
+        res.status(500).json({ error: 'Failed to delete maintenance record' });
+    }
+});
+
+// Public: Subscribe to maintenance notifications via email
+app.post('/api/maintenance/notify-email', async (req, res) => {
+    try {
+        const { email, maintenanceId } = req.body;
+        
+        if (!email) {
+            return res.status(400).json({ error: 'Email is required' });
+        }
+        
+        const MaintenanceNotificationService = require('./services/maintenanceNotificationService');
+        const result = await MaintenanceNotificationService.subscribeToMaintenanceNotifications(email, maintenanceId);
+        
+        res.json(result);
+    } catch (error) {
+        console.error('Subscribe maintenance notifications error:', error);
+        res.status(500).json({ error: error.message || 'Failed to subscribe to notifications' });
+    }
+});
+
+// Public: Get maintenance notification preferences (for logged-in users)
+app.get('/api/maintenance/notification-preferences', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // Return user's notification preferences
+        res.json({
+            email: user.email,
+            pushEnabled: user.pushSubscriptionEnabled || false,
+            emailNotifications: user.emailNotifications !== false,
+            smsNotifications: user.smsNotifications === true
+        });
+    } catch (error) {
+        console.error('Get notification preferences error:', error);
+        res.status(500).json({ error: 'Failed to get notification preferences' });
+    }
+});
+
+// Admin: Get maintenance notification statistics
+app.get('/api/admin/maintenance/:id/notification-stats', authenticateToken, requireMaintenanceAccess, async (req, res) => {
+    try {
+        const MaintenanceNotificationService = require('./services/maintenanceNotificationService');
+        const stats = await MaintenanceNotificationService.getMaintenanceNotificationStats(req.params.id);
+        
+        res.json(stats);
+    } catch (error) {
+        console.error('Get maintenance notification stats error:', error);
+        res.status(500).json({ error: 'Failed to get notification statistics' });
+    }
+});
+
+// Admin: Get maintenance analytics
+app.get('/api/admin/maintenance/analytics', authenticateToken, requireMaintenanceAccess, async (req, res) => {
+    try {
+        const { period = 30 } = req.query;
+        const MaintenanceAnalyticsService = require('./services/maintenanceAnalyticsService');
+        const analytics = await MaintenanceAnalyticsService.getMaintenanceAnalytics(parseInt(period));
+        
+        res.json(analytics);
+    } catch (error) {
+        console.error('Get maintenance analytics error:', error);
+        res.status(500).json({ error: 'Failed to get maintenance analytics' });
+    }
+});
+
+// Admin: Get detailed maintenance report
+app.get('/api/admin/maintenance/:id/report', authenticateToken, requireMaintenanceAccess, async (req, res) => {
+    try {
+        const MaintenanceAnalyticsService = require('./services/maintenanceAnalyticsService');
+        const report = await MaintenanceAnalyticsService.getMaintenanceReport(req.params.id);
+        
+        res.json(report);
+    } catch (error) {
+        console.error('Get maintenance report error:', error);
+        res.status(500).json({ error: 'Failed to get maintenance report' });
+    }
+});
+
+// Admin: Get maintenance recommendations
+app.get('/api/admin/maintenance/recommendations', authenticateToken, requireMaintenanceAccess, async (req, res) => {
+    try {
+        const { period = 30 } = req.query;
+        const MaintenanceAnalyticsService = require('./services/maintenanceAnalyticsService');
+        const analytics = await MaintenanceAnalyticsService.getMaintenanceAnalytics(parseInt(period));
+        
+        res.json({
+            recommendations: analytics.recommendations,
+            summary: {
+                total: analytics.recommendations.length,
+                urgent: analytics.recommendations.filter(r => r.priority === 'urgent').length,
+                high: analytics.recommendations.filter(r => r.priority === 'high').length,
+                medium: analytics.recommendations.filter(r => r.priority === 'medium').length,
+                low: analytics.recommendations.filter(r => r.priority === 'low').length
+            }
+        });
+    } catch (error) {
+        console.error('Get maintenance recommendations error:', error);
+        res.status(500).json({ error: 'Failed to get maintenance recommendations' });
+    }
+});
+
+// Admin: Get UX/UI maintenance recommendations
+app.get('/api/admin/maintenance/ui-recommendations', authenticateToken, requireMaintenanceAccess, async (req, res) => {
+    try {
+        const UIMaintenanceRecommendationService = require('./services/uiMaintenanceRecommendationService');
+        const recommendations = await UIMaintenanceRecommendationService.getUIMaintenanceRecommendations();
+        
+        res.json(recommendations);
+    } catch (error) {
+        console.error('Get UI maintenance recommendations error:', error);
+        res.status(500).json({ error: 'Failed to get UI maintenance recommendations' });
+    }
+});
+
+// ==================== STRATEGIC ANALYTICS API ====================
+
+// Get comprehensive user analytics for strategic meetings
+app.get('/api/analytics/user/strategic', authenticateToken, checkRoleAccess('strategic_analytics'), async (req, res) => {
+    try {
+        const analyticsController = require('./controllers/analyticsController');
+        await analyticsController.getUserStrategicAnalytics(req, res);
+    } catch (error) {
+        console.error('Get user strategic analytics error:', error);
+        res.status(500).json({ message: 'Failed to get user analytics', error: error.message });
+    }
+});
+
+// Get platform-wide strategic analytics
+app.get('/api/analytics/platform/strategic', authenticateToken, checkRoleAccess('strategic_analytics'), async (req, res) => {
+    try {
+        const analyticsController = require('./controllers/analyticsController');
+        await analyticsController.getPlatformStrategicAnalytics(req, res);
+    } catch (error) {
+        console.error('Get platform strategic analytics error:', error);
+        res.status(500).json({ message: 'Failed to get platform analytics', error: error.message });
+    }
+});
+
+// Get user segment distribution for strategic planning
+app.get('/api/analytics/segments/distribution', authenticateToken, checkRoleAccess('strategic_analytics'), async (req, res) => {
+    try {
+        const analyticsController = require('./controllers/analyticsController');
+        await analyticsController.getUserSegmentDistribution(req, res);
+    } catch (error) {
+        console.error('Get user segment distribution error:', error);
+        res.status(500).json({ message: 'Failed to get segment distribution', error: error.message });
+    }
+});
+
+// Get top performers for strategic recognition
+app.get('/api/analytics/performers/top', authenticateToken, checkRoleAccess('analytics_reports'), async (req, res) => {
+    try {
+        const analyticsController = require('./controllers/analyticsController');
+        await analyticsController.getTopPerformers(req, res);
+    } catch (error) {
+        console.error('Get top performers error:', error);
+        res.status(500).json({ message: 'Failed to get top performers', error: error.message });
+    }
+});
+
+// Get growth forecast for strategic planning
+app.get('/api/analytics/growth/forecast', authenticateToken, checkRoleAccess('growth_metrics'), async (req, res) => {
+    try {
+        const analyticsController = require('./controllers/analyticsController');
+        await analyticsController.getGrowthForecast(req, res);
+    } catch (error) {
+        console.error('Get growth forecast error:', error);
+        res.status(500).json({ message: 'Failed to generate forecast', error: error.message });
+    }
+});
+
+// Get competitive intelligence for strategic positioning
+app.get('/api/analytics/competitive/intelligence', authenticateToken, checkRoleAccess('strategic_analytics'), async (req, res) => {
+    try {
+        const analyticsController = require('./controllers/analyticsController');
+        await analyticsController.getCompetitiveIntelligence(req, res);
+    } catch (error) {
+        console.error('Get competitive intelligence error:', error);
+        res.status(500).json({ message: 'Failed to get competitive intelligence', error: error.message });
+    }
+});
+
+// Generate strategic report for meetings
+app.get('/api/analytics/strategic/report', authenticateToken, checkRoleAccess('analytics_reports'), async (req, res) => {
+    try {
+        const analyticsController = require('./controllers/analyticsController');
+        await analyticsController.generateStrategicReport(req, res);
+    } catch (error) {
+        console.error('Generate strategic report error:', error);
+        res.status(500).json({ message: 'Failed to generate report', error: error.message });
+    }
+});
+
+// Process user analytics (for background jobs)
+app.post('/api/analytics/user/process', authenticateToken, async (req, res) => {
+    try {
+        const { userId, period = 'monthly' } = req.body;
+        const targetUserId = userId || req.user.id;
+        
+        const strategicAnalyticsService = require('./services/strategicAnalyticsService');
+        const analytics = await strategicAnalyticsService.processUserAnalytics(targetUserId, period);
+        
+        res.json({ success: true, analytics });
+    } catch (error) {
+        console.error('Process user analytics error:', error);
+        res.status(500).json({ message: 'Failed to process analytics', error: error.message });
+    }
+});
+
+// Generate platform analytics (for background jobs)
+app.post('/api/analytics/platform/generate', authenticateToken, checkRoleAccess('analytics_reports'), async (req, res) => {
+    try {
+        const { period = 'monthly' } = req.body;
+        
+        const strategicAnalyticsService = require('./services/strategicAnalyticsService');
+        const analytics = await strategicAnalyticsService.generatePlatformAnalytics(period);
+        
+        res.json({ success: true, analytics });
+    } catch (error) {
+        console.error('Generate platform analytics error:', error);
+        res.status(500).json({ message: 'Failed to generate analytics', error: error.message });
+    }
+});
+
+// Get strategic insights for growth meetings
+app.get('/api/analytics/strategic/insights', authenticateAdmin, async (req, res) => {
+    try {
+        const { timeframe = 'quarterly' } = req.query;
+        
+        const strategicAnalyticsService = require('./services/strategicAnalyticsService');
+        const insights = await strategicAnalyticsService.generateStrategicInsights(timeframe);
+        
+        res.json(insights);
+    } catch (error) {
+        console.error('Get strategic insights error:', error);
+        res.status(500).json({ message: 'Failed to get insights', error: error.message });
+    }
+});
+
+// ==================== MAINTENANCE SYSTEM SCHEDULER ====================
+
+// Start maintenance scheduler (runs every minute to check for scheduled maintenance)
+const { autoMaintenanceScheduler } = require('./middleware/maintenance');
+setInterval(async () => {
+    await autoMaintenanceScheduler();
+}, 60000); // Check every minute
 
 console.log('✅ Virtuosa Server initialized successfully');
