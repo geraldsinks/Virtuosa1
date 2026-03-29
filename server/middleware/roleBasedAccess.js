@@ -3,8 +3,13 @@ const User = require('../models/User');
 
 // Role permissions mapping
 const ROLE_PERMISSIONS = {
-    'admin': {
+    'CEO': {
         // CEO/Super Admin - has access to everything
+        permissions: ['*'], // Wildcard means all permissions
+        description: 'CEO - Full system access'
+    },
+    'admin': {
+        // Admin - has access to everything
         permissions: ['*'], // Wildcard means all permissions
         description: 'CEO - Full system access'
     },
@@ -163,12 +168,12 @@ const getUserRoleInfo = async (userId) => {
         // Check for admin status using multiple criteria
         let userRole = user.role || 'user';
         
-        // If user has admin status but no explicit role, set role to 'admin'
+        // If user has admin status but no explicit role, set role to 'CEO' for frontend display
         if (userRole === 'user' && (
             user.isAdmin === true || 
             user.isAdmin === 'true'
         )) {
-            userRole = 'admin';
+            userRole = 'CEO';
         }
         
         const roleInfo = ROLE_PERMISSIONS[userRole];
