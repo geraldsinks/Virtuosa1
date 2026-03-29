@@ -747,6 +747,21 @@ mongoose.connection.on('connected', () => {
     console.log('MongoDB connected successfully!');
 });
 
+// Eager listener - bind port immediately for Render health check
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Port ${PORT} opened. Answered Render's health check.`);
+    console.log(`Virtuosa backend is listening on port ${PORT}`);
+    
+    // Now start the heavy stuff in the background
+    console.log('🔄 Heavy initialization tasks running in background...');
+    
+    // Run migrations in background
+    setTimeout(() => {
+        migrateExistingMessages();
+    }, 1000);
+});
+
 // Function to seed initial marketing data
 async function seedInitialMarketingData() {
     try {
@@ -761,10 +776,18 @@ async function seedInitialMarketingData() {
         const CategoryCard = mongoose.model('CategoryCard');
         const MarketingAsset = mongoose.model('MarketingAsset');
 
-        // Check if marketing data already exists
+        // Check if marketing data already exists - quick early exit
         const existingAdSliders = await AdSlider.countDocuments();
         const existingCategoryCards = await CategoryCard.countDocuments();
         const existingMarketingAssets = await MarketingAsset.countDocuments();
+
+        // If all data exists, skip seeding entirely
+        if (existingAdSliders > 0 && existingCategoryCards > 0 && existingMarketingAssets > 0) {
+            console.log('⏭️ Seeding skipped: Marketing data already exists.');
+            return;
+        }
+
+        console.log("✅ Marketing data seeding started...");
 
         if (existingAdSliders === 0) {
             // Seed Ad Sliders
@@ -6280,11 +6303,6 @@ app.get('/api/messages/unread-count', authenticateToken, async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 5000;
-
-server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Virtuosa backend is listening on port ${PORT}`);
-});
 
 // Socket.io connection handling
 const connectedUsers = new Map(); // userId -> socketId
@@ -7437,8 +7455,6 @@ async function migrateExistingMessages() {
     }
 }
 
-// Run migration on server start
-migrateExistingMessages();
 
 // ============================================
 // CART AND CHECKOUT ENDPOINTS
