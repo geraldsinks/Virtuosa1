@@ -1130,10 +1130,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         return;
     }
     
-    // Initialize userRole as fallback
-    userRole = 'admin';
-    
-    getUserRoleInfo(); // Use new role-based system
+    // Don't initialize userRole as fallback - let getUserRoleInfo set it properly
+    await getUserRoleInfo(); // This will set userRole correctly
     
     // Add event listeners for filters
     document.getElementById('userSearch')?.addEventListener('input', () => loadUsers());
