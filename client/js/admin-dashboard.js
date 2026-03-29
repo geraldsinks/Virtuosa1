@@ -92,10 +92,24 @@ function loadRoleBasedNavigation() {
 
     console.log('Current userRole:', userRole);
     console.log('Available roles:', Object.keys(ROLE_NAVIGATION));
-    console.log('ROLE_NAVIGATION object:', ROLE_NAVIGATION);
     
-    const roleConfig = ROLE_NAVIGATION[userRole] || ROLE_NAVIGATION['admin'];
-    const roleCards = roleConfig.cards;
+    // Try to get role config, with fallbacks
+    let roleConfig = ROLE_NAVIGATION[userRole];
+    if (!roleConfig) {
+        console.log('Role config not found for:', userRole, 'trying fallback to CEO');
+        roleConfig = ROLE_NAVIGATION['CEO'];
+    }
+    if (!roleConfig) {
+        console.log('CEO config not found, trying admin fallback');
+        roleConfig = ROLE_NAVIGATION['admin'];
+    }
+    
+    console.log('Final role config:', roleConfig);
+    const roleCards = roleConfig?.cards;
+    
+    console.log('Role cards found:', roleCards);
+    console.log('Type of roleCards:', typeof roleCards);
+    console.log('Is roleCards an array?', Array.isArray(roleCards));
     
     // Ensure roleCards is an array
     if (!Array.isArray(roleCards)) {

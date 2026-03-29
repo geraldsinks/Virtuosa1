@@ -168,11 +168,8 @@ const getUserRoleInfo = async (userId) => {
         // Check for admin status using multiple criteria
         let userRole = user.role || 'user';
         
-        // If user has admin status but no explicit role, set role to 'CEO' for frontend display
-        if (userRole === 'user' && (
-            user.isAdmin === true || 
-            user.isAdmin === 'true'
-        )) {
+        // If user has admin status, set role to 'CEO' for frontend display
+        if (user.isAdmin === true || user.isAdmin === 'true') {
             userRole = 'CEO';
         }
         
