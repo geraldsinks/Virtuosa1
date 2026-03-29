@@ -166,8 +166,7 @@ const getUserRoleInfo = async (userId) => {
         // If user has admin status but no explicit role, set role to 'admin'
         if (userRole === 'user' && (
             user.isAdmin === true || 
-            user.isAdmin === 'true' || 
-            user.email === 'admin@virtuosa.com'
+            user.isAdmin === 'true'
         )) {
             userRole = 'admin';
         }
@@ -191,8 +190,7 @@ const isAdmin = async (req, res, next) => {
         const user = await User.findById(req.user.userId);
         if (!user) return res.status(403).json({ message: 'User not found' });
 
-        const adminCheck = user.email === 'admin@virtuosa.com' ||
-            user.role === 'admin' ||
+        const adminCheck = user.role === 'admin' ||
             user.isAdmin === true ||
             user.isAdmin === 'true';
 

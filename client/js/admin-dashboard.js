@@ -71,6 +71,13 @@ function loadRoleBasedNavigation() {
 
     const roleCards = ROLE_NAVIGATION[userRole] || ROLE_NAVIGATION['admin'];
     
+    // Ensure roleCards is an array
+    if (!Array.isArray(roleCards)) {
+        console.error('Invalid role configuration for role:', userRole);
+        navCardsContainer.innerHTML = '<p class="text-red-500">Error loading navigation. Invalid role configuration.</p>';
+        return;
+    }
+    
     navCardsContainer.innerHTML = roleCards.map(card => `
         <a href="${card.href}" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-${card.color}-500 group">
             <div class="flex items-center justify-between">
@@ -113,6 +120,7 @@ function getUserRoleInfo() {
         return response.json();
     })
     .then(roleInfo => {
+        console.log('Role info received:', roleInfo);
         userRole = roleInfo.role;
         userPermissions = roleInfo.permissions;
         
@@ -172,8 +180,8 @@ function checkAdminAccess() {
             return response.json();
         })
         .then(user => {
-            // Check if user email matches admin email or role is admin or isAdmin is true
-            if (user.email !== 'admin@virtuosa.com' && user.role !== 'admin' && user.isAdmin !== 'true' && user.isAdmin !== true) {
+            // Check if user role is admin or isAdmin is true
+            if (user.role !== 'admin' && user.isAdmin !== 'true' && user.isAdmin !== true) {
                 alert('Access denied. Admin privileges required.');
                 window.location.href = '/pages/buyer-dashboard.html';
             } else {
