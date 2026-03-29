@@ -1,8 +1,9 @@
 const Dispute = require('../models/Dispute');
 const DisputeResolution = require('../models/DisputeResolution');
-const Order = require('../models/Order');
+const Transaction = require('../models/Transaction');
 const Product = require('../models/Product');
 const Notification = require('../models/Notification');
+const User = require('../models/User');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
@@ -26,7 +27,7 @@ const fileDispute = async (req, res) => {
         const userId = req.user.id;
         
         // Validate order exists and user is the buyer
-        const order = await Order.findById(orderId).populate('product buyer seller');
+        const order = await Transaction.findById(orderId).populate('product buyer seller');
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
@@ -68,7 +69,7 @@ const fileDispute = async (req, res) => {
         
         // Populate for response
         await dispute.populate([
-            { path: 'order', select: 'orderNumber totalAmount' },
+            { path: 'order', select: 'transactionId totalAmount' },
             { path: 'product', select: 'title images' },
             { path: 'buyer', select: 'fullName email' },
             { path: 'seller', select: 'fullName email' }
@@ -79,7 +80,7 @@ const fileDispute = async (req, res) => {
             recipient: order.seller._id,
             type: 'dispute_filed',
             title: 'New Dispute Filed',
-            message: `A dispute has been filed for order #${order.orderNumber}`,
+            message: `A dispute has been filed for transaction #${order.transactionId}`,
             data: {
                 orderId: orderId,
                 disputeId: dispute._id,
@@ -181,7 +182,7 @@ const getDispute = async (req, res) => {
         const userId = req.user.id;
         
         const dispute = await Dispute.findById(disputeId)
-            .populate('order', 'orderNumber totalAmount status')
+            .populate('order', 'transactionId totalAmount status')
             .populate('product', 'title images description')
             .populate('buyer', 'fullName email')
             .populate('seller', 'fullName email')

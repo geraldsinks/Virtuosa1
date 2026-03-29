@@ -8,12 +8,6 @@ const transactionSchema = new mongoose.Schema({
         unique: true,
         index: true
     },
-    order: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Order',
-        required: true,
-        index: true
-    },
     product: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
@@ -435,7 +429,6 @@ transactionSchema.statics = {
         }
         
         const transactions = await this.find(query)
-            .populate('order', 'orderNumber')
             .populate('product', 'title images')
             .populate('buyer', 'fullName email')
             .populate('seller', 'fullName email')
@@ -477,7 +470,6 @@ transactionSchema.statics = {
         }
         
         const transactions = await this.find(query)
-            .populate('order', 'orderNumber')
             .populate('product', 'title images')
             .populate('buyer', 'fullName email')
             .populate('seller', 'fullName email')

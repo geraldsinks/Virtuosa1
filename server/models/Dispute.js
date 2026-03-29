@@ -4,7 +4,7 @@ const disputeSchema = new mongoose.Schema({
     // Basic dispute information
     order: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Order',
+        ref: 'Transaction',
         required: true,
         index: true
     },
@@ -350,7 +350,7 @@ disputeSchema.statics = {
         }
         
         const disputes = await this.find(query)
-            .populate('order', 'orderNumber totalAmount')
+            .populate('order', 'transactionId totalAmount')
             .populate('product', 'title images')
             .populate('buyer', 'fullName email')
             .populate('seller', 'fullName email')
@@ -394,7 +394,7 @@ disputeSchema.statics = {
         }
         
         const disputes = await this.find(query)
-            .populate('order', 'orderNumber totalAmount')
+            .populate('order', 'transactionId totalAmount')
             .populate('product', 'title images')
             .populate('buyer', 'fullName email')
             .populate('seller', 'fullName email')
@@ -557,7 +557,7 @@ disputeSchema.methods = {
             status: this.status,
             priority: this.priority,
             age: this.age,
-            orderNumber: this.order?.orderNumber,
+            orderNumber: this.order?.transactionId,
             productTitle: this.product?.title,
             buyerName: this.buyer?.fullName,
             sellerName: this.seller?.fullName,
