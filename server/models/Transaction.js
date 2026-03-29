@@ -15,14 +15,12 @@ const transactionSchema = new mongoose.Schema({
     buyer: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true,
-        index: true
+        required: true
     },
     seller: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true,
-        index: true
+        required: true
     },
     
     // Financial details
@@ -71,8 +69,7 @@ const transactionSchema = new mongoose.Schema({
             'failed',           // Payment failed
             'expired'           // Transaction expired
         ],
-        default: 'pending',
-        index: true
+        default: 'pending'
     },
     
     // Payment information

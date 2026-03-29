@@ -266,7 +266,6 @@ const disputeResolutionSchema = new mongoose.Schema({
 });
 
 // Indexes
-disputeResolutionSchema.index({ dispute: 1 });
 disputeResolutionSchema.index({ resolvedBy: 1, createdAt: -1 });
 disputeResolutionSchema.index({ 'appeal.status': 1 });
 disputeResolutionSchema.index({ 'implementation.status': 1 });

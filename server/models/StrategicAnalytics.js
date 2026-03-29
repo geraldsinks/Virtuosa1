@@ -4,13 +4,11 @@ const strategicAnalyticsSchema = new mongoose.Schema({
     period: {
         type: String,
         enum: ['daily', 'weekly', 'monthly', 'quarterly', 'yearly'],
-        required: true,
-        index: true
+        required: true
     },
     date: {
         type: Date,
-        required: true,
-        index: true
+        required: true
     },
     
     // Market Overview

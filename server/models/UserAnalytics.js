@@ -4,8 +4,7 @@ const userAnalyticsSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true,
-        index: true
+        required: true
     },
     period: {
         type: String,
@@ -14,8 +13,7 @@ const userAnalyticsSchema = new mongoose.Schema({
     },
     date: {
         type: Date,
-        required: true,
-        index: true
+        required: true
     },
     
     // User Behavior Metrics
