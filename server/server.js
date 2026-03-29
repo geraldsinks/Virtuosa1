@@ -4117,11 +4117,8 @@ function authenticateAdmin(req, res, next) {
         }
 
         try {
-            // Fall back to hardcoded admin email if ADMIN_EMAIL env var is not set
-            const adminEmail = process.env.ADMIN_EMAIL || 'admin@virtuosa.com';
             const userDoc = await User.findById(user.userId);
             if (!userDoc || (
-                userDoc.email !== adminEmail &&
                 userDoc.role !== 'admin' &&
                 userDoc.isAdmin !== true &&
                 userDoc.isAdmin !== 'true'

@@ -67,9 +67,16 @@ const ROLE_NAVIGATION = {
 // Load role-based navigation
 function loadRoleBasedNavigation() {
     const navCardsContainer = document.getElementById('admin-nav-cards');
-    if (!navCardsContainer) return;
+    if (!navCardsContainer) {
+        console.error('Admin nav cards container not found');
+        return;
+    }
 
+    console.log('Current userRole:', userRole);
+    console.log('Available roles:', Object.keys(ROLE_NAVIGATION));
+    
     const roleCards = ROLE_NAVIGATION[userRole] || ROLE_NAVIGATION['admin'];
+    console.log('Role cards found:', roleCards);
     
     // Ensure roleCards is an array
     if (!Array.isArray(roleCards)) {
@@ -78,6 +85,7 @@ function loadRoleBasedNavigation() {
         return;
     }
     
+    console.log('Rendering', roleCards.length, 'navigation cards');
     navCardsContainer.innerHTML = roleCards.map(card => `
         <a href="${card.href}" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-${card.color}-500 group">
             <div class="flex items-center justify-between">
@@ -91,6 +99,8 @@ function loadRoleBasedNavigation() {
             </div>
         </a>
     `).join('');
+    
+    console.log('Navigation cards rendered successfully');
 }
 
 // Get user role information
@@ -205,14 +215,21 @@ function checkAdminAccess() {
 // Load dashboard data
 async function loadDashboardData() {
     try {
+        console.log('Loading dashboard data...');
         const token = localStorage.getItem('token');
         const period = document.getElementById('periodSelector').value;
+        
+        console.log('Using API_BASE:', API_BASE);
+        console.log('Token exists:', !!token);
+        console.log('Period:', period);
 
         const response = await fetch(`${API_BASE}/admin/dashboard?period=${period}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
+
+        console.log('Dashboard API response status:', response.status);
 
         if (!response.ok) {
             if (response.status === 401 || response.status === 403) {
@@ -223,10 +240,11 @@ async function loadDashboardData() {
                 window.location.href = '/login';
                 return;
             }
-            throw new Error('Failed to load dashboard data');
+            throw new Error(`Failed to load dashboard data: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
+        console.log('Dashboard data received:', data);
         updateKPICards(data);
         updateCharts(data);
         updateTopSellers(data.topSellers);
