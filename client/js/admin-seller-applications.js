@@ -3,7 +3,13 @@
 let currentPage = 1;
 let rejectingAppId = null;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Check admin access first
+    const hasAccess = await checkAdminAccess();
+    if (!hasAccess) {
+        return;
+    }
+    
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = '/pages/login.html';

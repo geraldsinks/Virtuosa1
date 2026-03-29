@@ -13,7 +13,13 @@ class TransactionManager {
         this.init();
     }
 
-    init() {
+    async init() {
+        // Check admin access first
+        const hasAccess = await checkAdminAccess();
+        if (!hasAccess) {
+            return;
+        }
+        
         this.loadTransactions();
         this.loadStats();
         this.setupEventListeners();

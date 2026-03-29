@@ -542,6 +542,7 @@
     </div>
 
     <script src="../js/config.js"></script>
+    <script src="../js/admin-auth-helper.js"></script>
     <script>
         let currentPage = 1;
         const pageSize = 20;
@@ -549,6 +550,12 @@
         let allMaintenance = [];
 
         document.addEventListener('DOMContentLoaded', async () => {
+            // Check admin access first
+            const hasAccess = await checkAdminAccess();
+            if (!hasAccess) {
+                return;
+            }
+            
             const token = localStorage.getItem('token');
             if (!token) {
                 window.location.href = '/pages/login.html';

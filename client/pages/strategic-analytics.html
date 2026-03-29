@@ -577,10 +577,17 @@
     </main>
 
     <script src="../js/config.js"></script>
+    <script src="../js/admin-auth-helper.js"></script>
     <script src="../js/header.js"></script>
     <script src="../js/strategicAnalyticsCharts.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
+            // Check admin access first
+            const hasAccess = await checkAdminAccess();
+            if (!hasAccess) {
+                return;
+            }
+            
             if (window.lucide) window.lucide.createIcons();
             
             // Initialize charts class
