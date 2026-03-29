@@ -76,10 +76,8 @@ function loadRoleBasedNavigation() {
     console.log('Available roles:', Object.keys(ROLE_NAVIGATION));
     console.log('ROLE_NAVIGATION object:', ROLE_NAVIGATION);
     
-    const roleCards = ROLE_NAVIGATION[userRole] || ROLE_NAVIGATION['admin'];
-    console.log('Role cards found:', roleCards);
-    console.log('Type of roleCards:', typeof roleCards);
-    console.log('Is roleCards an array?', Array.isArray(roleCards));
+    const roleConfig = ROLE_NAVIGATION[userRole] || ROLE_NAVIGATION['admin'];
+    const roleCards = roleConfig.cards;
     
     // Ensure roleCards is an array
     if (!Array.isArray(roleCards)) {
@@ -88,7 +86,8 @@ function loadRoleBasedNavigation() {
         return;
     }
     
-    console.log('Rendering', roleCards.length, 'navigation cards');
+    console.log('Rendering', roleCards.length, 'navigation cards for role:', userRole);
+    
     navCardsContainer.innerHTML = roleCards.map(card => `
         <a href="${card.href}" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-${card.color}-500 group">
             <div class="flex items-center justify-between">
