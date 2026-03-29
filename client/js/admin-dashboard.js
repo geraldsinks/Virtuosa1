@@ -172,9 +172,6 @@ function getUserRoleInfo() {
         // Update dashboard header with role information
         updateDashboardHeader(roleInfo);
         
-        // Load role-based navigation
-        loadRoleBasedNavigation();
-        
         // Load dashboard data
         loadDashboardData();
     })
