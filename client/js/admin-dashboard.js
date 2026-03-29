@@ -7,15 +7,19 @@ let userRole = null;
 let userPermissions = [];
 
 // Debug: Log ROLE_NAVIGATION on load
-console.log('🔧 ROLE_NAVIGATION loaded:', Object.keys(ROLE_NAVIGATION));
-console.log('🔧 CEO config exists:', 'CEO' in ROLE_NAVIGATION);
-console.log('🔧 Admin config exists:', 'admin' in ROLE_NAVIGATION);
-if ('CEO' in ROLE_NAVIGATION) {
-    console.log('🔧 CEO cards count:', ROLE_NAVIGATION['CEO'].cards.length);
-}
-if ('admin' in ROLE_NAVIGATION) {
-    console.log('🔧 Admin cards count:', ROLE_NAVIGATION['admin'].cards.length);
-    console.log('🔧 Admin cards:', ROLE_NAVIGATION['admin'].cards);
+try {
+    console.log('🔧 ROLE_NAVIGATION loaded:', Object.keys(ROLE_NAVIGATION));
+    console.log('🔧 CEO config exists:', 'CEO' in ROLE_NAVIGATION);
+    console.log('🔧 Admin config exists:', 'admin' in ROLE_NAVIGATION);
+    if ('CEO' in ROLE_NAVIGATION) {
+        console.log('🔧 CEO cards count:', ROLE_NAVIGATION['CEO'].cards.length);
+    }
+    if ('admin' in ROLE_NAVIGATION) {
+        console.log('🔧 Admin cards count:', ROLE_NAVIGATION['admin'].cards.length);
+        console.log('🔧 Admin cards:', ROLE_NAVIGATION['admin'].cards);
+    }
+} catch (error) {
+    console.error('Error initializing ROLE_NAVIGATION debug:', error);
 }
 
 // Role-based navigation configuration
