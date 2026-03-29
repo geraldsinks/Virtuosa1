@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Signup Auto-Fill</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .auth-input {
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            padding: 1rem 1.25rem;
+        }
+        .auth-input:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.15);
+        }
+        .form-label {
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-lg">
+        <h1 class="text-3xl font-bold text-center mb-6">Test Student Email Auto-Fill</h1>
+        
+        <form class="space-y-6">
+            <div>
+                <label for="signup-fullName" class="form-label">Full Name</label>
+                <input type="text" id="signup-fullName" class="auth-input block w-full" placeholder="Enter your full name">
+            </div>
+            
+            <div>
+                <label for="signup-university" class="form-label">University</label>
+                <select id="signup-university" class="auth-input block w-full">
+                    <option value="">Select your university</option>
+                    <option value="University of Zambia">University of Zambia</option>
+                    <option value="Copperbelt University">Copperbelt University</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="signup-email" class="form-label">Email Address</label>
+                <input type="email" id="signup-email" class="auth-input block w-full" placeholder="Enter your email">
+            </div>
+            
+            <div>
+                <label for="signup-student-email" class="form-label">
+                    Student Email
+                    <span id="student-email-indicator" class="ml-2 text-green-500 hidden">
+                        <i class="fas fa-check-circle"></i> Auto-filled
+                    </span>
+                </label>
+                <input type="email" id="signup-student-email" class="auth-input block w-full" placeholder="student@unza.zm">
+                <p class="text-xs text-gray-500 mt-1">Student email will be auto-filled based on your university selection</p>
+            </div>
+        </form>
+        
+        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+            <h3 class="font-bold mb-2">Test Instructions:</h3>
+            <ol class="text-sm space-y-1">
+                <li>1. Enter your full name</li>
+                <li>2. Select "University of Zambia" or "Copperbelt University"</li>
+                <li>3. Enter your personal email (e.g., geraldsinkamba49@gmail.com)</li>
+                <li>4. Watch the student email field auto-fill with the correct domain</li>
+                <li>5. Look for the green "Auto-filled" indicator</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Student email auto-fill functionality
+        function setupStudentEmailAutoFill() {
+            const universitySelect = document.getElementById('signup-university');
+            const emailInput = document.getElementById('signup-email');
+            const studentEmailInput = document.getElementById('signup-student-email');
+            const indicator = document.getElementById('student-email-indicator');
+            
+            if (!universitySelect || !emailInput || !studentEmailInput || !indicator) return;
+            
+            function updateStudentEmail() {
+                const university = universitySelect.value;
+                const email = emailInput.value;
+                
+                if (university && email) {
+                    // Extract the username part (before @) from the regular email
+                    const emailUsername = email.split('@')[0];
+                    
+                    if (emailUsername) {
+                        let domain = '';
+                        
+                        // Set domain based on university selection
+                        if (university === 'University of Zambia') {
+                            domain = 'unza.zm';
+                        } else if (university === 'Copperbelt University') {
+                            domain = 'cbu.ac.zm';
+                        }
+                        
+                        if (domain) {
+                            // Auto-fill the student email
+                            studentEmailInput.value = `${emailUsername}@${domain}`;
+                            
+                            // Show the green indicator
+                            indicator.classList.remove('hidden');
+                            
+                            // Add visual feedback - briefly highlight the field
+                            studentEmailInput.style.borderColor = '#10b981';
+                            studentEmailInput.style.backgroundColor = '#f0fdf4';
+                            
+                            setTimeout(() => {
+                                studentEmailInput.style.borderColor = '';
+                                studentEmailInput.style.backgroundColor = '';
+                            }, 1500);
+                        } else {
+                            // Hide indicator for "Other" university
+                            indicator.classList.add('hidden');
+                        }
+                    }
+                } else {
+                    // Clear student email and hide indicator if inputs are empty
+                    if (!email) {
+                        studentEmailInput.value = '';
+                        indicator.classList.add('hidden');
+                    }
+                }
+            }
+            
+            // Add event listeners
+            universitySelect.addEventListener('change', updateStudentEmail);
+            emailInput.addEventListener('input', updateStudentEmail);
+            
+            // Also update when student email is manually changed (to hide indicator)
+            studentEmailInput.addEventListener('input', function() {
+                // If user manually changes the student email, hide the auto-fill indicator
+                const expectedEmail = getExpectedStudentEmail();
+                if (this.value !== expectedEmail) {
+                    indicator.classList.add('hidden');
+                }
+            });
+        }
+
+        function getExpectedStudentEmail() {
+            const universitySelect = document.getElementById('signup-university');
+            const emailInput = document.getElementById('signup-email');
+            
+            if (!universitySelect || !emailInput) return '';
+            
+            const university = universitySelect.value;
+            const email = emailInput.value;
+            const emailUsername = email.split('@')[0];
+            
+            if (!university || !emailUsername) return '';
+            
+            let domain = '';
+            if (university === 'University of Zambia') {
+                domain = 'unza.zm';
+            } else if (university === 'Copperbelt University') {
+                domain = 'cbu.ac.zm';
+            }
+            
+            return domain ? `${emailUsername}@${domain}` : '';
+        }
+
+        // Setup the functionality when page loads
+        document.addEventListener('DOMContentLoaded', setupStudentEmailAutoFill);
+    </script>
+</body>
+</html>

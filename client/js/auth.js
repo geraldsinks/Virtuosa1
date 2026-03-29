@@ -246,6 +246,98 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Student email auto-fill functionality
+function setupStudentEmailAutoFill() {
+    const universitySelect = document.getElementById('signup-university');
+    const emailInput = document.getElementById('signup-email');
+    const studentEmailInput = document.getElementById('signup-student-email');
+    const indicator = document.getElementById('student-email-indicator');
+    
+    if (!universitySelect || !emailInput || !studentEmailInput || !indicator) return;
+    
+    function updateStudentEmail() {
+        const university = universitySelect.value;
+        const email = emailInput.value;
+        
+        if (university && email) {
+            // Extract the username part (before @) from the regular email
+            const emailUsername = email.split('@')[0];
+            
+            if (emailUsername) {
+                let domain = '';
+                
+                // Set domain based on university selection
+                if (university === 'University of Zambia') {
+                    domain = 'unza.zm';
+                } else if (university === 'Copperbelt University') {
+                    domain = 'cbu.ac.zm';
+                }
+                
+                if (domain) {
+                    // Auto-fill the student email
+                    studentEmailInput.value = `${emailUsername}@${domain}`;
+                    
+                    // Show the green indicator
+                    indicator.classList.remove('hidden');
+                    
+                    // Add visual feedback - briefly highlight the field
+                    studentEmailInput.style.borderColor = '#10b981';
+                    studentEmailInput.style.backgroundColor = '#f0fdf4';
+                    
+                    setTimeout(() => {
+                        studentEmailInput.style.borderColor = '';
+                        studentEmailInput.style.backgroundColor = '';
+                    }, 1500);
+                } else {
+                    // Hide indicator for "Other" university
+                    indicator.classList.add('hidden');
+                }
+            }
+        } else {
+            // Clear student email and hide indicator if inputs are empty
+            if (!email) {
+                studentEmailInput.value = '';
+                indicator.classList.add('hidden');
+            }
+        }
+    }
+    
+    // Add event listeners
+    universitySelect.addEventListener('change', updateStudentEmail);
+    emailInput.addEventListener('input', updateStudentEmail);
+    
+    // Also update when student email is manually changed (to hide indicator)
+    studentEmailInput.addEventListener('input', function() {
+        // If user manually changes the student email, hide the auto-fill indicator
+        const expectedEmail = getExpectedStudentEmail();
+        if (this.value !== expectedEmail) {
+            indicator.classList.add('hidden');
+        }
+    });
+}
+
+function getExpectedStudentEmail() {
+    const universitySelect = document.getElementById('signup-university');
+    const emailInput = document.getElementById('signup-email');
+    
+    if (!universitySelect || !emailInput) return '';
+    
+    const university = universitySelect.value;
+    const email = emailInput.value;
+    const emailUsername = email.split('@')[0];
+    
+    if (!university || !emailUsername) return '';
+    
+    let domain = '';
+    if (university === 'University of Zambia') {
+        domain = 'unza.zm';
+    } else if (university === 'Copperbelt University') {
+        domain = 'cbu.ac.zm';
+    }
+    
+    return domain ? `${emailUsername}@${domain}` : '';
+}
+
 async function handleLogin(event) {
     event.preventDefault();
     const email = document.getElementById('login-email')?.value;
@@ -595,6 +687,15 @@ function renderAuthComponent(type) {
                     <input type="text" id="signup-fullName" name="fullName" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="Enter your full name">
                 </div>
                 <div>
+                    <label for="signup-university" class="form-label block text-sm font-medium text-gray-700 mb-1">University</label>
+                    <select id="signup-university" name="university" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50">
+                        <option value="">Select your university</option>
+                        <option value="University of Zambia">University of Zambia</option>
+                        <option value="Copperbelt University">Copperbelt University</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
                     <label for="signup-email" class="form-label block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                     <input type="email" id="signup-email" name="email" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="Enter your email">
                 </div>
@@ -611,17 +712,14 @@ function renderAuthComponent(type) {
                     <p class="phone-hint">Enter 9 digits after +260</p>
                 </div>
                 <div>
-                    <label for="signup-student-email" class="form-label block text-sm font-medium text-gray-700 mb-1">Student Email</label>
+                    <label for="signup-student-email" class="form-label block text-sm font-medium text-gray-700 mb-1">
+                        Student Email
+                        <span id="student-email-indicator" class="ml-2 text-green-500 hidden">
+                            <i class="fas fa-check-circle"></i> Auto-filled
+                        </span>
+                    </label>
                     <input type="email" id="signup-student-email" name="studentEmail" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50 placeholder-gray-400" placeholder="student@unza.zm">
-                </div>
-                <div>
-                    <label for="signup-university" class="form-label block text-sm font-medium text-gray-700 mb-1">University</label>
-                    <select id="signup-university" name="university" required class="auth-input block w-full px-4 py-2 rounded-lg text-sm bg-gray-50">
-                        <option value="">Select your university</option>
-                        <option value="University of Zambia">University of Zambia</option>
-                        <option value="Copperbelt University">Copperbelt University</option>
-                        <option value="Other">Other</option>
-                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Student email will be auto-filled based on your university selection</p>
                 </div>
                 <div>
                     <label for="signup-gender" class="form-label block text-sm font-medium text-gray-700 mb-1">Gender</label>
@@ -735,6 +833,8 @@ function renderAuthComponent(type) {
     } else if (type === 'signup') {
         document.getElementById('switch-to-login')?.addEventListener('click', (e) => { e.preventDefault(); renderAuthComponent('login'); });
         document.getElementById('signup-form')?.addEventListener('submit', handleSignup);
+        // Setup student email auto-fill functionality
+        setupStudentEmailAutoFill();
     } else if (type === 'forgot') {
         document.getElementById('switch-to-login-from-forgot')?.addEventListener('click', (e) => { e.preventDefault(); renderAuthComponent('login'); });
         document.getElementById('forgot-form')?.addEventListener('submit', handleForgotPassword);
