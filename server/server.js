@@ -61,6 +61,8 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cloudinary = require('./config/cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const NotificationService = require('./services/notificationService');
+const webpush = require('web-push');
 require('dotenv').config({ path: path.join(__dirname, 'config/.env') });
 
 // Ensure uploads directories exist on startup
@@ -116,6 +118,69 @@ const io = socketIo(server, {
         methods: ["GET", "POST"]
     }
 });
+
+// Initialize notification service
+const notificationService = new NotificationService(io);
+
+// Graceful shutdown handlers
+const gracefulShutdown = (signal) => {
+    console.log(`\n🛑 Received ${signal}. Starting graceful shutdown...`);
+    
+    // Clean up notification service
+    notificationService.destroy();
+    
+    // Close server
+    server.close(() => {
+        console.log('✅ Server closed successfully');
+        process.exit(0);
+    });
+    
+    // Force shutdown after 10 seconds
+    setTimeout(() => {
+        console.log('⏰ Forcing shutdown after timeout');
+        process.exit(1);
+    }, 10000);
+};
+
+// Handle shutdown signals
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGUSR2', () => gracefulShutdown('SIGUSR2')); // For nodemon restarts
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+    console.error('💥 Uncaught Exception:', error);
+    gracefulShutdown('uncaughtException');
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
+    gracefulShutdown('unhandledRejection');
+});
+
+// Configure web-push with VAPID keys - CRITICAL: No fallback keys for security
+const vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+
+if (!vapidPublicKey || !vapidPrivateKey) {
+    console.error('❌ CRITICAL: VAPID keys not found in environment variables!');
+    console.error('Please set VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY in your .env file');
+    console.error('Generate keys with: npx web-push generate-vapid-keys');
+    process.exit(1);
+}
+
+const vapidKeys = {
+    publicKey: vapidPublicKey,
+    privateKey: vapidPrivateKey
+};
+
+webpush.setVapidDetails(
+    'mailto:notifications@virtuosazm.com',
+    vapidKeys.publicKey,
+    vapidKeys.privateKey
+);
+
+console.log('🔑 VAPID keys configured for push notifications');
 app.use(cors( {
     origin: ["https://virtuosazm.com", "https://virtuosa1.vercel.app", "http://localhost:5500"],
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -1510,6 +1575,16 @@ const userSchema = new mongoose.Schema({
     resetPasswordToken: String,
     resetPasswordExpires: Date,
 
+    // Push notification subscription
+    pushSubscription: {
+        endpoint: String,
+        keys: {
+            p256dh: String,
+            auth: String
+        }
+    },
+    pushSubscriptionEnabled: { type: Boolean, default: false },
+
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
@@ -1709,19 +1784,9 @@ const reviewSchema = new mongoose.Schema({
 const Review = mongoose.model('Review', reviewSchema);
 console.log('Review model created successfully');
 
-// Notification Schema
-const notificationSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    title: { type: String, required: true },
-    message: { type: String, required: true },
-    type: { type: String, enum: ['System', 'Transaction', 'Account', 'Promotion', 'Order'], default: 'System' },
-    isRead: { type: Boolean, default: false },
-    link: String,
-    createdAt: { type: Date, default: Date.now }
-});
-
-const Notification = mongoose.model('Notification', notificationSchema);
-console.log('Notification model created successfully');
+// Enhanced Notification Model
+const Notification = require('./models/Notification');
+console.log('Notification model loaded successfully');
 
 // Enhanced Message Schema with Data Retention
 const messageSchema = new mongoose.Schema({
@@ -3932,6 +3997,14 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
             finalStatus: product.status
         });
 
+        // Send notification to seller about new order
+        try {
+            await notificationService.sendOrderNotification(transaction, 'new_order', product.seller);
+            console.log(`🔔 New order notification sent to seller: ${product.seller}`);
+        } catch (notificationError) {
+            console.error('Failed to send new order notification:', notificationError);
+        }
+
         res.status(201).json({
             transaction,
             paymentDetails: {
@@ -4017,7 +4090,7 @@ app.post('/api/transactions/:id/pay', authenticateToken, async (req, res) => {
             }
         }
 
-        // Notify seller
+        // Notify seller via email
         await transporter.sendMail({
             to: transaction.seller.email,
             subject: 'Virtuosa - New Order Confirmed',
@@ -4030,6 +4103,14 @@ app.post('/api/transactions/:id/pay', authenticateToken, async (req, res) => {
                 <p>Please login to arrange delivery.</p>
             `
         });
+
+        // Send order confirmation notification to buyer
+        try {
+            await notificationService.sendOrderNotification(transaction, 'order_confirmed', transaction.buyer._id);
+            console.log(`🔔 Order confirmation notification sent to buyer: ${transaction.buyer._id}`);
+        } catch (notificationError) {
+            console.error('Failed to send order confirmation notification:', notificationError);
+        }
 
         res.json({
             message: 'Payment processed successfully!',
@@ -4068,7 +4149,7 @@ app.post('/api/transactions/:id/ship', authenticateToken, async (req, res) => {
         }
         await transaction.save();
 
-        // Notify buyer
+        // Notify buyer via email
         await transporter.sendMail({
             to: transaction.buyer.email,
             subject: 'Virtuosa - Order Shipped',
@@ -4080,6 +4161,14 @@ app.post('/api/transactions/:id/ship', authenticateToken, async (req, res) => {
                 <p>Delivery Method: ${transaction.deliveryMethod}</p>
             `
         });
+
+        // Send order shipped notification to buyer
+        try {
+            await notificationService.sendOrderNotification(transaction, 'order_shipped', transaction.buyer._id);
+            console.log(`🔔 Order shipped notification sent to buyer: ${transaction.buyer._id}`);
+        } catch (notificationError) {
+            console.error('Failed to send order shipped notification:', notificationError);
+        }
 
         res.json({
             message: 'Order shipped successfully!',
@@ -4162,7 +4251,7 @@ app.post('/api/transactions/:id/confirm-delivery', authenticateToken, async (req
             $inc: { totalTransactions: 1, successfulTransactions: 1 }
         });
 
-        // Notify seller about payment release
+        // Notify seller about payment release via email
         await transporter.sendMail({
             to: transaction.seller.email,
             subject: 'Virtuosa - Payment Released',
@@ -4174,6 +4263,22 @@ app.post('/api/transactions/:id/confirm-delivery', authenticateToken, async (req
                 <p>Thank you for using Virtuosa!</p>
             `
         });
+
+        // Send delivery confirmed notification to seller
+        try {
+            await notificationService.sendOrderNotification(transaction, 'delivery_confirmed', transaction.seller._id);
+            console.log(`🔔 Delivery confirmed notification sent to seller: ${transaction.seller._id}`);
+        } catch (notificationError) {
+            console.error('Failed to send delivery confirmed notification:', notificationError);
+        }
+
+        // Send order delivered notification to buyer
+        try {
+            await notificationService.sendOrderNotification(transaction, 'order_delivered', transaction.buyer._id);
+            console.log(`🔔 Order delivered notification sent to buyer: ${transaction.buyer._id}`);
+        } catch (notificationError) {
+            console.error('Failed to send order delivered notification:', notificationError);
+        }
 
         res.json({
             message: 'Delivery confirmed! Payment released to seller.',
@@ -5043,12 +5148,76 @@ app.delete('/api/user/profile-picture', authenticateToken, async (req, res) => {
     }
 });
 
-// Get user notifications
-app.get('/api/notifications', authenticateToken, async (req, res) => {
+// Enhanced Notification API Endpoints
+
+// Rate limiting for notification endpoints
+const notificationRateLimit = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: { message: 'Too many notification requests, please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+const notificationActionRateLimit = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 50, // Limit each IP to 50 action requests per windowMs
+    message: { message: 'Too many notification actions, please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Input validation middleware
+function validateNotificationInput(req, res, next) {
+    const { title, message, type, priority } = req.body;
+    
+    if (title && (typeof title !== 'string' || title.length > 100 || title.trim().length === 0)) {
+        return res.status(400).json({ message: 'Invalid title. Must be a string between 1 and 100 characters.' });
+    }
+    
+    if (message && (typeof message !== 'string' || message.length > 500 || message.trim().length === 0)) {
+        return res.status(400).json({ message: 'Invalid message. Must be a string between 1 and 500 characters.' });
+    }
+    
+    if (type && !['new_order', 'order_confirmed', 'order_shipped', 'order_delivered', 'delivery_confirmed', 
+                   'payment_received', 'payment_failed', 'product_approved', 'product_rejected', 
+                   'account_verified', 'promotion', 'system', 'message', 'review_received', 'token_earned'].includes(type)) {
+        return res.status(400).json({ message: 'Invalid notification type.' });
+    }
+    
+    if (priority && !['low', 'normal', 'high', 'critical'].includes(priority)) {
+        return res.status(400).json({ message: 'Invalid priority level.' });
+    }
+    
+    next();
+}
+
+function validatePagination(req, res, next) {
+    const { page, limit } = req.query;
+    
+    if (page && (isNaN(page) || parseInt(page) < 1 || parseInt(page) > 1000)) {
+        return res.status(400).json({ message: 'Invalid page number. Must be between 1 and 1000.' });
+    }
+    
+    if (limit && (isNaN(limit) || parseInt(limit) < 1 || parseInt(limit) > 100)) {
+        return res.status(400).json({ message: 'Invalid limit. Must be between 1 and 100.' });
+    }
+    
+    next();
+}
+
+// Get user notifications with pagination and filtering
+app.get('/api/notifications', authenticateToken, notificationRateLimit, validatePagination, async (req, res) => {
     try {
-        const notifications = await Notification.find({ user: req.user.userId })
-            .sort({ createdAt: -1 })
-            .limit(50);
+        const { page = 1, limit = 20, status = 'all' } = req.query;
+        const notifications = await notificationService.getNotifications(
+            req.user.userId, 
+            { 
+                page: parseInt(page), 
+                limit: parseInt(limit), 
+                status 
+            }
+        );
         res.json(notifications);
     } catch (error) {
         console.error('Get notifications error:', error);
@@ -5056,18 +5225,46 @@ app.get('/api/notifications', authenticateToken, async (req, res) => {
     }
 });
 
-// Mark notification as read
-app.put('/api/notifications/:id/read', authenticateToken, async (req, res) => {
+// Get notification counts
+app.get('/api/notifications/counts', authenticateToken, notificationRateLimit, async (req, res) => {
     try {
-        const notification = await Notification.findOneAndUpdate(
-            { _id: req.params.id, user: req.user.userId },
-            { isRead: true },
-            { returnDocument: 'after' }
-        );
-        if (!notification) {
-            return res.status(404).json({ message: 'Notification not found' });
-        }
-        res.json(notification);
+        const counts = await notificationService.getNotificationCounts(req.user.userId);
+        res.json(counts);
+    } catch (error) {
+        console.error('Get notification counts error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Mark notification(s) as read
+app.put('/api/notifications/read', authenticateToken, notificationActionRateLimit, async (req, res) => {
+    try {
+        const { notificationIds } = req.body; // Optional array of specific notification IDs
+        await notificationService.markAsRead(req.user.userId, notificationIds);
+        
+        // Return updated counts
+        const counts = await notificationService.getNotificationCounts(req.user.userId);
+        res.json({ 
+            message: 'Notifications marked as read',
+            counts 
+        });
+    } catch (error) {
+        console.error('Mark notifications read error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Mark single notification as read (for backward compatibility)
+app.put('/api/notifications/:id/read', authenticateToken, notificationActionRateLimit, async (req, res) => {
+    try {
+        await notificationService.markAsRead(req.user.userId, [req.params.id]);
+        
+        // Return updated counts
+        const counts = await notificationService.getNotificationCounts(req.user.userId);
+        res.json({ 
+            message: 'Notification marked as read',
+            counts 
+        });
     } catch (error) {
         console.error('Mark notification read error:', error);
         res.status(500).json({ message: 'Server error' });
@@ -5075,26 +5272,32 @@ app.put('/api/notifications/:id/read', authenticateToken, async (req, res) => {
 });
 
 // Delete notification
-app.delete('/api/notifications/:id', authenticateToken, async (req, res) => {
+app.delete('/api/notifications/:id', authenticateToken, notificationActionRateLimit, async (req, res) => {
     try {
         const notification = await Notification.findOneAndDelete({
             _id: req.params.id,
-            user: req.user.userId
+            recipient: req.user.userId
         });
         
         if (!notification) {
             return res.status(404).json({ message: 'Notification not found' });
         }
         
-        res.json({ message: 'Notification deleted successfully' });
+        // Return updated counts
+        const counts = await notificationService.getNotificationCounts(req.user.userId);
+        res.json({ 
+            message: 'Notification deleted',
+            counts 
+        });
     } catch (error) {
         console.error('Delete notification error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
 
+
 // Delete all read notifications
-app.delete('/api/notifications/read', authenticateToken, async (req, res) => {
+app.delete('/api/notifications/read', authenticateToken, notificationActionRateLimit, async (req, res) => {
     try {
         const result = await Notification.deleteMany({
             user: req.user.userId,
@@ -5108,6 +5311,101 @@ app.delete('/api/notifications/read', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Delete read notifications error:', error);
         res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Push Notification Endpoints
+
+// Subscribe to push notifications
+app.post('/api/notifications/subscribe', authenticateToken, notificationActionRateLimit, async (req, res) => {
+    try {
+        const { subscription } = req.body;
+        
+        if (!subscription || !subscription.endpoint) {
+            return res.status(400).json({ message: 'Invalid subscription data' });
+        }
+
+        // Store subscription in user document
+        await User.findByIdAndUpdate(req.user.userId, {
+            pushSubscription: subscription,
+            pushSubscriptionEnabled: true
+        });
+
+        console.log(`📱 User ${req.user.userId} subscribed to push notifications`);
+        
+        // Send a test push notification to confirm subscription
+        try {
+            await webpush.sendNotification(
+                subscription,
+                JSON.stringify({
+                    title: 'Notifications Enabled! 🎉',
+                    body: 'You will now receive real-time notifications from Virtuosa',
+                    icon: '/favicon.ico',
+                    badge: '/favicon.ico',
+                    tag: 'welcome-push'
+                })
+            );
+        } catch (pushError) {
+            console.error('Test push notification failed:', pushError);
+        }
+
+        res.json({ message: 'Successfully subscribed to push notifications' });
+    } catch (error) {
+        console.error('Push subscription error:', error);
+        res.status(500).json({ message: 'Failed to subscribe to push notifications' });
+    }
+});
+
+// Unsubscribe from push notifications
+app.post('/api/notifications/unsubscribe', authenticateToken, notificationActionRateLimit, async (req, res) => {
+    try {
+        await User.findByIdAndUpdate(req.user.userId, {
+            pushSubscription: null,
+            pushSubscriptionEnabled: false
+        });
+
+        console.log(`📱 User ${req.user.userId} unsubscribed from push notifications`);
+        
+        res.json({ message: 'Successfully unsubscribed from push notifications' });
+    } catch (error) {
+        console.error('Push unsubscription error:', error);
+        res.status(500).json({ message: 'Failed to unsubscribe from push notifications' });
+    }
+});
+
+// Get VAPID public key for client
+app.get('/api/notifications/vapid-public-key', (req, res) => {
+    res.json({ publicKey: vapidKeys.publicKey });
+});
+
+// Send test push notification (for development)
+app.post('/api/notifications/test-push', authenticateToken, notificationActionRateLimit, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+        
+        if (!user || !user.pushSubscription || !user.pushSubscriptionEnabled) {
+            return res.status(400).json({ message: 'No push subscription found' });
+        }
+
+        await webpush.sendNotification(
+            user.pushSubscription,
+            JSON.stringify({
+                title: 'Test Notification 🔔',
+                body: 'This is a test push notification from Virtuosa',
+                icon: '/favicon.ico',
+                badge: '/favicon.ico',
+                tag: 'test-notification',
+                data: {
+                    url: '/pages/notifications.html'
+                }
+            })
+        );
+
+        console.log(`📱 Test push notification sent to user ${req.user.userId}`);
+        res.json({ message: 'Test push notification sent successfully' });
+    } catch (error) {
+        console.error('Test push notification error:', error);
+        res.status(500).json({ message: 'Failed to send test push notification' });
     }
 });
 
@@ -6312,6 +6610,29 @@ server.listen(PORT, '0.0.0.0', () => {
 // Socket.io connection handling
 const connectedUsers = new Map(); // userId -> socketId
 
+// Helper function to validate JWT token for socket operations
+const validateSocketToken = async (socket) => {
+    if (!socket.userId) {
+        return false;
+    }
+    
+    try {
+        // Re-validate token by checking if user still exists and is valid
+        const user = await User.findById(socket.userId);
+        if (!user) {
+            console.log(`User ${socket.userId} not found, disconnecting socket`);
+            socket.disconnect();
+            return false;
+        }
+        return true;
+    } catch (error) {
+        console.error('Token validation error:', error);
+        socket.emit('auth_error', { message: 'Authentication failed' });
+        socket.disconnect();
+        return false;
+    }
+};
+
 io.on('connection', (socket) => {
     console.log('New client connected:', socket.id);
 
@@ -6325,38 +6646,73 @@ io.on('connection', (socket) => {
                 connectedUsers.set(decoded.userId, socket.id);
                 socket.userId = decoded.userId;
                 socket.join(`user_${decoded.userId}`);
-                console.log(`User ${decoded.userId} authenticated and connected`);
-
-                // Notify other users that this user is online
-                socket.broadcast.emit('user_online', { userId: decoded.userId });
+                
+                // Update notification service with connected user
+                notificationService.updateConnectedUser(decoded.userId, socket.id, true);
+                
+                socket.emit('authenticated', { userId: decoded.userId });
+                console.log(`User ${decoded.userId} authenticated successfully`);
+            } else {
+                socket.emit('auth_error', { message: 'User not found' });
+                socket.disconnect();
             }
         } catch (error) {
             console.error('Socket authentication error:', error);
+            socket.emit('auth_error', { message: 'Invalid token' });
+            socket.disconnect();
+        }
+    });
 
-            if (error.name === 'TokenExpiredError') {
-                console.log('Token expired, sending refresh signal to client');
-                socket.emit('token_expired', {
-                    message: 'Your session has expired. Please refresh the page.',
-                    expiredAt: error.expiredAt
-                });
-            } else if (error.name === 'JsonWebTokenError') {
-                console.log('Invalid token, sending error to client');
-                socket.emit('auth_error', {
-                    message: 'Invalid authentication token. Please log in again.'
-                });
-            } else {
-                console.log('Other auth error, sending generic error to client');
-                socket.emit('auth_error', {
-                    message: 'Authentication failed. Please try again.'
-                });
+    // Handle notification requests
+    socket.on('get_notifications', async (options = {}) => {
+        try {
+            // Re-validate token before processing
+            if (!(await validateSocketToken(socket))) {
+                return;
             }
 
-            // Don't immediately disconnect, let the client handle the error
-            setTimeout(() => {
-                if (!socket.userId) {
-                    socket.disconnect();
-                }
-            }, 1000);
+            const notifications = await notificationService.getNotifications(socket.userId, options);
+            socket.emit('notifications_data', notifications);
+        } catch (error) {
+            console.error('Get notifications error:', error);
+            socket.emit('notification_error', { message: 'Failed to get notifications' });
+        }
+    });
+
+    // Handle marking notifications as read
+    socket.on('mark_notifications_read', async (notificationIds = null) => {
+        try {
+            // Re-validate token before processing
+            if (!(await validateSocketToken(socket))) {
+                return;
+            }
+
+            await notificationService.markAsRead(socket.userId, notificationIds);
+            
+            // Send updated unread count
+            const counts = await notificationService.getNotificationCounts(socket.userId);
+            socket.emit('notification_counts_updated', counts);
+            
+            socket.emit('notifications_marked_read', { success: true });
+        } catch (error) {
+            console.error('Mark notifications read error:', error);
+            socket.emit('notification_error', { message: 'Failed to mark notifications as read' });
+        }
+    });
+
+    // Handle getting notification counts
+    socket.on('get_notification_counts', async () => {
+        try {
+            // Re-validate token before processing
+            if (!(await validateSocketToken(socket))) {
+                return;
+            }
+
+            const counts = await notificationService.getNotificationCounts(socket.userId);
+            socket.emit('notification_counts_updated', counts);
+        } catch (error) {
+            console.error('Get notification counts error:', error);
+            socket.emit('notification_error', { message: 'Failed to get notification counts' });
         }
     });
 
@@ -6642,7 +6998,7 @@ io.on('connection', (socket) => {
                 type: notification.type,
                 link: notification.link,
                 createdAt: notification.createdAt,
-                isRead: false
+                status: 'unread'
             });
 
             console.log(`✅ Order ${orderId} status updated to ${status} by ${isBuyer ? 'buyer' : 'seller'}`);
@@ -6657,6 +7013,10 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         if (socket.userId) {
             connectedUsers.delete(socket.userId);
+            
+            // Update notification service with disconnected user
+            notificationService.updateConnectedUser(socket.userId, socket.id, false);
+            
             socket.broadcast.emit('user_offline', { userId: socket.userId });
             console.log(`User ${socket.userId} disconnected`);
         }
@@ -7929,21 +8289,32 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
 
             // Create notification for seller
             await new Notification({
-                user: product.seller,
+                recipient: product.seller,
+                sender: user._id,
+                type: 'new_order',
                 title: 'New Order Received',
                 message: `You have a new order for ${quantity}x ${product.name}`,
-                type: 'Transaction',
-                link: `/seller-dashboard.html?tab=orders`
+                data: {
+                    orderId: transaction._id,
+                    productId: product._id,
+                    actionUrl: '/seller-dashboard.html?tab=orders',
+                    actionText: 'View Order'
+                },
+                status: 'unread'
             }).save();
         }
 
         // Create notification for buyer
         await new Notification({
-            user: user._id,
+            recipient: user._id,
+            type: 'order_confirmed',
             title: 'Order Placed Successfully',
             message: `Your order for ${transactions.length} items has been placed successfully`,
-            type: 'Transaction',
-            link: `/orders.html`
+            data: {
+                actionUrl: '/orders.html',
+                actionText: 'View Orders'
+            },
+            status: 'unread'
         }).save();
 
         res.status(201).json({
@@ -8072,12 +8443,13 @@ app.post('/api/orders/:orderId/confirm', authenticateToken, async (req, res) => 
 
         // Create notification for buyer
         await new Notification({
-            user: order.buyer._id,
-            type: 'Transaction',
+            recipient: order.buyer,
+            sender: order.seller,
+            type: 'order_confirmed',
             title: 'Order Confirmed!',
             message: `Your order #${order._id.toString().slice(-8)} has been confirmed by the seller.`,
             relatedOrder: order._id,
-            isRead: false
+            status: 'unread'
         }).save();
 
         console.log('✅ Order confirmed by seller:', order._id);
@@ -8131,12 +8503,13 @@ app.post('/api/orders/:orderId/decline', authenticateToken, async (req, res) => 
 
         // Create notification for buyer
         await new Notification({
-            user: order.buyer._id,
-            type: 'Transaction',
+            recipient: order.buyer._id,
+            sender: order.seller._id,
+            type: 'order_declined',
             title: 'Order Declined',
             message: `Your order #${order._id.toString().slice(-8)} has been declined by the seller.`,
             relatedOrder: order._id,
-            isRead: false
+            status: 'unread'
         }).save();
 
         console.log('❌ Order declined by seller:', order._id, 'Reason:', reason);
