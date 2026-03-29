@@ -15,6 +15,7 @@ if ('CEO' in ROLE_NAVIGATION) {
 }
 if ('admin' in ROLE_NAVIGATION) {
     console.log('🔧 Admin cards count:', ROLE_NAVIGATION['admin'].cards.length);
+    console.log('🔧 Admin cards:', ROLE_NAVIGATION['admin'].cards);
 }
 
 // Role-based navigation configuration
@@ -96,7 +97,16 @@ function loadRoleBasedNavigation() {
     }
     
     console.log('Final role config:', roleConfig);
+    console.log('roleConfig type:', typeof roleConfig);
+    console.log('roleConfig keys:', roleConfig ? Object.keys(roleConfig) : 'null');
     const roleCards = roleConfig?.cards;
+    console.log('roleCards before array check:', roleCards);
+    console.log('roleCards type:', typeof roleCards);
+    console.log('Is roleCards an array?', Array.isArray(roleCards));
+    if (roleCards) {
+        console.log('roleCards length:', roleCards.length);
+        console.log('roleCards contents:', roleCards);
+    }
     
     console.log('Role cards found:', roleCards);
     console.log('Type of roleCards:', typeof roleCards);
