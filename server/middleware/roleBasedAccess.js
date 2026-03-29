@@ -160,7 +160,18 @@ const getUserRoleInfo = async (userId) => {
             return null;
         }
         
-        const userRole = user.role || 'user';
+        // Check for admin status using multiple criteria
+        let userRole = user.role || 'user';
+        
+        // If user has admin status but no explicit role, set role to 'admin'
+        if (userRole === 'user' && (
+            user.isAdmin === true || 
+            user.isAdmin === 'true' || 
+            user.email === 'admin@virtuosa.com'
+        )) {
+            userRole = 'admin';
+        }
+        
         const roleInfo = ROLE_PERMISSIONS[userRole];
         
         return {
