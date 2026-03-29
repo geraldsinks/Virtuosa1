@@ -64,6 +64,7 @@ const CloudinaryStorage = require('multer-storage-cloudinary');
 const NotificationService = require('./services/notificationService');
 const webpush = require('web-push');
 const { checkRoleAccess, checkAnyRoleAccess, getUserRoleInfo, isAdmin } = require('./middleware/roleBasedAccess');
+const User = require('./models/User');
 require('dotenv').config({ path: path.join(__dirname, 'config/.env') });
 
 // Ensure uploads directories exist on startup
