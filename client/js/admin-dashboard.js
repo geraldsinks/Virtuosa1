@@ -74,9 +74,12 @@ function loadRoleBasedNavigation() {
 
     console.log('Current userRole:', userRole);
     console.log('Available roles:', Object.keys(ROLE_NAVIGATION));
+    console.log('ROLE_NAVIGATION object:', ROLE_NAVIGATION);
     
     const roleCards = ROLE_NAVIGATION[userRole] || ROLE_NAVIGATION['admin'];
     console.log('Role cards found:', roleCards);
+    console.log('Type of roleCards:', typeof roleCards);
+    console.log('Is roleCards an array?', Array.isArray(roleCards));
     
     // Ensure roleCards is an array
     if (!Array.isArray(roleCards)) {
@@ -1097,7 +1100,16 @@ async function loadRetentionConfig() {
 }
 
 // Initialize dashboard
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
+    // Check admin access first
+    const hasAccess = await checkAdminAccess();
+    if (!hasAccess) {
+        return;
+    }
+    
+    // Initialize userRole as fallback
+    userRole = 'admin';
+    
     getUserRoleInfo(); // Use new role-based system
     
     // Add event listeners for filters

@@ -6,7 +6,7 @@ async function adminFetch(url, options = {}) {
     const token = localStorage.getItem('token');
     
     if (!token) {
-        window.location.href = 'login.html';
+        window.location.href = '/pages/login.html';
         return null;
     }
 
@@ -35,7 +35,7 @@ async function adminFetch(url, options = {}) {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 alert('Your session has expired. Please log in again.');
-                window.location.href = 'login.html';
+                window.location.href = '/pages/login.html';
                 return null;
             }
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -56,13 +56,14 @@ async function adminFetch(url, options = {}) {
 
 // Check admin access with better error handling
 async function checkAdminAccess() {
-    const response = await adminFetch(`${API_BASE}/user/profile`);
+    const response = await adminFetch(`${API_BASE}/admin/role-info`);
     if (!response) return null;
     
-    const user = await response.json();
+    const roleInfo = await response.json();
+    console.log('Admin access check - role info:', roleInfo);
     
-    // Check if user role is admin or isAdmin is true
-    if (user.role !== 'admin' && user.isAdmin !== 'true' && user.isAdmin !== true) {
+    // Check if user role is admin or has admin permissions
+    if (roleInfo.role !== 'admin' && !roleInfo.permissions.includes('*')) {
         alert('Access denied. Admin privileges required.');
         window.location.href = '/pages/buyer-dashboard.html';
         return false;
