@@ -322,8 +322,13 @@
         let currentDispute = null;
 
         // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAdminAuth();
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check admin access first
+            const hasAccess = await checkAdminAccess();
+            if (!hasAccess) {
+                return;
+            }
+            
             loadDisputeStats();
             loadDisputes();
             setupEventListeners();

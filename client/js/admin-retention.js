@@ -521,6 +521,12 @@ class AdminRetentionManagement {
 // Initialize// Admin Retention JavaScript
 // API_BASE is provided by config.js
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Check admin access first
+    const hasAccess = await checkAdminAccess();
+    if (!hasAccess) {
+        return;
+    }
+    
     window.retentionManager = new AdminRetentionManagement();
 });

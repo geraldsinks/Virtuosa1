@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Management - Virtuosa Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    
+    <!-- Standard Navigation -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Row 1: Utilities and Branding -->
+        <div class="v-container mobile-header-row-1">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-2 mobile-header-actions">
+                    <!-- Cart Icon with Badge -->
+                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                    </a>
+                    
+                    <!-- Combined Notifications (includes messages) -->
+                    <a href="notifications.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <i class="fas fa-bell"></i>
+                        <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="v-container v-header-row desktop-header">
+            <div class="v-header-row-upper">
+                <div class="v-header-logo">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                </div>
+                <div class="v-header-search">
+                    <div class="relative">
+                        <input id="home-search-input" type="text"
+                            placeholder="Search campus marketplace..."
+                            class="w-full text-sm focus:outline-none focus:ring-1 focus:ring-gold"
+                            autocomplete="off">
+                        <button id="home-search-button" class="flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div id="home-search-suggestions"
+                            class="absolute top-full left-0 mt-1 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-h-96 overflow-y-auto hidden z-[60]">
+                        </div>
+                    </div>
+                </div>
+                <div id="user-info-container" class="v-header-actions">
+                    <a href="login.html" id="login-link"
+                        class="text-white hover:text-gold transition-colors font-medium hidden md:flex flex-col items-start leading-tight group">
+                        <span class="text-[10px] text-gray-400 font-normal">Welcome</span>
+                        <div class="flex items-center -mt-0.5">
+                            <span class="text-sm font-semibold">Sign In</span>
+                            <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60 group-hover:rotate-180 transition-transform"></i>
+                        </div>
+                    </a>
+                    <div id="user-menu" class="relative hidden">
+                        <button onclick="toggleUserMenu()"
+                            class="text-white hover:text-gold transition-colors font-medium flex flex-col items-start leading-tight">
+                            <span id="user-greeting" class="text-[10px] text-gray-400 font-normal"></span>
+                            <div class="flex items-center -mt-0.5">
+                                <span class="text-sm font-semibold">My Account</span>
+                                <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60"></i>
+                            </div>
+                        </button>
+                        <div id="user-dropdown"
+                            class="absolute right-0 top-full mt-2 w-56 bg-navy rounded-xl shadow-2xl z-[60] py-4 text-white hidden border border-gray-800">
+                            <div class="px-4 pb-4 border-b border-gray-800 mb-2">
+                                <a href="profile.html" class="bg-button-gold text-white text-center py-2 px-4 rounded-lg text-sm block font-semibold hover:bg-gold transition-colors">My Profile</a>
+                            </div>
+                            <div class="px-2">
+                                <a href="buyer-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-th-large mr-3 text-gray-400"></i>Dashboard
+                                </a>
+                                <a href="orders.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-shopping-bag mr-3 text-gray-400"></i>My Orders
+                                </a>
+                                <div id="seller-links" class="hidden">
+                                    <div class="border-t border-gray-800 my-1"></div>
+                                    <a href="seller-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-green-400">
+                                        <i class="fas fa-store mr-3"></i>Seller Panel
+                                    </a>
+                                </div>
+                                <div id="admin-link" class="hidden">
+                                    <div class="border-t border-gray-800 my-1"></div>
+                                    <a href="admin-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-red-400">
+                                        <i class="fas fa-cog mr-3"></i>Admin Panel
+                                    </a>
+                                    <a href="strategic-analytics.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gold">
+                                        <i class="fas fa-chart-line mr-3"></i>Strategic Analytics
+                                    </a>
+                                </div>
+                                <div class="border-t border-gray-800 my-2"></div>
+                                <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gray-300">
+                                    <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="messages.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <i class="fas fa-envelope text-lg"></i>
+                        <span class="badge message-badge-count hidden">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Messages</span>
+                    </a>
+
+                    <a href="notifications.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span id="notification-badge-count" class="badge hidden">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Alerts</span>
+                    </a>
+
+                    <a href="cart.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="badge cart-badge-count">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Cart</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <nav class="desktop-only bg-dark-navy text-white shadow-sm py-1.5 px-6 md:px-12 z-40 border-t border-gray-800">
+            <div class="container mx-auto nav-row-2-container">
+                <!-- Desktop "Explore" Menu Trigger -->
+                <button id="desktop-explore-menu" onclick="window.openMobileMenu()" class="flex items-center text-white hover:text-gold px-3 py-1 rounded-full border border-gray-700 hover:border-gold transition-all mr-6 group shrink-0">
+                    <i class="fas fa-bars mr-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-bold text-[10px] uppercase tracking-wider">Explore</span>
+                </button>
+
+                <!-- Category Menu -->
+                <div class="flex items-center space-x-6 overflow-x-auto hide-scrollbar py-1">
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="nav-category-item">Hot Deals</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="nav-category-item">Best Sellers</a>
+                    <a href="seller.html" class="nav-category-item text-gold">Sell Items</a>
+                    <div class="h-4 w-[1px] bg-gray-700 mx-2 shrink-0"></div>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="nav-category-item">Electronics</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="nav-category-item">Computers & Software</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="nav-category-item">Services</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="nav-category-item">Watches & Jewellery</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="nav-category-item">Men's Clothing</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="nav-category-item">Women's Clothing</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="nav-category-item">Shoes</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="nav-category-item">Accessories</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="nav-category-item">Personal Care & Beauty</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="nav-category-item">Food & Beverages</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="nav-category-item">Sports & Outdoors</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="nav-category-item">Home & Living</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Support Management</h1>
+            <p class="text-gray-600 mt-2">Manage customer support tickets and inquiries</p>
+        </div>
+
+        <!-- Support Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Tickets</p>
+                        <p id="totalTickets" class="text-2xl font-bold text-gray-900">-</p>
+                        <p id="newTickets" class="text-sm text-blue-600">-</p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-ticket-alt text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Open Tickets</p>
+                        <p id="openTickets" class="text-2xl font-bold text-gray-900">-</p>
+                        <p id="openPercentage" class="text-sm text-orange-600">-</p>
+                    </div>
+                    <div class="bg-orange-100 p-3 rounded-full">
+                        <i class="fas fa-clock text-orange-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Resolved Today</p>
+                        <p id="resolvedToday" class="text-2xl font-bold text-gray-900">-</p>
+                        <p id="resolvedPercentage" class="text-sm text-green-600">-</p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-full">
+                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Avg Response Time</p>
+                        <p id="avgResponseTime" class="text-2xl font-bold text-gray-900">-</p>
+                        <p class="text-sm text-gray-500">minutes</p>
+                    </div>
+                    <div class="bg-purple-100 p-3 rounded-full">
+                        <i class="fas fa-hourglass-half text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <div class="flex flex-wrap gap-4 items-center">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <select id="statusFilter" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Status</option>
+                        <option value="open">Open</option>
+                        <option value="pending">Pending</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                    <select id="priorityFilter" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Priority</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <select id="categoryFilter" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Categories</option>
+                        <option value="account">Account Issues</option>
+                        <option value="payment">Payment Problems</option>
+                        <option value="transaction">Transaction Issues</option>
+                        <option value="technical">Technical Support</option>
+                        <option value="general">General Inquiry</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                    <input type="text" id="searchFilter" placeholder="Search tickets..." 
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-end">
+                    <button onclick="loadSupportTickets()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                        <i class="fas fa-search mr-2"></i>Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Tickets Table -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Support Tickets</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="supportTicketsList" class="bg-white divide-y divide-gray-200">
+                        <!-- Tickets will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="ticketsPagination" class="px-6 py-4 border-t border-gray-200">
+                <!-- Pagination will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/admin-auth-helper.js"></script>
+    <script>
+        let currentPage = 1;
+        const pageSize = 20;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check admin access first
+            const hasAccess = await checkAdminAccess();
+            if (!hasAccess) {
+                return;
+            }
+            
+            await loadSupportStats();
+            await loadSupportTickets();
+        });
+
+        async function loadSupportStats() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE}/admin/support/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('totalTickets').textContent = stats.totalTickets.toLocaleString();
+                    document.getElementById('newTickets').textContent = `${stats.newTickets} new today`;
+                    document.getElementById('openTickets').textContent = stats.openTickets.toLocaleString();
+                    document.getElementById('openPercentage').textContent = `${stats.openPercentage}% of total`;
+                    document.getElementById('resolvedToday').textContent = stats.resolvedToday.toLocaleString();
+                    document.getElementById('resolvedPercentage').textContent = `${stats.resolvedPercentage}% resolved rate`;
+                    document.getElementById('avgResponseTime').textContent = stats.avgResponseTime;
+                }
+            } catch (error) {
+                console.error('Error loading support stats:', error);
+            }
+        }
+
+        async function loadSupportTickets(page = 1) {
+            try {
+                const token = localStorage.getItem('token');
+                const status = document.getElementById('statusFilter').value;
+                const priority = document.getElementById('priorityFilter').value;
+                const category = document.getElementById('categoryFilter').value;
+                const search = document.getElementById('searchFilter').value;
+
+                const params = new URLSearchParams({ page, limit: pageSize });
+                if (status) params.append('status', status);
+                if (priority) params.append('priority', priority);
+                if (category) params.append('category', category);
+                if (search) params.append('search', search);
+
+                const response = await fetch(`${API_BASE}/admin/support/tickets?${params}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displaySupportTickets(data.tickets);
+                    displayPagination(data.pagination);
+                }
+            } catch (error) {
+                console.error('Error loading support tickets:', error);
+            }
+        }
+
+        function displaySupportTickets(tickets) {
+            const container = document.getElementById('supportTicketsList');
+            container.innerHTML = '';
+
+            if (tickets.length === 0) {
+                container.innerHTML = '<tr><td colspan="8" class="px-6 py-4 text-center text-gray-500">No support tickets found</td></tr>';
+                return;
+            }
+
+            tickets.forEach(ticket => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${ticket.ticketId}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex items-center">
+                            <div class="bg-gray-200 h-8 w-8 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-user text-gray-500 text-xs"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">${ticket.customerName}</div>
+                                <div class="text-xs text-gray-500">${ticket.customerEmail}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${ticket.subject}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                            ${ticket.category}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getPriorityClass(ticket.priority)}">
+                            ${ticket.priority}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(ticket.status)}">
+                            ${ticket.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${new Date(ticket.createdAt).toLocaleDateString()}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="viewTicket('${ticket._id}')" class="text-blue-600 hover:text-blue-900 mr-2">View</button>
+                        <button onclick="assignTicket('${ticket._id}')" class="text-green-600 hover:text-green-900 mr-2">Assign</button>
+                        <button onclick="resolveTicket('${ticket._id}')" class="text-purple-600 hover:text-purple-900">Resolve</button>
+                    </td>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function getPriorityClass(priority) {
+            const classes = {
+                'low': 'bg-gray-100 text-gray-800',
+                'medium': 'bg-blue-100 text-blue-800',
+                'high': 'bg-orange-100 text-orange-800',
+                'urgent': 'bg-red-100 text-red-800'
+            };
+            return classes[priority] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getStatusClass(status) {
+            const classes = {
+                'open': 'bg-yellow-100 text-yellow-800',
+                'pending': 'bg-blue-100 text-blue-800',
+                'resolved': 'bg-green-100 text-green-800',
+                'closed': 'bg-gray-100 text-gray-800'
+            };
+            return classes[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        function displayPagination(pagination) {
+            const container = document.getElementById('ticketsPagination');
+            container.innerHTML = '';
+
+            if (pagination.totalPages <= 1) return;
+
+            let paginationHTML = '<div class="flex justify-center space-x-2">';
+            
+            for (let i = 1; i <= pagination.totalPages; i++) {
+                const activeClass = i === pagination.currentPage ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 border border-gray-300';
+                paginationHTML += `<button onclick="loadSupportTickets(${i})" class="px-3 py-1 rounded ${activeClass}">${i}</button>`;
+            }
+            
+            paginationHTML += '</div>';
+            container.innerHTML = paginationHTML;
+        }
+
+        function viewTicket(ticketId) {
+            // Implementation for viewing ticket details
+            console.log('View ticket:', ticketId);
+        }
+
+        function assignTicket(ticketId) {
+            // Implementation for assigning ticket
+            console.log('Assign ticket:', ticketId);
+        }
+
+        function resolveTicket(ticketId) {
+            // Implementation for resolving ticket
+            console.log('Resolve ticket:', ticketId);
+        }
+    </script>
+    
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+</body>
+
+</html>

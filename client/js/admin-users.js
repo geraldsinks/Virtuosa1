@@ -3,52 +3,6 @@ let userGrowthChart = null;
 let userDistributionChart = null;
 let universityChart = null;
 
-// Check if user is admin
-function checkAdminAccess() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '/login';
-        return;
-    }
-
-    // Verify admin status
-    fetch(`${API_BASE}/user/profile`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-        .then(response => {
-            if (!response.ok) {
-                if (response.status === 401 || response.status === 403) {
-                    // Token expired or invalid - clear and redirect
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    alert('Your session has expired. Please log in again.');
-                    window.location.href = '/login';
-                    return;
-                }
-                throw new Error('Not authorized');
-            }
-            return response.json();
-        })
-        .then(user => {
-            // Check if user email matches admin email or role is admin or isAdmin is true
-            if (user.email !== 'admin@virtuosa.com' && user.role !== 'admin' && user.isAdmin !== 'true' && user.isAdmin !== true) {
-                alert('Access denied. Admin privileges required.');
-                window.location.href = '/pages/buyer-dashboard.html';
-            }
-        })
-        .catch(error => {
-            console.error('Admin check failed:', error);
-            // Don't redirect immediately on network errors, only on auth errors
-            if (error.message.includes('Failed to fetch') || error.message.includes('Not authorized')) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                window.location.href = '/login';
-            }
-        });
-}
-
 // Load user analytics data
 async function loadUserAnalytics() {
     try {
@@ -496,8 +450,13 @@ function logout() {
 }
 
 // Initialize page
-document.addEventListener('DOMContentLoaded', function() {
-    checkAdminAccess();
+document.addEventListener('DOMContentLoaded', async function() {
+    // Check admin access first
+    const hasAccess = await checkAdminAccess();
+    if (!hasAccess) {
+        return;
+    }
+    
     loadUserAnalytics();
     loadUsers();
 

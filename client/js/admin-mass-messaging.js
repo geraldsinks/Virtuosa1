@@ -1109,6 +1109,12 @@ The Virtuosa Team`
 }
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Check admin access first
+    const hasAccess = await checkAdminAccess();
+    if (!hasAccess) {
+        return;
+    }
+    
     new AdminMassMessaging();
 });

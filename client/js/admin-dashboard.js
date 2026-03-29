@@ -19,6 +19,8 @@ const ROLE_NAVIGATION = {
             { href: 'admin-maintenance.html', title: 'Maintenance', desc: 'Manage system maintenance', icon: 'fas fa-tools', color: 'yellow' },
             { href: 'admin-transactions.html', title: 'Transactions', desc: 'Manage transactions and escrow', icon: 'fas fa-exchange-alt', color: 'indigo' },
             { href: 'admin-disputes.html', title: 'Disputes', desc: 'Handle user disputes', icon: 'fas fa-gavel', color: 'pink' },
+            { href: 'admin-support.html', title: 'Support Tickets', desc: 'Manage customer support tickets', icon: 'fas fa-headset', color: 'teal' },
+            { href: 'admin-live-chat.html', title: 'Live Chat', desc: 'Monitor live customer chat', icon: 'fas fa-comments', color: 'cyan' },
             { href: 'strategic-analytics.html', title: 'Strategic Analytics', desc: 'View strategic insights', icon: 'fas fa-chart-line', color: 'gold' }
         ]
     },
