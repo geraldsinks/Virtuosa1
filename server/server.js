@@ -8955,7 +8955,6 @@ app.get('/api/admin/transactions/high-risk', authenticateToken, checkRoleAccess(
 
 const Maintenance = require('./models/Maintenance');
 const { requireMaintenanceAccess } = require('./middleware/maintenance');
-const NotificationService = require('./services/notificationService');
 
 // Get maintenance status (public endpoint)
 app.get('/api/maintenance/status', async (req, res) => {
@@ -9223,7 +9222,7 @@ app.post('/api/admin/maintenance/:id/notify', authenticateToken, requireMaintena
             
             try {
                 if (channels.includes('inapp')) {
-                    await NotificationService.createNotification(notificationData);
+                    await notificationService.createNotification(notificationData);
                     messagesSent++;
                 }
                 
