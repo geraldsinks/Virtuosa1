@@ -22,21 +22,25 @@ const userSchema = new mongoose.Schema({
     },
     phoneNumber: {
         type: String,
+        required: true,
         trim: true
     },
     gender: {
         type: String,
-        enum: ['male', 'female', 'other'],
-        trim: true
+        enum: ['Male', 'Female', 'Prefer not to say'],
+        default: 'Prefer not to say',
+        required: true
     },
     
     // University Information
     university: {
         type: String,
+        required: true,
         trim: true
     },
     studentEmail: {
         type: String,
+        required: true,
         lowercase: true,
         trim: true
     },
@@ -67,6 +71,53 @@ const userSchema = new mongoose.Schema({
         trim: true
     },
     
+    // Store Profile
+    storeName: {
+        type: String,
+        trim: true
+    },
+    storeDescription: {
+        type: String,
+        trim: true
+    },
+    storeSlug: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    
+    // Ratings
+    buyerRating: {
+        type: Number,
+        default: 5.0,
+        min: 1,
+        max: 5
+    },
+    sellerRating: {
+        type: Number,
+        default: 5.0,
+        min: 1,
+        max: 5
+    },
+    totalBuyerReviews: {
+        type: Number,
+        default: 0
+    },
+    totalSellerReviews: {
+        type: Number,
+        default: 0
+    },
+    
+    // Transaction Stats
+    successfulTransactions: {
+        type: Number,
+        default: 0
+    },
+    totalTransactions: {
+        type: Number,
+        default: 0
+    },
+    
     // Roles and Permissions
     role: {
         type: String,
@@ -74,7 +125,7 @@ const userSchema = new mongoose.Schema({
         default: 'user'
     },
     isAdmin: {
-        type: Boolean,
+        type: mongoose.Schema.Types.Mixed,
         default: false
     },
     isBuyer: {
@@ -85,6 +136,30 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    
+    // Seller Application and Verification
+    sellerApplicationStatus: {
+        type: String,
+        enum: ['None', 'Pending', 'Approved', 'Rejected'],
+        default: 'None'
+    },
+    sellerVerified: {
+        type: Boolean,
+        default: false
+    },
+    sellerVerificationPaid: {
+        type: Boolean,
+        default: false
+    },
+    sellerVerificationDate: Date,
+    
+    // Virtuosa Pro
+    isProSeller: {
+        type: Boolean,
+        default: false
+    },
+    proSubscriptionStart: Date,
+    proSubscriptionEnd: Date,
     
     // Verification Status
     isEmailVerified: {
@@ -139,6 +214,10 @@ const userSchema = new mongoose.Schema({
         default: 0
     },
     totalTokensEarned: {
+        type: Number,
+        default: 0
+    },
+    totalTokensRedeemed: {
         type: Number,
         default: 0
     },
@@ -201,10 +280,24 @@ userSchema.methods.toPublicJSON = function() {
         isStudentVerified: this.isStudentVerified,
         agreedToTerms: this.agreedToTerms,
         sellerApplicationStatus: this.sellerApplicationStatus,
+        sellerVerified: this.sellerVerified,
+        sellerVerificationPaid: this.sellerVerificationPaid,
+        sellerVerificationDate: this.sellerVerificationDate,
+        isProSeller: this.isProSeller,
+        proSubscriptionStart: this.proSubscriptionStart,
+        proSubscriptionEnd: this.proSubscriptionEnd,
+        storeName: this.storeName,
+        storeDescription: this.storeDescription,
+        storeSlug: this.storeSlug,
+        buyerRating: this.buyerRating,
         sellerRating: this.sellerRating,
-        totalSales: this.totalSales,
+        totalBuyerReviews: this.totalBuyerReviews,
+        totalSellerReviews: this.totalSellerReviews,
+        successfulTransactions: this.successfulTransactions,
+        totalTransactions: this.totalTransactions,
         tokenBalance: this.tokenBalance,
         totalTokensEarned: this.totalTokensEarned,
+        totalTokensRedeemed: this.totalTokensRedeemed,
         pushSubscriptionEnabled: this.pushSubscriptionEnabled,
         createdAt: this.createdAt,
         updatedAt: this.updatedAt
