@@ -8674,7 +8674,7 @@ const disputeController = require('./controllers/disputeController');
 app.post('/api/disputes/file', authenticateToken, disputeController.fileDispute);
 
 // Upload evidence for dispute
-app.post('/api/disputes/:disputeId/evidence', authenticateToken, disputeController.upload, disputeController.uploadEvidence);
+app.post('/api/disputes/:disputeId/evidence', authenticateToken, disputeController.upload.array('evidence', 5), disputeController.uploadEvidence);
 
 // Get dispute details
 app.get('/api/disputes/:disputeId', authenticateToken, disputeController.getDispute);
