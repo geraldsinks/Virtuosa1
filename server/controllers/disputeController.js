@@ -6,10 +6,10 @@ const Notification = require('../models/Notification');
 const User = require('../models/User');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinaryStorage = require('multer-storage-cloudinary');
 
 // Configure Cloudinary storage for dispute evidence
-const storage = new CloudinaryStorage({
+const storage = cloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'dispute-evidence',
