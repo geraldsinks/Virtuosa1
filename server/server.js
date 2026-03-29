@@ -1411,85 +1411,9 @@ const tokenTransactionSchema = new mongoose.Schema({
 const TokenTransaction = mongoose.model('TokenTransaction', tokenTransactionSchema);
 console.log('TokenTransaction model created successfully');
 
-// Enhanced Product Schema
-const productSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    description: { type: String, required: true },
-    price: { type: Number, required: true },
-    originalPrice: Number,
-    condition: { type: String, enum: ['New', 'Like New', 'Good', 'Fair'], required: true },
-    images: [String],
-    category: { type: String, required: true },
-    subcategory: String,
-
-    // Listing Type and Inventory Management
-    listingType: { 
-        type: String, 
-        enum: ['one_time', 'persistent'], 
-        required: true,
-        default: 'one_time'
-    },
-    inventory: { 
-        type: Number, 
-        default: 1,
-        min: 0
-    },
-    inventoryTracking: { 
-        type: Boolean, 
-        default: false 
-    },
-    lowStockThreshold: { 
-        type: Number, 
-        default: 1 
-    },
-
-    // Seller information
-    seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    sellerName: { type: String, required: true },
-    sellerEmail: { type: String, required: true },
-    sellerPhone: { type: String, required: true },
-    sellerRating: { type: Number, default: 5.0 },
-
-    // Location and delivery
-    campusLocation: { type: String, required: true },
-    deliveryOptions: [{
-        type: { type: String },
-        price: Number,
-        description: String
-    }],
-
-    // Product status
-    status: { type: String, enum: ['Active', 'Sold', 'Reserved', 'Removed', 'Out of Stock'], default: 'Active' },
-    isFeatured: { type: Boolean, default: false },
-    viewCount: { type: Number, default: 0 },
-    favoriteCount: { type: Number, default: 0 },
-
-    // Sales tracking
-    totalSold: { type: Number, default: 0 },
-    salesHistory: [{
-        buyer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        quantity: Number,
-        price: Number,
-        soldAt: { type: Date, default: Date.now }
-    }],
-
-    // Academic specific
-    courseCode: String,
-    courseName: String,
-    semester: String,
-    subject: String,
-    author: String,
-    isbn: String,
-
-    // Timestamps
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
-    soldAt: Date,
-    lastSoldAt: Date
-});
-
-const Product = mongoose.model('Product', productSchema);
-console.log('Product model created successfully');
+// Import Product model from models folder
+const Product = require('./models/Product');
+console.log('Product model loaded successfully');
 
 // Category Schema
 const categorySchema = new mongoose.Schema({
