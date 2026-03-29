@@ -1640,7 +1640,6 @@ messageSchema.index({
     }
 );
 
-retentionConfigSchema.index({ name: 1 });
 retentionConfigSchema.index({ isActive: 1 });
 retentionConfigSchema.index({ 'cleanupSchedule.nextRun': 1 });
 
