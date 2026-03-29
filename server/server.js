@@ -1502,62 +1502,9 @@ const categorySchema = new mongoose.Schema({
 const Category = mongoose.model('Category', categorySchema);
 console.log('Category model created successfully');
 
-// Transaction Schema for escrow system
-const transactionSchema = new mongoose.Schema({
-    buyer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-
-    // Quantity for multi-item orders
-    quantity: { type: Number, default: 1 },
-
-    // Payment details
-    totalAmount: { type: Number, required: true },
-    commissionAmount: { type: Number, required: true },
-    sellerPayout: { type: Number, required: true },
-    deliveryFee: { type: Number, default: 0 },
-
-    // Payment method
-    paymentMethod: { type: String, enum: ['Mobile Money', 'Bank Transfer', 'Cash', 'cash_on_delivery'], required: true },
-    paymentReference: String,
-    paymentStatus: { type: String, enum: ['Pending', 'Paid', 'Released', 'Refunded'], default: 'Pending' },
-
-    // Transaction status
-    status: { type: String, enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Completed', 'Cancelled', 'Disputed', 'pending_seller_confirmation', 'confirmed_by_seller', 'out_for_delivery', 'delivered_pending_confirmation', 'declined'], default: 'Pending' },
-
-    // Cash on delivery flag
-    isCashOnDelivery: { type: Boolean, default: false },
-
-    // Escrow
-    escrowReleased: { type: Boolean, default: false },
-    escrowReleasedAt: Date,
-
-    // Delivery
-    deliveryMethod: { type: String, enum: ['Meetup', 'Delivery', 'Shipping'] },
-    deliveryAddress: {
-        name: String,
-        phone: String,
-        address: String,
-        instructions: String
-    },
-    trackingNumber: String,
-
-    // Dispute
-    disputeReason: String,
-    disputeStatus: { type: String, enum: ['None', 'Open', 'Resolved', 'Rejected'], default: 'None' },
-    disputeResolution: String,
-
-    // Timestamps
-    createdAt: { type: Date, default: Date.now },
-    confirmedAt: Date,
-    shippedAt: Date,
-    deliveredAt: Date,
-    completedAt: Date,
-    cancelledAt: Date
-});
-
-const Transaction = mongoose.model('Transaction', transactionSchema);
-console.log('Transaction model created successfully');
+// Import Transaction model from models folder
+const Transaction = require('./models/Transaction');
+console.log('Transaction model loaded successfully');
 
 // Review Schema
 const reviewSchema = new mongoose.Schema({
@@ -3705,24 +3652,28 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
 
         // Calculate fees
         const commissionRate = 0.06; // 6% commission
-        const commissionAmount = product.price * commissionRate;
+        const platformFee = product.price * commissionRate;
         const deliveryFee = deliveryMethod === 'Delivery' ? 20 : 0; // K20 for delivery
-        const totalAmount = product.price + deliveryFee;
-        const sellerPayout = product.price - commissionAmount;
+        const amount = product.price + deliveryFee;
+        const sellerAmount = product.price - platformFee;
 
         // Create transaction
         const transaction = new Transaction({
             buyer: user._id,
             seller: product.seller,
             product: product._id,
-            totalAmount,
-            commissionAmount,
-            sellerPayout,
-            deliveryFee,
+            amount,
+            platformFee,
+            sellerAmount,
             paymentMethod,
-            deliveryMethod,
-            deliveryAddress,
-            status: 'Pending'
+            deliveryMethod: deliveryMethod === 'Delivery' ? 'delivery' : 'meetup',
+            deliveryAddress: deliveryMethod === 'Delivery' ? {
+                name: user.fullName,
+                phone: user.phoneNumber,
+                address: deliveryAddress || 'Campus pickup',
+                instructions: 'Deliver to campus'
+            } : null,
+            status: 'pending'
         });
 
         await transaction.save();
@@ -3734,7 +3685,7 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
             productName: product.name,
             buyer: transaction.buyer.toString(),
             seller: transaction.seller.toString(),
-            totalAmount,
+            amount,
             status: transaction.status
         });
 
@@ -3813,9 +3764,9 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
         res.status(201).json({
             transaction,
             paymentDetails: {
-                totalAmount,
-                commissionAmount,
-                sellerPayout,
+                totalAmount: amount,
+                commissionAmount: platformFee,
+                sellerPayout: sellerAmount,
                 deliveryFee,
                 paymentMethod,
                 paymentReference: `VTX${transaction._id.toString().slice(-8).toUpperCase()}`
@@ -3903,7 +3854,7 @@ app.post('/api/transactions/:id/pay', authenticateToken, async (req, res) => {
                 <h2>New Order Received!</h2>
                 <p>You have a new order for: ${transaction.product.name}</p>
                 <p>Buyer: ${transaction.buyer.fullName}</p>
-                <p>Total Amount: K${transaction.totalAmount}</p>
+                <p>Total Amount: K${transaction.amount}</p>
                 <p>Delivery Method: ${transaction.deliveryMethod}</p>
                 <p>Please login to arrange delivery.</p>
             `
@@ -4176,7 +4127,7 @@ app.get('/api/buyer/dashboard', authenticateToken, async (req, res) => {
             }),
             totalSpent: transactions
                 .filter(t => t.status === 'completed')
-                .reduce((sum, t) => sum + (t.totalAmount || 0), 0)
+                .reduce((sum, t) => sum + (t.amount || 0), 0)
         };
 
         console.log('📊 Buyer dashboard data loaded:', {
@@ -4273,7 +4224,7 @@ app.get('/api/admin/dashboard', authenticateAdmin, async (req, res) => {
             status: 'Completed',
             createdAt: { $gte: daysAgo }
         });
-        const totalCommissionRevenue = transactionsItems.reduce((sum, t) => sum + (t.commissionAmount || 0), 0);
+        const totalCommissionRevenue = transactionsItems.reduce((sum, t) => sum + (t.platformFee || 0), 0);
         const subscriptionRevenue = await Subscription.aggregate([
             { $match: { isActive: true, createdAt: { $gte: daysAgo } } },
             { $group: { _id: null, total: { $sum: '$monthlyFee' } } }
@@ -4366,7 +4317,7 @@ app.get('/api/admin/dashboard', authenticateAdmin, async (req, res) => {
             {
                 $group: {
                     _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-                    revenue: { $sum: '$commissionAmount' },
+                    revenue: { $sum: '$platformFee' },
                     count: { $sum: 1 }
                 }
             },
@@ -4382,7 +4333,7 @@ app.get('/api/admin/dashboard', authenticateAdmin, async (req, res) => {
         const activeProductsCount = await Product.countDocuments({ status: 'Active' });
 
         // Calculate Average Transaction Value (Gross revenue / Transaction count)
-        const totalGrossRevenue = transactionsItems.reduce((sum, t) => sum + (t.totalAmount || 0), 0);
+        const totalGrossRevenue = transactionsItems.reduce((sum, t) => sum + (t.amount || 0), 0);
         const avgTransactionValue = transactionsItems.length > 0 ? (totalGrossRevenue / transactionsItems.length).toFixed(2) : '0.00';
 
         res.json({
@@ -7807,8 +7758,7 @@ app.post('/api/checkout', authenticateToken, async (req, res) => {
                 seller: cartItem.product.seller,
                 product: cartItem.product._id,
                 quantity: cartItem.quantity,
-                price: cartItem.product.price,
-                totalAmount: cartItem.product.price * cartItem.quantity,
+                amount: cartItem.product.price * cartItem.quantity,
                 deliveryAddress,
                 deliveryMethod,
                 paymentMethod,
@@ -7846,7 +7796,7 @@ app.post('/api/checkout', authenticateToken, async (req, res) => {
             transactions: transactions.map(t => ({
                 id: t._id,
                 productName: cart.items.find(item => item.product._id.toString() === t.product.toString()).product.name,
-                totalAmount: t.totalAmount,
+                amount: t.amount,
                 status: t.status
             }))
         });
@@ -8012,12 +7962,12 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
 
             // Calculate fees for this item
             const commissionRate = 0.06; // 6% commission
-            const commissionAmount = price * commissionRate;
+            const platformFee = price * commissionRate;
             const deliveryFee = paymentMethod === 'cash_on_delivery' ? 20 : 0; // K20 for cash on delivery
-            const itemTotal = price * quantity + deliveryFee;
-            const sellerPayout = (price * quantity) - commissionAmount;
+            const amount = price * quantity + deliveryFee;
+            const sellerAmount = (price * quantity) - platformFee;
 
-            totalCommission += commissionAmount;
+            totalCommission += platformFee;
             totalDeliveryFee += deliveryFee;
 
             // Create transaction for this item
@@ -8026,10 +7976,9 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
                 seller: product.seller,
                 product: product._id,
                 quantity: quantity,
-                totalAmount: itemTotal,
-                commissionAmount,
-                sellerPayout,
-                deliveryFee,
+                amount,
+                platformFee,
+                sellerAmount,
                 paymentMethod,
                 deliveryMethod: 'Delivery',
                 deliveryAddress: {

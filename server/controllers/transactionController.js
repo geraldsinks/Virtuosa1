@@ -43,7 +43,6 @@ class TransactionController {
             const { id } = req.params;
             
             const transaction = await Transaction.findById(id)
-                .populate('order', 'orderNumber totalAmount items')
                 .populate('product', 'title images description price')
                 .populate('buyer', 'fullName email phone')
                 .populate('seller', 'fullName email phone')

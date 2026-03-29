@@ -5,8 +5,7 @@ const disputeSchema = new mongoose.Schema({
     order: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Transaction',
-        required: true,
-        index: true
+        required: true
     },
     product: {
         type: mongoose.Schema.Types.ObjectId,
@@ -16,14 +15,12 @@ const disputeSchema = new mongoose.Schema({
     buyer: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true,
-        index: true
+        required: true
     },
     seller: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true,
-        index: true
+        required: true
     },
     
     // Dispute details
@@ -128,8 +125,7 @@ const disputeSchema = new mongoose.Schema({
             'closed',           // Dispute closed without resolution
             'withdrawn'         // Dispute withdrawn by buyer
         ],
-        default: 'pending',
-        index: true
+        default: 'pending'
     },
     
     // Resolution details

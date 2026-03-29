@@ -5,8 +5,7 @@ const transactionSchema = new mongoose.Schema({
     transactionId: {
         type: String,
         required: true,
-        unique: true,
-        index: true
+        unique: true
     },
     product: {
         type: mongoose.Schema.Types.ObjectId,
@@ -237,6 +236,12 @@ const transactionSchema = new mongoose.Schema({
         }
     },
     
+    // Cash on delivery support
+    isCashOnDelivery: {
+        type: Boolean,
+        default: false
+    },
+    
     // Dispute information
     dispute: {
         filed: { type: Boolean, default: false },
@@ -365,7 +370,6 @@ const transactionSchema = new mongoose.Schema({
 });
 
 // Indexes for better performance
-transactionSchema.index({ transactionId: 1 });
 transactionSchema.index({ buyer: 1, status: 1, createdAt: -1 });
 transactionSchema.index({ seller: 1, status: 1, createdAt: -1 });
 transactionSchema.index({ status: 1, createdAt: -1 });
@@ -386,6 +390,19 @@ transactionSchema.virtual('totalFees').get(function() {
 // Virtual for net amount
 transactionSchema.virtual('netAmount').get(function() {
     return this.amount - this.platformFee;
+});
+
+// Virtual fields for backward compatibility with client-side code
+transactionSchema.virtual('totalAmount').get(function() {
+    return this.amount;
+});
+
+transactionSchema.virtual('commissionAmount').get(function() {
+    return this.platformFee;
+});
+
+transactionSchema.virtual('sellerPayout').get(function() {
+    return this.sellerAmount;
 });
 
 // Pre-save middleware
