@@ -6,6 +6,13 @@ let userStatsChart = null;
 let userRole = null;
 let userPermissions = [];
 
+// Debug: Log ROLE_NAVIGATION on load
+console.log('🔧 ROLE_NAVIGATION loaded:', Object.keys(ROLE_NAVIGATION));
+console.log('🔧 CEO config exists:', 'CEO' in ROLE_NAVIGATION);
+if ('CEO' in ROLE_NAVIGATION) {
+    console.log('🔧 CEO cards count:', ROLE_NAVIGATION['CEO'].cards.length);
+}
+
 // Role-based navigation configuration
 const ROLE_NAVIGATION = {
     'CEO': {
