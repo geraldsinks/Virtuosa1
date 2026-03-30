@@ -897,3 +897,195 @@ html[data-v-bp="wide"] {
         display: block;
     }
 }
+
+/* ========================================
+   Welcome Section Premium Styles
+   ======================================== */
+
+/* Smooth entrance animations for welcome section */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Welcome section heading */
+.welcome-section h1 {
+    animation: slideInLeft 0.8s ease-out;
+    letter-spacing: -0.5px;
+}
+
+.welcome-section p {
+    animation: fadeInUp 0.8s ease-out 0.1s both;
+}
+
+.welcome-section .flex {
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+/* CTA Buttons styling */
+.welcome-section a[href*="products"],
+.welcome-section a[href*="seller"] {
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.welcome-section a[href*="products"]::before,
+.welcome-section a[href*="seller"]::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+    z-index: -1;
+}
+
+.welcome-section a[href*="products"]:hover::before,
+.welcome-section a[href*="seller"]:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Welcome feature cards */
+.welcome-section .bg-white.rounded-xl {
+    animation: scaleIn 0.6s ease-out;
+    transition: all 0.3s ease;
+}
+
+.welcome-section .bg-white.rounded-xl:hover {
+    transform: translateY(-4px);
+}
+
+/* Icon container glow on hover */
+.welcome-section div[class*="bg-"][class*="-100"] {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.welcome-section .bg-white.rounded-xl:hover div[class*="bg-"][class*="-100"] {
+    transform: scale(1.15) rotate(5deg);
+}
+
+/* Trust section cards with stagger */
+.welcome-section .md\:border-r {
+    animation: fadeInUp 0.8s ease-out 0.3s both;
+}
+
+/* Why Choose section numbered cards */
+.welcome-section .flex.gap-4 {
+    animation: fadeInUp 0.8s ease-out;
+    transition: all 0.3s ease;
+}
+
+.welcome-section .flex.gap-4:hover {
+    transform: translateX(8px);
+}
+
+/* Bottom CTA enhancement */
+.welcome-section .bg-gradient-to-r {
+    animation: slideInUp 0.8s ease-out 0.5s both;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments for mobile welcome section */
+@media (max-width: 640px) {
+    .welcome-section h1 {
+        font-size: 2rem;
+        line-height: 1.2;
+    }
+    
+    .welcome-section p {
+        font-size: 0.95rem;
+    }
+    
+    .welcome-section .flex {
+        flex-direction: column;
+    }
+    
+    .welcome-section a {
+        width: 100% !important;
+        text-align: center;
+    }
+    
+    .welcome-section .grid.grid-cols-2 {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .welcome-section .md\:border-r {
+        border-right: none !important;
+        border-bottom: 1px solid #e5e7eb;
+        padding-right: 0 !important;
+        padding-bottom: 1.5rem;
+    }
+    
+    .welcome-section .md\:border-r:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+}
+
+/* Accessibility: reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    .welcome-section h1,
+    .welcome-section p,
+    .welcome-section .flex,
+    .welcome-section .bg-white.rounded-xl,
+    .welcome-section .md\:border-r,
+    .welcome-section .flex.gap-4,
+    .welcome-section .bg-gradient-to-r {
+        animation: none !important;
+    }
+}
