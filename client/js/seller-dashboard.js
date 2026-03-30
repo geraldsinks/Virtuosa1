@@ -283,16 +283,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         const shopLinkContainer = document.getElementById('shop-link-container');
         const publicShopLink = document.getElementById('public-shop-link');
         
-        if (storeNameInput && sellerInfo.storeName) storeNameInput.value = sellerInfo.storeName;
-        if (storeDescInput && sellerInfo.storeDescription) storeDescInput.value = sellerInfo.storeDescription;
-        if (storeSlugInput && sellerInfo.storeSlug) {
-            storeSlugInput.value = sellerInfo.storeSlug;
+        if (storeNameInput) storeNameInput.value = sellerInfo.storeName || '';
+        if (storeDescInput) storeDescInput.value = sellerInfo.storeDescription || '';
+        if (storeSlugInput) storeSlugInput.value = sellerInfo.storeSlug || '';
+
+        if (sellerInfo.storeSlug) {
             if (shopLinkContainer) shopLinkContainer.classList.remove('hidden');
             if (publicShopLink) {
                 const fullLink = `${window.location.origin}/seller/${sellerInfo.storeSlug}`;
                 publicShopLink.href = fullLink;
                 publicShopLink.textContent = fullLink;
             }
+        } else {
+            if (shopLinkContainer) shopLinkContainer.classList.add('hidden');
         }
 
         // Initialize/Refresh Lucide icons
@@ -727,7 +730,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Aggregate real revenue from completed transactions
         if (dashboardData.recentTransactions && dashboardData.recentTransactions.length > 0) {
             dashboardData.recentTransactions.forEach(t => {
-                if (t.status === 'Completed' && t.createdAt) {
+                if (['Completed', 'Delivered'].includes(t.status) && t.createdAt) {
                     const key = new Date(t.createdAt).toISOString().slice(0, 10);
                     if (key in revenueByDay) {
                         revenueByDay[key] += (t.sellerPayout || t.totalAmount || 0);

@@ -4050,7 +4050,7 @@ app.post('/api/transactions/:id/dispute', authenticateToken, async (req, res) =>
 app.get('/api/buyer/dashboard', authenticateToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.userId);
-        if (!user || user.isSeller) {
+        if (!user || (!user.isBuyer && !user.isSeller)) {
             return res.status(403).json({ message: 'Buyer access required' });
         }
 
@@ -4513,14 +4513,16 @@ app.get('/api/transactions', authenticateToken, async (req, res) => {
 
         let filter = {};
         
-        // Handle transaction type (buying vs selling)
+        // Handle transaction type (buying, selling, or all)
         if (type === 'buying') {
             filter.buyer = userId;
         } else if (type === 'selling') {
             filter.seller = userId;
+        } else if (type === 'all') {
+            filter = { $or: [{ buyer: userId }, { seller: userId }] };
         } else {
-            // Default to buyer transactions for backward compatibility
-            filter.buyer = userId;
+            // Default to both sides so sellers can view their selling transactions too.
+            filter = { $or: [{ buyer: userId }, { seller: userId }] };
         }
 
         if (status) filter.status = status;
@@ -5929,7 +5931,10 @@ app.get('/api/seller/dashboard', authenticateToken, async (req, res) => {
                 totalTokensEarned: user.totalTokensEarned || 0,
                 totalTokensRedeemed: user.totalTokensRedeemed || 0,
                 rating: avgRating,
-                totalReviews: totalReviews
+                totalReviews: totalReviews,
+                storeName: user.storeName || '',
+                storeDescription: user.storeDescription || '',
+                storeSlug: user.storeSlug || ''
             },
             stats: {
                 totalRevenue,

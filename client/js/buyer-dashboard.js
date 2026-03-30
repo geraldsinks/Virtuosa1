@@ -149,24 +149,26 @@ function updateRoleBasedUI(userData) {
         if (mobileSellerSection) {
             mobileSellerSection.style.display = 'block';
         }
-        
+
         if (desktopSellerLink) {
             desktopSellerLink.style.display = 'flex';
         }
-        
+
         if (dropdownSellerLink) {
             dropdownSellerLink.classList.remove('hidden');
         }
-        
+
         // Update "Become a Seller" card to "Seller Dashboard"
-        const becomeSellerCard = document.querySelector('a[href="/pages/seller.html"].quick-action-card');
-        if (becomeSellerCard) {
-            becomeSellerCard.href = '/pages/seller-dashboard.html';
-            becomeSellerCard.querySelector('h3').textContent = 'Seller Dashboard';
-            becomeSellerCard.querySelector('p').textContent = 'Manage your store';
-            
-            // Update icon
-            const iconContainer = becomeSellerCard.querySelector('.bg-gold\\/20');
+        const sellerCards = document.querySelectorAll('a.quick-action-card[href^="/pages/seller"]');
+        sellerCards.forEach(card => {
+            card.href = '/pages/seller-dashboard.html';
+            const title = card.querySelector('h3');
+            const subtitle = card.querySelector('p');
+            if (title) title.textContent = 'Seller Dashboard';
+            if (subtitle) subtitle.textContent = 'Manage your store';
+
+            // Update icon style if present
+            const iconContainer = card.querySelector('.bg-gold\/20, .bg-gold\\/20');
             if (iconContainer) {
                 iconContainer.className = 'bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4';
                 const icon = iconContainer.querySelector('i');
@@ -175,6 +177,18 @@ function updateRoleBasedUI(userData) {
                     icon.className = 'w-6 h-6 text-green-600';
                 }
             }
+        });
+
+        // Update mobile dropdown link text
+        const mobileBecomeSellerLink = document.querySelector('#mobile-menu-overlay + .mobile-menu-content a[href="seller.html"]');
+        if (mobileBecomeSellerLink) {
+            mobileBecomeSellerLink.href = 'seller-dashboard.html';
+            mobileBecomeSellerLink.querySelector('span')?.textContent = 'Seller Dashboard';
+        }
+
+        const menuSellerLink = document.querySelector('a[href="seller-dashboard.html"]');
+        if (menuSellerLink && menuSellerLink.textContent.trim().includes('Become a Seller')) {
+            menuSellerLink.textContent = 'Seller Dashboard';
         }
     }
     

@@ -180,7 +180,7 @@ function showToast(message, type = 'success', duration = 4000) {
     }, duration);
 }
 let currentTransactionId = null;
-let currentTransactionType = 'all';
+let currentTransactionType = (localStorage.getItem('isSeller') === 'true' ? 'selling' : 'buying');
 let currentPage = 1;
 
 // Load transactions
