@@ -2965,7 +2965,7 @@ app.get('/api/categories', async (req, res) => {
 app.post('/api/products', authenticateToken, upload.array('images', 5), async (req, res) => {
     try {
         const user = await User.findById(req.user.userId);
-        if (!user || (!user.isSeller && user.role !== 'admin' && user.isAdmin !== true && user.isAdmin !== 'true')) {
+        if (!user || (!user.isSeller && user.role !== 'admin' && user.role !== 'CEO' && user.isAdmin !== true && user.isAdmin !== 'true')) {
             return res.status(403).json({ message: 'Seller access required' });
         }
 
@@ -3274,7 +3274,7 @@ app.delete('/api/admin/delete-all-products', authenticateToken, async (req, res)
     try {
         // Check if user is admin
         const user = await User.findById(req.user.userId);
-        if (!user || (user.role !== 'admin' && user.isAdmin !== true && user.isAdmin !== 'true')) {
+        if (!user || (user.role !== 'admin' && user.role !== 'CEO' && user.isAdmin !== true && user.isAdmin !== 'true')) {
             return res.status(403).json({ message: 'Admin access required' });
         }
 
@@ -4120,6 +4120,7 @@ function authenticateAdmin(req, res, next) {
             const userDoc = await User.findById(user.userId);
             if (!userDoc || (
                 userDoc.role !== 'admin' &&
+                userDoc.role !== 'CEO' &&
                 userDoc.isAdmin !== true &&
                 userDoc.isAdmin !== 'true'
             )) {
@@ -6939,7 +6940,7 @@ function scheduleCleanupJob() {
 app.get('/api/admin/retention/config', authenticateToken, async (req, res) => {
     try {
         const adminUser = await User.findById(req.user.userId);
-        if (!adminUser || (adminUser.email !== 'admin@virtuosa.com' && adminUser.role !== 'admin' && adminUser.isAdmin !== true)) {
+        if (!adminUser || (adminUser.email !== 'admin@virtuosa.com' && adminUser.role !== 'admin' && adminUser.role !== 'CEO' && adminUser.isAdmin !== true)) {
             return res.status(403).json({ message: 'Admin access required' });
         }
 
@@ -6955,7 +6956,7 @@ app.get('/api/admin/retention/config', authenticateToken, async (req, res) => {
 app.put('/api/admin/retention/config/:id', authenticateToken, async (req, res) => {
     try {
         const adminUser = await User.findById(req.user.userId);
-        if (!adminUser || (adminUser.email !== 'admin@virtuosa.com' && adminUser.role !== 'admin' && adminUser.isAdmin !== true)) {
+        if (!adminUser || (adminUser.email !== 'admin@virtuosa.com' && adminUser.role !== 'admin' && adminUser.role !== 'CEO' && adminUser.isAdmin !== true)) {
             return res.status(403).json({ message: 'Admin access required' });
         }
 
@@ -6980,7 +6981,7 @@ app.put('/api/admin/retention/config/:id', authenticateToken, async (req, res) =
 app.post('/api/admin/retention/config', authenticateToken, async (req, res) => {
     try {
         const adminUser = await User.findById(req.user.userId);
-        if (!adminUser || (adminUser.email !== 'admin@virtuosa.com' && adminUser.role !== 'admin' && adminUser.isAdmin !== true)) {
+        if (!adminUser || (adminUser.email !== 'admin@virtuosa.com' && adminUser.role !== 'admin' && adminUser.role !== 'CEO' && adminUser.isAdmin !== true)) {
             return res.status(403).json({ message: 'Admin access required' });
         }
 
@@ -7001,7 +7002,7 @@ app.post('/api/admin/retention/config', authenticateToken, async (req, res) => {
 app.post('/api/admin/retention/cleanup', authenticateToken, async (req, res) => {
     try {
         const adminUser = await User.findById(req.user.userId);
-        if (!adminUser || (adminUser.email !== 'admin@virtuosa.com' && adminUser.role !== 'admin' && adminUser.isAdmin !== true)) {
+        if (!adminUser || (adminUser.email !== 'admin@virtuosa.com' && adminUser.role !== 'admin' && adminUser.role !== 'CEO' && adminUser.isAdmin !== true)) {
             return res.status(403).json({ message: 'Admin access required' });
         }
 
@@ -7197,6 +7198,7 @@ app.get('/api/admin/retention/stats', authenticateToken, async (req, res) => {
         // Check admin access with multiple methods
         const isAdmin = adminUser.email === 'admin@virtuosa.com' ||
             adminUser.role === 'admin' ||
+            adminUser.role === 'CEO' ||
             adminUser.isAdmin === true ||
             adminUser.isAdmin === 'true';
 
@@ -7280,7 +7282,7 @@ app.get('/api/admin/retention/stats', authenticateToken, async (req, res) => {
 app.get('/api/admin/retention/archive', authenticateToken, async (req, res) => {
     try {
         const adminUser = await User.findById(req.user.userId);
-        if (!adminUser || (adminUser.email !== 'admin@virtuosa.com' && adminUser.role !== 'admin' && adminUser.isAdmin !== true)) {
+        if (!adminUser || (adminUser.email !== 'admin@virtuosa.com' && adminUser.role !== 'admin' && adminUser.role !== 'CEO' && adminUser.isAdmin !== true)) {
             return res.status(403).json({ message: 'Admin access required' });
         }
 
@@ -7317,7 +7319,7 @@ app.get('/api/admin/retention/archive', authenticateToken, async (req, res) => {
 app.post('/api/admin/retention/restore/:archiveId', authenticateToken, async (req, res) => {
     try {
         const adminUser = await User.findById(req.user.userId);
-        if (!adminUser || (adminUser.email !== 'admin@virtuosa.com' && adminUser.role !== 'admin' && adminUser.isAdmin !== true)) {
+        if (!adminUser || (adminUser.email !== 'admin@virtuosa.com' && adminUser.role !== 'admin' && adminUser.role !== 'CEO' && adminUser.isAdmin !== true)) {
             return res.status(403).json({ message: 'Admin access required' });
         }
 
@@ -7360,7 +7362,7 @@ app.post('/api/admin/retention/restore/:archiveId', authenticateToken, async (re
 app.post('/api/admin/retention/apply', authenticateToken, async (req, res) => {
     try {
         const adminUser = await User.findById(req.user.userId);
-        if (!adminUser || (adminUser.email !== 'admin@virtuosa.com' && adminUser.role !== 'admin' && adminUser.isAdmin !== true)) {
+        if (!adminUser || (adminUser.email !== 'admin@virtuosa.com' && adminUser.role !== 'admin' && adminUser.role !== 'CEO' && adminUser.isAdmin !== true)) {
             return res.status(403).json({ message: 'Admin access required' });
         }
 

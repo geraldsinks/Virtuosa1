@@ -3,15 +3,10 @@ const User = require('../models/User');
 
 // Role permissions mapping
 const ROLE_PERMISSIONS = {
-    'CEO': {
-        // CEO/Super Admin - has access to everything
-        permissions: ['*'], // Wildcard means all permissions
-        description: 'CEO - Full system access'
-    },
     'admin': {
         // Admin - has access to everything
         permissions: ['*'], // Wildcard means all permissions
-        description: 'CEO - Full system access'
+        description: 'Admin - Full system access'
     },
     'marketing_lead': {
         permissions: [
@@ -64,22 +59,53 @@ const ROLE_PERMISSIONS = {
     }
 };
 
+// Normalize role from user fields: admin and CEO are unified for permissions
+const normalizeRole = (userRole, isAdminFlag) => {
+    if (isAdminFlag === true || isAdminFlag === 'true') {
+        return 'admin';
+    }
+
+    if (!userRole) {
+        return 'user';
+    }
+
+    const normalized = userRole.toString().trim();
+
+    if (normalized.toLowerCase() === 'ceo') {
+        return 'admin';
+    }
+
+    if (normalized.toLowerCase() === 'admin') {
+        return 'admin';
+    }
+
+    if (ROLE_PERMISSIONS[normalized]) {
+        return normalized;
+    }
+
+    if (ROLE_PERMISSIONS[normalized.toLowerCase()]) {
+        return normalized.toLowerCase();
+    }
+
+    return 'user';
+};
+
 // Helper function to check if user has specific permission
 const hasPermission = (user, permission) => {
-    const userRole = user.role || 'user';
-    
+    const userRole = normalizeRole(user.role, user.isAdmin);
+
     // If user doesn't have a role in our mapping, deny access
     if (!ROLE_PERMISSIONS[userRole]) {
         return false;
     }
-    
+
     const rolePermissions = ROLE_PERMISSIONS[userRole].permissions;
-    
+
     // Wildcard access (for admin)
     if (rolePermissions.includes('*')) {
         return true;
     }
-    
+
     // Check specific permission
     return rolePermissions.includes(permission);
 };
@@ -164,21 +190,20 @@ const getUserRoleInfo = async (userId) => {
         if (!user) {
             return null;
         }
-        
-        // Check for admin status using multiple criteria
-        let userRole = user.role || 'user';
-        
-        // If user has admin status, set role to 'admin' (CEO and admin are same)
-        if (user.isAdmin === true || user.isAdmin === 'true') {
-            userRole = 'admin';
-        }
-        
-        const roleInfo = ROLE_PERMISSIONS[userRole];
-        
+
+        const normalizedRole = normalizeRole(user.role, user.isAdmin);
+        const roleInfo = ROLE_PERMISSIONS[normalizedRole];
+
+        // If user had CEO role set, surface it as a title for UI display
+        const title = (user.role && user.role.toString().trim().toUpperCase() === 'CEO')
+            ? 'CEO'
+            : (normalizedRole === 'admin' ? 'Admin' : roleInfo?.description || 'User');
+
         return {
-            role: userRole,
+            role: normalizedRole,
             permissions: roleInfo?.permissions || [],
-            description: roleInfo?.description || 'No role assigned'
+            description: roleInfo?.description || 'No role assigned',
+            title
         };
     } catch (error) {
         console.error('Error getting user role info:', error);
@@ -192,7 +217,9 @@ const isAdmin = async (req, res, next) => {
         const user = await User.findById(req.user.userId);
         if (!user) return res.status(403).json({ message: 'User not found' });
 
-        const adminCheck = user.role === 'admin' ||
+        const normalizedRole = normalizeRole(user.role, user.isAdmin);
+        const adminCheck = normalizedRole === 'admin' ||
+            user.role === 'CEO' ||
             user.isAdmin === true ||
             user.isAdmin === 'true';
 

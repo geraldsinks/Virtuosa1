@@ -9,11 +9,7 @@ let userPermissions = [];
 // Debug: Log ROLE_NAVIGATION on load
 try {
     console.log('🔧 ROLE_NAVIGATION loaded:', Object.keys(ROLE_NAVIGATION));
-    console.log('🔧 CEO config exists:', 'CEO' in ROLE_NAVIGATION);
     console.log('🔧 Admin config exists:', 'admin' in ROLE_NAVIGATION);
-    if ('CEO' in ROLE_NAVIGATION) {
-        console.log('🔧 CEO cards count:', ROLE_NAVIGATION['CEO'].cards.length);
-    }
     if ('admin' in ROLE_NAVIGATION) {
         console.log('🔧 Admin cards count:', ROLE_NAVIGATION['admin'].cards.length);
         console.log('🔧 Admin cards:', ROLE_NAVIGATION['admin'].cards);
@@ -192,10 +188,13 @@ function updateDashboardHeader(roleInfo) {
     const subtitle = document.querySelector('p.text-gray-600');
     
     if (header && subtitle) {
-        // Special handling for CEO role
-        if (roleInfo.role === 'CEO') {
-            header.textContent = 'CEO - Full system access Dashboard';
-            subtitle.textContent = 'Manage CEO - full system access functions for Virtuosa platform';
+        // Admin user may have CEO title for UI display
+        if (roleInfo.title === 'CEO') {
+            header.textContent = 'CEO (Admin) Dashboard';
+            subtitle.textContent = 'Full system access granted as Admin / CEO title';
+        } else if (roleInfo.role === 'admin') {
+            header.textContent = 'Admin Dashboard';
+            subtitle.textContent = 'Manage admin functions for the Virtuosa platform';
         } else {
             header.textContent = `${roleInfo.description} Dashboard`;
             subtitle.textContent = `Manage ${roleInfo.description.toLowerCase()} functions for the Virtuosa platform`;
