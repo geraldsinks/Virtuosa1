@@ -233,6 +233,13 @@ const userSchema = new mongoose.Schema({
     pushSubscriptionEnabled: {
         type: Boolean,
         default: false
+    },
+    notificationPreferences: {
+        orderUpdates: { type: Boolean, default: true },
+        promotions: { type: Boolean, default: true },
+        messages: { type: Boolean, default: true },
+        system: { type: Boolean, default: true },
+        push: { type: Boolean, default: true }
     }
 }, {
     timestamps: true

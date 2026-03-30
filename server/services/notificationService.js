@@ -250,6 +250,31 @@ class NotificationService {
         } = validation.sanitized;
 
         try {
+            // Load recipient to respect preferences
+            const recipientUser = await User.findById(recipientId).select('notificationPreferences pushSubscriptionEnabled');
+
+            // If recipient has explicit preferences, adjust channel scope
+            const effectivePreferences = recipientUser?.notificationPreferences || {
+                orderUpdates: true,
+                promotions: true,
+                messages: true,
+                system: true,
+                push: true
+            };
+
+            if (type === 'promotion' && !effectivePreferences.promotions) {
+                return { skipped: true, reason: 'User disabled promotions' };
+            }
+            if (['new_order', 'order_confirmed', 'order_shipped', 'order_delivered', 'delivery_confirmed', 'payment_received', 'payment_failed'].includes(type) && !effectivePreferences.orderUpdates) {
+                return { skipped: true, reason: 'User disabled order updates' };
+            }
+            if (type === 'message' && !effectivePreferences.messages) {
+                return { skipped: true, reason: 'User disabled messages' };
+            }
+            if (type === 'system' && !effectivePreferences.system) {
+                return { skipped: true, reason: 'User disabled system notifications' };
+            }
+
             // Create notification object but don't save yet
             const notificationData = {
                 recipient: recipientId,
@@ -261,7 +286,7 @@ class NotificationService {
                 priority,
                 channels: {
                     websocket: channels.includes('websocket'),
-                    push: channels.includes('push'),
+                    push: channels.includes('push') && recipientUser?.pushSubscriptionEnabled,
                     email: channels.includes('email'),
                     sms: channels.includes('sms')
                 }
@@ -739,6 +764,38 @@ class NotificationService {
             priority: 'normal',
             channels: ['websocket']
         });
+    }
+
+    /**
+     * Send notification to multiple recipient IDs (e.g., seller/buyer broadcasts)
+     */
+    async sendBulkNotifications({ recipientIds = [], type, title, message, data = {}, priority = 'normal', channels = ['websocket', 'push'] }) {
+        if (!Array.isArray(recipientIds) || recipientIds.length === 0) {
+            throw new Error('recipientIds must be a non-empty array');
+        }
+
+        const results = [];
+        const uniqueIds = [...new Set(recipientIds.map(id => id.toString()))];
+
+        for (const recipientId of uniqueIds) {
+            try {
+                const notification = await this.sendNotification({
+                    recipientId,
+                    type,
+                    title,
+                    message,
+                    data,
+                    priority,
+                    channels
+                });
+                results.push({ recipientId, success: true, notificationId: notification._id });
+            } catch (error) {
+                console.error(`Failed to send bulk notification to ${recipientId}:`, error);
+                results.push({ recipientId, success: false, error: error.message });
+            }
+        }
+
+        return results;
     }
 
     /**

@@ -5001,8 +5001,8 @@ app.delete('/api/notifications/:id', authenticateToken, notificationActionRateLi
 app.delete('/api/notifications/read', authenticateToken, notificationActionRateLimit, async (req, res) => {
     try {
         const result = await Notification.deleteMany({
-            user: req.user.userId,
-            isRead: true
+            recipient: req.user.userId,
+            status: 'read'
         });
         
         res.json({ 
@@ -5077,6 +5077,88 @@ app.post('/api/notifications/unsubscribe', authenticateToken, notificationAction
 // Get VAPID public key for client
 app.get('/api/notifications/vapid-public-key', (req, res) => {
     res.json({ publicKey: vapidKeys.publicKey });
+});
+
+// User notification preferences
+app.get('/api/notifications/preferences', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId).select('notificationPreferences pushSubscriptionEnabled');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({
+            notificationPreferences: user.notificationPreferences || {
+                orderUpdates: true,
+                promotions: true,
+                messages: true,
+                system: true,
+                pushEnabled: Boolean(user.pushSubscriptionEnabled)
+            },
+            pushSubscriptionEnabled: Boolean(user.pushSubscriptionEnabled)
+        });
+    } catch (error) {
+        console.error('Get notification preferences error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+app.put('/api/notifications/preferences', authenticateToken, async (req, res) => {
+    try {
+        const { notificationPreferences, pushSubscriptionEnabled } = req.body;
+
+        await User.findByIdAndUpdate(req.user.userId, {
+            notificationPreferences: notificationPreferences || {},
+            pushSubscriptionEnabled: pushSubscriptionEnabled === true
+        }, { new: true });
+
+        res.json({ message: 'Notification preferences updated' });
+    } catch (error) {
+        console.error('Update notification preferences error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Broadcast notification to all buyers/sellers/admins
+app.post('/api/notifications/broadcast', authenticateToken, notificationActionRateLimit, async (req, res) => {
+    try {
+        // Only admin/super roles can broadcast
+        const requestingUser = await User.findById(req.user.userId);
+        if (!requestingUser || !['admin', 'CEO', 'support_lead', 'strategy_growth_lead'].includes(requestingUser.role)) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+
+        const { targetRole = 'all', type = 'system', title, message, data = {}, priority = 'normal', channels = ['websocket', 'push'] } = req.body;
+
+        if (!title || !message) {
+            return res.status(400).json({ message: 'Title and message are required' });
+        }
+
+        const roleQuery = targetRole === 'seller' ? { isSeller: true }
+            : targetRole === 'buyer' ? { isBuyer: true }
+            : {};
+
+        const recipients = await User.find(roleQuery).select('_id pushSubscriptionEnabled');
+        const recipientIds = recipients.map(u => u._id.toString());
+
+        const results = await notificationService.sendBulkNotifications({
+            recipientIds,
+            type,
+            title,
+            message,
+            data,
+            priority,
+            channels
+        });
+
+        res.json({
+            message: `Broadcast sent to ${recipientIds.length} users`,
+            results
+        });
+    } catch (error) {
+        console.error('Broadcast notification error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 // Send test push notification (for development)
@@ -6649,22 +6731,27 @@ io.on('connection', (socket) => {
 
             await order.save();
 
-            // Create notification for other party
+            // Create notification for other party (via NotificationService for all channels)
             const notificationRecipient = isBuyer ? order.seller._id : order.buyer._id;
+            const notificationType = isBuyer ? 'delivery_confirmed' : 'order_delivered';
             const notificationTitle = isBuyer ? 'Delivery Confirmed' : 'Order Status Updated';
             const notificationMessage = isBuyer 
                 ? `${order.buyer.fullName} confirmed delivery of order #${order._id.toString().slice(-8)}`
                 : `Order #${order._id.toString().slice(-8)} status updated to ${status}`;
 
-            const notification = new Notification({
-                user: notificationRecipient,
+            await notificationService.sendNotification({
+                recipientId: notificationRecipient,
+                type: notificationType,
                 title: notificationTitle,
                 message: notificationMessage,
-                type: 'Transaction',
-                link: '/pages/orders.html',
-                relatedOrder: order._id
+                data: {
+                    orderId: order._id,
+                    actionUrl: '/pages/orders.html',
+                    actionText: 'View Order'
+                },
+                priority: 'normal',
+                channels: ['websocket', 'push', 'email']
             });
-            await notification.save();
 
             // Send real-time updates to both buyer and seller
             const buyerRoom = `user_${order.buyer._id}`;
@@ -6679,23 +6766,12 @@ io.on('connection', (socket) => {
                 notification: {
                     title: notificationTitle,
                     message: notificationMessage,
-                    type: 'Transaction'
+                    type: notificationType
                 }
             };
 
             io.to(buyerRoom).emit('order_status_updated', orderUpdateData);
             io.to(sellerRoom).emit('order_status_updated', orderUpdateData);
-
-            // Send notification event
-            io.to(`user_${notificationRecipient}`).emit('new_notification', {
-                _id: notification._id,
-                title: notification.title,
-                message: notification.message,
-                type: notification.type,
-                link: notification.link,
-                createdAt: notification.createdAt,
-                status: 'unread'
-            });
 
             console.log(`✅ Order ${orderId} status updated to ${status} by ${isBuyer ? 'buyer' : 'seller'}`);
 
