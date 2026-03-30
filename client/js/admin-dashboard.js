@@ -6,18 +6,6 @@ let userStatsChart = null;
 let userRole = null;
 let userPermissions = [];
 
-// Debug: Log ROLE_NAVIGATION on load
-try {
-    console.log('🔧 ROLE_NAVIGATION loaded:', Object.keys(ROLE_NAVIGATION));
-    console.log('🔧 Admin config exists:', 'admin' in ROLE_NAVIGATION);
-    if ('admin' in ROLE_NAVIGATION) {
-        console.log('🔧 Admin cards count:', ROLE_NAVIGATION['admin'].cards.length);
-        console.log('🔧 Admin cards:', ROLE_NAVIGATION['admin'].cards);
-    }
-} catch (error) {
-    console.error('Error initializing ROLE_NAVIGATION debug:', error);
-}
-
 // Role-based navigation configuration
 const ROLE_NAVIGATION = {
     'admin': {
@@ -86,40 +74,19 @@ function loadRoleBasedNavigation() {
         return;
     }
 
-    console.log('Current userRole:', userRole);
-    console.log('Available roles:', Object.keys(ROLE_NAVIGATION));
-    
-    // Try to get role config, with fallbacks
+    // Get role config, with fallback to admin
     let roleConfig = ROLE_NAVIGATION[userRole];
     if (!roleConfig) {
-        console.log('Role config not found for:', userRole, 'trying fallback to admin');
         roleConfig = ROLE_NAVIGATION['admin'];
     }
     
-    console.log('Final role config:', roleConfig);
-    console.log('roleConfig type:', typeof roleConfig);
-    console.log('roleConfig keys:', roleConfig ? Object.keys(roleConfig) : 'null');
     const roleCards = roleConfig?.cards;
-    console.log('roleCards before array check:', roleCards);
-    console.log('roleCards type:', typeof roleCards);
-    console.log('Is roleCards an array?', Array.isArray(roleCards));
-    if (roleCards) {
-        console.log('roleCards length:', roleCards.length);
-        console.log('roleCards contents:', roleCards);
-    }
-    
-    console.log('Role cards found:', roleCards);
-    console.log('Type of roleCards:', typeof roleCards);
-    console.log('Is roleCards an array?', Array.isArray(roleCards));
     
     // Ensure roleCards is an array
     if (!Array.isArray(roleCards)) {
-        console.error('Invalid role configuration for role:', userRole);
         navCardsContainer.innerHTML = '<p class="text-red-500">Error loading navigation. Invalid role configuration.</p>';
         return;
     }
-    
-    console.log('Rendering', roleCards.length, 'navigation cards for role:', userRole);
     
     navCardsContainer.innerHTML = roleCards.map(card => `
         <a href="${card.href}" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all border-l-4 border-${card.color}-500 group">
@@ -134,8 +101,6 @@ function loadRoleBasedNavigation() {
             </div>
         </a>
     `).join('');
-    
-    console.log('Navigation cards rendered successfully');
 }
 
 // Get user role information
@@ -165,7 +130,6 @@ function getUserRoleInfo() {
         return response.json();
     })
     .then(roleInfo => {
-        console.log('Role info received:', roleInfo);
         userRole = roleInfo.role;
         userPermissions = roleInfo.permissions;
         
@@ -256,21 +220,14 @@ function checkAdminAccess() {
 // Load dashboard data
 async function loadDashboardData() {
     try {
-        console.log('Loading dashboard data...');
         const token = localStorage.getItem('token');
         const period = document.getElementById('periodSelector').value;
-        
-        console.log('Using API_BASE:', API_BASE);
-        console.log('Token exists:', !!token);
-        console.log('Period:', period);
 
         const response = await fetch(`${API_BASE}/admin/dashboard?period=${period}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
-
-        console.log('Dashboard API response status:', response.status);
 
         if (!response.ok) {
             if (response.status === 401 || response.status === 403) {
@@ -285,7 +242,6 @@ async function loadDashboardData() {
         }
 
         const data = await response.json();
-        console.log('Dashboard data received:', data);
         updateKPICards(data);
         updateCharts(data);
         updateTopSellers(data.topSellers);

@@ -179,16 +179,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (notificationsResponse.ok) {
                     const notificationsPayload = await notificationsResponse.json();
-                    const notifications = Array.isArray(notificationsPayload)
-                        ? notificationsPayload
-                        : Array.isArray(notificationsPayload.notifications)
-                            ? notificationsPayload.notifications
-                            : [];
+                    let notifications = [];
+                    
+                    if (Array.isArray(notificationsPayload)) {
+                        notifications = notificationsPayload;
+                    } else if (notificationsPayload && Array.isArray(notificationsPayload.notifications)) {
+                        notifications = notificationsPayload.notifications;
+                    }
 
-                    const unreadCount = notifications.filter(n => !n.isRead).length;
-
-                    // Update all notification badges
-                    updateNotificationBadges(unreadCount);
+                    if (Array.isArray(notifications)) {
+                        const unreadCount = notifications.filter(n => !n.isRead).length;
+                        updateNotificationBadges(unreadCount);
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching notifications:', error);
