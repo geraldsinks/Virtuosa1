@@ -178,7 +178,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (notificationsResponse.ok) {
-                    const notifications = await notificationsResponse.json();
+                    const notificationsPayload = await notificationsResponse.json();
+                    const notifications = Array.isArray(notificationsPayload)
+                        ? notificationsPayload
+                        : Array.isArray(notificationsPayload.notifications)
+                            ? notificationsPayload.notifications
+                            : [];
+
                     const unreadCount = notifications.filter(n => !n.isRead).length;
 
                     // Update all notification badges
