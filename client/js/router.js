@@ -180,24 +180,33 @@ class CleanRouter {
 
     // Parse dynamic route and extract parameters with improved validation
     parseDynamicRoute(path) {
+        console.log('🔍 Parsing dynamic route for path:', path);
+        
         if (!path || typeof path !== 'string') {
+            console.warn('❌ Invalid path for dynamic route parsing');
             return null;
         }
         
         // Basic path validation - only block truly dangerous patterns
         if (path.includes('..') || path.includes('\\')) {
-            console.warn('Invalid path detected:', path);
+            console.warn('❌ Invalid path detected:', path);
             return null;
         }
         
         // Remove leading slash for consistent processing
         const normalizedPath = path.startsWith('/') ? path.substring(1) : path;
+        console.log('📝 Normalized path:', normalizedPath);
         
         for (const [pattern, destination] of Object.entries(this.dynamicRoutes)) {
+            console.log('🔎 Testing pattern:', pattern, 'against:', normalizedPath);
+            
             const patternParts = pattern.split('/');
             const pathParts = normalizedPath.split('/');
             
+            console.log('📊 Pattern parts:', patternParts, 'Path parts:', pathParts);
+            
             if (patternParts.length !== pathParts.length) {
+                console.log('❌ Length mismatch - skipping pattern');
                 continue;
             }
             
@@ -209,25 +218,30 @@ class CleanRouter {
                     const paramName = patternParts[i].substring(1);
                     const paramValue = decodeURIComponent(pathParts[i]);
                     
+                    console.log('🔧 Processing param:', paramName, 'value:', paramValue);
+                    
                     // Enhanced parameter validation
                     if (!this.validateParameter(paramValue, paramName)) {
-                        console.debug('Parameter validation failed:', paramName, paramValue);
+                        console.debug('❌ Parameter validation failed:', paramName, paramValue);
                         isMatch = false;
                         break;
                     }
                     
                     params[paramName] = paramValue;
                 } else if (patternParts[i] !== pathParts[i]) {
+                    console.log('❌ Static part mismatch:', patternParts[i], '!==', pathParts[i]);
                     isMatch = false;
                     break;
                 }
             }
             
             if (isMatch) {
+                console.log('✅ Dynamic route matched:', pattern, 'params:', params);
                 return { destination, params };
             }
         }
         
+        console.log('❌ No dynamic route matched for:', path);
         return null;
     }
     
@@ -258,23 +272,29 @@ class CleanRouter {
     
     // Validate ID parameters (MongoDB ObjectId or numeric)
     validateId(value) {
-        // MongoDB ObjectId pattern (24 hex characters)
+        // MongoDB ObjectId pattern (24 hex characters) - more permissive
         const objectIdPattern = /^[a-fA-F0-9]{24}$/;
         
         // Numeric ID pattern
         const numericPattern = /^\d+$/;
         
+        console.log('🔍 Validating ID:', value, 'Length:', value.length);
+        
         if (objectIdPattern.test(value)) {
+            console.log('✅ Valid ObjectId:', value);
             return true;
         }
         
         if (numericPattern.test(value)) {
             // Additional validation for numeric IDs
             const numValue = parseInt(value, 10);
-            return numValue > 0 && numValue <= 999999999; // Reasonable range
+            const isValid = numValue > 0 && numValue <= 999999999; // Reasonable range
+            console.log('✅ Valid numeric ID:', value, 'Result:', isValid);
+            return isValid;
         }
         
-        console.warn('Invalid ID format:', value);
+        console.warn('❌ Invalid ID format:', value);
+        console.warn('Expected ObjectId (24 hex chars) or positive number');
         return false;
     }
     
