@@ -81,8 +81,8 @@ class TransactionController {
                 seller: req.body.sellerId,
                 amount: req.body.amount,
                 currency: req.body.currency || 'USD',
-                platformFee: req.body.platformFee || (req.body.amount * 0.05), // 5% platform fee
-                sellerAmount: req.body.sellerAmount || (req.body.amount - (req.body.amount * 0.05)),
+                platformFee: req.body.paymentMethod === 'cash_on_delivery' ? 0 : (req.body.platformFee || (req.body.amount * 0.05)), // No commission for cash on delivery
+                sellerAmount: req.body.paymentMethod === 'cash_on_delivery' ? req.body.amount : (req.body.sellerAmount || (req.body.amount - (req.body.amount * 0.05))),
                 paymentMethod: req.body.paymentMethod,
                 paymentGateway: req.body.paymentGateway,
                 delivery: req.body.delivery || {},

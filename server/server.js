@@ -3685,7 +3685,7 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
 
         // Calculate fees
         const commissionRate = 0.06; // 6% commission
-        const platformFee = product.price * commissionRate;
+        const platformFee = deliveryMethod === 'cash_on_delivery' ? 0 : product.price * commissionRate; // No commission for cash on delivery
         const deliveryFee = deliveryMethod === 'Delivery' ? 20 : 0; // K20 for delivery
         const amount = product.price + deliveryFee;
         const sellerAmount = product.price - platformFee;
@@ -8105,7 +8105,7 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
 
             // Calculate fees for this item
             const commissionRate = 0.06; // 6% commission
-            const platformFee = price * commissionRate;
+            const platformFee = paymentMethod === 'cash_on_delivery' ? 0 : price * commissionRate; // No commission for cash on delivery
             const deliveryFee = paymentMethod === 'cash_on_delivery' ? 20 : 0; // K20 for cash on delivery
             const amount = price * quantity + deliveryFee;
             const sellerAmount = (price * quantity) - platformFee;
