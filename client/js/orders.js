@@ -377,6 +377,7 @@ function getStatusColor(status) {
         'out_for_delivery': 'bg-purple-100 text-purple-800',
         'delivered_pending_confirmation': 'bg-green-100 text-green-800',
         'completed': 'bg-green-100 text-green-800',
+        'Completed': 'bg-green-100 text-green-800', // legacy capitalized variant
         'declined': 'bg-red-100 text-red-800'
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
@@ -401,6 +402,7 @@ function getStatusText(status) {
         'out_for_delivery': 'Out for Delivery',
         'delivered_pending_confirmation': 'Delivered',
         'completed': 'Completed',
+        'Completed': 'Completed', // legacy capitalized variant
         'declined': 'Declined'
     };
     return texts[status] || status;

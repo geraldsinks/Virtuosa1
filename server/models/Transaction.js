@@ -61,6 +61,12 @@ const transactionSchema = new mongoose.Schema({
             'shipped',          // Item shipped
             'delivered',        // Item delivered
             'completed',        // Transaction completed successfully
+            // Cash on Delivery (orders) workflow statuses
+            'pending_seller_confirmation',
+            'confirmed_by_seller',
+            'out_for_delivery',
+            'delivered_pending_confirmation',
+            'Completed',        // Keep legacy capitalized variant used by some routes
             'declined',         // Transaction declined
             'cancelled',        // Transaction cancelled
             'refunded',         // Transaction refunded
@@ -101,7 +107,8 @@ const transactionSchema = new mongoose.Schema({
     paymentGateway: {
         type: String,
         enum: ['stripe', 'paypal', 'flutterwave', 'paystack', 'mollie', 'square', 'manual'],
-        required: true
+        required: true,
+        default: 'manual' // Ensure COD can be created without specifying a gateway
     },
     paymentIntentId: String,  // External payment gateway ID
     paymentMetadata: mongoose.Schema.Types.Mixed,  // Additional payment data
@@ -242,6 +249,22 @@ const transactionSchema = new mongoose.Schema({
             confirmedBy: String
         }
     },
+    // Fields used by COD order flow (top-level for current routes)
+    quantity: { type: Number, default: 1 },
+    deliveryMethod: { type: String }, // e.g., 'Delivery'
+    deliveryAddress: {
+        name: String,
+        phone: String,
+        address: String,
+        instructions: String
+    },
+    trackingNumber: String, // kept for compatibility with existing routes
+    // Timestamps for seller/buyer actions in COD flow
+    sellerConfirmedAt: Date,
+    shippedAt: Date,
+    deliveredAt: Date,
+    deliveryConfirmedAt: Date,
+    declinedAt: Date,
     
     // Cash on delivery support
     isCashOnDelivery: {
