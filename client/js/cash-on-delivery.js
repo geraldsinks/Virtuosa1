@@ -250,8 +250,18 @@ async function placeCashOnDeliveryOrder() {
             }, 3000);
 
         } else {
-            const error = await response.json();
-            console.error('❌ Order placement failed:', error);
+            let error;
+            try {
+                error = await response.json();
+            } catch (e) {
+                const text = await response.text().catch(() => '');
+                error = { message: 'Non-JSON error response', raw: text };
+            }
+            console.error('❌ Order placement failed:', {
+                status: response.status,
+                statusText: response.statusText,
+                error
+            });
             
             // Handle different types of errors with appropriate user feedback
             if (response.status === 401) {
@@ -262,7 +272,7 @@ async function placeCashOnDeliveryOrder() {
             } else if (response.status === 400) {
                 alert(error.message || 'Invalid order data. Please check your information and try again.');
             } else if (response.status >= 500) {
-                alert('Server error. Your order has been saved locally and will be submitted when connection is restored.');
+                alert((error && error.message) ? `Server error: ${error.message}. We'll save your order and retry.` : 'Server error. Your order has been saved locally and will be submitted when connection is restored.');
                 // Save order to localStorage for retry
                 saveOrderForRetry(orderData);
             } else {
@@ -271,7 +281,7 @@ async function placeCashOnDeliveryOrder() {
         }
 
     } catch (error) {
-        console.error('❌ Error placing order:', error);
+        console.error('❌ Error placing order:', { name: error.name, message: error.message, stack: error.stack });
         
         // Handle network errors specifically
         if (error.name === 'TypeError' && error.message.includes('fetch')) {
@@ -279,7 +289,7 @@ async function placeCashOnDeliveryOrder() {
             // Save order to localStorage for retry
             saveOrderForRetry(orderData);
         } else {
-            alert('An error occurred while placing your order. Please try again.');
+            alert(`An error occurred while placing your order: ${error.message || 'Unknown error'}`);
         }
     } finally {
         // Restore button state
