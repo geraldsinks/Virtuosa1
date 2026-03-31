@@ -101,6 +101,24 @@ app.use(compression({
   threshold: 2048,
 }));
 
+// Clean URL route handler for product details
+app.get('/product/:id', (req, res) => {
+    // Serve the product-detail.html page for clean URLs
+    res.sendFile(path.join(__dirname, '../client/pages/product-detail.html'));
+});
+
+// Clean URL route handler for products page
+app.get('/products', (req, res) => {
+    // Serve the products.html page for clean URLs
+    res.sendFile(path.join(__dirname, '../client/pages/products.html'));
+});
+
+// Clean URL route handler for products with category
+app.get('/products/:category', (req, res) => {
+    // Serve the products.html page for clean URLs with category
+    res.sendFile(path.join(__dirname, '../client/pages/products.html'));
+});
+
 // Apply compression to static assets
 app.use(express.static(path.join(__dirname, '../client'), {
   maxAge: '1d',
