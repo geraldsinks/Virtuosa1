@@ -130,10 +130,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         mobileAdminSection.style.display = 'none';
                     }
 
-                    // Always point to buyer dashboard as requested
+                    // Point to appropriate dashboard based on user role
                     const dashboardLink = document.querySelector('#user-dropdown a[href="/pages/dashboard.html"]');
                     if (dashboardLink) {
-                        dashboardLink.href = '/pages/buyer-dashboard.html';
+                        if (userData.isSeller) {
+                            dashboardLink.href = '/pages/seller-dashboard.html';
+                        } else {
+                            dashboardLink.href = '/pages/buyer-dashboard.html';
+                        }
                     }
 
                     // Dynamically add Messages link if not present

@@ -227,12 +227,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const userGreeting = document.getElementById('user-greeting');
         const verificationCard = document.getElementById('verification-card');
 
-        // Use seller object
+        // Use seller object first, then fallback to buyer for backward compatibility
         const sellerInfo = dashboardData.seller || dashboardData.buyer || {};
+        console.log('Using seller info:', sellerInfo);
         if (sellerName) sellerName.textContent = sellerInfo.name || 'Seller';
         if (userGreeting) userGreeting.textContent = `Hello, ${sellerInfo.name || 'Seller'}`;
 
         // Handle verification status
+        const sellerVerified = document.getElementById('seller-verified');
         if (sellerInfo.isStudentVerified) {
             if (sellerVerified) sellerVerified.classList.remove('hidden');
             if (verificationCard) verificationCard.classList.add('hidden');
@@ -241,6 +243,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (verificationCard) verificationCard.classList.remove('hidden');
         }
 
+        const sellerPro = document.getElementById('seller-pro');
         if (sellerInfo.isPro) {
             if (sellerPro) sellerPro.classList.remove('hidden');
             const proFeatures = document.getElementById('pro-features');
