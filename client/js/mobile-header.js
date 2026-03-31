@@ -444,6 +444,15 @@ window.selectMobileSearchSuggestion = selectMobileSearchSuggestion;
 window.updateMobileCartBadge = updateCartBadge;
 window.updateMobileAuthState = updateAuthState;
 
+// Helper function to escape HTML attributes (same as index.html)
+function escapeHtmlAttribute(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
 // Listen for cart updates
 window.addEventListener('cartUpdated', async () => {
     await updateCartBadge();
