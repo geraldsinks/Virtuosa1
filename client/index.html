@@ -1251,26 +1251,80 @@
             async function initHomeSearch() {
                 if (!homeSearchInput || !homeSearchSuggestions) return;
 
-                try {
-                    const response = await fetch(`${API_BASE}/products`, {
-                        method: 'GET',
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        homeAllProducts = data.products || [];
+                async function fetchSuggestions(query) {
+                    try {
+                        const response = await fetch(`${API_BASE}/search/suggestions?q=${encodeURIComponent(query)}`);
+                        if (response.ok) {
+                            const suggestions = await response.json();
+                            console.log('Home search suggestions:', suggestions);
+                            renderHomeSuggestions(query, suggestions);
+                        } else {
+                            console.error('Search suggestions failed:', response.status);
+                            renderHomeSuggestions(query, []);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching search suggestions:', error);
+                        renderHomeSuggestions(query, []);
                     }
-                } catch (error) {
-                    console.error('Error preloading products for home search:', error);
                 }
 
-                function renderHomeSuggestions(query) {
+                function renderHomeSuggestions(query, suggestions = null) {
                     if (!query) {
                         homeSearchSuggestions.innerHTML = '';
                         homeSearchSuggestions.classList.add('hidden');
                         return;
                     }
 
+                    // If suggestions are provided (from API), use them
+                    if (suggestions !== null) {
+                        if (suggestions.length === 0) {
+                            homeSearchSuggestions.innerHTML = `
+                                <div class="px-4 py-3 text-xs text-gray-400">
+                                    No suggestions found. Press Enter to search all campus items.
+                                </div>
+                            `;
+                            homeSearchSuggestions.classList.remove('hidden');
+                            return;
+                        }
+
+                        homeSearchSuggestions.innerHTML = suggestions.map(item => {
+                            // Handle image URL with server base URL
+                            const imageUrl = item.image ? 
+                                (item.image.startsWith('/') ? `${API_BASE.replace('/api', '')}${item.image}` : item.image) : 
+                                null;
+                            
+                            return `
+                                <button 
+                                    class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-800 text-xs"
+                                    data-product-id="${item.id}"
+                                >
+                                    <div class="flex items-center gap-3">
+                                        ${imageUrl ? `
+                                            <img src="${imageUrl}" alt="${item.title}" class="w-8 h-8 object-cover rounded" 
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div class="w-8 h-8 bg-gray-600 rounded flex items-center justify-center" style="display:none;">
+                                                <i class="fas fa-box text-gray-400 text-xs"></i>
+                                            </div>
+                                        ` : `
+                                            <div class="w-8 h-8 bg-gray-600 rounded flex items-center justify-center">
+                                                <i class="fas fa-box text-gray-400 text-xs"></i>
+                                            </div>
+                                        `}
+                                        <div>
+                                            <p class="text-sm font-medium text-white line-clamp-1">${item.title}</p>
+                                            <p class="text-xs text-gray-400">${item.category}</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-gold text-sm font-bold">K${item.price ? item.price.toLocaleString() : '0'}</div>
+                                </button>
+                            `;
+                        }).join('');
+
+                        homeSearchSuggestions.classList.remove('hidden');
+                        return;
+                    }
+
+                    // Fallback to client-side search if API fails
                     const q = query.toLowerCase();
                     const byName = [];
                     const byCategory = [];
@@ -1355,9 +1409,14 @@
                 homeSearchInput.addEventListener('input', () => {
                     const value = homeSearchInput.value.trim();
                     clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(() => {
+                    
+                    if (value.length >= 2) {
+                        debounceTimer = setTimeout(() => {
+                            fetchSuggestions(value);
+                        }, 300);
+                    } else {
                         renderHomeSuggestions(value);
-                    }, 150);
+                    }
                 });
 
                 homeSearchInput.addEventListener('keydown', (event) => {
@@ -1365,7 +1424,8 @@
                         event.preventDefault();
                         const value = homeSearchInput.value.trim();
                         if (value) {
-                            window.location.href = `pages/products.html?q=${encodeURIComponent(value)}`;
+                            // Pressing Enter goes to products page with search results (marketplace competition)
+                            window.location.href = `/products?q=${encodeURIComponent(value)}`;
                         }
                     } else if (event.key === 'Escape') {
                         homeSearchSuggestions.classList.add('hidden');
@@ -1376,35 +1436,31 @@
                     homeSearchButton.addEventListener('click', () => {
                         const value = homeSearchInput.value.trim();
                         if (value) {
-                            window.location.href = `pages/products.html?q=${encodeURIComponent(value)}`;
+                            window.location.href = `/products?q=${encodeURIComponent(value)}`;
                         }
                     });
                 }
 
                 homeSearchSuggestions.addEventListener('click', (event) => {
-                    const btn = event.target.closest('button[data-suggestion-type]');
-                    if (!btn) return;
-                    const type = btn.getAttribute('data-suggestion-type');
-                    const label = btn.getAttribute('data-suggestion-label');
-                    const productId = btn.getAttribute('data-product-id');
-
-                    if (type === 'Product' && productId) {
-                        window.location.href = `pages/product-detail.html?id=${productId}`;
+                    const btn = event.target.closest('button[data-product-id]');
+                    if (btn) {
+                        const productId = btn.getAttribute('data-product-id');
+                        window.location.href = `/product/${productId}`;
                         return;
                     }
+
+                    const fallbackBtn = event.target.closest('button[data-suggestion-type]');
+                    if (!fallbackBtn) return;
+                    const type = fallbackBtn.getAttribute('data-suggestion-type');
+                    const label = fallbackBtn.getAttribute('data-suggestion-label');
 
                     if (type === 'Category') {
-                        window.location.href = `pages/products.html?category=${encodeURIComponent(label)}`;
-                        return;
-                    }
-
-                    if (type === 'Brand') {
-                        window.location.href = `/pages/products.html?q=${encodeURIComponent(label)}`;
+                        window.location.href = `/products?category=${encodeURIComponent(label)}`;
                         return;
                     }
 
                     // Fallback: generic search
-                    window.location.href = `/pages/products.html?q=${encodeURIComponent(label)}`;
+                    window.location.href = `/products?q=${encodeURIComponent(label)}`;
                 });
 
                 document.addEventListener('click', (event) => {

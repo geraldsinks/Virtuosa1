@@ -358,6 +358,24 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Similar Items Section -->
+            <div class="mt-16 pt-8 border-t border-gray-200">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-navy">Similar Items</h2>
+                    <a href="/products" class="text-gold hover:text-navy transition-colors font-medium">View All →</a>
+                </div>
+                <div id="similar-items-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Similar items will be injected here -->
+                </div>
+                <div id="similar-loading" class="hidden text-center py-8">
+                    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gold mx-auto mb-4"></div>
+                    <p class="text-gray-500">Loading similar items...</p>
+                </div>
+                <div id="similar-empty" class="hidden text-center py-8">
+                    <p class="text-gray-500">No similar items found</p>
+                </div>
+            </div>
         </div>
 
         <!-- Loading State -->
@@ -416,6 +434,9 @@
                 const product = await response.json();
                 renderProduct(product);
                 
+                // Load similar items after rendering main product
+                loadSimilarItems(product);
+                
                 // Initialize Lucide icons after rendering
                 lucide.createIcons();
             } catch (error) {
@@ -423,6 +444,97 @@
                 showError();
             }
         });
+
+        async function loadSimilarItems(currentProduct) {
+            const similarContainer = document.getElementById('similar-items-container');
+            const similarLoading = document.getElementById('similar-loading');
+            const similarEmpty = document.getElementById('similar-empty');
+
+            similarContainer.innerHTML = '';
+            similarLoading.classList.remove('hidden');
+            similarEmpty.classList.add('hidden');
+
+            try {
+                // Search for similar items by category and name keywords
+                const searchTerms = [
+                    currentProduct.category,
+                    ...currentProduct.name.split(' ').filter(word => word.length > 2)
+                ].slice(0, 3); // Limit to avoid too many terms
+
+                const response = await fetch(`${API_BASE}/products?search=${searchTerms.join(' ')}&limit=8`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const similarProducts = data.products || [];
+                    
+                    // Filter out the current product and limit to 8 items
+                    const filteredProducts = similarProducts
+                        .filter(p => p._id !== currentProduct._id)
+                        .slice(0, 8);
+
+                    if (filteredProducts.length > 0) {
+                        renderSimilarItems(filteredProducts);
+                    } else {
+                        showEmptySimilarItems();
+                    }
+                } else {
+                    showEmptySimilarItems();
+                }
+            } catch (error) {
+                console.error('Error loading similar items:', error);
+                showEmptySimilarItems();
+            } finally {
+                similarLoading.classList.add('hidden');
+            }
+        }
+
+        function renderSimilarItems(products) {
+            const similarContainer = document.getElementById('similar-items-container');
+            
+            similarContainer.innerHTML = products.map(product => {
+                const imageUrl = product.images && product.images.length > 0 
+                    ? fixServerUrl(product.images[0]) 
+                    : 'https://placehold.co/300x200?text=No+Image';
+                
+                const price = parseFloat(product.price);
+                const originalPrice = product.originalPrice && parseFloat(product.originalPrice) > price 
+                    ? parseFloat(product.originalPrice) 
+                    : null;
+
+                return `
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow cursor-pointer" 
+                         onclick="window.location.href='/product/${product._id}'">
+                        <div class="aspect-square overflow-hidden bg-gray-50">
+                            <img src="${imageUrl}" 
+                                 alt="${product.name}" 
+                                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                 onerror="this.src='https://placehold.co/300x200?text=No+Image'">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-gray-900 text-sm line-clamp-2 mb-2">${product.name}</h3>
+                            <p class="text-xs text-gray-500 mb-3">${product.category || 'General'}</p>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="text-lg font-bold text-navy">K${price.toLocaleString()}</span>
+                                    ${originalPrice ? `
+                                        <span class="text-xs text-gray-400 line-through ml-1">K${originalPrice.toLocaleString()}</span>
+                                    ` : ''}
+                                </div>
+                                ${originalPrice ? `
+                                    <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                                        ${Math.round(((originalPrice - price) / originalPrice) * 100)}% OFF
+                                    </span>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showEmptySimilarItems() {
+            const similarEmpty = document.getElementById('similar-empty');
+            similarEmpty.classList.remove('hidden');
+        }
 
         function renderProduct(product) {
             document.getElementById('product-name').textContent = product.name;

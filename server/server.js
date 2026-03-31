@@ -3559,28 +3559,20 @@ app.get('/api/products', async (req, res) => {
 app.get('/api/search/suggestions', async (req, res) => {
     try {
         const { q } = req.query;
+        console.log('🔍 Search suggestions query:', q);
         
         if (!q || q.length < 2) {
+            console.log('❌ Query too short or empty');
             return res.json([]);
         }
 
-        // Search for products that match the query
+        // Simplified search - find active products matching the query
         const products = await Product.find({
             $and: [
-                {
-                    $or: [
-                        { status: 'Active' },
-                        { 
-                            listingType: 'persistent', 
-                            inventory: { $gt: 0 },
-                            status: { $in: ['Active', 'Reserved'] }
-                        }
-                    ]
-                },
+                { status: 'Active' }, // Only get active products for now
                 {
                     $or: [
                         { name: { $regex: q, $options: 'i' } },
-                        { description: { $regex: q, $options: 'i' } },
                         { category: { $regex: q, $options: 'i' } }
                     ]
                 }
@@ -3588,7 +3580,10 @@ app.get('/api/search/suggestions', async (req, res) => {
         })
         .populate('seller', 'fullName storeName')
         .limit(8)
-        .select('name category price images seller _id');
+        .select('name category price images seller _id')
+        .sort({ createdAt: -1 });
+
+        console.log(`📦 Found ${products.length} products for query "${q}"`);
 
         // Format suggestions
         const suggestions = products.map(product => ({
@@ -3600,9 +3595,30 @@ app.get('/api/search/suggestions', async (req, res) => {
             seller: product.seller?.storeName || product.seller?.fullName
         }));
 
+        console.log('✅ Suggestions formatted:', suggestions.length);
         res.json(suggestions);
     } catch (error) {
-        console.error('Search suggestions error:', error);
+        console.error('❌ Search suggestions error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Debug endpoint to check products
+app.get('/api/debug/products', async (req, res) => {
+    try {
+        const totalProducts = await Product.countDocuments();
+        const activeProducts = await Product.countDocuments({ status: 'Active' });
+        const sampleProducts = await Product.find({ status: 'Active' })
+            .limit(5)
+            .select('name category price images status');
+        
+        res.json({
+            total: totalProducts,
+            active: activeProducts,
+            sample: sampleProducts
+        });
+    } catch (error) {
+        console.error('Debug products error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });

@@ -24,12 +24,15 @@ class SearchManager {
         this.searchInput.addEventListener('input', (e) => {
             clearTimeout(this.debounceTimer);
             const query = e.target.value.trim();
+            console.log('🔍 Search input changed:', query);
             
             if (query.length >= 2) {
                 this.debounceTimer = setTimeout(() => {
+                    console.log('⏰ Fetching suggestions for:', query);
                     this.fetchSuggestions(query);
                 }, 300);
             } else {
+                console.log('❌ Query too short, hiding suggestions');
                 this.hideSuggestions();
             }
         });
@@ -46,23 +49,33 @@ class SearchManager {
             }
         });
 
-        // Click outside to close suggestions
+        // Click outside to close suggestions - but prevent closing when clicking inside
         document.addEventListener('click', (e) => {
             if (!this.searchInput.contains(e.target) && !this.suggestionsContainer.contains(e.target)) {
                 this.hideSuggestions();
             }
         });
+
+        // Prevent suggestions from hiding when clicking inside
+        this.suggestionsContainer.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
     }
 
     async fetchSuggestions(query) {
         try {
-            const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(query)}`);
+            const response = await fetch(`${API_BASE}/search/suggestions?q=${encodeURIComponent(query)}`);
             if (response.ok) {
                 const suggestions = await response.json();
+                console.log('Search suggestions received:', suggestions);
                 this.displaySuggestions(suggestions);
+            } else {
+                console.error('Search suggestions failed:', response.status);
+                this.displaySuggestions([]);
             }
         } catch (error) {
             console.error('Error fetching search suggestions:', error);
+            this.displaySuggestions([]);
         }
     }
 
@@ -81,15 +94,30 @@ class SearchManager {
             suggestions.forEach(suggestion => {
                 const item = document.createElement('div');
                 item.className = 'px-4 py-3 hover:bg-gray-800 cursor-pointer transition-colors';
+                
+                // Handle image URL with server base URL
+                const imageUrl = suggestion.image ? 
+                    (suggestion.image.startsWith('/') ? `${API_BASE.replace('/api', '')}${suggestion.image}` : suggestion.image) : 
+                    'https://placehold.co/40x40/cccccc/666666?text=No+Image';
+                
                 item.innerHTML = `
-                    <div class="flex items-center">
-                        <i class="fas fa-search text-gray-400 mr-3 text-sm"></i>
-                        <div>
-                            <div class="text-white text-sm">${suggestion.title}</div>
+                    <div class="flex items-center space-x-3">
+                        ${suggestion.image ? `
+                            <img src="${imageUrl}" alt="${suggestion.title}" class="w-10 h-10 object-cover rounded-lg" 
+                                 onerror="this.src='https://placehold.co/40x40/cccccc/666666?text=No+Image'">
+                        ` : `
+                            <div class="w-10 h-10 bg-gray-600 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-box text-gray-400 text-sm"></i>
+                            </div>
+                        `}
+                        <div class="flex-1">
+                            <div class="text-white text-sm font-medium">${suggestion.title}</div>
                             <div class="text-gray-400 text-xs">${suggestion.category}</div>
                         </div>
+                        <div class="text-gold text-sm font-bold">K${suggestion.price ? suggestion.price.toLocaleString() : '0'}</div>
                     </div>
                 `;
+                
                 item.addEventListener('click', () => {
                     // Redirect directly to product detail page using clean URL
                     window.location.href = `/product/${suggestion.id}`;
