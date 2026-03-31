@@ -642,11 +642,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await fetch(`${API_BASE}/notifications`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            const notifications = await response.json();
+            const data = await response.json();
 
-            // Ensure notifications is an array
-            if (!Array.isArray(notifications)) {
-                console.error('Expected array but received:', typeof notifications, notifications);
+            // Handle both array and paginated response formats
+            let notifications = [];
+            if (Array.isArray(data)) {
+                notifications = data;
+            } else if (data && data.notifications && Array.isArray(data.notifications)) {
+                notifications = data.notifications;
+            } else {
+                console.error('Expected array but received:', typeof data, data);
                 container.innerHTML = '<p class="text-gray-500 text-sm">Error loading activity feed.</p>';
                 return;
             }
@@ -722,8 +727,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const ctx = document.getElementById('salesChart');
         if (!ctx || !dashboardData) return;
 
-        // Debug: Log the transactions data
+        // Debug: Log transactions data
         console.log('Dashboard transactions for chart:', dashboardData.recentTransactions);
+        console.log('Sample transaction for chart:', dashboardData.recentTransactions?.[0]);
 
         // Build last-7-days labels
         const last7Days = [];
@@ -747,7 +753,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const key = new Date(t.createdAt).toISOString().slice(0, 10);
                     if (key in revenueByDay) {
                         // Use multiple possible field names for revenue amount
-                        const amount = t.sellerAmount || t.sellerPayout || t.totalAmount || t.amount || 0;
+                        const amount = t.sellerPayout || t.sellerAmount || t.totalAmount || t.amount || 0;
+                        console.log(`Adding ${amount} to ${key} from transaction:`, {
+                            status: t.status,
+                            sellerPayout: t.sellerPayout,
+                            sellerAmount: t.sellerAmount,
+                            totalAmount: t.totalAmount,
+                            amount: t.amount
+                        });
                         revenueByDay[key] += amount;
                     }
                 }
@@ -839,11 +852,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             if (response.ok) {
-                const notifications = await response.json();
+                const data = await response.json();
                 
-                // Ensure notifications is an array
-                if (!Array.isArray(notifications)) {
-                    console.error('Expected array but received:', typeof notifications, notifications);
+                // Handle both array and paginated response formats
+                let notifications = [];
+                if (Array.isArray(data)) {
+                    notifications = data;
+                } else if (data && data.notifications && Array.isArray(data.notifications)) {
+                    notifications = data.notifications;
+                } else {
+                    console.error('Expected array but received:', typeof data, data);
                     return;
                 }
                 

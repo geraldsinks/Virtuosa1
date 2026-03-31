@@ -5994,13 +5994,27 @@ app.get('/api/seller/dashboard', authenticateToken, async (req, res) => {
             .sort({ createdAt: -1 });
 
         // Calculate stats - fix status filtering and field access
-        const totalRevenue = transactions
-            .filter(t => ['completed', 'Completed', 'delivered', 'Delivered'].includes(t.status))
-            .reduce((sum, t) => sum + (t.sellerAmount || t.sellerPayout || t.amount || 0), 0);
+        const completedTransactions = transactions.filter(t => ['completed', 'Completed', 'delivered', 'Delivered'].includes(t.status));
+        const totalRevenue = completedTransactions.reduce((sum, t) => sum + (t.sellerAmount || t.sellerPayout || t.amount || 0), 0);
 
         const activeListings = products.filter(p => p.status === 'Active').length;
         const soldItems = transactions.filter(t => ['completed', 'Completed', 'delivered', 'Delivered'].includes(t.status)).length;
         const pendingTransactions = transactions.filter(t => ['pending', 'Pending', 'processing', 'Processing', 'awaiting_confirmation'].includes(t.status)).length;
+        
+        console.log('Seller dashboard stats:', {
+            totalTransactions: transactions.length,
+            completedTransactions: completedTransactions.length,
+            totalRevenue,
+            sampleTransaction: completedTransactions[0]
+        });
+
+        console.log('Final stats object:', {
+            totalRevenue,
+            activeListings,
+            soldItems,
+            pendingTransactions,
+            totalProducts: products.length
+        });
 
         // Calculate seller's rating and total reviews
         const totalReviews = reviews.length;
