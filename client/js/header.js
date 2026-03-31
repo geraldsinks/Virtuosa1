@@ -447,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     async function loadProductsForDesktopSearch() {
         try {
-            const response = await fetch(`${API_BASE}/products`);
+            const response = await fetch('/api/products');
             if (response.ok) {
                 const data = await response.json();
                 window.desktopAllProducts = data.products || [];

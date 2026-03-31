@@ -181,7 +181,7 @@ function initializeMobileSearch() {
 
 async function loadProductsForSearch() {
     try {
-        const response = await fetch(`${API_BASE}/products`);
+        const response = await fetch('/api/products');
         if (response.ok) {
             const data = await response.json();
             window.mobileAllProducts = data.products || [];
