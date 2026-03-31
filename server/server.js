@@ -6013,8 +6013,9 @@ app.get('/api/seller/dashboard', authenticateToken, async (req, res) => {
         })));
         
         const totalRevenue = completedTransactions.reduce((sum, t) => {
-            const amount = t.sellerAmount || t.sellerPayout || t.amount || 0;
+            const amount = t.sellerPayout || t.sellerAmount || t.amount || 0;
             console.log(`Transaction ${t._id}: adding ${amount} to sum (current: ${sum})`);
+            console.log(`Available fields: sellerPayout=${t.sellerPayout}, sellerAmount=${t.sellerAmount}, amount=${t.amount}`);
             return sum + amount;
         }, 0);
 
