@@ -5994,8 +5994,29 @@ app.get('/api/seller/dashboard', authenticateToken, async (req, res) => {
             .sort({ createdAt: -1 });
 
         // Calculate stats - fix status filtering and field access
+        console.log('All transactions:', transactions.map(t => ({
+            id: t._id,
+            status: t.status,
+            sellerPayout: t.sellerPayout,
+            sellerAmount: t.sellerAmount,
+            amount: t.amount,
+            createdAt: t.createdAt
+        })));
+        
         const completedTransactions = transactions.filter(t => ['completed', 'Completed', 'delivered', 'Delivered'].includes(t.status));
-        const totalRevenue = completedTransactions.reduce((sum, t) => sum + (t.sellerAmount || t.sellerPayout || t.amount || 0), 0);
+        console.log('Completed transactions:', completedTransactions.map(t => ({
+            id: t._id,
+            status: t.status,
+            sellerPayout: t.sellerPayout,
+            sellerAmount: t.sellerAmount,
+            amount: t.amount
+        })));
+        
+        const totalRevenue = completedTransactions.reduce((sum, t) => {
+            const amount = t.sellerAmount || t.sellerPayout || t.amount || 0;
+            console.log(`Transaction ${t._id}: adding ${amount} to sum (current: ${sum})`);
+            return sum + amount;
+        }, 0);
 
         const activeListings = products.filter(p => p.status === 'Active').length;
         const soldItems = transactions.filter(t => ['completed', 'Completed', 'delivered', 'Delivered'].includes(t.status)).length;
@@ -6023,7 +6044,7 @@ app.get('/api/seller/dashboard', authenticateToken, async (req, res) => {
             : 0;
 
         res.json({
-            buyer: {
+            seller: {
                 name: user.fullName,
                 email: user.email,
                 isStudentVerified: user.isStudentVerified,

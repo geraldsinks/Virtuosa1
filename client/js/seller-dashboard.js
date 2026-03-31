@@ -222,15 +222,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     function updateUI() {
         if (!dashboardData) return;
 
-        // Update seller info - use buyer object since server returns seller info in buyer field
+        // Update seller info
         const sellerName = document.getElementById('seller-name');
-        const sellerVerified = document.getElementById('seller-verified');
-        const sellerPro = document.getElementById('seller-pro');
         const userGreeting = document.getElementById('user-greeting');
         const verificationCard = document.getElementById('verification-card');
 
-        // Use buyer.name since server returns seller info in buyer field
-        const sellerInfo = dashboardData.buyer || dashboardData.seller || {};
+        // Use seller object
+        const sellerInfo = dashboardData.seller || dashboardData.buyer || {};
         if (sellerName) sellerName.textContent = sellerInfo.name || 'Seller';
         if (userGreeting) userGreeting.textContent = `Hello, ${sellerInfo.name || 'Seller'}`;
 
@@ -335,11 +333,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const data = await response.json();
                 if (response.ok) {
                     showMessage('Store settings saved successfully!');
-                    // Update local data and UI - use buyer field since server returns seller info there
-                    if (!dashboardData.buyer) dashboardData.buyer = {};
-                    dashboardData.buyer.storeName = data.storeName;
-                    dashboardData.buyer.storeDescription = data.storeDescription;
-                    dashboardData.buyer.storeSlug = data.storeSlug;
+                    // Update local data and UI
+                    if (!dashboardData.seller) dashboardData.seller = {};
+                    dashboardData.seller.storeName = data.storeName;
+                    dashboardData.seller.storeDescription = data.storeDescription;
+                    dashboardData.seller.storeSlug = data.storeSlug;
                     updateUI();
                     // Reset button state
                     saveStoreBtn.disabled = false;
