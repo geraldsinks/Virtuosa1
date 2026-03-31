@@ -389,9 +389,20 @@
             const loadingState = document.getElementById('loading-state');
             const errorState = document.getElementById('error-state');
             
-            // Get product ID from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const productId = urlParams.get('id');
+            // Get product ID from URL (supports both ?id=... and /product/:id clean URLs)
+            const url = new URL(window.location.href);
+            const urlParams = url.searchParams;
+            let productId = urlParams.get('id');
+
+            // Fallback: extract ID from path segment for clean URLs like /product/123
+            if (!productId) {
+                const segments = window.location.pathname.split('/').filter(Boolean);
+                const lastSegment = segments[segments.length - 1];
+                // Basic ObjectId-style check (24-char hex) but accept any non-empty id
+                if (lastSegment) {
+                    productId = lastSegment;
+                }
+            }
 
             if (!productId) {
                 showError();

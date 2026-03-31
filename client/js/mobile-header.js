@@ -164,6 +164,18 @@ function initializeMobileSearch() {
         mobileSearchSuggestions.addEventListener('mousedown', (e) => {
             e.preventDefault();
         });
+
+        // Delegate clicks to suggestion items (avoids brittle inline onclick)
+        mobileSearchSuggestions.addEventListener('click', (e) => {
+            const suggestionItem = e.target.closest('.mobile-search-suggestion-item');
+            if (!suggestionItem) return;
+
+            const productId = suggestionItem.dataset.productId;
+            const productName = suggestionItem.dataset.productName || '';
+            if (!productId) return;
+
+            selectMobileSearchSuggestion(productName, productId);
+        });
     }
 }
 
@@ -191,8 +203,9 @@ function showSearchSuggestions(query) {
                 : 'https://placehold.co/40x40?text=No+Image';
             
             return `
-            <div class="mobile-search-suggestion-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-b-0" 
-                 onclick="selectMobileSearchSuggestion('${product.name}', '${product._id}')">
+            <div class="mobile-search-suggestion-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-b-0"
+                 data-product-id="${product._id}"
+                 data-product-name="${escapeHtmlAttribute(product.name)}">
                 <div class="flex items-center space-x-3">
                     <img src="${imageUrl}" 
                          alt="${product.name}" 
@@ -222,6 +235,14 @@ function hideSearchSuggestions() {
     if (mobileSearchSuggestions) {
         mobileSearchSuggestions.classList.add('hidden');
     }
+}
+
+function escapeHtmlAttribute(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }
 
 function getSearchSuggestions(query, products) {
