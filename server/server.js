@@ -3555,6 +3555,58 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
+// Search suggestions endpoint
+app.get('/api/search/suggestions', async (req, res) => {
+    try {
+        const { q } = req.query;
+        
+        if (!q || q.length < 2) {
+            return res.json([]);
+        }
+
+        // Search for products that match the query
+        const products = await Product.find({
+            $and: [
+                {
+                    $or: [
+                        { status: 'Active' },
+                        { 
+                            listingType: 'persistent', 
+                            inventory: { $gt: 0 },
+                            status: { $in: ['Active', 'Reserved'] }
+                        }
+                    ]
+                },
+                {
+                    $or: [
+                        { name: { $regex: q, $options: 'i' } },
+                        { description: { $regex: q, $options: 'i' } },
+                        { category: { $regex: q, $options: 'i' } }
+                    ]
+                }
+            ]
+        })
+        .populate('seller', 'fullName storeName')
+        .limit(8)
+        .select('name category price images seller _id');
+
+        // Format suggestions
+        const suggestions = products.map(product => ({
+            id: product._id,
+            title: product.name,
+            category: product.category,
+            price: product.price,
+            image: product.images && product.images.length > 0 ? product.images[0] : null,
+            seller: product.seller?.storeName || product.seller?.fullName
+        }));
+
+        res.json(suggestions);
+    } catch (error) {
+        console.error('Search suggestions error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // Create transaction with escrow
 app.post('/api/transactions', authenticateToken, async (req, res) => {
     try {

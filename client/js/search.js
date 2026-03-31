@@ -91,8 +91,8 @@ class SearchManager {
                     </div>
                 `;
                 item.addEventListener('click', () => {
-                    this.searchInput.value = suggestion.title;
-                    this.performSearch();
+                    // Redirect directly to product detail page using clean URL
+                    window.location.href = `/product/${suggestion.id}`;
                     this.hideSuggestions();
                 });
                 this.suggestionsContainer.appendChild(item);
