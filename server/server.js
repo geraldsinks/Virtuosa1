@@ -5982,24 +5982,25 @@ app.get('/api/seller/dashboard', authenticateToken, async (req, res) => {
         // Get seller's products
         const products = await Product.find({ seller: user._id });
 
-        // Get seller's transactions
+        // Get seller's transactions with proper sorting and field selection
         const transactions = await Transaction.find({ seller: user._id })
             .populate('buyer', 'fullName email')
-            .populate('product', 'name price');
+            .populate('product', 'name price images')
+            .sort({ createdAt: -1 });
 
         // Get seller's reviews
         const reviews = await Review.find({ reviewedUser: user._id, reviewType: 'Buyer to Seller' })
             .populate('reviewer', 'fullName')
             .sort({ createdAt: -1 });
 
-        // Calculate stats
+        // Calculate stats - fix status filtering and field access
         const totalRevenue = transactions
-            .filter(t => t.status === 'Completed')
-            .reduce((sum, t) => sum + t.sellerPayout, 0);
+            .filter(t => ['completed', 'Completed', 'delivered', 'Delivered'].includes(t.status))
+            .reduce((sum, t) => sum + (t.sellerAmount || t.sellerPayout || t.amount || 0), 0);
 
         const activeListings = products.filter(p => p.status === 'Active').length;
-        const soldItems = transactions.filter(t => t.status === 'Completed').length;
-        const pendingTransactions = transactions.filter(t => ['Pending', 'Confirmed'].includes(t.status)).length;
+        const soldItems = transactions.filter(t => ['completed', 'Completed', 'delivered', 'Delivered'].includes(t.status)).length;
+        const pendingTransactions = transactions.filter(t => ['pending', 'Pending', 'processing', 'Processing', 'awaiting_confirmation'].includes(t.status)).length;
 
         // Calculate seller's rating and total reviews
         const totalReviews = reviews.length;

@@ -190,6 +190,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             dashboardData = await response.json();
+            console.log('Dashboard data received:', dashboardData);
             updateUI();
             initializeCharts();
             await loadTokenBalance(); // Load seller's token balance
@@ -643,6 +644,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             const notifications = await response.json();
 
+            // Ensure notifications is an array
+            if (!Array.isArray(notifications)) {
+                console.error('Expected array but received:', typeof notifications, notifications);
+                container.innerHTML = '<p class="text-gray-500 text-sm">Error loading activity feed.</p>';
+                return;
+            }
+
             if (notifications.length === 0) {
                 container.innerHTML = '<p class="text-gray-500 text-sm">No recent activity.</p>';
                 return;
@@ -714,6 +722,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const ctx = document.getElementById('salesChart');
         if (!ctx || !dashboardData) return;
 
+        // Debug: Log the transactions data
+        console.log('Dashboard transactions for chart:', dashboardData.recentTransactions);
+
         // Build last-7-days labels
         const last7Days = [];
         const revenueByDay = {};
@@ -730,10 +741,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Aggregate real revenue from completed transactions
         if (dashboardData.recentTransactions && dashboardData.recentTransactions.length > 0) {
             dashboardData.recentTransactions.forEach(t => {
-                if (['Completed', 'Delivered'].includes(t.status) && t.createdAt) {
+                // Check for various completed status variations
+                const isCompleted = ['completed', 'Completed', 'delivered', 'Delivered'].includes(t.status);
+                if (isCompleted && t.createdAt) {
                     const key = new Date(t.createdAt).toISOString().slice(0, 10);
                     if (key in revenueByDay) {
-                        revenueByDay[key] += (t.sellerPayout || t.totalAmount || 0);
+                        // Use multiple possible field names for revenue amount
+                        const amount = t.sellerAmount || t.sellerPayout || t.totalAmount || t.amount || 0;
+                        revenueByDay[key] += amount;
                     }
                 }
             });
@@ -825,6 +840,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (response.ok) {
                 const notifications = await response.json();
+                
+                // Ensure notifications is an array
+                if (!Array.isArray(notifications)) {
+                    console.error('Expected array but received:', typeof notifications, notifications);
+                    return;
+                }
+                
                 const unreadCount = notifications.filter(n => !n.isRead).length;
                 
                 // Update notification badges
