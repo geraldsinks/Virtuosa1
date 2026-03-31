@@ -28,7 +28,20 @@ class NotificationManager {
         }
 
         if (!this.token) {
-            if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
+            const pathname = window.location.pathname || '';
+            const isPublicPage =
+                pathname === '/login' ||
+                pathname === '/signup' ||
+                pathname.startsWith('/product/') ||      // public product details
+                pathname === '/product' ||              // in case of non-clean fallback
+                pathname.startsWith('/products') ||    // products listing/search
+                pathname.startsWith('/seller/') ||      // public seller pages/shops
+                pathname.startsWith('/seller-shop') ||  // legacy seller shop route
+                pathname.includes('terms') ||
+                pathname.includes('faq') ||
+                pathname.includes('refund-policy');
+
+            if (!isPublicPage) {
                 window.location.href = '/login';
             }
             return;
