@@ -252,6 +252,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Update stats
         const stats = dashboardData.stats || {};
+        console.log('Stats received from server:', stats);
+        console.log('TotalRevenue type:', typeof stats.totalRevenue, 'value:', stats.totalRevenue);
         document.getElementById('total-revenue').textContent = `ZMW ${(stats.totalRevenue || 0).toFixed(2)}`;
         document.getElementById('active-listings').textContent = stats.activeListings || 0;
         document.getElementById('sold-items').textContent = stats.soldItems || 0;
@@ -713,6 +715,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         return stars;
     }
 
+    // Update chart date range
+    window.updateChartDateRange = function() {
+        const days = parseInt(document.getElementById('dateRangeSelector').value);
+        console.log(`Updating chart to show last ${days} days`);
+        initializeCharts(days);
+    };
+
     function getStatusColor(status) {
         switch (status) {
             case 'Completed': return 'bg-green-100 text-green-800';
@@ -724,25 +733,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    function initializeCharts() {
+    function initializeCharts(days = 7) {
         const ctx = document.getElementById('salesChart');
         if (!ctx || !dashboardData) return;
+
+        console.log(`Initializing charts with ${days} days range`);
 
         // Debug: Log transactions data
         console.log('Dashboard transactions for chart:', dashboardData.recentTransactions);
         console.log('Sample transaction for chart:', dashboardData.recentTransactions?.[0]);
 
-        // Build last-7-days labels
-        const last7Days = [];
+        // Build date range based on selected period
+        const lastDays = [];
         const revenueByDay = {};
 
-        for (let i = 6; i >= 0; i--) {
+        console.log(`Building date range for ${days} days - current date:`, new Date());
+        
+        for (let i = days - 1; i >= 0; i--) {
             const date = new Date();
             date.setDate(date.getDate() - i);
             const label = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             const key = date.toISOString().slice(0, 10);
-            last7Days.push(label);
+            lastDays.push(label);
             revenueByDay[key] = 0;
+            console.log(`Date range: ${key} (${label})`);
         }
 
         // Aggregate real revenue from completed transactions
@@ -750,8 +764,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             dashboardData.recentTransactions.forEach(t => {
                 // Check for various completed status variations
                 const isCompleted = ['completed', 'Completed', 'delivered', 'Delivered'].includes(t.status);
+                console.log(`Transaction ${t._id}: status=${t.status}, isCompleted=${isCompleted}, createdAt=${t.createdAt}`);
+                
                 if (isCompleted && t.createdAt) {
                     const key = new Date(t.createdAt).toISOString().slice(0, 10);
+                    console.log(`Transaction date key: ${key}, available keys: ${Object.keys(revenueByDay)}`);
+                    
                     if (key in revenueByDay) {
                         // Use multiple possible field names for revenue amount
                         const amount = t.sellerPayout || t.sellerAmount || t.totalAmount || t.amount || 0;
@@ -763,6 +781,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                             amount: t.amount
                         });
                         revenueByDay[key] += amount;
+                    } else {
+                        console.log(`Transaction date ${key} is outside the 7-day window, skipping`);
                     }
                 }
             });
@@ -778,7 +798,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         salesChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: last7Days,
+                labels: lastDays,
                 datasets: [{
                     label: 'Revenue (ZMW)',
                     data: salesData,

@@ -589,9 +589,9 @@
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-xl font-bold text-navy">Sales performance</h2>
-                        <select class="text-sm border-gray-300 rounded-lg focus:ring-gold focus:border-gold">
-                            <option>Last 7 Days</option>
-                            <option>Last 30 Days</option>
+                        <select id="dateRangeSelector" class="text-sm border-gray-300 rounded-lg focus:ring-gold focus:border-gold" onchange="updateChartDateRange()">
+                            <option value="7">Last 7 Days</option>
+                            <option value="30">Last 30 Days</option>
                         </select>
                     </div>
                     <div class="relative h-[300px]">
@@ -712,7 +712,7 @@
                             </div>
                             <span class="text-sm font-semibold">Profile</span>
                         </button>
-                        <button onclick="window.location.href='seller-analytics.html'"
+                        <button onclick="window.location.href='/pages/seller-analytics.html'"
                             class="flex flex-col items-center justify-center p-4 rounded-xl bg-gray-50 hover:bg-green-50 hover:text-green-600 transition-all border border-transparent hover:border-green-100 group">
                             <div class="bg-white p-3 rounded-lg shadow-sm mb-2 group-hover:shadow-md transition-shadow">
                                 <i data-lucide="bar-chart-3" class="w-6 h-6 text-green-500"></i>
