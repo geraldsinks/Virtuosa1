@@ -533,25 +533,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function selectDesktopSearchSuggestion(productName, productId) {
+        console.log('🚀 DESKTOP SEARCH SUGGESTION CLICKED');
+        console.log('📦 Product Name:', productName);
+        console.log('🆔 Product ID:', productId);
+        
         const desktopSearchInput = document.getElementById('home-search-input');
         desktopSearchInput.value = productName;
         hideDesktopSearchSuggestions();
         
-        console.log('Desktop search suggestion clicked:', productName);
-        console.log('Current pathname:', window.location.pathname);
+        // Use direct navigation to product detail page with query parameter
+        // This bypasses any router issues and uses the format that product-detail.html expects
+        const productDetailUrl = `/pages/product-detail.html?id=${productId}`;
+        console.log('🔗 Navigating directly to:', productDetailUrl);
         
-        // Use router for proper navigation with clean URLs
-        waitForRouter(() => {
-            if (window.router && window.router.navigate) {
-                window.router.navigate(`/product/${productId}`);
-            } else {
-                // Fallback: use centralized routing for product detail navigation
-                const productDetailPath = `/product/${productId}`;
-                console.log('Final desktop suggestion path:', productDetailPath);
-                
-                // Redirect to product detail page
-                window.location.href = productDetailPath;
-            }
-        });
+        // Direct navigation - bypass router completely
+        window.location.href = productDetailUrl;
     }
 });

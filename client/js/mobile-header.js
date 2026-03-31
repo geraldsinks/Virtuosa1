@@ -267,26 +267,21 @@ function waitForRouter(callback) {
 }
 
 function selectMobileSearchSuggestion(productName, productId) {
+    console.log('🚀 MOBILE SEARCH SUGGESTION CLICKED');
+    console.log('📦 Product Name:', productName);
+    console.log('🆔 Product ID:', productId);
+    
     const mobileSearchInput = document.getElementById('mobile-search-input');
     mobileSearchInput.value = productName;
     hideSearchSuggestions();
     
-    console.log('Mobile search suggestion clicked:', productName);
-    console.log('Current pathname:', window.location.pathname);
+    // Use direct navigation to product detail page with query parameter
+    // This bypasses any router issues and uses the format that product-detail.html expects
+    const productDetailUrl = `/pages/product-detail.html?id=${productId}`;
+    console.log('� Navigating directly to:', productDetailUrl);
     
-    // Use router for proper navigation with clean URLs
-    waitForRouter(() => {
-        if (window.router && window.router.navigate) {
-            window.router.navigate(`/product/${productId}`);
-        } else {
-            // Fallback: use centralized routing for product detail navigation
-            const productDetailPath = `/product/${productId}`;
-            console.log('Final mobile suggestion path:', productDetailPath);
-            
-            // Redirect to product detail page
-            window.location.href = productDetailPath;
-        }
-    });
+    // Direct navigation - bypass router completely
+    window.location.href = productDetailUrl;
 }
 
 function performSearch() {

@@ -575,55 +575,77 @@ class CleanRouter {
 
     // Load the actual HTML file with proper navigation
     async loadPage(path, params = {}) {
+        console.log('🚀 ROUTER loadPage called with:', { path, params });
+        console.log('📁 Available routes:', this.routes);
+        console.log('🔄 Available dynamic routes:', this.dynamicRoutes);
+        
         try {
             this.showLoading();
             
             // Check for dynamic routes first
             const dynamicMatch = this.parseDynamicRoute(path);
+            console.log('🎯 Dynamic route result:', dynamicMatch);
+            
             let pageFile;
             let routeParams = {};
             
             if (dynamicMatch) {
                 pageFile = dynamicMatch.destination;
                 routeParams = dynamicMatch.params;
+                console.log('✅ Using dynamic route:', pageFile, 'params:', routeParams);
             } else {
                 pageFile = this.routes[path] || '/index.html';
+                console.log('📄 Using static route:', pageFile);
             }
             
             // Validate route
             if (!pageFile || typeof pageFile !== 'string') {
+                console.error('❌ Invalid route:', { path, pageFile });
                 throw new Error(`Invalid route: ${path}`);
             }
             
             // Combine route parameters with query parameters (query params take precedence)
             const allParams = { ...routeParams, ...params };
+            console.log('🔗 Combined params:', allParams);
             
             // Build the final URL with parameters
             let finalUrl = pageFile;
             if (Object.keys(allParams).length > 0) {
                 finalUrl += '?' + new URLSearchParams(allParams).toString();
             }
+            console.log('🌐 Final URL:', finalUrl);
             
             // For clean URLs, do a full page redirect to ensure proper loading
             if (path.includes('/') && !path.includes('.html')) {
+                console.log('🔄 Clean URL detected, doing full redirect');
                 // This is a clean URL - redirect to the actual HTML file
                 // Pass route parameters as query parameters for the target page
                 const queryString = Object.keys(routeParams).length > 0 
                     ? '?' + new URLSearchParams(routeParams).toString() 
                     : '';
-                window.location.href = finalUrl + queryString;
+                console.log('🔗 Redirecting to:', finalUrl + queryString);
+                
+                // Add delay to see logs
+                setTimeout(() => {
+                    window.location.href = finalUrl + queryString;
+                }, 100);
                 return;
             }
             
             // For direct HTML file access, also do full redirect
-            window.location.href = finalUrl;
+            console.log('📄 HTML file access, redirecting to:', finalUrl);
+            setTimeout(() => {
+                window.location.href = finalUrl;
+            }, 100);
             
         } catch (error) {
-            console.error('Router loadPage error:', error);
+            console.error('❌ Router loadPage error:', error);
             // Fallback to direct redirect
             window.location.href = '/pages/' + path + '.html';
         } finally {
-            this.hideLoading();
+            setTimeout(() => {
+                this.hideLoading();
+            }, 200);
         }
     }
     
