@@ -544,7 +544,8 @@
             // Update page title and meta for SEO
             const productName = product.name;
             const productDesc = (product.description || '').substring(0, 150);
-            const productImg = images.length > 0 ? fixServerUrl(images[0]) : 'https://virtuosazm.com/favicon-enhanced.svg';
+            const productImages = product.images || [];
+            const productImg = productImages.length > 0 ? fixServerUrl(productImages[0]) : 'https://virtuosazm.com/favicon-enhanced.svg';
             const productUrl = window.location.href;
 
             document.title = `${productName} - Virtuosa`;
