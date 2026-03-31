@@ -522,6 +522,16 @@ document.addEventListener('DOMContentLoaded', () => {
             .slice(0, 5); // Limit to 5 suggestions
     }
     
+    // Helper function to wait for router initialization
+    function waitForRouter(callback) {
+        if (window.router && window.router.navigate) {
+            callback();
+        } else {
+            // Wait for router to be initialized
+            setTimeout(() => waitForRouter(callback), 50);
+        }
+    }
+
     function selectDesktopSearchSuggestion(productName, productId) {
         const desktopSearchInput = document.getElementById('home-search-input');
         desktopSearchInput.value = productName;
@@ -530,11 +540,18 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Desktop search suggestion clicked:', productName);
         console.log('Current pathname:', window.location.pathname);
         
-        // Use centralized routing for product detail navigation
-        const productDetailPath = `/product/${productId}`;
-        console.log('Final desktop suggestion path:', productDetailPath);
-        
-        // Redirect to product detail page
-        window.location.href = productDetailPath;
+        // Use router for proper navigation with clean URLs
+        waitForRouter(() => {
+            if (window.router && window.router.navigate) {
+                window.router.navigate(`/product/${productId}`);
+            } else {
+                // Fallback: use centralized routing for product detail navigation
+                const productDetailPath = `/product/${productId}`;
+                console.log('Final desktop suggestion path:', productDetailPath);
+                
+                // Redirect to product detail page
+                window.location.href = productDetailPath;
+            }
+        });
     }
 });
