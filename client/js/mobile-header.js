@@ -181,7 +181,7 @@ function initializeMobileSearch() {
 
 async function loadProductsForSearch() {
     try {
-        const response = await fetch('/api/products');
+        const response = await fetch(`${API_BASE}/products`);
         if (response.ok) {
             const data = await response.json();
             window.mobileAllProducts = data.products || [];
@@ -192,77 +192,89 @@ async function loadProductsForSearch() {
     }
 }
 
+// Fetch search suggestions from API (same as index.html)
+async function fetchSuggestions(query) {
+    try {
+        const response = await fetch(`${API_BASE}/search/suggestions?q=${encodeURIComponent(query)}`);
+        if (response.ok) {
+            const suggestions = await response.json();
+            console.log('Mobile search suggestions received:', suggestions);
+            return suggestions;
+        } else {
+            console.error('Mobile search suggestions failed:', response.status);
+            return [];
+        }
+    } catch (error) {
+        console.error('Error fetching search suggestions:', error);
+        return [];
+    }
+}
+
 function showSearchSuggestions(query) {
     const mobileSearchSuggestions = document.getElementById('mobile-search-suggestions');
-    const suggestions = getSearchSuggestions(query, window.mobileAllProducts || []);
     
-    if (suggestions.length > 0) {
-        mobileSearchSuggestions.innerHTML = suggestions.map(product => {
-            const imageUrl = product.images && product.images[0] 
-                ? (product.images[0].startsWith('http') ? product.images[0] : fixServerUrl(product.images[0]))
-                : 'https://placehold.co/40x40?text=No+Image';
-            
-            return `
-            <div class="mobile-search-suggestion-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-b-0"
-                 data-product-id="${product._id}"
-                 data-product-name="${escapeHtmlAttribute(product.name)}">
-                <div class="flex items-center space-x-3">
-                    <img src="${imageUrl}" 
-                         alt="${product.name}" 
-                         class="w-10 h-10 object-cover rounded">
-                    <div class="flex-1 min-w-0">
-                        <div class="text-sm font-medium text-white truncate">${product.name}</div>
-                        <div class="text-xs text-gray-400">${product.category}</div>
+    // Use new search suggestions API like index.html
+    fetchSuggestions(query)
+        .then(suggestions => {
+            if (suggestions.length === 0) {
+                mobileSearchSuggestions.innerHTML = `
+                    <div class="px-4 py-3 text-gray-400 text-sm">
+                        No suggestions found
                     </div>
-                    <div class="text-sm font-bold text-gold">K${product.price}</div>
+                `;
+                mobileSearchSuggestions.classList.remove('hidden');
+                return;
+            }
+
+            mobileSearchSuggestions.innerHTML = suggestions.map(item => {
+                // Handle image URL with server base URL
+                const imageUrl = item.image ? 
+                    (item.image.startsWith('/') ? `${API_BASE.replace('/api', '')}${item.image}` : item.image) : 
+                    null;
+                
+                return `
+                    <div class="mobile-search-suggestion-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-b-0"
+                         data-product-id="${item.id}"
+                         data-product-name="${escapeHtmlAttribute(item.title)}">
+                        <div class="flex items-center space-x-3">
+                            ${imageUrl ? `
+                                <img src="${imageUrl}" alt="${item.title}" class="w-8 h-8 object-cover rounded" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-8 h-8 bg-gray-600 rounded flex items-center justify-center" style="display:none;">
+                                    <i class="fas fa-box text-gray-400 text-xs"></i>
+                                </div>
+                            ` : `
+                                <div class="w-8 h-8 bg-gray-600 rounded flex items-center justify-center">
+                                    <i class="fas fa-box text-gray-400 text-xs"></i>
+                                </div>
+                            `}
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-white line-clamp-1">${item.title}</div>
+                                <div class="text-xs text-gray-400">${item.category}</div>
+                            </div>
+                            <div class="text-gold text-sm font-bold">K${item.price ? item.price.toLocaleString() : '0'}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            mobileSearchSuggestions.classList.remove('hidden');
+        })
+        .catch(error => {
+            console.error('Error fetching search suggestions:', error);
+            mobileSearchSuggestions.innerHTML = `
+                <div class="px-4 py-3 text-gray-400 text-sm">
+                    Error loading suggestions
                 </div>
-            </div>
-        `;
-        }).join('');
-        mobileSearchSuggestions.classList.remove('hidden');
-    } else {
-        mobileSearchSuggestions.innerHTML = `
-            <div class="px-4 py-3 text-gray-400 text-sm">
-                No products found for "${query}"
-            </div>
-        `;
-        mobileSearchSuggestions.classList.remove('hidden');
-    }
+            `;
+            mobileSearchSuggestions.classList.remove('hidden');
+        });
 }
 
 function hideSearchSuggestions() {
     const mobileSearchSuggestions = document.getElementById('mobile-search-suggestions');
     if (mobileSearchSuggestions) {
         mobileSearchSuggestions.classList.add('hidden');
-    }
-}
-
-function escapeHtmlAttribute(value) {
-    return String(value || '')
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-}
-
-function getSearchSuggestions(query, products) {
-    const lowerQuery = query.toLowerCase();
-    return products
-        .filter(product => 
-            product.name.toLowerCase().includes(lowerQuery) ||
-            product.category.toLowerCase().includes(lowerQuery) ||
-            product.description.toLowerCase().includes(lowerQuery)
-        )
-        .slice(0, 5); // Limit to 5 suggestions
-}
-
-// Helper function to wait for router initialization
-function waitForRouter(callback) {
-    if (window.router && window.router.navigate) {
-        callback();
-    } else {
-        // Wait for router to be initialized
-        setTimeout(() => waitForRouter(callback), 50);
     }
 }
 
@@ -275,10 +287,9 @@ function selectMobileSearchSuggestion(productName, productId) {
     mobileSearchInput.value = productName;
     hideSearchSuggestions();
     
-    // Use direct navigation to product detail page with query parameter
-    // This bypasses any router issues and uses the format that product-detail.html expects
-    const productDetailUrl = `/pages/product-detail.html?id=${productId}`;
-    console.log('� Navigating directly to:', productDetailUrl);
+    // Use clean URL format like desktop search
+    const productDetailUrl = `/product/${productId}`;
+    console.log('🔗 Navigating to clean URL:', productDetailUrl);
     
     // Direct navigation - bypass router completely
     window.location.href = productDetailUrl;

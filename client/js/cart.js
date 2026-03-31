@@ -1093,6 +1093,16 @@ function finalizeSelection() {
         return;
     }
     
+    // Check if user is logged in before proceeding to checkout
+    const token = localStorage.getItem('token');
+    if (!token) {
+        // Show user-friendly login prompt instead of letting them proceed
+        if (confirm('Please log in to complete your order. Would you like to log in now?')) {
+            window.location.href = '/login';
+        }
+        return;
+    }
+    
     console.log('🎯 Finalizing selection with method:', method);
     
     if (method === 'mobile-money') {
@@ -1111,7 +1121,17 @@ function getItDelivered() {
         return;
     }
     
-    console.log('🚚 Getting items delivered with method:', method);
+    // Check if user is logged in before proceeding to checkout
+    const token = localStorage.getItem('token');
+    if (!token) {
+        // Show user-friendly login prompt instead of letting them proceed
+        if (confirm('Please log in to arrange delivery. Would you like to log in now?')) {
+            window.location.href = '/login';
+        }
+        return;
+    }
+    
+    console.log('🚚 Arranging delivery with method:', method);
     
     // Same logic as finalizeSelection but with different messaging
     if (method === 'mobile-money') {
