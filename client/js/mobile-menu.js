@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
     const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
     const mobileMenuClose = document.getElementById('mobile-menu-close');
-    const mobileMenuContent = document.getElementById('mobile-menu-content');
+    const mobileMenuContent = document.querySelector('.mobile-menu-content');
 
     // Store event listeners for proper cleanup
     const eventListeners = [];

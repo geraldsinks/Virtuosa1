@@ -69,33 +69,24 @@
         /* Critical CSS - Immediately hide mobile menu to prevent FOUC */
         #mobile-menu-overlay {
             display: none !important;
-            opacity: 0 !important;
-            visibility: hidden !important;
         }
         
-        #mobile-menu-content {
+        .mobile-menu-content {
             display: none !important;
             transform: translateX(-100%) !important;
             visibility: hidden !important;
             opacity: 0 !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            z-index: -9999 !important;
         }
         
         #mobile-menu-overlay.active {
             display: block !important;
-            opacity: 1 !important;
-            visibility: visible !important;
         }
         
-        #mobile-menu-content.active {
+        .mobile-menu-content.active {
             display: block !important;
             transform: translateX(0) !important;
             visibility: visible !important;
             opacity: 1 !important;
-            z-index: 9999 !important;
         }
 
         /* Defensive CSS for mobile header visibility */
@@ -557,40 +548,36 @@
     <!-- Header (will be replaced with login.html version) -->
     <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
         <!-- Mobile Header Structure (320px-767px) -->
-        <div class="mobile-header-row-1">
-            <div class="v-container">
-                <div class="flex">
-                    <!-- Hamburger Menu (Left) -->
-                    <div class="mobile-hamburger mobile-header-actions">
-                        <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                        </button>
-                    </div>
+        <div class="mobile-header-container" style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0.75rem 1rem;">
+            <!-- Hamburger Menu (Left) -->
+            <div class="mobile-hamburger" style="flex-shrink: 0;">
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors" style="background: none; border: none; cursor: pointer;">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
 
-                    <!-- Brand Name (Center) -->
-                    <div class="mobile-logo flex-1">
-                        <a href="/index.html">Virtuosa</a>
-                    </div>
+            <!-- Brand Name (Center) -->
+            <div class="mobile-logo" style="flex: 1; text-align: center; display: flex; justify-content: center; align-items: center;">
+                <a href="/index.html" style="color: #FFD700; font-size: 1.5rem; font-weight: bold; text-decoration: none;">Virtuosa</a>
+            </div>
 
-                    <!-- Customer Utilities (Right) -->
-                    <div class="mobile-actions mobile-header-actions">
-                        <!-- Cart Icon with Badge -->
-                        <a href="/pages/cart.html">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            <span class="cart-badge-count">0</span>
-                        </a>
-                        
-                        <!-- Combined Notifications (includes messages) -->
-                        <a href="/pages/notifications.html">
-                            <i class="fas fa-bell"></i>
-                            <span id="mobile-notification-badge">0</span>
-                        </a>
-                    </div>
-                </div>
+            <!-- Customer Utilities (Right) -->
+            <div class="mobile-actions" style="flex-shrink: 0; display: flex; align-items: center; gap: 0.75rem;">
+                <!-- Cart Icon with Badge -->
+                <a href="/pages/cart.html" style="position: relative; display: inline-flex; align-items: center; justify-content: center; color: white; text-decoration: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span class="cart-badge-count" style="position: absolute; top: -4px; right: -4px; background: #DC2626; color: white; border-radius: 9999px; font-size: 0.75rem; font-weight: bold; padding: 0.125rem 0.375rem; display: inline-flex; align-items: center; justify-content: center; min-width: 1.25rem;">0</span>
+                </a>
+                
+                <!-- Combined Notifications (includes messages) -->
+                <a href="/pages/notifications.html" style="position: relative; display: inline-flex; align-items: center; justify-content: center; color: white; text-decoration: none;">
+                    <i class="fas fa-bell" style="font-size: 1.5rem;"></i>
+                    <span id="mobile-notification-badge" style="position: absolute; top: -4px; right: -4px; background: #DC2626; color: white; border-radius: 9999px; font-size: 0.75rem; font-weight: bold; padding: 0.125rem 0.25rem; display: none; align-items: center; justify-content: center; min-width: 1rem;">0</span>
+                </a>
             </div>
         </div>
 
@@ -718,7 +705,7 @@
 
     <!-- Mobile Navigation Menu Overlay -->
     <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
-    <div id="mobile-menu-content" class="mobile-menu-content">
+    <div class="mobile-menu-content">
         <div class="mobile-menu-header">
             <div class="text-xl font-bold text-gold">Menu</div>
             <button id="mobile-menu-close" class="mobile-menu-close">
@@ -1864,7 +1851,6 @@
     
     <!-- Clean URL Support -->
     <script src="/js/url-helper.js"></script>
-    <script src="/js/mobile-menu.js"></script>
     <script src="/js/image-optimizer.js"></script>
     <script src="/js/cache-manager.js"></script>
     <script src="/js/debounce.js"></script>
