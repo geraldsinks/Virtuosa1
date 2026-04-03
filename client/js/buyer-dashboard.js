@@ -169,33 +169,129 @@ function updateRoleBasedUI(userData, roleInfo) {
     const mobileSellerSection = document.getElementById('mobile-seller-section');
     const becomeSellerLink = document.getElementById('become-seller-link');
     
+    // Get role elements
+    const sellerActionCard = document.getElementById('seller-action-card');
+    const sellerActionTitle = document.getElementById('seller-action-title');
+    const sellerActionDescription = document.getElementById('seller-action-description');
+    const sellerActionIcon = document.getElementById('seller-action-icon');
+    
+    const adminActionCard = document.getElementById('admin-action-card');
+    const adminActionTitle = document.getElementById('admin-action-title');
+    const adminActionDescription = document.getElementById('admin-action-description');
+    const adminActionIcon = document.getElementById('admin-action-icon');
+    
+    // Mobile menu elements
+    const mobileSellerLink = document.getElementById('mobile-seller-link');
+    const mobileSellerIcon = document.getElementById('mobile-seller-icon');
+    const mobileSellerText = document.getElementById('mobile-seller-text');
+    
     // Check if user is seller (from roleInfo or fallback to userData)
     const isSeller = roleInfo ? roleInfo.isSeller : (userData.isSeller === true || userData.isSeller === 'true');
-    
-    if (isSeller) {
-        console.log('✅ User is seller, showing seller sections');
-        if (sellerSection) sellerSection.style.display = 'block';
-        if (mobileSellerSection) mobileSellerSection.style.display = 'block';
-        // Hide "become a seller" link for existing sellers
-        if (becomeSellerLink) becomeSellerLink.style.display = 'none';
-        
-        // Update navigation to show seller dashboard link
-        updateNavigationForSeller();
-    } else {
-        console.log('❌ User is not seller, hiding seller sections');
-        if (sellerSection) sellerSection.style.display = 'none';
-        if (mobileSellerSection) mobileSellerSection.style.display = 'none';
-        // Show "become a seller" link for non-sellers
-        if (becomeSellerLink) becomeSellerLink.style.display = 'block';
-    }
-    
-    // Show admin section if user is an admin
     const isAdmin = userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin';
+    
     if (isAdmin) {
+        console.log('🔧 User is admin, showing admin sections');
+        
+        // Update admin action card
+        if (adminActionCard) {
+            adminActionCard.style.display = 'block';
+            adminActionCard.href = '/pages/admin-dashboard.html';
+        }
+        if (adminActionTitle) adminActionTitle.textContent = 'Admin Panel';
+        if (adminActionDescription) adminActionDescription.textContent = 'System administration';
+        if (adminActionIcon) {
+            adminActionIcon.innerHTML = '<i data-lucide="shield" class="w-6 h-6 text-red-600"></i>';
+        }
+        
+        // Update seller action card for admin (also has seller privileges)
+        if (sellerActionCard) {
+            sellerActionCard.style.display = 'block';
+            sellerActionCard.href = '/pages/seller-dashboard.html';
+        }
+        if (sellerActionTitle) sellerActionTitle.textContent = 'Seller Panel';
+        if (sellerActionDescription) sellerActionDescription.textContent = 'Manage your store';
+        if (sellerActionIcon) {
+            sellerActionIcon.innerHTML = '<i data-lucide="store" class="w-6 h-6 text-gold"></i>';
+        }
+        
+        // Update mobile menu
+        if (mobileSellerLink) {
+            mobileSellerLink.href = '/pages/seller-dashboard.html';
+            mobileSellerText.textContent = 'Seller Dashboard';
+            mobileSellerIcon.className = 'fas fa-tachometer-alt';
+        }
+        
+        // Show admin sections
         const mobileAdminSection = document.getElementById('mobile-admin-section');
         if (mobileAdminSection) {
             mobileAdminSection.style.display = 'block';
         }
+        
+    } else if (isSeller) {
+        console.log('✅ User is seller, showing seller sections');
+        
+        // Update seller action card
+        if (sellerActionCard) {
+            sellerActionCard.style.display = 'block';
+            sellerActionCard.href = '/pages/seller-dashboard.html';
+        }
+        if (sellerActionTitle) sellerActionTitle.textContent = 'Seller Dashboard';
+        if (sellerActionDescription) sellerActionDescription.textContent = 'Manage your store';
+        if (sellerActionIcon) {
+            sellerActionIcon.innerHTML = '<i data-lucide="store" class="w-6 h-6 text-gold"></i>';
+        }
+        
+        // Hide admin card for regular sellers
+        if (adminActionCard) {
+            adminActionCard.style.display = 'none';
+        }
+        
+        // Update mobile menu
+        if (mobileSellerLink) {
+            mobileSellerLink.href = '/pages/seller-dashboard.html';
+            mobileSellerText.textContent = 'Seller Dashboard';
+            mobileSellerIcon.className = 'fas fa-tachometer-alt';
+        }
+        
+        if (sellerSection) sellerSection.style.display = 'block';
+        if (mobileSellerSection) mobileSellerSection.style.display = 'block';
+        
+    } else {
+        console.log('❌ User is not seller, hiding seller sections');
+        
+        // Show "become a seller" for non-sellers
+        if (sellerActionCard) {
+            sellerActionCard.style.display = 'block';
+            sellerActionCard.href = '/pages/seller.html';
+        }
+        if (sellerActionTitle) sellerActionTitle.textContent = 'Become a Seller';
+        if (sellerActionDescription) sellerActionDescription.textContent = 'Start selling';
+        if (sellerActionIcon) {
+            sellerActionIcon.innerHTML = '<i data-lucide="plus-circle" class="w-6 h-6 text-gold"></i>';
+        }
+        
+        // Update mobile menu
+        if (mobileSellerLink) {
+            mobileSellerLink.href = '/pages/seller.html';
+            mobileSellerText.textContent = 'Become a Seller';
+            mobileSellerIcon.className = 'fas fa-store';
+        }
+        
+        if (sellerSection) sellerSection.style.display = 'none';
+        if (mobileSellerSection) mobileSellerSection.style.display = 'none';
+        
+        // Hide admin card
+        if (adminActionCard) {
+            adminActionCard.style.display = 'none';
+        }
+        
+        // Show "become a seller" link for non-sellers
+        if (becomeSellerLink) becomeSellerLink.style.display = 'block';
+    }
+    
+    // Re-initialize Lucide icons for updated elements
+    if (window.lucide) {
+        window.lucide.createIcons();
     }
 }
 
@@ -235,6 +331,7 @@ async function loadOrders() {
         if (!response.ok) throw new Error('Failed to fetch orders');
         
         const orders = await response.json();
+        console.log('📦 Loaded buyer orders:', orders);
         
         // Update order counts
         const totalOrders = orders.length;
