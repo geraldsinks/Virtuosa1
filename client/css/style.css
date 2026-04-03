@@ -425,16 +425,81 @@ div#mobile-menu-content:not(.active) {
 
 .mobile-header-row-1 .flex {
     padding-bottom: 12px;
+    justify-content: space-between !important;
+    align-items: center !important;
 }
 
 .mobile-logo {
     font-size: clamp(1.25rem, 4.5vw, 1.5rem);
     font-weight: 700;
     letter-spacing: -0.025em;
+    text-align: center !important;
+    flex: 1 !important;
+}
+
+.mobile-logo a {
+    color: #FFD700 !important;
+    font-size: 1.5rem !important;
+    font-weight: bold !important;
+    text-decoration: none !important;
 }
 
 .mobile-header-actions {
     gap: 0.5rem;
+    display: flex !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+}
+
+.mobile-actions a {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    text-decoration: none !important;
+}
+
+.cart-badge-count {
+    position: absolute !important;
+    top: -4px !important;
+    right: -4px !important;
+    background: #DC2626 !important;
+    color: white !important;
+    border-radius: 9999px !important;
+    font-size: 0.75rem !important;
+    font-weight: bold !important;
+    padding: 0.125rem 0.375rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 1.25rem !important;
+}
+
+#mobile-notification-badge {
+    position: absolute !important;
+    top: -4px !important;
+    right: -4px !important;
+    background: #DC2626 !important;
+    color: white !important;
+    border-radius: 9999px !important;
+    font-size: 0.75rem !important;
+    font-weight: bold !important;
+    padding: 0.125rem 0.25rem !important;
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 1rem !important;
+}
+
+#mobile-menu-toggle {
+    background: none !important;
+    border: none !important;
+    cursor: pointer !important;
+}
+
+.mobile-actions .fas {
+    font-size: 1.5rem !important;
 }
 
 .mobile-auth-icon {
