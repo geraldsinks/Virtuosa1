@@ -172,7 +172,7 @@ function generateWebPUrl(imageUrl, width = 400, height = 280) {
 }
 
 // Responsive image srcset generator with better compression
-function generateResponsiveSrcSet(imageUrl, baseWidth = 400, baseHeight = 280, breakpoints = [320, 480, 768, 1024, 1200]) {
+function generateResponsiveSrcSet(imageUrl, baseWidth = 400, baseHeight = 280, breakpoints = [200, 320, 480, 768, 1024]) {
     if (!imageUrl) return '';
 
     const srcset = breakpoints.map(width => {

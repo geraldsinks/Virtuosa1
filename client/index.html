@@ -16,8 +16,22 @@
     <link rel="apple-touch-icon" href="favicon-enhanced.svg">
     <meta name="theme-color" content="#0A1128">
     
-    <script src="https://cdn.tailwindcss.com" defer></script>
+    <!-- Critical CSS -->
     <script src="../js/critical-css.js"></script>
+    
+    <!-- Inline Critical JavaScript -->
+    <script>
+        // Dynamic API configuration based on environment
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5000/api'
+            : 'https://api.virtuosazm.com/api';
+
+        // Fallback image URLs for consistency
+        const FALLBACK_IMAGES = {
+            HERO: 'https://placehold.co/1200x600/0A1128/FFFFFF?text=Virtuosa+Campus+Life',
+            TEAM_MEMBER: 'https://placehold.co/400x400/0A1128/FFFFFF?text=Team'
+        };
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <!-- Performance Resource Hints -->
     <link rel="preconnect" href="https://api.virtuosazm.com">
@@ -49,6 +63,23 @@
             font-weight: 700;
             font-display: swap;
             src: local('Montserrat Bold'), local('Montserrat-Bold'), url(https://fonts.gstatic.com/s/montserrat/v25/JTUHjIg1_i6t8kCHKm4537PGS3p.woff2) format('woff2');
+        }
+    </style>
+    <!-- FontAwesome with font-display: swap -->
+    <style>
+        @font-face {
+            font-family: 'Font Awesome 6 Free';
+            font-style: normal;
+            font-weight: 900;
+            font-display: swap;
+            src: url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2) format('woff2');
+        }
+        @font-face {
+            font-family: 'Font Awesome 6 Brands';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-brands-400.woff2) format('woff2');
         }
     </style>
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.rel='stylesheet'">
@@ -806,7 +837,6 @@
     </footer>
     
     <!-- Critical Scripts - Load Immediately -->
-    <script src="/js/config.js"></script>
     <script src="/js/image-optimizer.js"></script>
     <script src="/js/cache-manager.js"></script>
     <script src="/js/debounce.js"></script>
@@ -814,11 +844,11 @@
     <script src="/js/url-helper.js"></script>
     
     <!-- Deferred Scripts - Load After Critical Path -->
-    <script src="/js/router.js" defer></script>
+    <script src="/js/router.min.js" defer></script>
     <script src="/js/mobile-header.js" defer></script>
     <script src="/js/ad-slider.js" defer></script>
     <script src="/js/header.js" defer></script>
-    <script src="/js/cart.js" defer></script>
+    <script src="/js/cart.min.js" defer></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" defer></script>
     <script src="/js/notification-modal.js" defer></script>
     <script>
@@ -1110,7 +1140,7 @@
                     
                     return `
                 <div class="ad-card flex-none w-full h-full bg-cover bg-center rounded-lg shadow-lg relative cursor-pointer"
-                 style="background-image: url('${optimizedUrl}');"${fetchPriorityAttr}
+                 style="background-image: url('${optimizedUrl}'); width: 100%; height: 400px; aspect-ratio: 3/1;"${fetchPriorityAttr}
                  onclick="window.location.href='${sanitizeUrl(ad.link)}'">
                  <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
                 <div class="text-center">
@@ -1155,45 +1185,46 @@
                         sanitizedUrl : 
                         (card.image ? `https://api.virtuosazm.com${sanitizedUrl}` : fallbackUrl);
 
-                    // Use optimized image generation with better compression
-                    const cardWidth = isRectangle ? 800 : 400;
-                    const cardHeight = isRectangle ? 400 : 280;
+                    // Use optimized image generation with better compression based on actual display sizes
+                    const displayWidth = isRectangle ? 580 : 286; // Actual displayed dimensions from PageSpeed
+                    const displayHeight = isRectangle ? 290 : 200;
                     
                     // First few images get critical optimization
                     const isCritical = index < 4;
                     const optimizedSrc = isCritical ? 
-                        optimizeCriticalImage(imageUrl, cardWidth, cardHeight) :
-                        optimizeImageUrl(imageUrl, cardWidth, cardHeight, {
+                        optimizeCriticalImage(imageUrl, displayWidth, displayHeight) :
+                        optimizeImageUrl(imageUrl, displayWidth, displayHeight, {
                             format: 'auto',
                             quality: 'eco',
                             compression: 'high'
                         });
 
-                    // Generate responsive srcset with better optimization
-                    const responsiveSrcset = generateResponsiveSrcSet(imageUrl, cardWidth, cardHeight, [400, 768, 1200]);
+                    // Generate responsive srcset with appropriate breakpoints for actual display
+                    const responsiveSrcset = generateResponsiveSrcSet(imageUrl, displayWidth, displayHeight, [200, 400, 580, 768]);
 
                     // Add fetchpriority to first few images
                     const fetchPriority = index === 0 ? 'high' : index < 4 ? 'auto' : 'low';
 
                   return `
-                <div class="${cardClass}">
-                <div class="overflow-hidden bg-gray-100">
+                <div class="${cardClass}" style="width: 100%; ${isRectangle ? 'height: 320px;' : 'height: 280px;'}">
+                <div class="overflow-hidden bg-gray-100" style="height: ${isRectangle ? '200px' : '180px'};">
                 <picture>
                   <source srcset="${responsiveSrcset}" type="image/webp">
                   <img src="${optimizedSrc}" 
                  srcset="${responsiveSrcset}"
-                 sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 25vw"
+                 sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 30vw, 286px"
                  alt="${card.title} - ${card.description || 'Browse on Virtuosa'}" 
                  class="category-image"
-                 width="${cardWidth}"
-                 height="${cardHeight}"
+                 width="${displayWidth}"
+                 height="${displayHeight}"
                  loading="${isCritical ? 'eager' : 'lazy'}"
                  decoding="${isCritical ? 'sync' : 'async'}"
                  fetchpriority="${fetchPriority}"
-                 onerror="handleImageError(this)">
+                 onerror="handleImageError(this)"
+                 style="width: 100%; height: 100%; object-fit: cover;">
                 </picture>
                 </div>
-                <div class="category-content">
+                <div class="category-content" style="height: ${isRectangle ? '120px' : '100px'}; padding: 12px;">
                 <h3 class="category-title">${encodeHtml(card.title)}</h3>
                 <p class="category-description">${encodeHtml(card.description || 'Discover our curated selection in this category')}</p>
                 <a href="${sanitizeUrl(card.link ? (card.link.startsWith('/') ? card.link : '/pages/' + card.link) : '#')}" 
