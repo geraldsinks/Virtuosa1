@@ -16,36 +16,8 @@
     <link rel="apple-touch-icon" href="favicon-enhanced.svg">
     <meta name="theme-color" content="#0A1128">
     
-    <!-- Critical CSS -->
+    <script src="https://cdn.tailwindcss.com" defer></script>
     <script src="../js/critical-css.js"></script>
-    
-    <!-- Inline Critical JavaScript -->
-    <script>
-        // Dynamic API configuration based on environment
-        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:5000/api'
-            : 'https://api.virtuosazm.com/api';
-
-        // Fallback image URLs for consistency
-        const FALLBACK_IMAGES = {
-            HERO: 'https://placehold.co/1200x600/0A1128/FFFFFF?text=Virtuosa+Campus+Life',
-            TEAM_MEMBER: 'https://placehold.co/400x400/0A1128/FFFFFF?text=Team'
-        };
-
-        // Critical image optimization functions (minified)
-        function fixServerUrl(t){return t?t.startsWith("/")?`${window.API_BASE||"https://api.virtuosazm.com"}${t}`:t:t}
-        function generateOptimizedCloudinaryUrl(t,e,o,n=!1,i="auto",r="auto",s="auto",c="limit"){if(!t||"string"!=typeof t||t.includes("undefined"))return"https://placehold.co/400x280?text=Invalid+Image";if(!t.includes("res.cloudinary.com"))return t;e=Math.max(1,Math.min(3e3,parseInt(e)||400)),o=Math.max(1,Math.min(3e3,parseInt(o)||280));try{const a=t.indexOf("/upload/");if(-1===a)return console.warn("Invalid Cloudinary URL structure:",t),t;const l=t.substring(0,a+8),u=t.substring(a+8);let m,g=[];"auto"===i?g.push("f_auto"):"webp"===i?g.push("f_webp"):"avif"===i&&g.push("f_avif"),"auto"===r?g.push("q_auto:good"):"eco"===r?g.push("q_auto:eco"):"number"==typeof r&&g.push(`q_${r}`),"high"===s&&g.push("dpr_2.0"),g.push(`w_${e}`,`h_${o}`,`c_${c}`),m=g.join(",");return n&&u.includes("/")?function(t,e,o){const n=e.indexOf("/"),i=e.substring(0,n),r=e.substring(n);return i?`${i},${o}`:o}(u,m):function(t,e,o){const n=e.includes("/")?e.substring(e.indexOf("/")+1):e;return t+o+"/"+n}(l,m)}catch(t){return console.error("Error processing Cloudinary URL:",t),t}}
-        function optimizeImageUrl(t,e=400,o=280,n={}){if(!t||t==="undefined"||t.includes("undefined"))return"https://placehold.co/400x280?text=No+Image";const{format:i="auto",quality:r="auto",crop:s="limit",preserveTransforms:a=!1,compression:l="auto"}=n;try{if(t.includes("res.cloudinary.com"))return generateOptimizedCloudinaryUrl(t,e,o,a,i,r,l,s);if(t.includes("placehold.co"))return t.replace(/placehold\.co/,"placehold.co/webp");if(t.includes("api.virtuosazm.com")){const o=t.includes("?")?"&":"?",n=new URLSearchParams(new URL(t).search);return n.has("format")||n.append("format",i),n.has("w")||n.append("w",e),n.has("h")||n.append("h",o),n.has("q")||n.append("q",r),n.size>0?`${t}${o}${n.toString()}`:t}if(t.startsWith("/")){const o=fixServerUrl(t),n=o.includes("?")?"&":"?";return`${o}${n}format=${i}&w=${e}&h=${o}&q=${r}`}return t}catch(t){return console.error("Error optimizing image URL:",t),t}}
-        function optimizeCriticalImage(t,e,o){return optimizeImageUrl(t,e,o,{format:"auto",quality:"good",compression:"high",crop:"limit"})}
-        function generateResponsiveSrcSet(t,e=400,o=280,n=[200,320,480,768,1024]){if(!t||t==="undefined"||t.includes("undefined"))return"";const i=n.map(n=>{const i=Math.round(n/e*o);return`${optimizeImageUrl(t,n,i,{format:"auto",quality:"eco",compression:"high",crop:"limit"})} ${n}w`});return i.join(", ")}
-        
-        // Make functions globally available
-        window.fixServerUrl = fixServerUrl;
-        window.generateOptimizedCloudinaryUrl = generateOptimizedCloudinaryUrl;
-        window.optimizeImageUrl = optimizeImageUrl;
-        window.optimizeCriticalImage = optimizeCriticalImage;
-        window.generateResponsiveSrcSet = generateResponsiveSrcSet;
-    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <!-- Performance Resource Hints -->
     <link rel="preconnect" href="https://api.virtuosazm.com">
@@ -54,52 +26,9 @@
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
-    
-    <!-- Fallback font with font-display: swap -->
-    <style>
-        @font-face {
-            font-family: 'Montserrat';
-            font-style: normal;
-            font-weight: 400;
-            font-display: swap;
-            src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v26/JTUHjIg1_i6t8kCHKm4532VJOt5-QNPgp.woff2) format('woff2');
-        }
-        @font-face {
-            font-family: 'Montserrat';
-            font-style: normal;
-            font-weight: 600;
-            font-display: swap;
-            src: local('Montserrat SemiBold'), local('Montserrat-SemiBold'), url(https://fonts.gstatic.com/s/montserrat/v26/JTUHjIg1_i6t8kCHKm453cBTOt_Q.woff2) format('woff2');
-        }
-        @font-face {
-            font-family: 'Montserrat';
-            font-style: normal;
-            font-weight: 700;
-            font-display: swap;
-            src: local('Montserrat Bold'), local('Montserrat-Bold'), url(https://fonts.gstatic.com/s/montserrat/v26/JTUHjIg1_i6t8kCHKm4537PGS3p.woff2) format('woff2');
-        }
-    </style>
-    <!-- FontAwesome with font-display: swap -->
-    <style>
-        @font-face {
-            font-family: 'Font Awesome 6 Free';
-            font-style: normal;
-            font-weight: 900;
-            font-display: swap;
-            src: url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2) format('woff2');
-        }
-        @font-face {
-            font-family: 'Font Awesome 6 Brands';
-            font-style: normal;
-            font-weight: 400;
-            font-display: swap;
-            src: url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-brands-400.woff2) format('woff2');
-        }
-    </style>
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-    <link rel="stylesheet" href="/css/style.css">
-    <!-- Use local Tailwind build for production -->
+    <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.tailwindcss.com" defer></script>
     
     <!-- Open Graph / Facebook -->
@@ -186,11 +115,8 @@
 
         .category-image {
             width: 100%;
-            height: 100%;
-            object-fit: contain; /* Changed from cover to contain */
-            object-position: center;
+            object-fit: cover;
             transition: transform 0.6s ease;
-            background-color: #f8f9fa; /* Add background for better visibility */
         }
 
         .category-card:hover .category-image {
@@ -290,29 +216,7 @@
             padding-bottom: 3rem;
         }
 
-        /* Mobile Header Layout Fix */
-        @media (max-width: 767px) {
-            .mobile-header-row-1 .flex {
-                justify-content: space-between !important;
-                align-items: center !important;
-            }
-            
-            .mobile-header-row-1 .flex-1 {
-                flex: 1 !important;
-                text-align: center !important;
-            }
-            
-            .mobile-header-actions {
-                display: flex !important;
-                align-items: center !important;
-                gap: 0.5rem !important;
-            }
-            
-            .mobile-logo {
-                font-size: 1.5rem !important;
-                font-weight: 700 !important;
-            }
-        }
+        /* Skeleton Pulse Animation */
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -689,32 +593,32 @@
         </div>
     </div>
 
-    <nav class="desktop-only bg-dark-navy text-white shadow-sm py-1.5 px-6 md:px-12 z-40 border-t border-gray-800" style="height: 48px;">
-        <div class="container mx-auto nav-row-2-container" style="height: 100%; display: flex; align-items: center;">
+    <nav class="desktop-only bg-dark-navy text-white shadow-sm py-1.5 px-6 md:px-12 z-40 border-t border-gray-800">
+        <div class="container mx-auto nav-row-2-container">
             <!-- Desktop "Explore" Menu Trigger -->
-            <button id="desktop-explore-menu" onclick="window.openMobileMenu()" class="flex items-center text-white hover:text-gold px-3 py-1 rounded-full border border-gray-700 hover:border-gold transition-all mr-6 group shrink-0" style="width: 80px; height: 32px;">
+            <button id="desktop-explore-menu" onclick="window.openMobileMenu()" class="flex items-center text-white hover:text-gold px-3 py-1 rounded-full border border-gray-700 hover:border-gold transition-all mr-6 group shrink-0">
                 <i class="fas fa-bars mr-2 group-hover:scale-110 transition-transform"></i>
                 <span class="font-bold text-[10px] uppercase tracking-wider">Explore</span>
             </button>
 
             <!-- Category Menu -->
-            <div class="flex items-center space-x-6 overflow-x-auto hide-scrollbar py-1" style="height: 32px; min-width: 0; flex: 1;">
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="nav-category-item" style="font-size: 12px; white-space: nowrap; height: 20px; display: flex; align-items: center;">Hot Deals</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="nav-category-item" style="font-size: 12px; white-space: nowrap; height: 20px; display: flex; align-items: center;">Best Sellers</a>
-                <a href="/pages/seller.html" class="nav-category-item text-gold" style="font-size: 12px; white-space: nowrap; height: 20px; display: flex; align-items: center;">Sell Items</a>
-                <div class="h-4 w-[1px] bg-gray-700 mx-2 shrink-0" style="height: 16px;"></div>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="nav-category-item" style="font-size: 12px; white-space: nowrap; height: 20px; display: flex; align-items: center;">Electronics</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="nav-category-item" style="font-size: 12px; white-space: nowrap; height: 20px; display: flex; align-items: center;">Computers & Software</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="nav-category-item" style="font-size: 12px; white-space: nowrap; height: 20px; display: flex; align-items: center;">Services</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="nav-category-item" style="font-size: 12px; white-space: nowrap; height: 20px; display: flex; align-items: center;">Watches & Jewellery</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="nav-category-item" style="font-size: 12px; white-space: nowrap; height: 20px; display: flex; align-items: center;">Men's Clothing</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="nav-category-item" style="font-size: 12px; white-space: nowrap; height: 20px; display: flex; align-items: center;">Women's Clothing</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="nav-category-item" style="font-size: 12px; white-space: nowrap; height: 20px; display: flex; align-items: center;">Shoes</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="nav-category-item" style="font-size: 12px; white-space: nowrap; height: 20px; display: flex; align-items: center;">Accessories</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="nav-category-item" style="font-size: 12px; white-space: nowrap; height: 20px; display: flex; align-items: center;">Personal Care & Beauty</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="nav-category-item" style="font-size: 12px; white-space: nowrap; height: 20px; display: flex; align-items: center;">Food & Beverages</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="nav-category-item" style="font-size: 12px; white-space: nowrap; height: 20px; display: flex; align-items: center;">Sports & Outdoors</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="nav-category-item" style="font-size: 12px; white-space: nowrap; height: 20px; display: flex; align-items: center;">Home & Living</a>
+            <div class="flex items-center space-x-6 overflow-x-auto hide-scrollbar py-1">
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="nav-category-item">Hot Deals</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="nav-category-item">Best Sellers</a>
+                <a href="/pages/seller.html" class="nav-category-item text-gold">Sell Items</a>
+                <div class="h-4 w-[1px] bg-gray-700 mx-2 shrink-0"></div>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="nav-category-item">Electronics</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="nav-category-item">Computers & Software</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="nav-category-item">Services</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="nav-category-item">Watches & Jewellery</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="nav-category-item">Men's Clothing</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="nav-category-item">Women's Clothing</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="nav-category-item">Shoes</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="nav-category-item">Accessories</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="nav-category-item">Personal Care & Beauty</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="nav-category-item">Food & Beverages</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="nav-category-item">Sports & Outdoors</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="nav-category-item">Home & Living</a>
             </div>
         </div>
     </nav>
@@ -875,42 +779,14 @@
             &copy; 2026 Virtuosa. All rights reserved.
         </div>
     </footer>
-    
-    <!-- Critical Scripts - Load Immediately (already inlined) -->
-    
-    <!-- Deferred Scripts - Load After Critical Path -->
-    <script src="/js/cache-manager.js" defer></script>
-    <script src="/js/debounce.js" defer></script>
-    <script src="/js/api-batcher.js" defer></script>
-    <script src="/js/url-helper.js" defer></script>
-    <script src="/js/router.min.js" defer></script>
+    <script src="/js/config.js" defer></script>
+    <script src="/js/router.js" defer></script>
     <script src="/js/mobile-header.js" defer></script>
     <script src="/js/ad-slider.js" defer></script>
     <script src="/js/header.js" defer></script>
-    <script src="/js/cart.min.js" defer></script>
-    <!-- Defer notification modal until Socket.IO is loaded -->
-    <script>
-        // Load notification modal after Socket.IO is available
-        setTimeout(() => {
-            const script = document.createElement('script');
-            script.src = '/js/notification-modal.js';
-            script.defer = true;
-            document.head.appendChild(script);
-        }, 1500);
-    </script>
-    
-    <!-- Load Socket.IO after page is fully interactive -->
-    <script>
-        // Load Socket.IO only after page is interactive to reduce blocking
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                const script = document.createElement('script');
-                script.src = 'https://cdn.socket.io/4.7.2/socket.io.min.js';
-                script.async = true;
-                document.head.appendChild(script);
-            }, 1000); // Delay by 1 second
-        });
-    </script>
+    <script src="/js/cart.js" defer></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" defer></script>
+    <script src="/js/notification-modal.js" defer></script>
     <script>
         // Declare global variables before DOMContentLoaded
         let homeAllProducts = [];
@@ -1178,48 +1054,21 @@
             function renderAdSliders(adSliders) {
                 const activeAdSliders = adSliders.filter(ad => ad.active).sort((a, b) => a.displayOrder - b.displayOrder);
 
-                adCardsWrapper.innerHTML = activeAdSliders.map((ad, index) => {
+                adCardsWrapper.innerHTML = activeAdSliders.map(ad => {
                     // Sanitize and handle both absolute and relative URLs
-                    const fallbackUrl = 'https://placehold.co/1200x400?text=Ad+Image';
+                    const fallbackUrl = 'https://placehold.co/800x400?text=Ad+Image';
                     const sanitizedUrl = sanitizeImageUrl(ad.backgroundImage, fallbackUrl);
                     const imageUrl = sanitizedUrl.startsWith('http') ? 
                         sanitizedUrl : 
                         `https://api.virtuosazm.com${sanitizedUrl}`;
                     
-                    // Use optimized image with proper dimensions - first image gets critical optimization
-                    // Ad slider dimensions: 1200x400 (3:1 aspect ratio)
-                    const optimizedSrc = index === 0 ? 
-                        optimizeCriticalImage(imageUrl, 1200, 400) :
-                        optimizeImageUrl(imageUrl, 1200, 400, {
-                            format: 'auto',
-                            quality: 'eco',
-                            compression: 'high'
-                        });
-                    
-                    // Generate responsive srcset for ad slider
-                    const responsiveSrcset = generateResponsiveSrcSet(imageUrl, 1200, 400, [600, 800, 1200, 1600]);
-                    
-                    // Add fetchpriority to first few images
-                    const fetchPriority = index === 0 ? 'high' : index < 2 ? 'auto' : 'low';
-                    const loading = index === 0 ? 'eager' : 'lazy';
-                    const decoding = index === 0 ? 'sync' : 'async';
+                    // Generate WebP version using optimized function
+                    const webpUrl = generateWebpUrl(imageUrl);
                     
                     return `
-                <div class="ad-card flex-none w-full h-full rounded-lg shadow-lg relative cursor-pointer overflow-hidden"
-                 style="width: 100%; height: 400px; aspect-ratio: 3/1;"${index === 0 ? ' fetchpriority="high"' : ''}
+                <div class="ad-card flex-none w-full h-full bg-cover bg-center rounded-lg shadow-lg relative cursor-pointer"
+                 style="background-image: url('${imageUrl}');"
                  onclick="window.location.href='${sanitizeUrl(ad.link)}'">
-                 <img src="${optimizedSrc}" 
-                 srcset="${responsiveSrcset}"
-                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
-                 alt="${ad.title} - ${ad.subtitle || 'Advertisement'}" 
-                 class="w-full h-full object-contain object-center"
-                 width="1200"
-                 height="400"
-                 loading="${loading}"
-                 decoding="${decoding}"
-                 fetchpriority="${fetchPriority}"
-                 onerror="this.src='https://placehold.co/1200x400?text=Error+Loading+Ad'"
-                 style="width: 100%; height: 100%; object-fit: contain; object-position: center;">
                  <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
                 <div class="text-center">
                 <h3 class="text-white text-3xl md:text-5xl font-bold">${encodeHtml(ad.title)}</h3>
@@ -1263,49 +1112,32 @@
                         sanitizedUrl : 
                         (card.image ? `https://api.virtuosazm.com${sanitizedUrl}` : fallbackUrl);
 
-                    // Use optimized image generation with exact display dimensions from PageSpeed
-                    // Desktop: Square cards 257x180px, Rectangle cards 539x269px
-                    // Mobile: Square cards 637x445px, Rectangle cards 700x350px
-                    const isMobile = window.innerWidth <= 768;
-                    const displayWidth = isRectangle ? (isMobile ? 700 : 539) : (isMobile ? 637 : 257);
-                    const displayHeight = isRectangle ? (isMobile ? 350 : 269) : (isMobile ? 445 : 180);
-                    
-                    // First few images get critical optimization
-                    const isCritical = index < 4;
-                    const optimizedSrc = isCritical ? 
-                        optimizeCriticalImage(imageUrl, displayWidth, displayHeight) :
-                        optimizeImageUrl(imageUrl, displayWidth, displayHeight, {
-                            format: 'auto',
-                            quality: 'eco',
-                            compression: 'high'
-                        });
-
-                    // Generate responsive srcset with exact breakpoints for display dimensions
-                    const responsiveSrcset = generateResponsiveSrcSet(imageUrl, displayWidth, displayHeight, [200, 400, 640, 768]);
-
-                    // Add fetchpriority to first few images
-                    const fetchPriority = index === 0 ? 'high' : index < 4 ? 'auto' : 'low';
+                    // Generate WebP and fallback versions using optimized function
+                    const webpUrl = generateWebpUrl(imageUrl);
 
                   return `
-                <div class="${cardClass}" style="width: 100%; ${isRectangle ? 'height: 320px;' : 'height: 280px;'}">
-                <div class="overflow-hidden bg-gray-100" style="height: ${isRectangle ? '200px' : '180px'};">
+                <div class="${cardClass}">
+                <div class="overflow-hidden bg-gray-100">
                 <picture>
-                  <source srcset="${responsiveSrcset}" type="image/webp">
-                  <img src="${optimizedSrc}" 
-                 srcset="${responsiveSrcset}"
-                 sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 30vw, 286px"
+                  <source srcset="${generateOptimizedCloudinaryUrl(imageUrl, 400, isRectangle ? 200 : 140)} 400w,
+                          ${generateOptimizedCloudinaryUrl(imageUrl, 768, isRectangle ? 384 : 280)} 768w,
+                          ${generateOptimizedCloudinaryUrl(imageUrl, 1200, isRectangle ? 600 : 400)} 1200w" 
+                          type="image/webp">
+                  <img src="${imageUrl}" 
+                 srcset="${generateOptimizedCloudinaryUrl(imageUrl, 400, isRectangle ? 200 : 140)} 400w,
+                         ${generateOptimizedCloudinaryUrl(imageUrl, 768, isRectangle ? 384 : 280)} 768w,
+                         ${generateOptimizedCloudinaryUrl(imageUrl, 1200, isRectangle ? 600 : 400)} 1200w"
+                 sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 25vw"
                  alt="${card.title} - ${card.description || 'Browse on Virtuosa'}" 
                  class="category-image"
-                 width="${displayWidth}"
-                 height="${displayHeight}"
-                 loading="${isCritical ? 'eager' : 'lazy'}"
-                 decoding="${isCritical ? 'sync' : 'async'}"
-                 fetchpriority="${fetchPriority}"
-                 onerror="handleImageError(this)"
-                 style="width: 100%; height: 100%; object-fit: cover;">
+                 width="${isRectangle ? '800' : '400'}"
+                 height="${isRectangle ? '400' : '280'}"
+                 loading="${index < 4 ? 'eager' : 'lazy'}"
+                 decoding="async"
+                 onerror="handleImageError(this)">
                 </picture>
                 </div>
-                <div class="category-content" style="height: ${isRectangle ? '120px' : '100px'}; padding: 12px;">
+                <div class="category-content">
                 <h3 class="category-title">${encodeHtml(card.title)}</h3>
                 <p class="category-description">${encodeHtml(card.description || 'Discover our curated selection in this category')}</p>
                 <a href="${sanitizeUrl(card.link ? (card.link.startsWith('/') ? card.link : '/pages/' + card.link) : '#')}" 
@@ -1647,86 +1479,27 @@
             // Load marketing data on page load
             loadMarketingData();
             initHomeSearch();
-
-            // Image error handler for missing images
-            window.handleImageError = function(img) {
-                if (!img) return;
-                
-                // Get dimensions from the img element or use defaults
-                const width = img.getAttribute('width') || '400';
-                const height = img.getAttribute('height') || '280';
-                
-                // Set a fallback placeholder
-                img.src = `https://placehold.co/${width}x${height}?text=Image+Not+Available`;
-                img.onerror = null; // Prevent infinite loop
-                console.warn('Image failed to load, using fallback:', img.src);
-            };
-
-            // Category click handler - navigate to products page with category filter
-            window.handleCategoryClick = function(categoryName) {
-                if (!categoryName) return;
-                
-                // Close mobile menu if open
-                const mobileMenu = document.getElementById('mobile-menu');
-                if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
-                    mobileMenu.classList.add('hidden');
-                    document.body.classList.remove('overflow-hidden');
-                }
-                
-                // Navigate to products page with category filter
-                window.location.href = `/products?category=${encodeURIComponent(categoryName)}`;
-            };
-
-            // Mobile menu handlers
-            window.openMobileMenu = function() {
-                const mobileMenu = document.getElementById('mobile-menu');
-                if (mobileMenu) {
-                    mobileMenu.classList.remove('hidden');
-                    document.body.classList.add('overflow-hidden');
-                }
-            };
-
-            window.closeMobileMenu = function() {
-                const mobileMenu = document.getElementById('mobile-menu');
-                if (mobileMenu) {
-                    mobileMenu.classList.add('hidden');
-                    document.body.classList.remove('overflow-hidden');
-                }
-            };
-
-            // Mobile menu toggle
-            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-            const mobileMenu = document.getElementById('mobile-menu');
-            
-            if (mobileMenuToggle && mobileMenu) {
-                mobileMenuToggle.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (mobileMenu.classList.contains('hidden')) {
-                        openMobileMenu();
-                    } else {
-                        closeMobileMenu();
-                    }
-                });
-            }
-
-            // Close mobile menu when clicking outside
-            document.addEventListener('click', (e) => {
-                if (mobileMenu && !mobileMenu.classList.contains('hidden') && 
-                    !mobileMenu.contains(e.target) && 
-                    !mobileMenuToggle.contains(e.target)) {
-                    closeMobileMenu();
-                }
-            });
-
-            // Make functions globally available
-            window.openMobileMenu = openMobileMenu;
-            window.closeMobileMenu = closeMobileMenu;
-            window.handleCategoryClick = handleCategoryClick;
-            window.handleImageError = handleImageError;
         });
     </script>
     
-    <!-- Clean URL Support - Critical -->
-    <script src="/js/router.min.js"></script>
+    <!-- Clean URL Support -->
+    <script src="/js/url-helper.js"></script>
+    <script src="/js/image-optimizer.js"></script>
+    <script src="/js/cache-manager.js"></script>
+    <script src="/js/debounce.js"></script>
+    <script src="/js/api-batcher.js"></script>
+    <script>
+        // Force cache refresh for development
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            document.querySelectorAll('script[src]').forEach(script => {
+                if (script.src.includes('/js/')) {
+                    const url = new URL(script.src);
+                    url.searchParams.set('v', Date.now());
+                    script.src = url.toString();
+                }
+            });
+        }
+    </script>
+</body>
+
 </html>

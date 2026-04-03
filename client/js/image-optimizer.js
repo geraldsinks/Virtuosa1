@@ -10,7 +10,7 @@ function fixServerUrl(url) {
 }
 
 // Unified Cloudinary URL optimization function
-function generateOptimizedCloudinaryUrl(imageUrl, width, height, preserveExistingTransforms = false, format = 'auto', quality = 'auto', compression = 'auto') {
+function generateOptimizedCloudinaryUrl(imageUrl, width, height, preserveExistingTransforms = false) {
     if (!imageUrl || typeof imageUrl !== 'string') {
         return imageUrl;
     }
@@ -34,37 +34,7 @@ function generateOptimizedCloudinaryUrl(imageUrl, width, height, preserveExistin
         const remainingPath = imageUrl.substring(uploadIndex + 8);
 
         let optimizedUrl;
-        
-        // Build optimized transformations
-        let transforms = [];
-        
-        // Format optimization - prioritize WebP for better compression
-        if (format === 'auto') {
-            transforms.push('f_auto'); // Let Cloudinary choose best format (WebP/AVIF)
-        } else if (format === 'webp') {
-            transforms.push('f_webp');
-        } else if (format === 'avif') {
-            transforms.push('f_avif');
-        }
-        
-        // Quality optimization with better compression
-        if (quality === 'auto') {
-            transforms.push('q_auto:good'); // Use good quality for better compression
-        } else if (quality === 'eco') {
-            transforms.push('q_auto:eco'); // Even better compression
-        } else if (typeof quality === 'number') {
-            transforms.push(`q_${quality}`);
-        }
-        
-        // Additional compression for better performance
-        if (compression === 'high') {
-            transforms.push('dpr_2.0'); // Optimize for high DPI displays
-        }
-        
-        // Add dimension and crop transformations
-        transforms.push(`w_${width}`, `h_${height}`, 'c_fill');
-        
-        const newTransforms = transforms.join(',');
+        const newTransforms = `q_auto,f_auto,w_${width},h_${height},c_fill`;
 
         if (preserveExistingTransforms && remainingPath.includes('/')) {
             // Preserve existing transformations and add ours
@@ -99,14 +69,13 @@ function optimizeImageUrl(imageUrl, width = 400, height = 280, options = {}) {
         format = 'auto', // auto, webp, avif
         quality = 'auto',
         crop = 'fill',
-        preserveTransforms = false,
-        compression = 'auto' // New compression parameter
+        preserveTransforms = false
     } = options;
 
     try {
         // Handle Cloudinary URLs
         if (imageUrl.includes('res.cloudinary.com')) {
-            return generateOptimizedCloudinaryUrl(imageUrl, width, height, preserveTransforms, format, quality, compression);
+            return generateOptimizedCloudinaryUrl(imageUrl, width, height, preserveTransforms);
         }
 
         // Handle placeholder images
@@ -164,37 +133,20 @@ function optimizeImageUrl(imageUrl, width = 400, height = 280, options = {}) {
 
 // Generate WebP version of image URL
 function generateWebPUrl(imageUrl, width = 400, height = 280) {
-    return optimizeImageUrl(imageUrl, width, height, { 
-        format: 'webp', 
-        quality: 'eco', // Use eco quality for better compression
-        compression: 'high' 
-    });
+    return optimizeImageUrl(imageUrl, width, height, { format: 'webp' });
 }
 
-// Responsive image srcset generator with better compression
-function generateResponsiveSrcSet(imageUrl, baseWidth = 400, baseHeight = 280, breakpoints = [200, 320, 480, 768, 1024]) {
+// Responsive image srcset generator
+function generateResponsiveSrcSet(imageUrl, baseWidth = 400, baseHeight = 280, breakpoints = [320, 480, 768, 1024, 1200]) {
     if (!imageUrl) return '';
 
     const srcset = breakpoints.map(width => {
         const height = Math.round((width / baseWidth) * baseHeight);
-        const optimizedUrl = optimizeImageUrl(imageUrl, width, height, {
-            format: 'auto',
-            quality: 'eco', // Better compression for responsive images
-            compression: 'high'
-        });
+        const optimizedUrl = optimizeImageUrl(imageUrl, width, height);
         return `${optimizedUrl} ${width}w`;
     });
 
     return srcset.join(', ');
-}
-
-// Critical image optimizer for LCP images
-function optimizeCriticalImage(imageUrl, width, height) {
-    return optimizeImageUrl(imageUrl, width, height, {
-        format: 'auto',
-        quality: 'good', // Balance quality and performance
-        compression: 'high'
-    });
 }
 
 // Lazy loading image generator with optimization
@@ -205,24 +157,13 @@ function createOptimizedImage(imageUrl, alt, options = {}) {
         className = '',
         loading = 'lazy',
         sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
-        srcset = true,
-        critical = false, // New parameter for critical images
-        fetchPriority = 'auto' // New parameter for fetch priority
+        srcset = true
     } = options;
 
-    // Use different optimization for critical vs non-critical images
-    const optimizedSrc = critical ? 
-        optimizeCriticalImage(imageUrl, width, height) :
-        optimizeImageUrl(imageUrl, width, height, {
-            format: 'auto',
-            quality: 'eco',
-            compression: 'high'
-        });
-
+    const optimizedSrc = optimizeImageUrl(imageUrl, width, height);
     const srcsetAttribute = srcset ? generateResponsiveSrcSet(imageUrl, width, height) : '';
 
-    // Build image attributes
-    let imageAttrs = `
+    return `<img 
         src="${optimizedSrc}" 
         ${srcsetAttribute ? `srcset="${srcsetAttribute}"` : ''}
         ${sizes ? `sizes="${sizes}"` : ''}
@@ -230,19 +171,9 @@ function createOptimizedImage(imageUrl, alt, options = {}) {
         class="${className}" 
         width="${width}" 
         height="${height}"
-        ${fetchPriority !== 'auto' ? `fetchpriority="${fetchPriority}"` : ''}
-    `;
-
-    // Only add loading attribute if not critical
-    if (!critical) {
-        imageAttrs += ` loading="${loading}" decoding="async"`;
-    } else {
-        imageAttrs += ` loading="eager" decoding="sync"`;
-    }
-
-    imageAttrs += ` onerror="this.src='https://placehold.co/${width}x${height}?text=Error+Loading+Image'"`;
-
-    return `<img ${imageAttrs}>`;
+        loading="${loading}"
+        onerror="this.src='https://placehold.co/${width}x${height}?text=Error+Loading+Image'"
+    >`;
 }
 
 // Make functions globally available
@@ -252,7 +183,6 @@ window.optimizeImageUrl = optimizeImageUrl;
 window.generateWebPUrl = generateWebPUrl;
 window.generateResponsiveSrcSet = generateResponsiveSrcSet;
 window.createOptimizedImage = createOptimizedImage;
-window.optimizeCriticalImage = optimizeCriticalImage;
 
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {
@@ -262,7 +192,6 @@ if (typeof module !== 'undefined' && module.exports) {
         optimizeImageUrl,
         generateWebPUrl,
         generateResponsiveSrcSet,
-        createOptimizedImage,
-        optimizeCriticalImage
+        createOptimizedImage
     };
 }
