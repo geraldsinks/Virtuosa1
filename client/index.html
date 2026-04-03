@@ -65,6 +65,28 @@
             font-family: 'Montserrat', sans-serif;
         }
 
+        /* Critical CSS - Immediately hide mobile menu to prevent FOUC */
+        #mobile-menu-overlay {
+            display: none !important;
+        }
+        
+        #mobile-menu-content {
+            display: none !important;
+            transform: translateX(-100%) !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
+        
+        #mobile-menu-overlay.active {
+            display: block !important;
+        }
+        
+        #mobile-menu-content.active {
+            display: block !important;
+            transform: translateX(0) !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
 
         /* Navigation container styles */
         .nav-container {
@@ -798,6 +820,24 @@
             &copy; 2026 Virtuosa. All rights reserved.
         </div>
     </footer>
+    <script>
+        // Immediate mobile menu hiding - runs before any other scripts
+        (function() {
+            var overlay = document.getElementById('mobile-menu-overlay');
+            var content = document.getElementById('mobile-menu-content');
+            if (overlay) {
+                overlay.style.display = 'none';
+                overlay.classList.remove('active');
+            }
+            if (content) {
+                content.style.display = 'none';
+                content.style.transform = 'translateX(-100%)';
+                content.style.visibility = 'hidden';
+                content.style.opacity = '0';
+                content.classList.remove('active');
+            }
+        })();
+    </script>
     <script src="/js/config.js" defer></script>
     <script src="/js/router.js" defer></script>
     <script src="/js/mobile-header.js" defer></script>
@@ -814,6 +854,21 @@
         document.addEventListener('DOMContentLoaded', () => {
             if (window.isIndexScriptRunning) return;
             window.isIndexScriptRunning = true;
+
+            // Double-check mobile menu is hidden (prevents phone-specific issues)
+            var overlay = document.getElementById('mobile-menu-overlay');
+            var content = document.getElementById('mobile-menu-content');
+            if (overlay && (overlay.style.display !== 'none' || overlay.classList.contains('active'))) {
+                overlay.style.display = 'none';
+                overlay.classList.remove('active');
+            }
+            if (content && (content.style.display !== 'none' || content.classList.contains('active'))) {
+                content.style.display = 'none';
+                content.style.transform = 'translateX(-100%)';
+                content.style.visibility = 'hidden';
+                content.style.opacity = '0';
+                content.classList.remove('active');
+            }
 
             // Initialize DOM elements
             categoryGrid = document.getElementById('category-grid');
