@@ -101,6 +101,27 @@ app.use(compression({
   threshold: 2048,
 }));
 
+// Add caching middleware for static API responses
+const cacheMiddleware = (maxAge = 300) => {
+  return (req, res, next) => {
+    // Only cache GET requests
+    if (req.method !== 'GET') {
+      return next();
+    }
+    
+    // Don't cache authenticated requests
+    if (req.headers.authorization) {
+      return next();
+    }
+    
+    // Set cache headers
+    res.set('Cache-Control', `public, max-age=${maxAge}`);
+    res.set('ETag', Date.now().toString());
+    
+    next();
+  };
+};
+
 // Clean URL route handler for product details
 app.get('/product/:id', (req, res) => {
     // Serve the product-detail.html page for clean URLs
@@ -3500,7 +3521,7 @@ app.delete('/api/products/:id', authenticateToken, async (req, res) => {
 });
 
 // Get product details
-app.get('/api/products/:id', async (req, res) => {
+app.get('/api/products/:id', cacheMiddleware(600), async (req, res) => {
     try {
         const productId = req.params.id;
         console.log(`🔍 Looking for product with ID: ${productId}`);
@@ -3564,7 +3585,7 @@ app.get('/api/products/:id/refresh', authenticateToken, async (req, res) => {
 });
 
 // Enhanced products endpoint with search and filter
-app.get('/api/products', async (req, res) => {
+app.get('/api/products', cacheMiddleware(300), async (req, res) => {
     try {
         const {
             category,

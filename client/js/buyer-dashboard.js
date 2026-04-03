@@ -514,79 +514,121 @@ async function loadSpendingChart() {
 }
 
 function createSpendingChart(data) {
-    const ctx = document.getElementById('spending-chart').getContext('2d');
+    // Use dependency validation for chart manager
+    const chartManager = window.dependencyValidator?.safeGet('chartManager');
+    const Chart = window.dependencyValidator?.safeGet('Chart');
     
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            datasets: [{
-                label: 'Monthly Spending',
-                data: data.values || [0, 0, 0, 0, 0, 0],
-                borderColor: '#FFD700',
-                backgroundColor: 'rgba(255, 215, 0, 0.1)',
-                borderWidth: 3,
-                tension: 0.4,
-                fill: true,
-                pointBackgroundColor: '#FFD700',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointRadius: 6,
-                pointHoverRadius: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(10, 17, 40, 0.8)',
-                    titleColor: '#FFD700',
-                    bodyColor: '#fff',
-                    borderColor: '#FFD700',
-                    borderWidth: 1,
-                    padding: 12,
-                    displayColors: false,
-                    callbacks: {
-                        label: function(context) {
-                            return `Spending: ZMW ${context.parsed.y.toLocaleString()}`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: '#6b7280',
-                        font: {
-                            size: 12
-                        },
-                        callback: function(value) {
-                            return 'ZMW ' + value.toLocaleString();
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(107, 114, 128, 0.1)'
+    // Use the chart optimizer for better performance and memory management
+    if (chartManager && Chart) {
+        const datasets = [{
+            label: 'Monthly Spending',
+            data: data.values || [0, 0, 0, 0, 0, 0],
+            borderColor: '#FFD700',
+            backgroundColor: 'rgba(255, 215, 0, 0.1)',
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#FFD700',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8
+        }];
+
+        return chartManager.createLineChart(
+            'spending-chart',
+            data.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets,
+            {
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
                     }
                 },
-                x: {
-                    ticks: {
-                        color: '#6b7280',
-                        font: {
-                            size: 12
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'K' + value.toLocaleString();
+                            }
                         }
-                    },
-                    grid: {
-                        display: false
                     }
                 }
             }
+        );
+    }
+    
+    // Fallback to original Chart.js implementation if Chart.js is available
+    if (Chart) {
+        const ctx = document.getElementById('spending-chart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Monthly Spending',
+                    data: data.values || [0, 0, 0, 0, 0, 0],
+                    borderColor: '#FFD700',
+                    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#FFD700',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(10, 17, 40, 0.8)',
+                        titleColor: '#FFD700',
+                        bodyColor: '#fff',
+                        borderColor: '#FFD700',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `Spending: ZMW ${context.parsed.y.toLocaleString()}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'K' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        console.error('Chart.js not available for spending chart');
+        // Display a fallback message
+        const canvas = document.getElementById('spending-chart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#666';
+            ctx.font = '16px Montserrat';
+            ctx.textAlign = 'center';
+            ctx.fillText('Chart not available', canvas.width / 2, canvas.height / 2);
         }
-    });
+    }
 }
 
 function showLoadingStates() {
@@ -782,3 +824,8 @@ window.showTokenRewards = () => {
     `;
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 };
+
+// Initialize dashboard when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    loadDashboardData();
+});

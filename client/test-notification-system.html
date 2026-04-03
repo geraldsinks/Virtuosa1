@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification System Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">Notification System Test</h1>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test Controls</h2>
+            
+            <div class="space-y-4">
+                <button id="test-websocket" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    <i class="fas fa-plug mr-2"></i>Test WebSocket Connection
+                </button>
+                
+                <button id="test-push-permission" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                    <i class="fas fa-bell mr-2"></i>Test Push Permission
+                </button>
+                
+                <button id="send-test-notification" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
+                    <i class="fas fa-paper-plane mr-2"></i>Send Test Notification
+                </button>
+                
+                <button id="test-notification-endpoint" class="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700">
+                    <i class="fas fa-server mr-2"></i>Test Notification API
+                </button>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">System Status</h2>
+            <div id="status-display" class="space-y-2">
+                <div class="flex justify-between">
+                    <span>WebSocket Status:</span>
+                    <span id="websocket-status" class="font-mono text-gray-600">Unknown</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Push Permission:</span>
+                    <span id="push-status" class="font-mono text-gray-600">Unknown</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Service Worker:</span>
+                    <span id="sw-status" class="font-mono text-gray-600">Unknown</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Authentication:</span>
+                    <span id="auth-status" class="font-mono text-gray-600">Unknown</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Test Results</h2>
+            <div id="test-results" class="space-y-2 max-h-96 overflow-y-auto">
+                <p class="text-gray-500">Test results will appear here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <script>
+        class NotificationTester {
+            constructor() {
+                this.socket = null;
+                this.token = localStorage.getItem('token');
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.checkSystemStatus();
+                this.initSocket();
+            }
+
+            setupEventListeners() {
+                document.getElementById('test-websocket').addEventListener('click', () => this.testWebSocket());
+                document.getElementById('test-push-permission').addEventListener('click', () => this.testPushPermission());
+                document.getElementById('send-test-notification').addEventListener('click', () => this.sendTestNotification());
+                document.getElementById('test-notification-endpoint').addEventListener('click', () => this.testNotificationEndpoint());
+            }
+
+            checkSystemStatus() {
+                // Check WebSocket
+                this.updateStatus('websocket-status', 'Checking...');
+                
+                // Check Push Permission
+                if ('Notification' in window) {
+                    const permission = Notification.permission;
+                    this.updateStatus('push-status', permission);
+                } else {
+                    this.updateStatus('push-status', 'Not Supported');
+                }
+
+                // Check Service Worker
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(registrations => {
+                        if (registrations.length > 0) {
+                            this.updateStatus('sw-status', 'Registered');
+                        } else {
+                            this.updateStatus('sw-status', 'Not Registered');
+                        }
+                    });
+                } else {
+                    this.updateStatus('sw-status', 'Not Supported');
+                }
+
+                // Check Authentication
+                if (this.token) {
+                    this.updateStatus('auth-status', 'Token Present');
+                } else {
+                    this.updateStatus('auth-status', 'No Token');
+                }
+            }
+
+            initSocket() {
+                try {
+                    this.socket = io();
+                    
+                    this.socket.on('connect', () => {
+                        this.updateStatus('websocket-status', 'Connected');
+                        this.log('✅ WebSocket connected successfully');
+                        
+                        if (this.token) {
+                            this.authenticateSocket();
+                        }
+                    });
+
+                    this.socket.on('connect_error', (error) => {
+                        this.updateStatus('websocket-status', 'Connection Error');
+                        this.log('❌ WebSocket connection error: ' + error.message);
+                    });
+
+                    this.socket.on('disconnect', () => {
+                        this.updateStatus('websocket-status', 'Disconnected');
+                        this.log('🔌 WebSocket disconnected');
+                    });
+
+                    this.socket.on('authenticated', () => {
+                        this.updateStatus('auth-status', 'Authenticated');
+                        this.log('🔐 Socket authenticated successfully');
+                    });
+
+                    this.socket.on('auth_error', (error) => {
+                        this.updateStatus('auth-status', 'Auth Failed');
+                        this.log('❌ Socket authentication failed: ' + error.message);
+                    });
+
+                    this.socket.on('new_notification', (notification) => {
+                        this.log('🔔 New notification received: ' + JSON.stringify(notification));
+                    });
+
+                } catch (error) {
+                    this.updateStatus('websocket-status', 'Error');
+                    this.log('❌ Socket initialization error: ' + error.message);
+                }
+            }
+
+            authenticateSocket() {
+                if (this.socket && this.token) {
+                    this.socket.emit('authenticate', this.token);
+                }
+            }
+
+            testWebSocket() {
+                this.log('🧪 Testing WebSocket connection...');
+                
+                if (!this.socket) {
+                    this.log('❌ Socket not initialized');
+                    return;
+                }
+
+                if (this.socket.connected) {
+                    this.log('✅ WebSocket is already connected');
+                    this.socket.emit('ping');
+                } else {
+                    this.log('⏳ Waiting for WebSocket connection...');
+                }
+            }
+
+            async testPushPermission() {
+                this.log('🧪 Testing push notification permission...');
+                
+                if (!('Notification' in window)) {
+                    this.log('❌ Notifications not supported in this browser');
+                    return;
+                }
+
+                const currentPermission = Notification.permission;
+                this.log(`📋 Current permission: ${currentPermission}`);
+
+                if (currentPermission === 'default') {
+                    try {
+                        const permission = await Notification.requestPermission();
+                        this.log(`📋 Permission requested: ${permission}`);
+                        this.updateStatus('push-status', permission);
+                        
+                        if (permission === 'granted') {
+                            this.log('✅ Push notifications permission granted');
+                        } else {
+                            this.log('❌ Push notifications permission denied');
+                        }
+                    } catch (error) {
+                        this.log('❌ Error requesting permission: ' + error.message);
+                    }
+                } else {
+                    this.log(`ℹ️ Permission already set to: ${currentPermission}`);
+                }
+            }
+
+            async sendTestNotification() {
+                this.log('🧪 Sending test notification...');
+                
+                if (!this.token) {
+                    this.log('❌ No authentication token found');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/notifications/test-push`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        this.log('✅ Test notification sent: ' + JSON.stringify(result));
+                    } else {
+                        const error = await response.text();
+                        this.log('❌ Failed to send test notification: ' + error);
+                    }
+                } catch (error) {
+                    this.log('❌ Error sending test notification: ' + error.message);
+                }
+            }
+
+            async testNotificationEndpoint() {
+                this.log('🧪 Testing notification API endpoint...');
+                
+                if (!this.token) {
+                    this.log('❌ No authentication token found');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/notifications`, {
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.log(`✅ Notifications loaded: ${data.notifications?.length || 0} notifications`);
+                        this.log(`📊 Unread count: ${data.unreadCount || 0}`);
+                    } else {
+                        const error = await response.text();
+                        this.log('❌ Failed to load notifications: ' + error);
+                    }
+                } catch (error) {
+                    this.log('❌ Error testing notification endpoint: ' + error.message);
+                }
+            }
+
+            updateStatus(elementId, status) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = status;
+                    
+                    // Update color based on status
+                    element.className = 'font-mono ';
+                    if (status.includes('Connected') || status.includes('Granted') || status.includes('Authenticated')) {
+                        element.className += 'text-green-600';
+                    } else if (status.includes('Error') || status.includes('Denied') || status.includes('Failed')) {
+                        element.className += 'text-red-600';
+                    } else if (status.includes('Checking') || status.includes('Waiting')) {
+                        element.className += 'text-yellow-600';
+                    } else {
+                        element.className += 'text-gray-600';
+                    }
+                }
+            }
+
+            log(message) {
+                const resultsDiv = document.getElementById('test-results');
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.className = 'p-2 bg-gray-50 rounded text-sm font-mono';
+                logEntry.innerHTML = `<span class="text-gray-500">[${timestamp}]</span> ${message}`;
+                
+                resultsDiv.appendChild(logEntry);
+                resultsDiv.scrollTop = resultsDiv.scrollHeight;
+                
+                // Keep only last 20 messages
+                while (resultsDiv.children.length > 20) {
+                    resultsDiv.removeChild(resultsDiv.firstChild);
+                }
+            }
+        }
+
+        // Initialize tester when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            window.notificationTester = new NotificationTester();
+        });
+    </script>
+</body>
+</html>

@@ -19,6 +19,10 @@
     <script src="https://cdn.tailwindcss.com" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Performance Resource Hints -->
+    <link rel="preconnect" href="https://api.virtuosazm.com">
+    <link rel="preconnect" href="https://res.cloudinary.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
@@ -672,7 +676,12 @@
                 sortBy: 'relevance'
             };
 
-            // Fetch products from API
+            // Create debounced fetch function for search
+            const debouncedFetchProducts = window.debounce(async () => {
+                await fetchProducts();
+            }, 300);
+
+            // Fetch products from API with caching and optimization
             async function fetchProducts() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const categoryFromUrl = urlParams.get('category');
@@ -695,6 +704,26 @@
 
                 console.log('Fetching products with category:', currentCategory);
 
+                // Generate cache key based on current filters
+                const cacheKey = `products_${currentCategory || 'all'}_${filters.searchQuery || ''}_${filters.sortBy}`;
+                
+                // Try cache first
+                if (window.cacheManager) {
+                    const cachedProducts = window.cacheManager.getCachedApiResponse(cacheKey);
+                    if (cachedProducts) {
+                        console.log('📦 Cache hit for products:', cacheKey);
+                        allProducts = cachedProducts.products || [];
+                        filteredProducts = [...allProducts];
+                        
+                        if (allProducts.length === 0) {
+                            showEmptyState();
+                        } else {
+                            applyFiltersAndRender();
+                        }
+                        return;
+                    }
+                }
+
                 const url = currentCategory 
                     ? `${API_BASE}/products?category=${encodeURIComponent(currentCategory)}` 
                     : `${API_BASE}/products`;
@@ -703,15 +732,31 @@
                     loadingState.style.display = 'block';
                     if (productGrid) productGrid.style.display = 'none';
 
-                    const response = await fetch(url, {
-                        method: 'GET',
-                        headers: { 'Content-Type': 'application/json' }
-                    });
+                    // Use API batcher if available, otherwise use regular fetch
+                    let response;
+                    if (window.apiBatcher && window.cacheManager) {
+                        response = await window.apiBatcher.batchRequest(url, {
+                            method: 'GET',
+                            headers: { 'Content-Type': 'application/json' },
+                            cache: true,
+                            cacheKey: cacheKey
+                        });
+                    } else {
+                        response = await fetch(url, {
+                            method: 'GET',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                    }
 
                     if (response.ok) {
                         const data = await response.json();
                         allProducts = data.products || [];
                         filteredProducts = [...allProducts];
+
+                        // Cache the results
+                        if (window.cacheManager) {
+                            window.cacheManager.cacheApiResponse(cacheKey, data);
+                        }
 
                         if (allProducts.length === 0) {
                             showEmptyState();
@@ -839,9 +884,9 @@
                 }
 
                 productGrid.innerHTML = filteredProducts.map(product => {
-                    const image = product.images && product.images[0]
-                        ? fixServerUrl(product.images[0])
-                        : 'https://placehold.co/600x400?text=No+Image';
+                    const imageUrl = product.images && product.images[0]
+                        ? window.optimizeImageUrl ? window.optimizeImageUrl(fixServerUrl(product.images[0]), 400, 300) : fixServerUrl(product.images[0])
+                        : 'https://placehold.co/400x300?text=No+Image';
 
                     const isVerified = product.seller?.isStudentVerified || product.sellerVerified;
                     const isHotDeal = product.originalPrice && product.originalPrice > product.price;
@@ -853,9 +898,9 @@
                     return `
                         <div class="product-card bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group ${isOutOfStock ? 'opacity-75' : ''}">
                             <div class="relative">
-                                <img src="${image}" 
-                                     alt="${product.name} - ${product.category || 'Product'} on Virtuosa" 
-                                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                                <img src="${imageUrl}" 
+                                     alt="${product.name}" 
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                      width="300"
                                      height="300"
                                      loading="lazy" />
@@ -1013,13 +1058,20 @@
 
             // Event listeners
             if (globalSearchInput) {
-                globalSearchInput.addEventListener('input', (e) => {
-                    filters.searchQuery = e.target.value.trim();
+                // Create debounced search handler
+                const debouncedSearch = window.debounce((query) => {
+                    filters.searchQuery = query;
                     applyFiltersAndRender();
+                }, 300);
+
+                globalSearchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.trim();
+                    debouncedSearch(query);
                 });
 
                 globalSearchInput.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
+                        // Immediate search on Enter
                         filters.searchQuery = e.target.value.trim();
                         applyFiltersAndRender();
                     }
@@ -1173,6 +1225,10 @@
     <!-- Clean URL Support -->
     <script src="../js/router.js"></script>
     <script src="../js/url-helper.js"></script>
+    <script src="../js/image-optimizer.js"></script>
+    <script src="../js/cache-manager.js"></script>
+    <script src="../js/debounce.js"></script>
+    <script src="../js/api-batcher.js"></script>
 </body>
 
 </html>

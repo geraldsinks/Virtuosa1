@@ -88,66 +88,81 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Fetch user data to get role
             try {
-                const response = await fetch(`${API_BASE}/user/profile`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (response.ok) {
-                    const userData = await response.json();
-                    const sellerLinks = document.getElementById('seller-links');
-                    const adminLink = document.getElementById('admin-link');
-
-                    // Show seller links if user is seller
-                    if (userData.isSeller && sellerLinks) {
-                        sellerLinks.classList.remove('hidden');
-                    } else if (sellerLinks) {
-                        sellerLinks.classList.add('hidden');
-                    }
-
-                    // Show mobile seller section
-                    const mobileSellerSection = document.getElementById('mobile-seller-section');
-                    if (userData.isSeller && mobileSellerSection) {
-                        mobileSellerSection.style.display = 'block';
-                    } else if (mobileSellerSection) {
-                        mobileSellerSection.style.display = 'none';
-                    }
-
-                    // Show admin link if user is admin
-                    if ((userData.role === 'admin' || userData.isAdmin === 'true' || userData.isAdmin === true) && adminLink) {
-                        adminLink.classList.remove('hidden');
-                    } else if (adminLink) {
-                        adminLink.classList.add('hidden');
-                    }
-
-                    // Show mobile admin section
-                    const mobileAdminSection = document.getElementById('mobile-admin-section');
-                    const isAdmin = userData.role === 'admin' || userData.isAdmin === 'true' || userData.isAdmin === true;
-                    if (isAdmin && mobileAdminSection) {
-                        mobileAdminSection.style.display = 'block';
-                    } else if (mobileAdminSection) {
-                        mobileAdminSection.style.display = 'none';
-                    }
-
-                    // Point to appropriate dashboard based on user role
-                    const dashboardLink = document.querySelector('#user-dropdown a[href="/pages/dashboard.html"]');
-                    if (dashboardLink) {
-                        if (userData.isSeller) {
-                            dashboardLink.href = '/pages/seller-dashboard.html';
-                        } else {
-                            dashboardLink.href = '/pages/buyer-dashboard.html';
+                // Try to get cached user data first
+                const cachedUserData = window.cacheManager?.getUserData();
+                let userData;
+                
+                if (cachedUserData) {
+                    console.log('Using cached user data');
+                    userData = cachedUserData;
+                } else {
+                    const response = await fetch(`${API_BASE}/user/profile`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
                         }
-                    }
+                    });
 
-                    // Dynamically add Messages link if not present
-                    const userDropdown = document.getElementById('user-dropdown');
-                    if (userDropdown && !document.getElementById('messages-link')) {
-                        const messagesLink = document.createElement('a');
-                        messagesLink.id = 'messages-link';
-                        messagesLink.href = '/pages/messages.html';
-                        messagesLink.className = 'block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors';
-                        messagesLink.innerHTML = '<i class="fas fa-envelope mr-2"></i>Messages';
+                    if (response.ok) {
+                        userData = await response.json();
+                        // Cache the user data
+                        window.cacheManager?.cacheUserData(userData);
+                    } else {
+                        throw new Error('Failed to fetch user profile');
+                    }
+                }
+
+                const sellerLinks = document.getElementById('seller-links');
+                const adminLink = document.getElementById('admin-link');
+
+                // Show seller links if user is seller
+                if (userData.isSeller && sellerLinks) {
+                    sellerLinks.classList.remove('hidden');
+                } else if (sellerLinks) {
+                    sellerLinks.classList.add('hidden');
+                }
+
+                // Show mobile seller section
+                const mobileSellerSection = document.getElementById('mobile-seller-section');
+                if (userData.isSeller && mobileSellerSection) {
+                    mobileSellerSection.style.display = 'block';
+                } else if (mobileSellerSection) {
+                    mobileSellerSection.style.display = 'none';
+                }
+
+                // Show admin link if user is admin
+                if ((userData.role === 'admin' || userData.isAdmin === 'true' || userData.isAdmin === true) && adminLink) {
+                    adminLink.classList.remove('hidden');
+                } else if (adminLink) {
+                    adminLink.classList.add('hidden');
+                }
+
+                // Show mobile admin section
+                const mobileAdminSection = document.getElementById('mobile-admin-section');
+                const isAdmin = userData.role === 'admin' || userData.isAdmin === 'true' || userData.isAdmin === true;
+                if (isAdmin && mobileAdminSection) {
+                    mobileAdminSection.style.display = 'block';
+                } else if (mobileAdminSection) {
+                    mobileAdminSection.style.display = 'none';
+                }
+
+                // Point to appropriate dashboard based on user role
+                const dashboardLink = document.querySelector('#user-dropdown a[href="/pages/dashboard.html"]');
+                if (dashboardLink) {
+                    if (userData.isSeller) {
+                        dashboardLink.href = '/pages/seller-dashboard.html';
+                    } else {
+                        dashboardLink.href = '/pages/buyer-dashboard.html';
+                    }
+                }
+
+                // Dynamically add Messages link if not present
+                const userDropdown = document.getElementById('user-dropdown');
+                if (userDropdown && !document.getElementById('messages-link')) {
+                    const messagesLink = document.createElement('a');
+                    messagesLink.id = 'messages-link';
+                    messagesLink.href = '/pages/messages.html';
+                    messagesLink.className = 'block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors';
+                    messagesLink.innerHTML = '<i class="fas fa-envelope mr-2"></i>Messages';
 
                         // Find the logout button to insert before
                         const logoutBtn = userDropdown.querySelector('button[onclick*="logout"]');

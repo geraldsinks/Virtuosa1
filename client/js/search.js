@@ -4,7 +4,7 @@ class SearchManager {
         this.searchInput = null;
         this.searchButton = null;
         this.suggestionsContainer = null;
-        this.debounceTimer = null;
+        this.debouncedSearch = null;
         this.init();
     }
 
@@ -20,17 +20,28 @@ class SearchManager {
     }
 
     setupEventListeners() {
+        // Create debounced search function with dependency validation
+        const debounceFn = window.dependencyValidator?.safeGet('debounce');
+        if (debounceFn) {
+            this.debouncedSearch = debounceFn((query) => {
+                console.log('⏰ Fetching suggestions for:', query);
+                this.fetchSuggestions(query);
+            }, 300);
+        } else {
+            console.warn('Debounce function not available, using immediate search');
+            this.debouncedSearch = (query) => {
+                console.log('⏰ Fetching suggestions for:', query);
+                this.fetchSuggestions(query);
+            };
+        }
+
         // Search input events
         this.searchInput.addEventListener('input', (e) => {
-            clearTimeout(this.debounceTimer);
             const query = e.target.value.trim();
             console.log('🔍 Search input changed:', query);
             
             if (query.length >= 2) {
-                this.debounceTimer = setTimeout(() => {
-                    console.log('⏰ Fetching suggestions for:', query);
-                    this.fetchSuggestions(query);
-                }, 300);
+                this.debouncedSearch(query);
             } else {
                 console.log('❌ Query too short, hiding suggestions');
                 this.hideSuggestions();
@@ -63,19 +74,45 @@ class SearchManager {
     }
 
     async fetchSuggestions(query) {
+        console.log('🌐 Fetching suggestions for:', query);
+        
+        // Try cache first with error handling and dependency validation
+        if (window.dependencyValidator?.isAvailable('cacheManager')) {
+            try {
+                const cachedSuggestions = window.cacheManager.getCachedSearchResults(query);
+                if (cachedSuggestions) {
+                    console.log('📦 Cache hit for search suggestions:', query);
+                    this.displaySuggestions(cachedSuggestions);
+                    return;
+                }
+            } catch (cacheError) {
+                console.warn('Cache read failed, proceeding with network request:', cacheError);
+            }
+        }
+
         try {
-            const response = await fetch(`${API_BASE}/search/suggestions?q=${encodeURIComponent(query)}`);
+            const response = await fetch(`${API_BASE}/products/search?q=${encodeURIComponent(query)}&limit=5`);
             if (response.ok) {
                 const suggestions = await response.json();
                 console.log('Search suggestions received:', suggestions);
+                
+                // Cache the results with error handling and dependency validation
+                if (window.dependencyValidator?.isAvailable('cacheManager')) {
+                    try {
+                        window.cacheManager.cacheSearchResults(query, suggestions);
+                    } catch (cacheError) {
+                        console.warn('Cache write failed:', cacheError);
+                    }
+                }
+                
                 this.displaySuggestions(suggestions);
             } else {
                 console.error('Search suggestions failed:', response.status);
-                this.displaySuggestions([]);
+                this.showError();
             }
         } catch (error) {
-            console.error('Error fetching search suggestions:', error);
-            this.displaySuggestions([]);
+            console.error('Search suggestions error:', error);
+            this.showError();
         }
     }
 

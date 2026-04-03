@@ -129,6 +129,7 @@ class NotificationManager {
                     this.handleNewNotification(notification);
                 } catch (error) {
                     console.error('Error handling new notification:', error);
+                    // Continue handling other events even if this one fails
                 }
             });
 
@@ -138,6 +139,8 @@ class NotificationManager {
                     this.updateNotificationCounts(data);
                 } catch (error) {
                     console.error('Error handling notification count update:', error);
+                    // Fallback: refresh counts from server
+                    this.loadNotificationCounts();
                 }
             });
 
@@ -147,6 +150,8 @@ class NotificationManager {
                     this.displayNotifications(data.notifications);
                 } catch (error) {
                     console.error('Error handling notifications data:', error);
+                    // Show error state in UI
+                    this.showNotificationError();
                 }
             });
 
@@ -154,8 +159,14 @@ class NotificationManager {
                 try {
                     console.log('Notifications marked as read:', data);
                     this.loadNotificationCounts();
+                    // Refresh notifications list if on notifications page
+                    if (this.notificationContainer) {
+                        this.loadNotifications();
+                    }
                 } catch (error) {
                     console.error('Error handling notifications marked read:', error);
+                    // Fallback: refresh manually
+                    this.loadNotificationCounts();
                 }
             });
 
