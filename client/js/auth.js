@@ -366,76 +366,166 @@ async function handleLogin(event) {
             localStorage.setItem('userEmail', result.user.email);
             localStorage.setItem('userFullName', result.user.fullName);
             
+            // Store complete user data for role system
+            localStorage.setItem('user', JSON.stringify(result.user));
+            
+            console.log('🔍 LOGIN DEBUG - Server response with role data:', result.user);
+            
+            // Use effectiveRole from login response if available
+            if (result.user.effectiveRole) {
+                console.log('🔍 Using effectiveRole from login response:', result.user.effectiveRole);
+                
+                // Consolidate role data storage
+                const roleData = {
+                    effectiveRole: result.user.effectiveRole,
+                    roleInfo: {
+                        effectiveRole: result.user.effectiveRole,
+                        title: result.user.effectiveRole === 'admin' ? 'Admin' : 
+                               result.user.effectiveRole === 'seller' ? 'Seller' : 'Buyer',
+                        level: result.user.effectiveRole === 'admin' ? 3 : 
+                               result.user.effectiveRole === 'seller' ? 2 : 1,
+                        isBuyer: true,
+                        isSeller: result.user.effectiveRole === 'seller' || result.user.effectiveRole === 'admin',
+                        isAdmin: result.user.effectiveRole === 'admin'
+                    },
+                    timestamp: Date.now()
+                };
+                
+                localStorage.setItem('userRoleData', JSON.stringify(roleData));
+                
+                // Clear legacy keys to prevent staleness
+                localStorage.removeItem('isAdmin');
+                localStorage.removeItem('isSeller');
+                localStorage.removeItem('isBuyer');
+            } else {
+                // Fallback: fetch full profile for role detection
+                try {
+                    const profileResponse = await fetch(`${API_BASE}/user/profile`, {
+                        headers: { 'Authorization': `Bearer ${result.token}` }
+                    });
+                    
+                    if (profileResponse.ok) {
+                        const fullUserData = await profileResponse.json();
+                        console.log('🔍 LOGIN DEBUG - Full user profile:', fullUserData);
+                        
+                        // Use the full user data for role detection
+                        const isAdmin = (fullUserData.isAdmin === true || fullUserData.isAdmin === 'true');
+                        const isSeller = fullUserData.isSeller === true || fullUserData.isSeller === 'true';
+                        
+                        console.log('🔍 LOGIN DEBUG - Role detection:', {
+                            isAdmin: isAdmin,
+                            isSeller: isSeller,
+                            userIsAdmin: fullUserData.isAdmin,
+                            userEmail: fullUserData.email,
+                            userRole: fullUserData.role
+                        });
+                        
+                        // Consolidate role data storage for fallback
+                        const effectiveRole = isAdmin ? 'admin' : isSeller ? 'seller' : 'buyer';
+                        const roleData = {
+                            effectiveRole: effectiveRole,
+                            roleInfo: {
+                                effectiveRole: effectiveRole,
+                                title: effectiveRole === 'admin' ? 'Admin' : 
+                                       effectiveRole === 'seller' ? 'Seller' : 'Buyer',
+                                level: effectiveRole === 'admin' ? 3 : 
+                                       effectiveRole === 'seller' ? 2 : 1,
+                                isBuyer: true,
+                                isSeller: effectiveRole === 'seller' || effectiveRole === 'admin',
+                                isAdmin: effectiveRole === 'admin'
+                            },
+                            timestamp: Date.now()
+                        };
+                        
+                        localStorage.setItem('userRoleData', JSON.stringify(roleData));
+                        
+                        // Clear legacy keys to prevent staleness
+                        localStorage.removeItem('isAdmin');
+                        localStorage.removeItem('isSeller');
+                        localStorage.removeItem('isBuyer');
+                    } else {
+                        console.warn('Could not fetch user profile:', profileResponse);
+                        // Fallback: store default consolidated role data
+                        const defaultRoleData = {
+                            effectiveRole: 'buyer',
+                            roleInfo: {
+                                effectiveRole: 'buyer',
+                                title: 'Buyer',
+                                level: 1,
+                                isBuyer: true,
+                                isSeller: false,
+                                isAdmin: false
+                            },
+                            timestamp: Date.now()
+                        };
+                        localStorage.setItem('userRoleData', JSON.stringify(defaultRoleData));
+                        
+                        // Clear legacy keys to prevent staleness
+                        localStorage.removeItem('isAdmin');
+                        localStorage.removeItem('isSeller');
+                        localStorage.removeItem('isBuyer');
+                    }
+                } catch (profileError) {
+                    console.warn('Could not fetch user profile:', profileError);
+                    // Fallback: store default consolidated role data
+                    const defaultRoleData = {
+                        effectiveRole: 'buyer',
+                        roleInfo: {
+                            effectiveRole: 'buyer',
+                            title: 'Buyer',
+                            level: 1,
+                            isBuyer: true,
+                            isSeller: false,
+                            isAdmin: false
+                        },
+                        timestamp: Date.now()
+                    };
+                    localStorage.setItem('userRoleData', JSON.stringify(defaultRoleData));
+                    
+                    // Clear legacy keys to prevent staleness
+                    localStorage.removeItem('isAdmin');
+                    localStorage.removeItem('isSeller');
+                    localStorage.removeItem('isBuyer');
+                }
+            }
+            
             // Sync cart from localStorage to backend after login
             await syncCartToBackend();
             
-            // Role Persistence Logic
-            console.log('🔍 LOGIN DEBUG - Server response:', result.user);
-            
-            // The login response doesn't include admin fields, so fetch full profile
-            try {
-                const profileResponse = await fetch(`${API_BASE}/user/profile`, {
-                    headers: { 'Authorization': `Bearer ${result.token}` }
-                });
+            // Redirect using the new role hierarchy system
+            setTimeout(() => {
+                // Use consolidated role data
+                const roleDataStr = localStorage.getItem('userRoleData');
+                let effectiveRole = null;
                 
-                if (profileResponse.ok) {
-                    const fullUserData = await profileResponse.json();
-                    console.log('🔍 LOGIN DEBUG - Full user profile:', fullUserData);
-                    
-                    // Use the full user data for role detection
-                    const isAdmin = (fullUserData.isAdmin === true || fullUserData.isAdmin === 'true' || fullUserData.email === 'admin@virtuosa.com');
-                    const isSeller = fullUserData.isSeller === true || fullUserData.isSeller === 'true';
-                    
-                    console.log('🔍 LOGIN DEBUG - Role detection:', {
-                        isAdmin: isAdmin,
-                        isSeller: isSeller,
-                        userIsAdmin: fullUserData.isAdmin,
-                        userEmail: fullUserData.email,
-                        userRole: fullUserData.role
-                    });
-                    
-                    // Store role information
-                    localStorage.setItem('isAdmin', isAdmin.toString());
-                    localStorage.setItem('isSeller', isSeller.toString());
-                } else {
-                    console.warn('Could not fetch user profile:', profileResponse);
-                    // Fallback: store default values
-                    localStorage.setItem('isAdmin', 'false');
-                    localStorage.setItem('isSeller', 'false');
+                if (roleDataStr) {
+                    try {
+                        const roleData = JSON.parse(roleDataStr);
+                        effectiveRole = roleData.effectiveRole;
+                    } catch (e) {
+                        console.warn('Failed to parse role data, using fallback');
+                    }
                 }
                 
-                // Redirect to appropriate dashboard
-                setTimeout(() => {
-                    const isAdmin = localStorage.getItem('isAdmin') === 'true';
-                    const isSeller = localStorage.getItem('isSeller') === 'true';
-                    
-                    if (isAdmin) {
-                        window.location.href = '/pages/admin-dashboard.html';
-                    } else if (isSeller) {
-                        window.location.href = '/pages/seller-dashboard.html';
-                    } else {
-                        window.location.href = '/pages/buyer-dashboard.html';
-                    }
-                }, 1500);
-                localStorage.setItem('isSeller', 'false');
-            } catch (profileError) {
-                console.warn('Could not fetch user profile:', profileError);
-                // Fallback: store default values
-                localStorage.setItem('isAdmin', 'false');
-                localStorage.setItem('isSeller', 'false');
-            }
-            
-            // Redirect directly to role-specific dashboard (no more universal router)
-            const finalIsAdmin = localStorage.getItem('isAdmin') === 'true';
-            const finalIsSeller = localStorage.getItem('isSeller') === 'true';
-            
-            if (finalIsAdmin) {
-                window.location.href = '/pages/admin-dashboard.html';
-            } else if (finalIsSeller) {
-                window.location.href = '/pages/seller-dashboard.html';
-            } else {
-                window.location.href = '/pages/buyer-dashboard.html';
-            }
+                // Fallback to legacy checks if needed
+                const finalIsAdmin = localStorage.getItem('isAdmin') === 'true';
+                const finalIsSeller = localStorage.getItem('isSeller') === 'true';
+                
+                console.log('🔍 LOGIN REDIRECT - Role data:', {
+                    effectiveRole,
+                    finalIsAdmin,
+                    finalIsSeller
+                });
+                
+                if (effectiveRole === 'admin' || finalIsAdmin) {
+                    window.location.href = '/pages/admin-dashboard.html';
+                } else if (effectiveRole === 'seller' || finalIsSeller) {
+                    window.location.href = '/pages/seller-dashboard.html';
+                } else {
+                    // Default to buyer dashboard for all users (buyers, sellers, admins can all access it)
+                    window.location.href = '/pages/buyer-dashboard.html';
+                }
+            }, 1500);
         } else {
             // Handle specific error for email verification
             if (result.requiresEmailVerification) {
@@ -864,6 +954,50 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAuthComponent(resetToken ? 'reset' : 'login');
     }
 });
+
+// Standardized logout function
+window.logout = function() {
+    // Clear role manager caches and data first
+    if (window.roleManager) {
+        window.roleManager.clearCaches();
+        window.roleManager.clearAllData();
+        window.roleManager.isInitialized = false;
+        window.roleManager.currentRole = null;
+        window.roleManager.roleInfo = null;
+        window.roleManager.initializationPromise = null;
+        window.roleManager.initializationLock = false;
+        // Properly dispose of redirect tracking to prevent memory leaks
+        if (window.roleManager.redirectAttempts) {
+            window.roleManager.redirectAttempts.clear();
+            window.roleManager.redirectAttempts = null;
+        }
+        // Clear initialization queue
+        if (window.roleManager.initQueue) {
+            window.roleManager.initQueue = [];
+        }
+    }
+    
+    // Clear all authentication and role data from localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userFullName');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('roleInfo');
+    localStorage.removeItem('userRoleData'); // Clear consolidated role data
+    localStorage.removeItem('isAdmin');
+    localStorage.removeItem('isSeller');
+    localStorage.removeItem('isBuyer');
+    
+    // Clear session storage as well
+    sessionStorage.clear();
+    
+    console.log('🔓 Logged out - all data cleared');
+    
+    // Redirect to login
+    window.location.href = '/login.html';
+};
 
 // Cart synchronization function
 async function syncCartToBackend() {

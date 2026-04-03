@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     // Show admin link if user is admin
-                    if ((userEmail === 'admin@virtuosa.com' || userData.role === 'admin' || userData.isAdmin === 'true' || userData.isAdmin === true) && adminLink) {
+                    if ((userData.role === 'admin' || userData.isAdmin === 'true' || userData.isAdmin === true) && adminLink) {
                         adminLink.classList.remove('hidden');
                     } else if (adminLink) {
                         adminLink.classList.add('hidden');
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Show mobile admin section
                     const mobileAdminSection = document.getElementById('mobile-admin-section');
-                    const isAdmin = userEmail === 'admin@virtuosa.com' || userData.role === 'admin' || userData.isAdmin === 'true' || userData.isAdmin === true;
+                    const isAdmin = userData.role === 'admin' || userData.isAdmin === 'true' || userData.isAdmin === true;
                     if (isAdmin && mobileAdminSection) {
                         mobileAdminSection.style.display = 'block';
                     } else if (mobileAdminSection) {

@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const signText = document.getElementById('mobile-menu-sign-text');
         
         // Determine roles from fresh user data
-        const isAdmin = userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin' || userData.email === 'admin@virtuosa.com';
+        const isAdmin = userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin';
         const isSeller = userData.isSeller === true || userData.isSeller === 'true';
 
         // Show/hide seller section

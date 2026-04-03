@@ -63,7 +63,7 @@ const cloudinary = require('./config/cloudinary');
 const CloudinaryStorage = require('multer-storage-cloudinary');
 const NotificationService = require('./services/notificationService');
 const webpush = require('web-push');
-const { checkRoleAccess, checkAnyRoleAccess, getUserRoleInfo, isAdmin } = require('./middleware/roleBasedAccess');
+const { checkRoleAccess, checkAnyRoleAccess, getUserRoleInfo, isAdmin, checkDashboardAccess } = require('./middleware/roleBasedAccess');
 const User = require('./models/User');
 require('dotenv').config({ path: path.join(__dirname, 'config/.env') });
 
@@ -2231,8 +2231,38 @@ app.post('/api/auth/signup', async (req, res) => {
             emailVerificationToken,
             emailVerificationExpires: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
             studentVerificationToken: verificationToken,
-            studentVerificationExpires: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
-        });
+            studentVerificationExpires: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+        // Set proper default role values for the new hierarchy system
+        role: 'user', // Base role
+        isAdmin: false,
+        isBuyer: true, // All users are buyers by default
+        isSeller: false // Seller status granted via application
+    });
+
+    // Validate all role-related fields before saving
+    const validRoles = ['user', 'buyer', 'seller', 'admin', 'CEO'];
+    
+    // Validate role field
+    if (user.role && !validRoles.includes(user.role)) {
+        console.warn('Invalid role detected during signup, defaulting to user');
+        user.role = 'user';
+    }
+    
+    // Ensure boolean fields are properly typed and validated
+    user.isAdmin = Boolean(user.isAdmin);
+    user.isBuyer = Boolean(user.isBuyer);
+    user.isSeller = Boolean(user.isSeller);
+    
+    // Additional validation: ensure role consistency
+    if (user.isAdmin === true && user.role !== 'admin' && user.role !== 'CEO') {
+        console.warn('Role inconsistency detected: isAdmin=true but role is not admin/CEO');
+        user.role = 'admin';
+    }
+    
+    if (user.isSeller === true && user.role !== 'seller' && user.role !== 'admin' && user.role !== 'CEO') {
+        console.warn('Role inconsistency detected: isSeller=true but role doesn\'t support seller privileges');
+        // Keep isSeller=true as it might be a pending seller application
+    }
 
         await user.save();
 
@@ -2405,13 +2435,33 @@ app.post('/api/auth/login', async (req, res) => {
         }
 
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        
+        // Get user role information using the new role system
+        const { getEffectiveRole } = require('./middleware/roleBasedAccess');
+        const effectiveRole = getEffectiveRole(user);
+        
+        console.log('🔐 Login successful:', {
+            userId: user._id,
+            email: user.email,
+            effectiveRole,
+            isAdmin: effectiveRole === 'admin',
+            isSeller: effectiveRole === 'seller' || effectiveRole === 'admin'
+        });
+        
         res.json({
             token,
             user: { 
                 email: user.email, 
                 fullName: user.fullName,
                 isEmailVerified: user.isEmailVerified,
-                isStudentVerified: user.isStudentVerified
+                isStudentVerified: user.isStudentVerified,
+                // Add role information for the new role system
+                role: user.role,
+                isAdmin: user.isAdmin,
+                isBuyer: user.isBuyer,
+                isSeller: user.isSeller,
+                // Add computed effective role for client-side use
+                effectiveRole: effectiveRole
             }
         });
     } catch (error) {
@@ -4179,13 +4229,37 @@ app.post('/api/transactions/:id/dispute', authenticateToken, async (req, res) =>
     }
 });
 
+// Get user role information
+app.get('/api/user/role-info', authenticateToken, async (req, res) => {
+    try {
+        const roleInfo = await getUserRoleInfo(req.user.userId);
+        if (!roleInfo) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        console.log('🔐 User role info:', {
+            userId: req.user.userId,
+            effectiveRole: roleInfo.effectiveRole,
+            title: roleInfo.title
+        });
+        
+        res.json(roleInfo);
+    } catch (error) {
+        console.error('Role info error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // Get buyer dashboard data
-app.get('/api/buyer/dashboard', authenticateToken, async (req, res) => {
+app.get('/api/buyer/dashboard', authenticateToken, checkDashboardAccess('buyer'), async (req, res) => {
     try {
         const user = await User.findById(req.user.userId);
-        if (!user || (!user.isBuyer && !user.isSeller)) {
-            return res.status(403).json({ message: 'Buyer access required' });
-        }
+        
+        console.log('📊 Buyer dashboard access:', {
+            userId: user._id,
+            effectiveRole: req.effectiveRole,
+            email: user.email
+        });
 
         // Get buyer's transactions
         const transactions = await Transaction.find({ buyer: user._id })
@@ -6019,12 +6093,15 @@ app.post('/api/subscribe-pro', authenticateToken, async (req, res) => {
 });
 
 // Get seller dashboard data
-app.get('/api/seller/dashboard', authenticateToken, async (req, res) => {
+app.get('/api/seller/dashboard', authenticateToken, checkDashboardAccess('seller'), async (req, res) => {
     try {
         const user = await User.findById(req.user.userId);
-        if (!user || !user.isSeller) {
-            return res.status(403).json({ message: 'Seller access required' });
-        }
+        
+        console.log('📊 Seller dashboard access:', {
+            userId: user._id,
+            effectiveRole: req.effectiveRole,
+            email: user.email
+        });
 
         // Get seller's products
         const products = await Product.find({ seller: user._id });

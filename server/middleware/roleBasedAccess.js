@@ -1,10 +1,31 @@
 // Role-Based Access Control Middleware
 const User = require('../models/User');
 
-// Role permissions mapping
+// Define proper role hierarchy
+const ROLE_HIERARCHY = {
+    'buyer': {
+        level: 1,
+        inherits: [],
+        permissions: ['buy_products', 'view_orders', 'write_reviews', 'manage_cart', 'view_profile']
+    },
+    'seller': {
+        level: 2,
+        inherits: ['buyer'], // Sellers have all buyer permissions
+        permissions: [
+            'sell_products', 'manage_products', 'view_sales_analytics', 
+            'manage_orders', 'view_seller_dashboard', 'seller_verification'
+        ]
+    },
+    'admin': {
+        level: 3,
+        inherits: ['seller'], // Admins have all seller + buyer permissions
+        permissions: ['*'] // Wildcard means all permissions
+    }
+};
+
+// Role permissions mapping (for specialized admin roles)
 const ROLE_PERMISSIONS = {
     'admin': {
-        // Admin - has access to everything
         permissions: ['*'], // Wildcard means all permissions
         description: 'Admin - Full system access'
     },
@@ -59,55 +80,99 @@ const ROLE_PERMISSIONS = {
     }
 };
 
-// Normalize role from user fields: admin and CEO are unified for permissions
-const normalizeRole = (userRole, isAdminFlag) => {
-    if (isAdminFlag === true || isAdminFlag === 'true') {
+// Get user's effective role based on all role fields
+const getEffectiveRole = (user) => {
+    // Log unexpected role values for debugging
+    if (user.role && !['user', 'buyer', 'seller', 'admin', 'CEO', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'].includes(user.role)) {
+        console.warn('⚠️ Unexpected role value detected:', user.role, 'for user:', user._id);
+    }
+    
+    // Check for admin first (highest priority)
+    if (user.isAdmin === true || user.isAdmin === 'true' || 
+        user.role === 'admin' || user.role === 'CEO') {
         return 'admin';
     }
-
-    if (!userRole) {
-        return 'user';
+    
+    // Check for seller
+    if (user.isSeller === true || user.isSeller === 'true' || 
+        user.role === 'seller') {
+        return 'seller';
     }
-
-    const normalized = userRole.toString().trim();
-
-    if (normalized.toLowerCase() === 'ceo') {
-        return 'admin';
-    }
-
-    if (normalized.toLowerCase() === 'admin') {
-        return 'admin';
-    }
-
-    if (ROLE_PERMISSIONS[normalized]) {
-        return normalized;
-    }
-
-    if (ROLE_PERMISSIONS[normalized.toLowerCase()]) {
-        return normalized.toLowerCase();
-    }
-
-    return 'user';
+    
+    // Default to buyer
+    return 'buyer';
 };
 
-// Helper function to check if user has specific permission
+// Get all permissions for a user including inherited ones (recursive)
+const getAllPermissions = (role) => {
+    const roleInfo = ROLE_HIERARCHY[role];
+    if (!roleInfo) return [];
+    
+    let allPermissions = [...roleInfo.permissions];
+    
+    // Add inherited permissions recursively with circular reference detection
+    const addInheritedPermissions = (inheritedRoles, visited = new Set()) => {
+        for (const inheritedRole of inheritedRoles) {
+            // Check for circular reference
+            if (visited.has(inheritedRole)) {
+                console.warn('⚠️ Circular reference detected in role inheritance:', inheritedRole);
+                continue;
+            }
+            
+            const inheritedInfo = ROLE_HIERARCHY[inheritedRole];
+            if (inheritedInfo) {
+                visited.add(inheritedRole);
+                allPermissions.push(...inheritedInfo.permissions);
+                
+                // Recursively add nested inheritance
+                if (inheritedInfo.inherits && inheritedInfo.inherits.length > 0) {
+                    addInheritedPermissions(inheritedInfo.inherits, new Set(visited));
+                }
+            }
+        }
+    };
+    
+    addInheritedPermissions(roleInfo.inherits);
+    
+    return [...new Set(allPermissions)]; // Remove duplicates
+};
+
+// Check if user has specific permission
 const hasPermission = (user, permission) => {
-    const userRole = normalizeRole(user.role, user.isAdmin);
-
-    // If user doesn't have a role in our mapping, deny access
-    if (!ROLE_PERMISSIONS[userRole]) {
-        return false;
+    const effectiveRole = getEffectiveRole(user);
+    
+    // For admin specialized roles, use the ROLE_PERMISSIONS mapping
+    if (effectiveRole === 'admin' && user.role && ROLE_PERMISSIONS[user.role]) {
+        const rolePermissions = ROLE_PERMISSIONS[user.role].permissions;
+        return rolePermissions.includes('*') || rolePermissions.includes(permission);
     }
+    
+    // For hierarchy roles, use the new system
+    const allPermissions = getAllPermissions(effectiveRole);
+    return allPermissions.includes('*') || allPermissions.includes(permission);
+};
 
-    const rolePermissions = ROLE_PERMISSIONS[userRole].permissions;
-
-    // Wildcard access (for admin)
-    if (rolePermissions.includes('*')) {
-        return true;
+// Check if user can access dashboard based on role hierarchy
+const canAccessDashboard = (user, dashboardType) => {
+    const effectiveRole = getEffectiveRole(user);
+    
+    switch (dashboardType) {
+        case 'buyer':
+            // All roles can access buyer dashboard (inheritance)
+            return ['buyer', 'seller', 'admin'].includes(effectiveRole);
+            
+        case 'seller':
+            // Only sellers and admins can access seller dashboard
+            return ['seller', 'admin'].includes(effectiveRole);
+            
+        case 'admin':
+            // Only admins can access admin dashboard
+            return effectiveRole === 'admin';
+            
+        default:
+            console.warn(`⚠️ Invalid dashboard type requested: ${dashboardType}`);
+            return false;
     }
-
-    // Check specific permission
-    return rolePermissions.includes(permission);
 };
 
 // Middleware to check role-based access
@@ -117,6 +182,11 @@ const checkRoleAccess = (requiredPermission) => {
             // First ensure user is authenticated
             if (!req.user || !req.user.userId) {
                 return res.status(401).json({ message: 'Authentication required' });
+            }
+            
+            // Validate userId format
+            if (!req.user.userId || typeof req.user.userId !== 'string' && typeof req.user.userId !== 'object') {
+                return res.status(400).json({ message: 'Invalid user ID format' });
             }
             
             // Get user from database
@@ -155,6 +225,11 @@ const checkAnyRoleAccess = (permissions) => {
                 return res.status(401).json({ message: 'Authentication required' });
             }
             
+            // Validate userId format
+            if (!req.user.userId || typeof req.user.userId !== 'string' && typeof req.user.userId !== 'object') {
+                return res.status(400).json({ message: 'Invalid user ID format' });
+            }
+            
             const user = await User.findById(req.user.userId);
             if (!user) {
                 return res.status(403).json({ message: 'User not found' });
@@ -183,7 +258,50 @@ const checkAnyRoleAccess = (permissions) => {
     };
 };
 
-// Get user permissions and role info
+// Middleware to check dashboard access
+const checkDashboardAccess = (dashboardType) => {
+    // Validate at middleware creation time
+    const validDashboardTypes = ['buyer', 'seller', 'admin'];
+    if (!dashboardType || typeof dashboardType !== 'string' || !validDashboardTypes.includes(dashboardType)) {
+        throw new Error(`Invalid dashboard type: ${dashboardType}. Must be one of: ${validDashboardTypes.join(', ')}`);
+    }
+    
+    return async (req, res, next) => {
+        try {
+            if (!req.user || !req.user.userId) {
+                return res.status(401).json({ message: 'Authentication required' });
+            }
+            
+            // Validate userId format
+            if (!req.user.userId || typeof req.user.userId !== 'string' && typeof req.user.userId !== 'object') {
+                return res.status(400).json({ message: 'Invalid user ID format' });
+            }
+            
+            const user = await User.findById(req.user.userId);
+            if (!user) {
+                return res.status(403).json({ message: 'User not found' });
+            }
+            
+            if (!canAccessDashboard(user, dashboardType)) {
+                return res.status(403).json({ 
+                    message: `${dashboardType.charAt(0).toUpperCase() + dashboardType.slice(1)} access required`,
+                    effectiveRole: getEffectiveRole(user)
+                });
+            }
+            
+            // Add role info to request
+            req.effectiveRole = getEffectiveRole(user);
+            req.userPermissions = getAllPermissions(req.effectiveRole);
+            
+            next();
+        } catch (error) {
+            console.error('Dashboard access check error:', error);
+            res.status(500).json({ message: 'Server error in dashboard access verification' });
+        }
+    };
+};
+
+// Get user role info for UI
 const getUserRoleInfo = async (userId) => {
     try {
         const user = await User.findById(userId);
@@ -191,19 +309,28 @@ const getUserRoleInfo = async (userId) => {
             return null;
         }
 
-        const normalizedRole = normalizeRole(user.role, user.isAdmin);
-        const roleInfo = ROLE_PERMISSIONS[normalizedRole];
-
-        // If user had CEO role set, surface it as a title for UI display
-        const title = (user.role && user.role.toString().trim().toUpperCase() === 'CEO')
-            ? 'CEO'
-            : (normalizedRole === 'admin' ? 'Admin' : roleInfo?.description || 'User');
+        const effectiveRole = getEffectiveRole(user);
+        const allPermissions = getAllPermissions(effectiveRole);
+        
+        // Get display title
+        let title = 'User';
+        if (effectiveRole === 'admin') {
+            title = user.role === 'CEO' ? 'CEO' : 'Admin';
+        } else if (effectiveRole === 'seller') {
+            title = 'Seller';
+        } else {
+            title = 'Buyer';
+        }
 
         return {
-            role: normalizedRole,
-            permissions: roleInfo?.permissions || [],
-            description: roleInfo?.description || 'No role assigned',
-            title
+            effectiveRole,
+            permissions: allPermissions,
+            title,
+            level: ROLE_HIERARCHY[effectiveRole]?.level || 1,
+            // Legacy fields for backward compatibility
+            isBuyer: true, // All users are buyers at minimum
+            isSeller: effectiveRole === 'seller' || effectiveRole === 'admin',
+            isAdmin: effectiveRole === 'admin'
         };
     } catch (error) {
         console.error('Error getting user role info:', error);
@@ -217,13 +344,10 @@ const isAdmin = async (req, res, next) => {
         const user = await User.findById(req.user.userId);
         if (!user) return res.status(403).json({ message: 'User not found' });
 
-        const normalizedRole = normalizeRole(user.role, user.isAdmin);
-        const adminCheck = normalizedRole === 'admin' ||
-            user.role === 'CEO' ||
-            user.isAdmin === true ||
-            user.isAdmin === 'true';
-
-        if (!adminCheck) return res.status(403).json({ message: 'Admin access required' });
+        const effectiveRole = getEffectiveRole(user);
+        if (effectiveRole !== 'admin') {
+            return res.status(403).json({ message: 'Admin access required' });
+        }
         next();
     } catch (error) {
         res.status(500).json({ message: 'Server error in admin check' });
@@ -231,10 +355,15 @@ const isAdmin = async (req, res, next) => {
 };
 
 module.exports = {
+    ROLE_HIERARCHY,
     ROLE_PERMISSIONS,
     checkRoleAccess,
     checkAnyRoleAccess,
+    checkDashboardAccess,
     getUserRoleInfo,
     hasPermission,
+    getEffectiveRole,
+    canAccessDashboard,
+    getAllPermissions,
     isAdmin
 };

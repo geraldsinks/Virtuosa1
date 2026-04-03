@@ -71,7 +71,7 @@ class AuthManager {
 
     // Update localStorage with fresh user data
     updateLocalStorage(userData) {
-        const isAdmin = userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin' || userData.email === 'admin@virtuosa.com';
+        const isAdmin = userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin';
         const isSeller = userData.isSeller === true || userData.isSeller === 'true';
         
         localStorage.setItem('isAdmin', isAdmin.toString());
@@ -86,7 +86,7 @@ class AuthManager {
         const userData = await this.getUserData();
         if (!userData) return false;
         
-        return userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin' || userData.email === 'admin@virtuosa.com';
+        return userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin';
     }
 
     // Check if user is seller

@@ -74,7 +74,7 @@ async function checkSellerAccess(token) {
         }
 
         // Check admin role and update UI
-        const isAdmin = user.isAdmin === true || user.isAdmin === 'true' || user.role === 'admin' || user.email === 'admin@virtuosa.com';
+        const isAdmin = user.isAdmin === true || user.isAdmin === 'true' || user.role === 'admin';
         if (isAdmin) {
             const dropdownAdminLink = document.getElementById('admin-link');
             const desktopAdminLink = document.getElementById('desktop-admin-link');
@@ -126,6 +126,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    // Check dashboard access using role manager
+    if (window.roleManager) {
+        try {
+            const hasAccess = await window.roleManager.requireDashboardAccess('seller');
+            if (!hasAccess) {
+                return; // Redirect will be handled by role manager
+            }
+        } catch (error) {
+            console.error('❌ Dashboard access check failed:', error);
+            // Fallback: Check seller access the old way
+            await checkSellerAccess(token);
+        }
+    } else {
+        // Fallback: Check seller access the old way
+        await checkSellerAccess(token);
+    }
+
     // Debug: Log token and API base
     console.log('🔍 Debug - Token exists:', !!token);
     console.log('🔍 Debug - Token length:', token?.length);
@@ -138,9 +155,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Initialize user menu
     initializeUserMenu(token);
-
-    // Check seller access
-    await checkSellerAccess(token);
 
     // Test API connectivity first
     try {

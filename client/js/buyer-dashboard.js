@@ -19,6 +19,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    // Check dashboard access using role manager
+    if (window.roleManager) {
+        try {
+            const hasAccess = await window.roleManager.requireDashboardAccess('buyer');
+            if (!hasAccess) {
+                return; // Redirect will be handled by role manager
+            }
+        } catch (error) {
+            console.error('❌ Dashboard access check failed:', error);
+            // Fallback: try to load anyway, server will validate
+        }
+    }
+
     // Initialize Lucide icons
     if (window.lucide) {
         window.lucide.createIcons();
@@ -80,7 +93,7 @@ async function loadDashboardData() {
     const token = localStorage.getItem('token');
     
     if (!token) {
-        window.location.href = '/login';
+        window.location.href = '/login.html';
         return;
     }
 
@@ -88,7 +101,7 @@ async function loadDashboardData() {
         // Show loading states
         showLoadingStates();
 
-        // Get user data directly instead of relying on authManager
+        // Get user data first, then conditionally fetch role info
         const userResponse = await fetch(`${API_BASE}/user/profile`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -98,6 +111,45 @@ async function loadDashboardData() {
         }
         
         const userData = await userResponse.json();
+        
+        // Only fetch role info if not already available from role manager
+        let roleInfo = null;
+        if (window.roleManager && window.roleManager.isInitialized && window.roleManager.roleInfo) {
+            roleInfo = window.roleManager.roleInfo;
+            console.log('📊 Using cached role info for dashboard');
+        } else {
+            try {
+                const roleResponse = await fetch(`${API_BASE}/user/role-info`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (roleResponse.ok) {
+                    roleInfo = await roleResponse.json();
+                    console.log('📊 Fetched fresh role info for dashboard');
+                } else if (roleResponse.status === 401) {
+                    // Authentication expired - redirect to login
+                    console.warn('🚫 Authentication expired, redirecting to login');
+                    localStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                    return;
+                } else if (roleResponse.status === 403) {
+                    // Access forbidden - user doesn't have buyer access
+                    console.warn('🚫 Access forbidden for buyer dashboard');
+                    window.location.href = '/pages/dashboard.html';
+                    return;
+                } else {
+                    console.warn('Role info fetch failed, using fallback');
+                }
+            } catch (roleError) {
+                console.error('Role info fetch error:', roleError);
+                // If it's a network error or other critical issue, don't continue
+                if (roleError.name === 'TypeError' || roleError.message.includes('fetch')) {
+                    console.error('🚫 Network error, cannot load dashboard');
+                    return;
+                }
+                // For other errors, continue with user data only
+            }
+        }
         
         // Update welcome message with fresh data
         document.getElementById('buyer-name').textContent = userData.fullName || 'Buyer';
@@ -201,7 +253,7 @@ function updateRoleBasedUI(userData) {
     }
     
     // Show admin section if user is an admin
-    const isAdmin = userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin' || userData.email === 'admin@virtuosa.com';
+    const isAdmin = userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin';
     if (isAdmin) {
         if (mobileAdminSection) {
             mobileAdminSection.style.display = 'block';
