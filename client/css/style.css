@@ -646,6 +646,7 @@ div#mobile-menu-content:not(.active) {
 
 /* Hide mobile-specific elements on desktop */
 @media (min-width: 768px) {
+    .mobile-header-container,
     .mobile-header-row-1,
     .mobile-header-row-2 {
         display: none !important;
