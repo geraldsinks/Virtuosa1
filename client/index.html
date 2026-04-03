@@ -1034,22 +1034,8 @@
         </div>
     </footer>
     <script>
-        // Immediate mobile menu hiding - runs before any other scripts
+        // Immediate mobile header layout fix only (menu handling moved to mobile-header.js)
         (function() {
-            var overlay = document.getElementById('mobile-menu-overlay');
-            var content = document.querySelector('.mobile-menu-content');
-            if (overlay) {
-                overlay.style.display = 'none';
-                overlay.classList.remove('active');
-            }
-            if (content) {
-                content.style.display = 'none';
-                content.style.transform = 'translateX(-100%)';
-                content.style.visibility = 'hidden';
-                content.style.opacity = '0';
-                content.classList.remove('active');
-            }
-            
             // Immediate mobile header layout fix
             if (window.innerWidth <= 767) {
                 var mobileHeaderRow = document.querySelector('.mobile-header-row-1 .v-container > div');
@@ -1078,28 +1064,6 @@
                     mobileLogo.style.alignItems = 'center';
                 }
             }
-
-            // Immediate mobile menu event listener
-            var mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-            if (mobileMenuToggle) {
-                mobileMenuToggle.onclick = function(e) {
-                    e.preventDefault();
-                    var overlay = document.getElementById('mobile-menu-overlay');
-                    var content = document.querySelector('.mobile-menu-content');
-                    
-                    if (overlay && content) {
-                        if (overlay.classList.contains('active')) {
-                            overlay.classList.remove('active');
-                            content.classList.remove('active');
-                            document.body.style.overflow = '';
-                        } else {
-                            overlay.classList.add('active');
-                            content.classList.add('active');
-                            document.body.style.overflow = 'hidden';
-                        }
-                    }
-                };
-            }
         })();
     </script>
     <script src="/js/config.js" defer></script>
@@ -1118,50 +1082,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             if (window.isIndexScriptRunning) return;
             window.isIndexScriptRunning = true;
-
-            // Double-check mobile menu is hidden (prevents phone-specific issues)
-            var overlay = document.getElementById('mobile-menu-overlay');
-            var content = document.querySelector('.mobile-menu-content');
-            if (overlay && (overlay.style.display !== 'none' || overlay.classList.contains('active'))) {
-                overlay.style.display = 'none';
-                overlay.classList.remove('active');
-            }
-            if (content && (content.style.display !== 'none' || content.classList.contains('active'))) {
-                content.style.display = 'none';
-                content.style.transform = 'translateX(-100%)';
-                content.style.visibility = 'hidden';
-                content.style.opacity = '0';
-                content.classList.remove('active');
-            }
-
-            // Force mobile header layout fix
-            if (window.innerWidth <= 767) {
-                var mobileHeaderRow = document.querySelector('.mobile-header-row-1 .v-container > div');
-                var mobileActions = document.querySelector('.mobile-header-actions');
-                var mobileLogo = document.querySelector('.mobile-header-row-1 .flex-1');
-                
-                if (mobileHeaderRow) {
-                    mobileHeaderRow.style.display = 'flex';
-                    mobileHeaderRow.style.alignItems = 'center';
-                    mobileHeaderRow.style.justifyContent = 'space-between';
-                    mobileHeaderRow.style.width = '100%';
-                }
-                
-                if (mobileActions) {
-                    mobileActions.style.display = 'flex';
-                    mobileActions.style.alignItems = 'center';
-                    mobileActions.style.gap = '0.5rem';
-                    mobileActions.style.flexShrink = '0';
-                }
-                
-                if (mobileLogo) {
-                    mobileLogo.style.flex = '1';
-                    mobileLogo.style.textAlign = 'center';
-                    mobileLogo.style.display = 'flex';
-                    mobileLogo.style.justifyContent = 'center';
-                    mobileLogo.style.alignItems = 'center';
-                }
-            }
 
             // Initialize DOM elements
             categoryGrid = document.getElementById('category-grid');
