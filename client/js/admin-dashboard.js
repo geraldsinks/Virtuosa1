@@ -1113,27 +1113,20 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Database reset functionality
     const resetBtn = document.getElementById('reset-database-btn');
-    console.log('🔍 Debug - Reset button found:', !!resetBtn);
     if (resetBtn) {
         resetBtn.addEventListener('click', function(e) {
-            console.log('🔍 Debug - Reset button clicked!');
             e.preventDefault();
             handleDatabaseReset();
         });
-        console.log('✅ Reset button event listener attached');
     } else {
-        console.error('❌ Reset button not found in DOM');
         // Try to attach event listener with a delay in case DOM is still loading
         setTimeout(() => {
             const delayedBtn = document.getElementById('reset-database-btn');
             if (delayedBtn) {
-                console.log('🔍 Debug - Reset button found after delay');
                 delayedBtn.addEventListener('click', function(e) {
-                    console.log('🔍 Debug - Reset button clicked (delayed)!');
                     e.preventDefault();
                     handleDatabaseReset();
                 });
-                console.log('✅ Reset button event listener attached (delayed)');
             }
         }, 1000);
     }
@@ -1141,7 +1134,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Also add a global click handler as a fallback
     document.addEventListener('click', function(e) {
         if (e.target && e.target.id === 'reset-database-btn') {
-            console.log('🔍 Debug - Reset button clicked via global handler!');
             e.preventDefault();
             handleDatabaseReset();
         }
@@ -1150,16 +1142,11 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 // Handle database reset - make globally available
 window.handleDatabaseReset = function() {
-    console.log('🔍 Debug - handleDatabaseReset function called!');
-    
     // Confirm with user
     const confirmation = prompt('⚠️ DANGER: This will permanently delete ALL data including:\n\n• Products and listings\n• Transactions and orders\n• Shopping carts\n• Disputes and resolutions\n• Notifications\n• User statistics\n\nType "DELETE ALL" to confirm:');
     
-    console.log('🔍 Debug - User entered:', confirmation);
-    
     if (confirmation !== 'DELETE ALL') {
         alert('❌ Database reset cancelled. Confirmation text did not match.');
-        console.log('🔍 Debug - First confirmation failed');
         return;
     }
 
@@ -1173,16 +1160,12 @@ window.handleDatabaseReset = function() {
 
     // Show loading state
     const resetBtn = document.getElementById('reset-database-btn');
-    console.log('🔍 Debug - Reset button for loading state found:', !!resetBtn);
     const originalText = resetBtn.innerHTML;
     resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Resetting...';
     resetBtn.disabled = true;
 
     // Perform reset
     const token = localStorage.getItem('token');
-    console.log('🔍 Debug - Token exists:', !!token);
-    console.log('🔍 Debug - API_BASE:', API_BASE);
-    console.log('🔍 Debug - Full URL:', `${API_BASE}/admin/delete-all-products`);
     
     fetch(`${API_BASE}/admin/delete-all-products`, {
         method: 'DELETE',
@@ -1192,7 +1175,6 @@ window.handleDatabaseReset = function() {
         }
     })
     .then(response => {
-        console.log('🔍 Debug - Response received:', response.status, response.ok);
         if (!response.ok) {
             throw new Error('Failed to reset database');
         }
