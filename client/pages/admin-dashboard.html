@@ -532,7 +532,8 @@
                     <p class="text-sm text-red-600">⚠️ This will permanently delete ALL products, transactions, and carts. This action cannot be undone!</p>
                 </div>
                 <button id="reset-database-btn" 
-                    class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium">
+                    class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium"
+                    onclick="console.log('🔍 Debug - Inline onclick triggered!'); if(typeof handleDatabaseReset === 'function') { handleDatabaseReset(); } else { console.error('❌ handleDatabaseReset function not found'); }">
                     <i class="fas fa-trash-alt mr-2"></i>Reset Database
                 </button>
             </div>
