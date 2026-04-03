@@ -272,7 +272,8 @@ body {
 }
 
 /* Mobile Menu Side Drawer Overlay */
-.mobile-menu-overlay {
+.mobile-menu-overlay,
+#mobile-menu-overlay {
     display: none !important;
     position: fixed;
     top: 0;
@@ -281,13 +282,19 @@ body {
     height: 100%;
     background: rgba(0, 0, 0, 0.8);
     z-index: 9998;
+    opacity: 0 !important;
+    visibility: hidden !important;
 }
 
-.mobile-menu-overlay.active {
+.mobile-menu-overlay.active,
+#mobile-menu-overlay.active {
     display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
-.mobile-menu-content {
+.mobile-menu-content,
+#mobile-menu-content {
     position: fixed;
     top: 0;
     left: 0;
@@ -301,13 +308,17 @@ body {
     box-shadow: 10px 0 30px rgba(0,0,0,0.5);
     min-height: 100vh;
     padding: 1rem;
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
 }
 
 .mobile-menu-overlay.active + .mobile-menu-content,
 .mobile-menu-overlay.active .mobile-menu-content,
 .mobile-menu-overlay.active + div#mobile-menu-content,
 .mobile-menu-overlay.active div#mobile-menu-content,
-div#mobile-menu-content.active {
+div#mobile-menu-content.active,
+#mobile-menu-content.active {
     transform: translateX(0) !important;
     visibility: visible !important;
     opacity: 1 !important;
