@@ -880,63 +880,76 @@
         </div>
     </section>
 
-    <!-- Welcome Section: Enhanced Visual Design -->
-    <section class="welcome-section py-8 md:py-12">
-        <div class="welcome-content max-w-7xl mx-auto px-6 md:px-12">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-8">
-                <!-- Left: Enhanced Welcome + CTAs -->
-                <div class="flex flex-col sm:flex-row items-center gap-6 md:gap-8 flex-1">
-                    <div class="text-center sm:text-left flex-1">
-                        <h2 class="welcome-title text-2xl md:text-3xl lg:text-4xl mb-3">Welcome to Virtuosa</h2>
-                        <p class="welcome-subtitle text-base md:text-lg">Trusted by students, secured by design.</p>
-                    </div>
-                    
-                    <!-- Enhanced CTAs -->
-                    <div class="flex gap-4">
-                        <a href="/pages/products.html" class="welcome-cta px-8 py-3 text-white font-bold rounded-xl text-sm md:text-base whitespace-nowrap">
-                            Browse
-                        </a>
-                        <a href="/pages/seller.html" class="welcome-cta-secondary px-8 py-3 text-white font-bold rounded-xl text-sm md:text-base whitespace-nowrap">
-                            Sell
-                        </a>
-                    </div>
+    <!-- Welcome Section: Modern Ecommerce Hero -->
+<section style="background: linear-gradient(135deg, #0A1128 0%, #1e293b 50%, #fbbf24 100%); position: relative; overflow: hidden; min-height: 70vh; display: flex; align-items: center;">
+    <!-- Background Pattern -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url(&quot;data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E&quot;); opacity: 0.1;"></div>
+
+    <!-- Content Container -->
+    <div style="position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 2rem; width: 100%; text-align: center;">
+        <!-- Main Headline -->
+        <div style="margin-bottom: 2rem;">
+            <h1 style="font-size: clamp(2.5rem, 8vw, 4.5rem); font-weight: 800; line-height: 1.1; margin-bottom: 1rem; background: linear-gradient(135deg, #ffffff 0%, #fbbf24 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                Your Campus Marketplace
+            </h1>
+            <p style="font-size: clamp(1.125rem, 3vw, 1.5rem); color: rgba(255, 255, 255, 0.9); font-weight: 500; line-height: 1.4; max-width: 600px; margin: 0 auto;">
+                Buy and sell textbooks, electronics, and essentials from trusted students on your campus. Fast, secure, and community-driven.
+            </p>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div style="display: flex; gap: 1rem; justify-content: center; align-items: center; margin-bottom: 3rem; flex-wrap: wrap;">
+            <a href="/pages/products.html" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #0A1128; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 700; font-size: 1.125rem; text-decoration: none; box-shadow: 0 8px 25px rgba(251, 191, 36, 0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; min-width: 160px;">
+                <svg style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                Browse Items
+            </a>
+            <a href="/pages/seller.html" style="background: rgba(255, 255, 255, 0.15); color: white; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 700; font-size: 1.125rem; text-decoration: none; border: 2px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; min-width: 160px;">
+                <svg style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Start Selling
+            </a>
+        </div>
+
+        <!-- Trust Signals -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 2rem; flex-wrap: wrap; opacity: 0.9;">
+            <!-- Secure Badge -->
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);">
+                    <svg style="width: 1rem; height: 1rem; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
                 </div>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 0.875rem; font-weight: 600;">Secure Payments</span>
+            </div>
 
-                <!-- Right: Enhanced Trust Badges -->
-                <div class="flex items-center gap-4 md:gap-6 justify-center md:justify-end">
-                    <!-- Badge 1: Verified -->
-                    <div class="trust-badge flex items-center gap-3 px-4 py-3 rounded-xl" title="Verified Sellers">
-                        <div class="trust-badge-icon w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <span class="trust-badge-text text-sm">Verified</span>
-                    </div>
-
-                    <!-- Badge 2: Secure -->
-                    <div class="trust-badge flex items-center gap-3 px-4 py-3 rounded-xl" title="Secure Payments">
-                        <div class="trust-badge-icon secure w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"/>
-                            </svg>
-                        </div>
-                        <span class="trust-badge-text text-sm">Secure</span>
-                    </div>
-
-                    <!-- Badge 3: Fast -->
-                    <div class="trust-badge flex items-center gap-3 px-4 py-3 rounded-xl" title="Fast Delivery">
-                        <div class="trust-badge-icon fast w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
-                            </svg>
-                        </div>
-                        <span class="trust-badge-text text-sm">Fast</span>
-                    </div>
+            <!-- Fast Badge -->
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);">
+                    <svg style="width: 1rem; height: 1rem; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
                 </div>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 0.875rem; font-weight: 600;">Campus Delivery</span>
+            </div>
+
+            <!-- Verified Badge -->
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);">
+                    <svg style="width: 1rem; height: 1rem; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 0.875rem; font-weight: 600;">Student Verified</span>
             </div>
         </div>
-    </section>
+    </div>
+
+    <!-- Bottom fade gradient -->
+    <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 4rem; background: linear-gradient(to top, rgba(31, 41, 55, 0.8), transparent);"></div>
+</section>
 
     <section class="max-w-7xl mx-auto px-6 md:px-12 py-10">
             <h2 class="text-3xl font-bold text-navy mb-12 flex items-center gap-3">
@@ -1055,6 +1068,28 @@
                     mobileLogo.style.justifyContent = 'center';
                     mobileLogo.style.alignItems = 'center';
                 }
+            }
+
+            // Immediate mobile menu event listener
+            var mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            if (mobileMenuToggle) {
+                mobileMenuToggle.onclick = function(e) {
+                    e.preventDefault();
+                    var overlay = document.getElementById('mobile-menu-overlay');
+                    var content = document.querySelector('.mobile-menu-content');
+                    
+                    if (overlay && content) {
+                        if (overlay.classList.contains('active')) {
+                            overlay.classList.remove('active');
+                            content.classList.remove('active');
+                            document.body.style.overflow = '';
+                        } else {
+                            overlay.classList.add('active');
+                            content.classList.add('active');
+                            document.body.style.overflow = 'hidden';
+                        }
+                    }
+                };
             }
         })();
     </script>
