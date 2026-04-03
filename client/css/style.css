@@ -304,13 +304,31 @@ body {
 }
 
 .mobile-menu-overlay.active + .mobile-menu-content,
-.mobile-menu-overlay.active .mobile-menu-content {
+.mobile-menu-overlay.active .mobile-menu-content,
+.mobile-menu-overlay.active + div#mobile-menu-content,
+.mobile-menu-overlay.active div#mobile-menu-content,
+div#mobile-menu-content.active {
     transform: translateX(0) !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
 }
 
 /* Ensure mobile menu content is hidden by default */
-.mobile-menu-content:not(.active) {
+.mobile-menu-content:not(.active),
+div#mobile-menu-content:not(.active) {
     transform: translateX(-100%) !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Additional defensive rules */
+#mobile-menu-overlay:not(.active) {
+    display: none !important;
+}
+
+#mobile-menu-content:not(.active) {
+    display: none !important;
 }
 
 @media (min-width: 768px) {
