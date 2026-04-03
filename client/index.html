@@ -100,6 +100,26 @@
             .desktop-header {
                 display: none !important;
             }
+            
+            /* Fix mobile header icon arrangement */
+            .mobile-header-row-1 > div {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                width: 100% !important;
+            }
+            
+            .mobile-header-actions {
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+                justify-content: flex-end !important;
+            }
+            
+            .mobile-logo {
+                flex: 1 !important;
+                text-align: center !important;
+            }
         }
 
         @media (min-width: 768px) {
@@ -124,6 +144,45 @@
             display: flex;
             align-items: center;
             gap: 1rem;
+        }
+
+        /* Additional mobile header layout fixes */
+        .mobile-header-row-1 .flex {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+        }
+        
+        .mobile-header-row-1 > .v-container > .flex {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            padding: 0.75rem 0 !important;
+        }
+        
+        .mobile-header-actions {
+            flex-shrink: 0 !important;
+            min-width: fit-content !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            justify-content: flex-end !important;
+        }
+        
+        .mobile-header-actions a {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        /* Ensure logo container is centered */
+        .mobile-header-row-1 .flex-1 {
+            flex: 1 !important;
+            text-align: center !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
         }
 
         @media (min-width: 768px) {
