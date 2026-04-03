@@ -85,7 +85,7 @@ async function initializeMobileHeader() {
 function openMobileMenu() {
     console.log('📱 Opening mobile menu');
     const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-    const mobileMenuContent = document.getElementById('mobile-menu-content');
+    const mobileMenuContent = document.querySelector('.mobile-menu-content');
     
     if (mobileMenuOverlay) {
         mobileMenuOverlay.classList.add('active');
@@ -101,7 +101,7 @@ function openMobileMenu() {
 function closeMobileMenu() {
     console.log('📱 Closing mobile menu');
     const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-    const mobileMenuContent = document.getElementById('mobile-menu-content');
+    const mobileMenuContent = document.querySelector('.mobile-menu-content');
     
     if (mobileMenuOverlay) {
         mobileMenuOverlay.classList.remove('active');

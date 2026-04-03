@@ -30,6 +30,7 @@
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.tailwindcss.com" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -275,10 +276,10 @@
 </head>
 
 <body class="bg-gray-100 antialiased flex flex-col min-h-screen">
-    <!-- Mobile Header Structure (320px-767px) - Hidden at tablet+ -->
+    <!-- Header (will be replaced with login.html version) -->
     <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
-        <!-- Row 1: Utilities and Branding (Mobile only) -->
-        <div class="v-container mobile-header-row-1 md:hidden">
+        <!-- Mobile Header Structure (320px-767px) -->
+        <div class="v-container mobile-header-row-1">
             <div class="flex items-center justify-between py-3">
                 <!-- Hamburger Menu (Left) -->
                 <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
@@ -307,26 +308,6 @@
                         <i class="fas fa-bell"></i>
                         <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
                     </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Row 2: Search-First Experience (Mobile only) -->
-        <div class="v-container mobile-header-row-2 pb-3 md:hidden">
-            <div class="relative mobile-search-container">
-                <input id="mobile-search-input" type="text" 
-                    placeholder="Search campus marketplace..." 
-                    class="w-full pl-4 pr-12 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400 mobile-search-input"
-                    autocomplete="off">
-                <button id="mobile-search-button" 
-                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors mobile-search-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-                <!-- Mobile Search Suggestions -->
-                <div id="mobile-search-suggestions" class="absolute mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
-                    <!-- Suggestions injected via JS -->
                 </div>
             </div>
         </div>
@@ -433,204 +414,134 @@
         <div id="cart-banner-message"></div>
     </div>
 
-    
     <!-- Mobile Navigation Menu Overlay -->
     <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
-    <div id="mobile-menu-content" class="mobile-menu-content">
-            <div class="mobile-menu-header">
-                <div class="text-xl font-bold text-gold">Menu</div>
-                <button id="mobile-menu-close" class="mobile-menu-close">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
+    <div class="mobile-menu-content">
+        <div class="mobile-menu-header">
+            <div class="text-xl font-bold text-gold">Menu</div>
+            <button id="mobile-menu-close" class="mobile-menu-close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
 
-            <!-- Account Section -->
-            <div class="mobile-menu-section">
-                <div class="mobile-menu-title">Account</div>
-                <a href="/pages/login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span id="mobile-menu-sign-text">Sign In</span>
-                </a>
-                <a href="/pages/profile.html" class="mobile-menu-link">
-                    <i class="fas fa-user"></i>
-                    <span>My Profile</span>
-                </a>
-                <a href="/pages/buyer-dashboard.html" class="mobile-menu-link">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="/pages/orders.html" class="mobile-menu-link">
-                    <i class="fas fa-shopping-bag"></i>
-                    <span>My Orders</span>
-                </a>
-                <a href="/pages/transactions.html" class="mobile-menu-link">
-                    <i class="fas fa-exchange-alt"></i>
-                    <span>Transactions</span>
-                </a>
-                <a href="/pages/reviews.html" class="mobile-menu-link">
-                    <i class="fas fa-star"></i>
-                    <span>My Reviews</span>
-                </a>
-            </div>
+        <!-- Account Section -->
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Account</div>
+            <a href="/pages/login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
+                <i class="fas fa-sign-in-alt"></i>
+                <span id="mobile-menu-sign-text">Sign In</span>
+            </a>
+            <a href="/pages/profile.html" class="mobile-menu-link">
+                <i class="fas fa-user"></i>
+                <span>My Profile</span>
+            </a>
+            <a href="/pages/buyer-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/pages/orders.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-bag"></i>
+                <span>My Orders</span>
+            </a>
+            <a href="/pages/transactions.html" class="mobile-menu-link">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="/pages/reviews.html" class="mobile-menu-link">
+                <i class="fas fa-star"></i>
+                <span>My Reviews</span>
+            </a>
+        </div>
 
-            <!-- Seller Section (shown only to sellers) -->
-            <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
-                <div class="mobile-menu-title">Seller Tools</div>
-                <a href="/pages/seller-dashboard.html" class="mobile-menu-link">
-                    <i class="fas fa-store"></i>
-                    <span>Seller Dashboard</span>
-                </a>
-                <a href="/pages/create-product.html" class="mobile-menu-link">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Add Product</span>
-                </a>
-                <a href="/pages/seller-analytics.html" class="mobile-menu-link">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Analytics</span>
-                </a>
-                <a href="/pages/seller-orders.html" class="mobile-menu-link">
-                    <i class="fas fa-box"></i>
-                    <span>Orders</span>
-                </a>
-                <a href="/pages/seller-verification.html" class="mobile-menu-link">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Verification</span>
-                </a>
-            </div>
+        <!-- Seller Section (shown only to sellers) -->
+        <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Seller Tools</div>
+            <a href="/pages/seller-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Seller Dashboard</span>
+            </a>
+            <a href="/pages/create-product.html" class="mobile-menu-link">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Product</span>
+            </a>
+            <a href="/pages/seller-analytics.html" class="mobile-menu-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="/pages/seller-orders.html" class="mobile-menu-link">
+                <i class="fas fa-box"></i>
+                <span>Orders</span>
+            </a>
+        </div>
 
-            <!-- Admin Section (shown only to admins) -->
-            <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
-                <div class="mobile-menu-title">Admin Panel</div>
-                <a href="/pages/admin-dashboard.html" class="mobile-menu-link">
-                    <i class="fas fa-cog"></i>
-                    <span>Admin Dashboard</span>
-                </a>
-                <a href="/pages/admin-asset-library.html" class="mobile-menu-link">
-                    <i class="fas fa-images"></i>
-                    <span>Asset Library</span>
-                </a>
-                <a href="/pages/admin-seller-applications.html" class="mobile-menu-link">
-                    <i class="fas fa-user-check"></i>
-                    <span>Seller Applications</span>
-                </a>
-                <a href="/pages/admin-mass-messaging.html" class="mobile-menu-link">
-                    <i class="fas fa-bullhorn"></i>
-                    <span>Mass Messaging</span>
-                </a>
-                <a href="/pages/admin-retention.html" class="mobile-menu-link">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Retention</span>
-                </a>
-            </div>
+        <!-- Admin Section (shown only to admins) -->
+        <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Admin Panel</div>
+            <a href="/pages/admin-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-cog"></i>
+                <span>Admin Dashboard</span>
+            </a>
+            <a href="/pages/admin-seller-applications.html" class="mobile-menu-link">
+                <i class="fas fa-user-check"></i>
+                <span>Seller Applications</span>
+            </a>
+            <a href="/pages/admin-mass-messaging.html" class="mobile-menu-link">
+                <i class="fas fa-bullhorn"></i>
+                <span>Mass Messaging</span>
+            </a>
+            <a href="/pages/admin-retention.html" class="mobile-menu-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Retention</span>
+            </a>
+        </div>
 
-            <!-- Shopping Section -->
-            <div class="mobile-menu-section">
-                <div class="mobile-menu-title">Shopping</div>
-                <a href="/pages/cart.html" class="mobile-menu-link">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Shopping Cart</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="mobile-menu-link">
-                    <i class="fas fa-fire"></i>
-                    <span>Hot Deals</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="mobile-menu-link">
-                    <i class="fas fa-crown"></i>
-                    <span>Best Sellers</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="mobile-menu-link">
-                    <i class="fas fa-laptop"></i>
-                    <span>Electronics</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Clothing')" class="mobile-menu-link">
-                    <i class="fas fa-tshirt"></i>
-                    <span>Clothing</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="mobile-menu-link">
-                    <i class="fas fa-concierge-bell"></i>
-                    <span>Services</span>
-                </a>
-                <a href="/pages/seller.html" class="mobile-menu-link">
-                    <i class="fas fa-store"></i>
-                    <span>Become a Seller</span>
-                </a>
-            </div>
+        <!-- Shopping Section -->
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Shopping</div>
+            <a href="/index.html" class="mobile-menu-link">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/products" class="mobile-menu-link">
+                <i class="fas fa-th-large"></i>
+                <span>All Products</span>
+            </a>
+            <a href="/pages/categories.html" class="mobile-menu-link">
+                <i class="fas fa-list"></i>
+                <span>Categories</span>
+            </a>
+            <a href="/pages/deals.html" class="mobile-menu-link">
+                <i class="fas fa-tag"></i>
+                <span>Hot Deals</span>
+            </a>
+        </div>
 
-            <!-- Categories Section -->
-            <div class="mobile-menu-section">
-                <div class="mobile-menu-title">Categories</div>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="mobile-menu-link">
-                    <i class="fas fa-laptop"></i>
-                    <span>Electronics</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="mobile-menu-link">
-                    <i class="fas fa-desktop"></i>
-                    <span>Computers & Software</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="mobile-menu-link">
-                    <i class="fas fa-concierge-bell"></i>
-                    <span>Services</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="mobile-menu-link">
-                    <i class="fas fa-gem"></i>
-                    <span>Watches & Jewellery</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="mobile-menu-link">
-                    <i class="fas fa-tshirt"></i>
-                    <span>Men's Clothing</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="mobile-menu-link">
-                    <i class="fas fa-female"></i>
-                    <span>Women's Clothing</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="mobile-menu-link">
-                    <i class="fas fa-shoe-prints"></i>
-                    <span>Shoes</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="mobile-menu-link">
-                    <i class="fas fa-glasses"></i>
-                    <span>Accessories</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="mobile-menu-link">
-                    <i class="fas fa-spa"></i>
-                    <span>Personal Care & Beauty</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="mobile-menu-link">
-                    <i class="fas fa-utensils"></i>
-                    <span>Food & Beverages</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="mobile-menu-link">
-                    <i class="fas fa-football-ball"></i>
-                    <span>Sports & Outdoors</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="mobile-menu-link">
-                    <i class="fas fa-home"></i>
-                    <span>Home & Living</span>
-                </a>
-            </div>
-
-            <!-- Customer Service Section -->
-            <div class="mobile-menu-section">
-                <div class="mobile-menu-title">Customer Service</div>
-                <a href="#" class="mobile-menu-link">
-                    <i class="fas fa-question-circle"></i>
-                    <span>Help Center</span>
-                </a>
-                <a href="#" class="mobile-menu-link">
-                    <i class="fas fa-comments"></i>
-                    <span>Contact Support</span>
-                </a>
-                <a href="/pages/messages.html" class="mobile-menu-link">
-                    <i class="fas fa-envelope"></i>
-                    <span>Messages</span>
-                </a>
-                <a href="/pages/notifications.html" class="mobile-menu-link">
-                    <i class="fas fa-bell"></i>
-                    <span>Notifications</span>
-                </a>
-            </div>
+        <!-- Support Section -->
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Support</div>
+            <a href="/pages/help.html" class="mobile-menu-link">
+                <i class="fas fa-question-circle"></i>
+                <span>Help Center</span>
+            </a>
+            <a href="/pages/contact.html" class="mobile-menu-link">
+                <i class="fas fa-envelope"></i>
+                <span>Contact Us</span>
+            </a>
+            <a href="/pages/about.html" class="mobile-menu-link">
+                <i class="fas fa-info-circle"></i>
+                <span>About</span>
+            </a>
+            <a href="/pages/faq.html" class="mobile-menu-link">
+                <i class="fas fa-comments"></i>
+                <span>FAQ</span>
+            </a>
+            <a href="/pages/notifications.html" class="mobile-menu-link">
+                <i class="fas fa-bell"></i>
+                <span>Notifications</span>
+            </a>
+        </div>
 
     </div>
 
