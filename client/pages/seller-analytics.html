@@ -281,6 +281,16 @@
             </div>
         </div>
 
+        <!-- No Products Banner (shown when no products listed) -->
+        <div id="no-products-banner"
+            class="hidden bg-blue-50 border border-blue-200 rounded-xl p-4 mb-8 flex items-start gap-3">
+            <i data-lucide="package" class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"></i>
+            <div>
+                <h4 class="text-blue-800 font-semibold mb-1">No products listed</h4>
+                <p class="text-blue-700 text-sm">Add products to see your analytics data here.</p>
+            </div>
+        </div>
+
         <!-- KPI Cards -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
             <div class="revenue-card text-white rounded-xl p-5 shadow-lg">
@@ -430,6 +440,7 @@
         <div class="container mx-auto text-center">&copy; 2025 Virtuosa. All rights reserved.</div>
     </footer>
 
+    <script src="../js/config.js"></script>
     <script src="../js/header.js"></script>
     <script src="../js/cart.js"></script>
     <script>
@@ -453,6 +464,8 @@
             const { buyer: seller, stats, recentTransactions, recentReviews, products } = data;
             const allTx = recentTransactions || [];
             const allProducts = products || [];
+            
+            console.log('Analytics data received:', { seller, stats, transactionsCount: allTx.length, productsCount: allProducts.length });
 
             // KPIs
             document.getElementById('kpi-revenue').textContent = `ZMW ${stats.totalRevenue.toFixed(2)}`;
@@ -462,7 +475,9 @@
             document.getElementById('kpi-rating-sub').textContent = `${seller.totalReviews ?? 0} review${(seller.totalReviews ?? 0) === 1 ? '' : 's'}`;
 
             const hasRevenue = stats.totalRevenue > 0;
+            const hasProducts = allProducts.length > 0;
             if (!hasRevenue) document.getElementById('no-data-banner')?.classList.remove('hidden');
+            if (hasProducts) document.getElementById('no-products-banner')?.classList.add('hidden');
 
             // Revenue chart (30 days)
             buildRevenueChart(allTx, hasRevenue);
@@ -505,7 +520,9 @@
             }
             transactions.filter(t => t.status === 'Completed' && t.createdAt).forEach(t => {
                 const key = new Date(t.createdAt).toISOString().slice(0, 10);
-                if (key in map) map[key] += (t.sellerPayout || t.totalAmount || 0);
+                // Use multiple possible fields for revenue calculation
+                const amount = t.sellerPayout || t.sellerAmount || t.amount || t.totalAmount || 0;
+                if (key in map) map[key] += amount;
             });
             const values = Object.values(map);
 
@@ -597,7 +614,11 @@
             const revenueMap = {};
             transactions.filter(t => t.status === 'Completed').forEach(t => {
                 const pid = t.product?._id || t.product;
-                if (pid) revenueMap[pid] = (revenueMap[pid] || 0) + (t.sellerPayout || t.totalAmount || 0);
+                if (pid) {
+                    // Use multiple possible fields for revenue calculation
+                    const amount = t.sellerPayout || t.sellerAmount || t.amount || t.totalAmount || 0;
+                    revenueMap[pid] = (revenueMap[pid] || 0) + amount;
+                }
             });
 
             const rows = products

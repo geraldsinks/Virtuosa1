@@ -6047,6 +6047,7 @@ app.get('/api/seller/dashboard', authenticateToken, async (req, res) => {
             sellerPayout: t.sellerPayout,
             sellerAmount: t.sellerAmount,
             amount: t.amount,
+            totalAmount: t.totalAmount,
             createdAt: t.createdAt
         })));
         
@@ -6056,13 +6057,15 @@ app.get('/api/seller/dashboard', authenticateToken, async (req, res) => {
             status: t.status,
             sellerPayout: t.sellerPayout,
             sellerAmount: t.sellerAmount,
-            amount: t.amount
+            amount: t.amount,
+            totalAmount: t.totalAmount
         })));
         
         const totalRevenue = completedTransactions.reduce((sum, t) => {
-            const amount = t.sellerPayout || t.sellerAmount || t.amount || 0;
+            // Use multiple possible fields for revenue calculation
+            const amount = t.sellerPayout || t.sellerAmount || t.amount || t.totalAmount || 0;
             console.log(`Transaction ${t._id}: adding ${amount} to sum (current: ${sum})`);
-            console.log(`Available fields: sellerPayout=${t.sellerPayout}, sellerAmount=${t.sellerAmount}, amount=${t.amount}`);
+            console.log(`Available fields: sellerPayout=${t.sellerPayout}, sellerAmount=${t.sellerAmount}, amount=${t.amount}, totalAmount=${t.totalAmount}`);
             return sum + amount;
         }, 0);
 

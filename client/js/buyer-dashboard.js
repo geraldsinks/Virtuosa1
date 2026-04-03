@@ -77,15 +77,9 @@ window.logout = function() {
 };
 
 async function loadDashboardData() {
-    if (!window.authManager) {
-        console.error('AuthManager not available');
-        showErrorState();
-        return;
-    }
-
-    const userData = await window.authManager.getUserData();
+    const token = localStorage.getItem('token');
     
-    if (!userData) {
+    if (!token) {
         window.location.href = '/login';
         return;
     }
@@ -94,6 +88,17 @@ async function loadDashboardData() {
         // Show loading states
         showLoadingStates();
 
+        // Get user data directly instead of relying on authManager
+        const userResponse = await fetch(`${API_BASE}/user/profile`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!userResponse.ok) {
+            throw new Error('Failed to get user profile');
+        }
+        
+        const userData = await userResponse.json();
+        
         // Update welcome message with fresh data
         document.getElementById('buyer-name').textContent = userData.fullName || 'Buyer';
         
@@ -183,7 +188,10 @@ function updateRoleBasedUI(userData) {
         const mobileBecomeSellerLink = document.querySelector('#mobile-menu-overlay + .mobile-menu-content a[href="seller.html"]');
         if (mobileBecomeSellerLink) {
             mobileBecomeSellerLink.href = 'seller-dashboard.html';
-            mobileBecomeSellerLink.querySelector('span')?.textContent = 'Seller Dashboard';
+            const spanElement = mobileBecomeSellerLink.querySelector('span');
+            if (spanElement) {
+                spanElement.textContent = 'Seller Dashboard';
+            }
         }
 
         const menuSellerLink = document.querySelector('a[href="seller-dashboard.html"]');
