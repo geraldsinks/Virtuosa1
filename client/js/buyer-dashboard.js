@@ -9,27 +9,42 @@ function fixServerUrl(url) {
 // Make the helper function globally available
 window.fixServerUrl = fixServerUrl;
 
-let currentDisputeId = null;
+// Use window object to avoid global conflicts
+window.currentDisputeId = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
 
     if (!token) {
-        window.location.href = '/login';
+        window.location.href = '/login.html';
         return;
     }
+
+    console.log('🚀 Buyer dashboard loading...');
 
     // Check dashboard access using role manager
     if (window.roleManager) {
         try {
+            console.log('🔐 Initializing role manager...');
+            await window.roleManager.initialize();
+            console.log('✅ Role manager initialized:', window.roleManager.getCurrentRole());
+            
             const hasAccess = await window.roleManager.requireDashboardAccess('buyer');
             if (!hasAccess) {
+                console.log('❌ No buyer dashboard access, redirecting...');
                 return; // Redirect will be handled by role manager
+            }
+            
+            // Update UI based on role after initialization
+            if (window.roleManager.roleInfo) {
+                updateRoleBasedUI({}, window.roleManager.roleInfo);
             }
         } catch (error) {
             console.error('❌ Dashboard access check failed:', error);
             // Fallback: try to load anyway, server will validate
         }
+    } else {
+        console.warn('⚠️ Role manager not available');
     }
 
     // Initialize Lucide icons
@@ -37,58 +52,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.lucide.createIcons();
     }
 
-    // Initialize user menu
-    initializeUserMenu(token);
-
     // Load dashboard data
-    await loadDashboardData();
+    loadDashboardData();
 });
 
-// Initialize user menu
-function initializeUserMenu(token) {
-    // Show user menu and hide login link
-    const userMenu = document.getElementById('user-menu');
-    const loginLink = document.getElementById('login-link');
-    
-    if (userMenu) {
-        userMenu.classList.remove('hidden');
-    }
-    
-    if (loginLink) {
-        loginLink.classList.add('hidden');
-    }
+// Show loading states
+function showLoadingStates() {
+    const elements = {
+        'buyer-name': 'Loading...',
+        'total-orders': '...',
+        'pending-orders': '...',
+        'completed-orders': '...',
+        'total-spent': '...',
+        'cart-items-count': '...'
+    };
+
+    Object.entries(elements).forEach(([id, placeholder]) => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = placeholder;
+    });
 }
 
-// Toggle user menu dropdown
-window.toggleUserMenu = function() {
-    const dropdown = document.getElementById('user-dropdown');
-    if (dropdown) {
-        dropdown.classList.toggle('hidden');
-    }
-};
-
-// Close dropdown when clicking outside
-document.addEventListener('click', function(event) {
-    const userMenu = document.getElementById('user-menu');
-    const dropdown = document.getElementById('user-dropdown');
-    
-    if (userMenu && dropdown && !userMenu.contains(event.target)) {
-        dropdown.classList.add('hidden');
-    }
-});
-
-// Logout function
-window.logout = function() {
-    if (window.authManager) {
-        window.authManager.logout();
-    } else {
-        // Fallback
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-    }
-};
-
+// Load dashboard data
 async function loadDashboardData() {
     const token = localStorage.getItem('token');
     
@@ -105,9 +90,9 @@ async function loadDashboardData() {
         const userResponse = await fetch(`${API_BASE}/user/profile`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+
         if (!userResponse.ok) {
-            throw new Error('Failed to get user profile');
+            throw new Error('Failed to fetch user profile');
         }
         
         const userData = await userResponse.json();
@@ -154,678 +139,353 @@ async function loadDashboardData() {
         // Update welcome message with fresh data
         document.getElementById('buyer-name').textContent = userData.fullName || 'Buyer';
         
-        // Update token balance display
-        const tokenBalanceElement = document.getElementById('buyer-token-balance');
-        if (tokenBalanceElement) {
-            tokenBalanceElement.textContent = userData.tokenBalance || 0;
-        }
+        // Update role-based UI elements
+        updateRoleBasedUI(userData, roleInfo);
         
-        // Update user greeting in header
-        const userGreeting = document.getElementById('user-greeting');
-        if (userGreeting) {
-            userGreeting.textContent = userData.fullName || 'User';
-        }
-
-        // Check user roles and update UI accordingly
-        updateRoleBasedUI(userData);
-
-        // Load dashboard statistics
+        // Load dashboard sections
         await Promise.all([
-            loadOrderStats(),
-            loadRecentOrders(),
+            loadOrders(),
             loadRecommendations(),
             loadSpendingChart()
         ]);
 
     } catch (error) {
         console.error('Dashboard loading error:', error);
-        showErrorState();
+        // Show error state
+        const errorElements = ['buyer-name', 'total-orders', 'pending-orders', 'completed-orders', 'total-spent'];
+        errorElements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = 'Error loading data';
+        });
     }
 }
 
-// Update UI based on user roles
-function updateRoleBasedUI(userData) {
-    // Show/hide seller section in mobile menu
+// Update UI based on user role
+function updateRoleBasedUI(userData, roleInfo) {
+    console.log('🎭 Updating role-based UI:', { userData, roleInfo });
+    
+    // Update navigation
+    const sellerSection = document.getElementById('seller-section');
     const mobileSellerSection = document.getElementById('mobile-seller-section');
-    const mobileAdminSection = document.getElementById('mobile-admin-section');
-    const desktopSellerLink = document.getElementById('desktop-seller-link');
-    const desktopAdminLink = document.getElementById('desktop-admin-link');
-    const dropdownSellerLink = document.getElementById('dropdown-seller-link');
-    const dropdownAdminLink = document.getElementById('dropdown-admin-link');
+    const becomeSellerLink = document.getElementById('become-seller-link');
     
-    // Reset visibility
-    if (mobileSellerSection) mobileSellerSection.style.display = 'none';
-    if (mobileAdminSection) mobileAdminSection.style.display = 'none';
-    if (desktopSellerLink) desktopSellerLink.style.display = 'none';
-    if (desktopAdminLink) desktopAdminLink.style.display = 'none';
-    if (dropdownSellerLink) dropdownSellerLink.classList.add('hidden');
-    if (dropdownAdminLink) dropdownAdminLink.classList.add('hidden');
+    // Check if user is seller (from roleInfo or fallback to userData)
+    const isSeller = roleInfo ? roleInfo.isSeller : (userData.isSeller === true || userData.isSeller === 'true');
     
-    // Show seller section if user is a seller
-    if (userData.isSeller) {
-        if (mobileSellerSection) {
-            mobileSellerSection.style.display = 'block';
-        }
-
-        if (desktopSellerLink) {
-            desktopSellerLink.style.display = 'flex';
-        }
-
-        if (dropdownSellerLink) {
-            dropdownSellerLink.classList.remove('hidden');
-        }
-
-        // Update "Become a Seller" card to "Seller Dashboard"
-        const sellerCards = document.querySelectorAll('a.quick-action-card[href^="/pages/seller"]');
-        sellerCards.forEach(card => {
-            card.href = '/pages/seller-dashboard.html';
-            const title = card.querySelector('h3');
-            const subtitle = card.querySelector('p');
-            if (title) title.textContent = 'Seller Dashboard';
-            if (subtitle) subtitle.textContent = 'Manage your store';
-
-            // Update icon style if present
-            const iconContainer = card.querySelector('.bg-gold\/20, .bg-gold\\/20');
-            if (iconContainer) {
-                iconContainer.className = 'bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4';
-                const icon = iconContainer.querySelector('i');
-                if (icon) {
-                    icon.setAttribute('data-lucide', 'store');
-                    icon.className = 'w-6 h-6 text-green-600';
-                }
-            }
-        });
-
-        // Update mobile dropdown link text
-        const mobileBecomeSellerLink = document.querySelector('#mobile-menu-overlay + .mobile-menu-content a[href="seller.html"]');
-        if (mobileBecomeSellerLink) {
-            mobileBecomeSellerLink.href = 'seller-dashboard.html';
-            const spanElement = mobileBecomeSellerLink.querySelector('span');
-            if (spanElement) {
-                spanElement.textContent = 'Seller Dashboard';
-            }
-        }
-
-        const menuSellerLink = document.querySelector('a[href="seller-dashboard.html"]');
-        if (menuSellerLink && menuSellerLink.textContent.trim().includes('Become a Seller')) {
-            menuSellerLink.textContent = 'Seller Dashboard';
-        }
+    if (isSeller) {
+        console.log('✅ User is seller, showing seller sections');
+        if (sellerSection) sellerSection.style.display = 'block';
+        if (mobileSellerSection) mobileSellerSection.style.display = 'block';
+        // Hide "become a seller" link for existing sellers
+        if (becomeSellerLink) becomeSellerLink.style.display = 'none';
+        
+        // Update navigation to show seller dashboard link
+        updateNavigationForSeller();
+    } else {
+        console.log('❌ User is not seller, hiding seller sections');
+        if (sellerSection) sellerSection.style.display = 'none';
+        if (mobileSellerSection) mobileSellerSection.style.display = 'none';
+        // Show "become a seller" link for non-sellers
+        if (becomeSellerLink) becomeSellerLink.style.display = 'block';
     }
     
     // Show admin section if user is an admin
     const isAdmin = userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin';
     if (isAdmin) {
+        const mobileAdminSection = document.getElementById('mobile-admin-section');
         if (mobileAdminSection) {
             mobileAdminSection.style.display = 'block';
         }
-        
-        if (desktopAdminLink) {
-            desktopAdminLink.style.display = 'flex';
-        }
-        
-        if (dropdownAdminLink) {
-            dropdownAdminLink.classList.remove('hidden');
-        }
-    }
-    
-    // Re-initialize Lucide icons if they were updated
-    if (window.lucide) {
-        window.lucide.createIcons();
     }
 }
 
-async function loadOrderStats() {
-    const token = localStorage.getItem('token');
+// Update navigation to show seller dashboard link
+function updateNavigationForSeller() {
+    // Update main navigation
+    const sellerDashboardLink = document.querySelector('a[href="/pages/seller-dashboard.html"]');
+    const buyerDashboardLink = document.querySelector('a[href="/pages/buyer-dashboard.html"]');
     
-    try {
-        const response = await fetch(`${API_BASE}/buyer/dashboard`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            
-            // Update stat cards with animation
-            animateNumber('active-orders', data.stats?.pendingOrders || 0);
-            animateNumber('completed-orders', data.stats?.completedOrders || 0);
-            animateNumber('total-spent', data.stats?.totalSpent || 0);
-        } else {
-            throw new Error('Failed to load order statistics');
-        }
-    } catch (error) {
-        console.error('Order stats loading error:', error);
-        // Set default values on error
-        animateNumber('active-orders', 0);
-        animateNumber('completed-orders', 0);
-        animateNumber('total-spent', 0);
+    if (sellerDashboardLink) {
+        sellerDashboardLink.classList.remove('hidden');
+        sellerDashboardLink.classList.add('text-blue-600', 'font-semibold');
+    }
+    
+    // Update user dropdown dashboard link
+    const dashboardDropdownLink = document.querySelector('#user-dropdown a[href*="dashboard"]');
+    if (dashboardDropdownLink) {
+        dashboardDropdownLink.href = '/pages/seller-dashboard.html';
+        dashboardDropdownLink.textContent = 'Seller Dashboard';
+    }
+    
+    // Update mobile navigation
+    const mobileSellerLink = document.querySelector('#mobile-menu a[href="/pages/seller-dashboard.html"]');
+    if (mobileSellerLink) {
+        mobileSellerLink.classList.remove('hidden');
     }
 }
 
-async function loadRecentOrders() {
-    const token = localStorage.getItem('token');
-    
+// Load orders
+async function loadOrders() {
     try {
-        const response = await fetch(`${API_BASE}/transactions?limit=5`, {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE}/buyer/orders`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        if (response.ok) {
-            const data = await response.json();
-            const orders = data.transactions || [];
-            const container = document.getElementById('recent-orders');
-            
-            if (orders.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <i data-lucide="package" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
-                        <p>No recent orders</p>
-                        <a href="/pages/products.html" class="text-gold hover:underline mt-2 inline-block">Start Shopping</a>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = orders.map(order => createOrderHTML(order)).join('');
-            }
-        } else {
-            throw new Error('Failed to load orders');
-        }
+        if (!response.ok) throw new Error('Failed to fetch orders');
+        
+        const orders = await response.json();
+        
+        // Update order counts
+        const totalOrders = orders.length;
+        const pendingOrders = orders.filter(order => order.status === 'pending').length;
+        const completedOrders = orders.filter(order => order.status === 'completed').length;
+
+        document.getElementById('total-orders').textContent = totalOrders;
+        document.getElementById('pending-orders').textContent = pendingOrders;
+        document.getElementById('completed-orders').textContent = completedOrders;
+        
+        // Load recent orders
+        loadRecentOrders(orders);
+        
     } catch (error) {
-        console.error('Error loading recent orders:', error);
-        document.getElementById('recent-orders').innerHTML = `
-            <div class="text-center py-8 text-red-500">
-                <i data-lucide="alert-circle" class="w-12 h-12 mx-auto mb-4"></i>
-                <p>Unable to load recent orders</p>
-            </div>
-        `;
-    } finally {
-        // Re-initialize Lucide icons for dynamic content
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }
+        console.error('Error loading orders:', error);
+        document.getElementById('total-orders').textContent = 'Error';
+        document.getElementById('pending-orders').textContent = 'Error';
+        document.getElementById('completed-orders').textContent = 'Error';
     }
 }
 
-function createOrderHTML(order) {
-    const statusColors = {
-        'Pending': 'text-yellow-600 bg-yellow-50',
-        'Confirmed': 'text-blue-600 bg-blue-50',
-        'Shipped': 'text-purple-600 bg-purple-50',
-        'Completed': 'text-green-600 bg-green-50',
-        'Cancelled': 'text-red-600 bg-red-50'
-    };
+// Load recent orders
+function loadRecentOrders(orders) {
+    const recentOrdersContainer = document.getElementById('recent-orders');
+    if (!recentOrdersContainer) return;
 
-    const statusColor = statusColors[order.status] || 'text-gray-600 bg-gray-50';
-    const orderDate = new Date(order.createdAt).toLocaleDateString();
+    const recentOrders = orders.slice(0, 5); // Show last 5 orders
+    
+    if (recentOrders.length === 0) {
+        recentOrdersContainer.innerHTML = '<p class="text-gray-500">No recent orders</p>';
+        return;
+    }
 
-    return `
-        <div class="activity-item border-l-4 border-l-gray-300 pl-4 hover:bg-gray-50 rounded-r-lg p-4 cursor-pointer" onclick="window.location.href='/pages/transactions.html'">
-            <div class="flex items-center justify-between">
-                <div class="flex-grow">
-                    <div class="flex items-center mb-2">
-                        <img src="${fixServerUrl(order.product?.images?.[0]) || 'https://placehold.co/60x60?text=Product'}" 
-                             alt="${order.product?.name || 'Product'}" 
-                             class="w-12 h-12 rounded-lg object-cover mr-3">
-                        <div>
-                            <h4 class="font-semibold text-navy">${order.product?.name || 'Product'}</h4>
-                            <p class="text-sm text-gray-500">Order #${order._id?.slice(-6) || 'Unknown'}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <span class="text-xs text-gray-500">${orderDate}</span>
-                        <span class="text-xs px-2 py-1 rounded-full font-medium ${statusColor}">${order.status}</span>
-                    </div>
+    recentOrdersContainer.innerHTML = recentOrders.map(order => `
+        <div class="border-l-4 border-blue-500 pl-4 py-2">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="font-semibold">${order.productName || 'Product'}</p>
+                    <p class="text-sm text-gray-600">Order #${order._id}</p>
+                    <p class="text-sm text-gray-500">${new Date(order.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div class="text-right">
-                    <p class="font-bold text-navy">ZMW ${(order.totalAmount || 0).toLocaleString()}</p>
-                    <p class="text-sm text-gray-500">${order.quantity || 1} item${order.quantity > 1 ? 's' : ''}</p>
+                    <p class="font-semibold">$${order.totalAmount || order.price}</p>
+                    <span class="inline-block px-2 py-1 text-xs rounded-full ${
+                        order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                        order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800'
+                    }">
+                        ${order.status}
+                    </span>
                 </div>
             </div>
         </div>
-    `;
+    `).join('');
 }
 
+// Load recommendations
 async function loadRecommendations() {
-    const token = localStorage.getItem('token');
-    
     try {
-        const response = await fetch('/api/products', {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE}/products/recommendations`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        if (response.ok) {
-            const data = await response.json();
-            const products = data.products || [];
-            const container = document.getElementById('recommendations');
-            
-            if (products.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <i data-lucide="search" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
-                        <p class="text-sm">No recommendations yet</p>
-                        <p class="text-xs text-gray-400 mt-2">Start browsing to get personalized suggestions</p>
-                    </div>
-                `;
-            } else {
-                // Show first 3 products as recommendations
-                container.innerHTML = products.slice(0, 3).map(product => createRecommendationHTML(product)).join('');
-            }
-        }
+        if (!response.ok) throw new Error('Failed to load recommendations');
+        
+        const recommendations = await response.json();
+        displayRecommendations(recommendations);
+        
     } catch (error) {
         console.error('Error loading recommendations:', error);
-        document.getElementById('recommendations').innerHTML = `
-            <div class="text-center py-8 text-gray-500">
-                <i data-lucide="alert-circle" class="w-12 h-12 mx-auto mb-4"></i>
-                <p class="text-sm">Unable to load recommendations</p>
-            </div>
-        `;
-    } finally {
-        if (window.lucide) {
-            window.lucide.createIcons();
+        // Show error state in recommendations section
+        const recommendationsContainer = document.getElementById('recommendations');
+        if (recommendationsContainer) {
+            recommendationsContainer.innerHTML = '<p class="text-gray-500">Unable to load recommendations</p>';
         }
     }
 }
 
-function createRecommendationHTML(product) {
-    return `
-        <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer" onclick="window.location.href='/product/${product._id}'">
-            <div class="flex items-center">
-                <img src="${fixServerUrl(product.images?.[0]) || 'https://placehold.co/60x60?text=Product'}" 
-                     alt="${product.name}" 
-                     class="w-16 h-16 rounded-lg object-cover mr-3">
-                <div class="flex-grow min-w-0">
-                    <h4 class="font-medium text-navy text-sm truncate">${product.name}</h4>
-                    <p class="text-xs text-gray-500">${product.category}</p>
-                    <p class="text-sm font-bold text-gold">ZMW ${product.price.toLocaleString()}</p>
-                </div>
-            </div>
-        </div>
-    `;
-}
+// Display recommendations
+function displayRecommendations(recommendations) {
+    const container = document.getElementById('recommendations');
+    if (!container) return;
 
-async function loadSpendingChart() {
-    const token = localStorage.getItem('token');
-    
-    try {
-        const response = await fetch(`${API_BASE}/transactions`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            const transactions = data.transactions || [];
-            
-            // Prepare chart data from transactions
-            const spendingByMonth = {};
-            const last6Months = [];
-            
-            // Generate last 6 months
-            for (let i = 5; i >= 0; i--) {
-                const date = new Date();
-                date.setMonth(date.getMonth() - i);
-                const monthName = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-                last6Months.push(monthName);
-                spendingByMonth[monthName] = 0;
-            }
-            
-            // Calculate spending for each month
-            transactions.forEach(transaction => {
-                if (transaction.status === 'Completed' && transaction.totalAmount) {
-                    const transactionDate = new Date(transaction.createdAt);
-                    const monthName = transactionDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-                    if (spendingByMonth.hasOwnProperty(monthName)) {
-                        spendingByMonth[monthName] += transaction.totalAmount;
-                    }
-                }
-            });
-            
-            const chartData = {
-                labels: last6Months,
-                values: last6Months.map(month => spendingByMonth[month] || 0)
-            };
-            
-            createSpendingChart(chartData);
-        }
-    } catch (error) {
-        console.error('Error loading spending chart:', error);
-        // Show empty chart
-        const ctx = document.getElementById('spending-chart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['No data available'],
-                datasets: [{
-                    label: 'Spending',
-                    data: [0],
-                    borderColor: '#FFD700',
-                    backgroundColor: 'rgba(255, 215, 0, 0.1)',
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        });
+    if (!recommendations || recommendations.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">No recommendations available</p>';
+        return;
     }
-}
 
-function createSpendingChart(data) {
-    // Use dependency validation for chart manager
-    const chartManager = window.dependencyValidator?.safeGet('chartManager');
-    const Chart = window.dependencyValidator?.safeGet('Chart');
-    
-    // Use the chart optimizer for better performance and memory management
-    if (chartManager && Chart) {
-        const datasets = [{
-            label: 'Monthly Spending',
-            data: data.values || [0, 0, 0, 0, 0, 0],
-            borderColor: '#FFD700',
-            backgroundColor: 'rgba(255, 215, 0, 0.1)',
-            borderWidth: 3,
-            tension: 0.4,
-            fill: true,
-            pointBackgroundColor: '#FFD700',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-            pointRadius: 6,
-            pointHoverRadius: 8
-        }];
-
-        return chartManager.createLineChart(
-            'spending-chart',
-            data.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            datasets,
-            {
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'bottom'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return 'K' + value.toLocaleString();
-                            }
-                        }
-                    }
-                }
-            }
-        );
-    }
-    
-    // Fallback to original Chart.js implementation if Chart.js is available
-    if (Chart) {
-        const ctx = document.getElementById('spending-chart').getContext('2d');
-        
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: data.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Monthly Spending',
-                    data: data.values || [0, 0, 0, 0, 0, 0],
-                    borderColor: '#FFD700',
-                    backgroundColor: 'rgba(255, 215, 0, 0.1)',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
-                    pointBackgroundColor: '#FFD700',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(10, 17, 40, 0.8)',
-                        titleColor: '#FFD700',
-                        bodyColor: '#fff',
-                        borderColor: '#FFD700',
-                        borderWidth: 1,
-                        padding: 12,
-                        displayColors: false,
-                        callbacks: {
-                            label: function(context) {
-                                return `Spending: ZMW ${context.parsed.y.toLocaleString()}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return 'K' + value.toLocaleString();
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    } else {
-        console.error('Chart.js not available for spending chart');
-        // Display a fallback message
-        const canvas = document.getElementById('spending-chart');
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#666';
-            ctx.font = '16px Montserrat';
-            ctx.textAlign = 'center';
-            ctx.fillText('Chart not available', canvas.width / 2, canvas.height / 2);
-        }
-    }
-}
-
-function showLoadingStates() {
-    // Keep initial loading states for recent orders and recommendations
-    // Stats will show their skeleton loading animation via CSS
-}
-
-function showErrorState() {
-    const container = document.querySelector('.container .grid');
-    if (container) {
-        // Clear existing content safely
-        while (container.firstChild) {
-            container.removeChild(container.firstChild);
-        }
-        
-        // Create error elements safely
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'col-span-full text-center py-16';
-        
-        const icon = document.createElement('i');
-        icon.setAttribute('data-lucide', 'alert-circle');
-        icon.className = 'w-16 h-16 mx-auto mb-4 text-red-500';
-        
-        const title = document.createElement('h2');
-        title.className = 'text-2xl font-bold text-gray-900 mb-2';
-        title.textContent = 'Dashboard Error';
-        
-        const message = document.createElement('p');
-        message.className = 'text-gray-600 mb-6';
-        message.textContent = 'Unable to load your dashboard. Please try again later.';
-        
-        const button = document.createElement('button');
-        button.className = 'bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition';
-        button.onclick = () => location.reload();
-        
-        const buttonIcon = document.createElement('i');
-        buttonIcon.setAttribute('data-lucide', 'refresh-cw');
-        buttonIcon.className = 'w-4 h-4 mr-2';
-        
-        const buttonText = document.createTextNode('Try Again');
-        
-        button.appendChild(buttonIcon);
-        button.appendChild(buttonText);
-        errorDiv.appendChild(icon);
-        errorDiv.appendChild(title);
-        errorDiv.appendChild(message);
-        errorDiv.appendChild(button);
-        container.appendChild(errorDiv);
-        
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }
-    }
-}
-
-function animateNumber(elementId, targetValue) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-
-    const isNumeric = typeof targetValue === 'number' || /^\d+$/.test(targetValue.replace(/[^\d]/g, ''));
-    const finalValue = isNumeric ? (typeof targetValue === 'number' ? targetValue : parseInt(targetValue.replace(/[^\d]/g, ''))) : targetValue;
-    
-    // Simple animation for numbers
-    let currentValue = 0;
-    const increment = finalValue / 20;
-    const timer = setInterval(() => {
-        currentValue += increment;
-        if (currentValue >= finalValue) {
-            currentValue = finalValue;
-            clearInterval(timer);
-        }
-        
-        if (isNumeric) {
-            element.textContent = Math.floor(currentValue).toLocaleString();
-        } else {
-            element.textContent = targetValue; // For formatted strings like "ZMW 1,234"
-        }
-    }, 50);
-}
-
-// Add some interactivity
-document.addEventListener('click', (e) => {
-    // Handle any dynamic content clicks
-    if (e.target.closest('[onclick]')) {
-        // Let the onclick handle it
-    }
-});
-
-// Refresh data every 5 minutes
-setInterval(() => {
-    if (document.visibilityState === 'visible') {
-        loadDashboardData();
-    }
-}, 5 * 60 * 1000);
-
-// Show token rewards modal
-window.showTokenRewards = () => {
-    const modalHtml = `
-        <div id="token-rewards-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white rounded-lg p-8 max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-                <div class="text-center mb-6">
-                    <div class="bg-gold/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-coins text-gold text-2xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-navy mb-2">Token Rewards Program</h2>
-                    <p class="text-gray-600">Earn tokens and unlock exclusive marketplace benefits</p>
-                </div>
-
-                <div class="mb-6">
-                    <h3 class="font-semibold text-navy mb-3">How to Earn Tokens:</h3>
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-check-circle text-green-600 mr-3"></i>
-                                <span class="text-sm">Confirm Delivery</span>
-                            </div>
-                            <span class="bg-green-600 text-white px-2 py-1 rounded text-sm font-semibold">+5</span>
-                        </div>
-                        <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-star text-blue-600 mr-3"></i>
-                                <span class="text-sm">Write Product Review</span>
-                            </div>
-                            <span class="bg-blue-600 text-white px-2 py-1 rounded text-sm font-semibold">+3</span>
-                        </div>
-                        <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-camera text-purple-600 mr-3"></i>
-                                <span class="text-sm">Upload Product Photo</span>
-                            </div>
-                            <span class="bg-purple-600 text-white px-2 py-1 rounded text-sm font-semibold">+2</span>
-                        </div>
-                        <div class="flex items-center justify-between p-3 bg-gold/50 rounded-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-calendar-check text-gold mr-3"></i>
-                                <span class="text-sm">Daily Login Streak</span>
-                            </div>
-                            <span class="bg-gold text-navy px-2 py-1 rounded text-sm font-semibold">+1</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <h3 class="font-semibold text-navy mb-3">Redeem Your Tokens:</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer">
-                            <div class="flex justify-between items-start mb-2">
-                                <div>
-                                    <h4 class="font-semibold text-sm">10% Discount</h4>
-                                    <p class="text-xs text-gray-500">Valid for any purchase</p>
-                                </div>
-                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold">25 Tokens</span>
-                            </div>
-                        </div>
-                        <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer">
-                            <div class="flex justify-between items-start mb-2">
-                                <div>
-                                    <h4 class="font-semibold text-sm">Fast Delivery</h4>
-                                    <p class="text-xs text-gray-500">Priority shipping</p>
-                                </div>
-                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold">50 Tokens</span>
-                            </div>
-                        </div>
-                        <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer">
-                            <div class="flex justify-between items-start mb-2">
-                                <div>
-                                    <h4 class="font-semibold text-sm">Premium Badge</h4>
-                                    <p class="text-xs text-gray-500">Show on your profile</p>
-                                </div>
-                                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-semibold">100 Tokens</span>
-                            </div>
-                        </div>
-                        <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer">
-                            <div class="flex justify-between items-start mb-2">
-                                <div>
-                                    <h4 class="font-semibold text-sm">VIP Access</h4>
-                                    <p class="text-xs text-gray-500">Exclusive features</p>
-                                </div>
-                                <span class="bg-gold/20 text-gold px-2 py-1 rounded text-xs font-semibold">200 Tokens</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="text-center">
-                    <button onclick="this.parentElement.parentElement.parentElement.remove()" 
-                            class="bg-navy text-white font-semibold py-2 px-6 rounded-full hover:bg-gray-800 transition-colors">
-                        Got it!
+    container.innerHTML = recommendations.map(product => `
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            <img src="${product.image || 'https://placehold.co/300x200'}" alt="${product.name}" class="w-full h-48 object-cover">
+            <div class="p-4">
+                <h3 class="font-semibold text-lg mb-2">${product.name}</h3>
+                <p class="text-gray-600 text-sm mb-3">${product.description || 'No description available'}</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-xl font-bold text-blue-600">$${product.price}</span>
+                    <button onclick="addToCart('${product._id}')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
+                        Add to Cart
                     </button>
                 </div>
             </div>
         </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-};
+    `).join('');
+}
 
-// Initialize dashboard when DOM is ready
+// Load spending chart
+async function loadSpendingChart() {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE}/buyer/spending-chart`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to load spending data');
+        
+        const spendingData = await response.json();
+        createSpendingChart(spendingData);
+        
+    } catch (error) {
+        console.error('Error loading spending chart:', error);
+        // Show error state
+        const chartContainer = document.getElementById('spending-chart');
+        if (chartContainer) {
+            chartContainer.innerHTML = '<p class="text-gray-500">Unable to load spending chart</p>';
+        }
+    }
+}
+
+// Create spending chart
+function createSpendingChart(data) {
+    const canvas = document.getElementById('spending-chart-canvas');
+    if (!canvas) return;
+
+    // Check if Chart.js is available
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js not available for spending chart');
+        const container = canvas.parentElement;
+        if (container) {
+            container.innerHTML = '<p class="text-gray-500">Chart library not available</p>';
+        }
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.labels || [],
+            datasets: [{
+                label: 'Spending',
+                data: data.values || [],
+                borderColor: 'rgb(59, 130, 246)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Add to cart function
+async function addToCart(productId) {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE}/cart/add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ productId, quantity: 1 })
+        });
+
+        if (!response.ok) throw new Error('Failed to add to cart');
+        
+        // Update cart count
+        updateCartCount();
+        
+        // Show success message
+        showNotification('Product added to cart!', 'success');
+        
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        showNotification('Failed to add to cart', 'error');
+    }
+}
+
+// Update cart count
+async function updateCartCount() {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE}/cart`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const cart = await response.json();
+            const count = cart.items ? cart.items.length : 0;
+            const countElement = document.getElementById('cart-items-count');
+            if (countElement) {
+                countElement.textContent = count;
+            }
+        }
+    } catch (error) {
+        console.error('Error updating cart count:', error);
+    }
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500 text-white' :
+        type === 'error' ? 'bg-red-500 text-white' :
+        'bg-blue-500 text-white'
+    }`;
+    notification.textContent = message;
+
+    // Add to page
+    document.body.appendChild(notification);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-    loadDashboardData();
+    updateCartCount();
 });

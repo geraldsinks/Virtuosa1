@@ -164,22 +164,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     messagesLink.className = 'block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors';
                     messagesLink.innerHTML = '<i class="fas fa-envelope mr-2"></i>Messages';
 
-                        // Find the logout button to insert before
-                        const logoutBtn = userDropdown.querySelector('button[onclick*="logout"]');
-                        if (logoutBtn) {
-                            try {
-                                // Use parentNode to ensure we're calling insertBefore on the correct element
-                                logoutBtn.parentNode.insertBefore(messagesLink, logoutBtn);
-                            } catch (error) {
-                                console.warn('insertBefore failed, using appendChild fallback:', error);
-                                userDropdown.appendChild(messagesLink);
-                            }
-                        } else {
-                            // Fallback: append to dropdown
+                    // Find the logout button to insert before
+                    const logoutBtn = userDropdown.querySelector('button[onclick*="logout"]');
+                    if (logoutBtn) {
+                        try {
+                            // Use parentNode to ensure we're calling insertBefore on the correct element
+                            logoutBtn.parentNode.insertBefore(messagesLink, logoutBtn);
+                        } catch (error) {
+                            console.warn('insertBefore failed, using appendChild fallback:', error);
                             userDropdown.appendChild(messagesLink);
                         }
+                    } else {
+                        // Fallback: append to dropdown
+                        userDropdown.appendChild(messagesLink);
                     }
                 }
+            }
             } catch (error) {
                 console.error('Error fetching user data:', error);
                 // Fallback: show seller links if user has seller data in localStorage

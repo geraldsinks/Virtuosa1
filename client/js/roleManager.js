@@ -1,11 +1,6 @@
 // Client-side Role Management Helper
 // This standardizes role checking across the application
 
-// Import API configuration
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:5000/api'
-    : 'https://api.virtuosazm.com/api';
-
 class RoleManager {
     constructor() {
         this.currentRole = null;
@@ -93,7 +88,9 @@ class RoleManager {
                     console.log('🔐 Role Manager initialized from API:', {
                         effectiveRole: this.currentRole,
                         title: this.roleInfo.title,
-                        level: this.roleInfo.level
+                        level: this.roleInfo.level,
+                        isSeller: this.roleInfo.isSeller,
+                        isAdmin: this.roleInfo.isAdmin
                     });
 
                     // Clear access cache when role changes
@@ -209,17 +206,22 @@ class RoleManager {
 
     // Detect role from user data (legacy compatibility) - matches server logic
     detectRole(userData) {
+        console.log('🔍 DETECT ROLE - Input userData:', userData);
+        
         // Use same logic as server getEffectiveRole function
         if (userData.isAdmin === true || userData.isAdmin === 'true' || 
             userData.role === 'admin' || userData.role === 'CEO') {
+            console.log('✅ Detected: ADMIN role');
             return 'admin';
         }
         
         if (userData.isSeller === true || userData.isSeller === 'true' || 
             userData.role === 'seller') {
+            console.log('✅ Detected: SELLER role');
             return 'seller';
         }
         
+        console.log('✅ Detected: BUYER role (default)');
         return 'buyer';
     }
 

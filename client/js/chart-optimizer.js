@@ -396,11 +396,24 @@ class ChartManager {
                 });
             });
 
-            // Start observing the document
-            this.observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
+            // Start observing the document only if body exists
+            if (document.body) {
+                this.observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            } else {
+                console.warn('ChartManager: document.body not available, retrying...');
+                // Retry after DOM is ready
+                setTimeout(() => {
+                    if (document.body) {
+                        this.observer.observe(document.body, {
+                            childList: true,
+                            subtree: true
+                        });
+                    }
+                }, 100);
+            }
         }
 
         // Fallback: Periodic cleanup every 30 seconds

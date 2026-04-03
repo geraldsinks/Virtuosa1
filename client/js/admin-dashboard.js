@@ -1,6 +1,6 @@
 // Admin Dashboard JavaScript
 // API_BASE is provided by config.js
-let currentDisputeId = null;
+window.currentDisputeId = null;
 let revenueChart = null;
 let userStatsChart = null;
 let userRole = null;
