@@ -71,7 +71,7 @@
             display: none !important;
         }
         
-        #mobile-menu-content {
+        .mobile-menu-content {
             display: none !important;
             transform: translateX(-100%) !important;
             visibility: hidden !important;
@@ -82,11 +82,36 @@
             display: block !important;
         }
         
-        #mobile-menu-content.active {
+        .mobile-menu-content.active {
             display: block !important;
             transform: translateX(0) !important;
             visibility: visible !important;
             opacity: 1 !important;
+        }
+
+        /* Defensive CSS for mobile header visibility */
+        @media (max-width: 767px) {
+            .mobile-header-row-1 {
+                display: flex !important;
+            }
+            .mobile-header-row-2 {
+                display: block !important;
+            }
+            .desktop-header {
+                display: none !important;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .mobile-header-row-1 {
+                display: none !important;
+            }
+            .mobile-header-row-2 {
+                display: none !important;
+            }
+            .desktop-header {
+                display: flex !important;
+            }
         }
 
         /* Navigation container styles */
@@ -433,7 +458,7 @@
     <!-- Header (will be replaced with login.html version) -->
     <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
         <!-- Mobile Header Structure (320px-767px) -->
-        <div class="v-container mobile-header-row-1">
+        <div class="v-container mobile-header-row-1 md:hidden">
             <div class="flex items-center justify-between py-3">
                 <!-- Hamburger Menu (Left) -->
                 <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
@@ -909,7 +934,7 @@
         // Immediate mobile menu hiding - runs before any other scripts
         (function() {
             var overlay = document.getElementById('mobile-menu-overlay');
-            var content = document.getElementById('mobile-menu-content');
+            var content = document.querySelector('.mobile-menu-content');
             if (overlay) {
                 overlay.style.display = 'none';
                 overlay.classList.remove('active');
@@ -942,7 +967,7 @@
 
             // Double-check mobile menu is hidden (prevents phone-specific issues)
             var overlay = document.getElementById('mobile-menu-overlay');
-            var content = document.getElementById('mobile-menu-content');
+            var content = document.querySelector('.mobile-menu-content');
             if (overlay && (overlay.style.display !== 'none' || overlay.classList.contains('active'))) {
                 overlay.style.display = 'none';
                 overlay.classList.remove('active');
