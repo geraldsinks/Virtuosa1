@@ -142,7 +142,7 @@ app.get('/products/:category', (req, res) => {
 
 // Apply compression to static assets
 app.use(express.static(path.join(__dirname, '../client'), {
-  maxAge: '1d',
+  maxAge: process.env.NODE_ENV === 'production' ? '1d' : '0',
   etag: true,
   lastModified: true,
   setHeaders: (res, path) => {

@@ -1,5 +1,5 @@
 // Virtuosa Service Worker for Background Notifications
-const CACHE_VERSION = 'v1.2.0';
+const CACHE_VERSION = 'v1.3.0';
 const CACHE_NAME = `virtuosa-${CACHE_VERSION}`;
 const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB max cache size
 const MAX_CACHE_ENTRIES = 100; // Maximum number of cached items

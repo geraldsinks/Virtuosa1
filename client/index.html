@@ -26,9 +26,34 @@
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
+    
+    <!-- Fallback font with font-display: swap -->
+    <style>
+        @font-face {
+            font-family: 'Montserrat';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v25/JTUHjIg1_i6t8kCHKm4532VJOt5-QNPgp.woff2) format('woff2');
+        }
+        @font-face {
+            font-family: 'Montserrat';
+            font-style: normal;
+            font-weight: 600;
+            font-display: swap;
+            src: local('Montserrat SemiBold'), local('Montserrat-SemiBold'), url(https://fonts.gstatic.com/s/montserrat/v25/JTUHjIg1_i6t8kCHKm453cBTOt_Q.woff2) format('woff2');
+        }
+        @font-face {
+            font-family: 'Montserrat';
+            font-style: normal;
+            font-weight: 700;
+            font-display: swap;
+            src: local('Montserrat Bold'), local('Montserrat-Bold'), url(https://fonts.gstatic.com/s/montserrat/v25/JTUHjIg1_i6t8kCHKm4537PGS3p.woff2) format('woff2');
+        }
+    </style>
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.min.css">
     <script src="https://cdn.tailwindcss.com" defer></script>
     
     <!-- Open Graph / Facebook -->
@@ -779,7 +804,16 @@
             &copy; 2026 Virtuosa. All rights reserved.
         </div>
     </footer>
-    <script src="/js/config.js" defer></script>
+    
+    <!-- Critical Scripts - Load Immediately -->
+    <script src="/js/config.js"></script>
+    <script src="/js/image-optimizer.js"></script>
+    <script src="/js/cache-manager.js"></script>
+    <script src="/js/debounce.js"></script>
+    <script src="/js/api-batcher.js"></script>
+    <script src="/js/url-helper.js"></script>
+    
+    <!-- Deferred Scripts - Load After Critical Path -->
     <script src="/js/router.js" defer></script>
     <script src="/js/mobile-header.js" defer></script>
     <script src="/js/ad-slider.js" defer></script>
@@ -1054,7 +1088,7 @@
             function renderAdSliders(adSliders) {
                 const activeAdSliders = adSliders.filter(ad => ad.active).sort((a, b) => a.displayOrder - b.displayOrder);
 
-                adCardsWrapper.innerHTML = activeAdSliders.map(ad => {
+                adCardsWrapper.innerHTML = activeAdSliders.map((ad, index) => {
                     // Sanitize and handle both absolute and relative URLs
                     const fallbackUrl = 'https://placehold.co/800x400?text=Ad+Image';
                     const sanitizedUrl = sanitizeImageUrl(ad.backgroundImage, fallbackUrl);
@@ -1062,12 +1096,21 @@
                         sanitizedUrl : 
                         `https://api.virtuosazm.com${sanitizedUrl}`;
                     
-                    // Generate WebP version using optimized function
-                    const webpUrl = generateWebpUrl(imageUrl);
+                    // Use optimized image for better performance - first image gets critical optimization
+                    const optimizedUrl = index === 0 ? 
+                        optimizeCriticalImage(imageUrl, 1200, 400) :
+                        optimizeImageUrl(imageUrl, 1200, 400, {
+                            format: 'auto',
+                            quality: 'eco',
+                            compression: 'high'
+                        });
+                    
+                    // Add fetchpriority="high" to first ad for LCP optimization
+                    const fetchPriorityAttr = index === 0 ? ' fetchpriority="high"' : '';
                     
                     return `
                 <div class="ad-card flex-none w-full h-full bg-cover bg-center rounded-lg shadow-lg relative cursor-pointer"
-                 style="background-image: url('${imageUrl}');"
+                 style="background-image: url('${optimizedUrl}');"${fetchPriorityAttr}
                  onclick="window.location.href='${sanitizeUrl(ad.link)}'">
                  <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
                 <div class="text-center">
@@ -1112,28 +1155,41 @@
                         sanitizedUrl : 
                         (card.image ? `https://api.virtuosazm.com${sanitizedUrl}` : fallbackUrl);
 
-                    // Generate WebP and fallback versions using optimized function
-                    const webpUrl = generateWebpUrl(imageUrl);
+                    // Use optimized image generation with better compression
+                    const cardWidth = isRectangle ? 800 : 400;
+                    const cardHeight = isRectangle ? 400 : 280;
+                    
+                    // First few images get critical optimization
+                    const isCritical = index < 4;
+                    const optimizedSrc = isCritical ? 
+                        optimizeCriticalImage(imageUrl, cardWidth, cardHeight) :
+                        optimizeImageUrl(imageUrl, cardWidth, cardHeight, {
+                            format: 'auto',
+                            quality: 'eco',
+                            compression: 'high'
+                        });
+
+                    // Generate responsive srcset with better optimization
+                    const responsiveSrcset = generateResponsiveSrcSet(imageUrl, cardWidth, cardHeight, [400, 768, 1200]);
+
+                    // Add fetchpriority to first few images
+                    const fetchPriority = index === 0 ? 'high' : index < 4 ? 'auto' : 'low';
 
                   return `
                 <div class="${cardClass}">
                 <div class="overflow-hidden bg-gray-100">
                 <picture>
-                  <source srcset="${generateOptimizedCloudinaryUrl(imageUrl, 400, isRectangle ? 200 : 140)} 400w,
-                          ${generateOptimizedCloudinaryUrl(imageUrl, 768, isRectangle ? 384 : 280)} 768w,
-                          ${generateOptimizedCloudinaryUrl(imageUrl, 1200, isRectangle ? 600 : 400)} 1200w" 
-                          type="image/webp">
-                  <img src="${imageUrl}" 
-                 srcset="${generateOptimizedCloudinaryUrl(imageUrl, 400, isRectangle ? 200 : 140)} 400w,
-                         ${generateOptimizedCloudinaryUrl(imageUrl, 768, isRectangle ? 384 : 280)} 768w,
-                         ${generateOptimizedCloudinaryUrl(imageUrl, 1200, isRectangle ? 600 : 400)} 1200w"
+                  <source srcset="${responsiveSrcset}" type="image/webp">
+                  <img src="${optimizedSrc}" 
+                 srcset="${responsiveSrcset}"
                  sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 25vw"
                  alt="${card.title} - ${card.description || 'Browse on Virtuosa'}" 
                  class="category-image"
-                 width="${isRectangle ? '800' : '400'}"
-                 height="${isRectangle ? '400' : '280'}"
-                 loading="${index < 4 ? 'eager' : 'lazy'}"
-                 decoding="async"
+                 width="${cardWidth}"
+                 height="${cardHeight}"
+                 loading="${isCritical ? 'eager' : 'lazy'}"
+                 decoding="${isCritical ? 'sync' : 'async'}"
+                 fetchpriority="${fetchPriority}"
                  onerror="handleImageError(this)">
                 </picture>
                 </div>
@@ -1482,12 +1538,6 @@
         });
     </script>
     
-    <!-- Clean URL Support -->
-    <script src="/js/url-helper.js"></script>
-    <script src="/js/image-optimizer.js"></script>
-    <script src="/js/cache-manager.js"></script>
-    <script src="/js/debounce.js"></script>
-    <script src="/js/api-batcher.js"></script>
-</body>
-
+    <!-- Clean URL Support - Critical -->
+    <script src="/js/router.js"></script>
 </html>
