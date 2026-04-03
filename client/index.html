@@ -452,19 +452,20 @@
             }
             
             .welcome-cta, .welcome-cta-secondary {
-                padding: 0.5rem 1rem !important;
-                font-size: 0.75rem !important;
+                padding: 0.75rem 1.5rem !important;
+                font-size: 0.9rem !important;
+                min-width: 140px !important;
             }
             
             .trust-badge {
                 padding: 0.25rem 0.5rem !important;
-                gap: 0.5rem !important;
+                gap: 0.375rem !important;
                 min-width: auto !important;
             }
             
             .trust-badge-icon {
-                width: 1.5rem !important;
-                height: 1.5rem !important;
+                width: 1.25rem !important;
+                height: 1.25rem !important;
             }
             
             .trust-badge-text {
@@ -509,7 +510,15 @@
             .welcome-section .flex:last-child {
                 justify-content: center !important;
                 flex-wrap: nowrap !important;
-                gap: 0.5rem !important;
+                gap: 0.75rem !important;
+                overflow-x: auto !important;
+                padding: 0 0.5rem !important;
+                scrollbar-width: none !important;
+                -ms-overflow-style: none !important;
+            }
+            
+            .welcome-section .flex:last-child::-webkit-scrollbar {
+                display: none !important;
             }
         }
 
@@ -899,13 +908,13 @@
 
         <!-- CTA Buttons -->
         <div style="display: flex; gap: 1rem; justify-content: center; align-items: center; margin-bottom: 3rem; flex-wrap: wrap;">
-            <a href="/pages/products.html" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #0A1128; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 700; font-size: 1.125rem; text-decoration: none; box-shadow: 0 8px 25px rgba(251, 191, 36, 0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; min-width: 160px;">
+            <a href="/pages/products.html" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #0A1128; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 700; font-size: 1.125rem; text-decoration: none; box-shadow: 0 8px 25px rgba(251, 191, 36, 0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; min-width: 160px;" class="welcome-cta">
                 <svg style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
                 Browse Items
             </a>
-            <a href="/pages/seller.html" style="background: rgba(255, 255, 255, 0.15); color: white; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 700; font-size: 1.125rem; text-decoration: none; border: 2px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; min-width: 160px;">
+            <a href="/pages/seller.html" style="background: rgba(255, 255, 255, 0.15); color: white; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 700; font-size: 1.125rem; text-decoration: none; border: 2px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; min-width: 160px;" class="welcome-cta-secondary">
                 <svg style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                 </svg>
