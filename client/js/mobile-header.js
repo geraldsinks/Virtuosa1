@@ -353,7 +353,7 @@ function updateAuthState() {
     const isAdmin = localStorage.getItem('isAdmin') === 'true';
     const isSeller = localStorage.getItem('isSeller') === 'true';
     
-    const mobileLoginLink = document.getElementById('mobile-login-link');
+    const mobileLoginLink = document.getElementById('mobile-menu-sign-link');
     const mobileSellerSection = document.getElementById('mobile-seller-section');
     const mobileAdminSection = document.getElementById('mobile-admin-section');
     const userGreeting = document.getElementById('user-greeting');

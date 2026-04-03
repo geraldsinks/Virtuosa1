@@ -273,7 +273,7 @@ body {
 
 /* Mobile Menu Side Drawer Overlay */
 .mobile-menu-overlay {
-    display: none;
+    display: none !important;
     position: fixed;
     top: 0;
     left: 0;
@@ -293,17 +293,24 @@ body {
     left: 0;
     height: 100%;
     width: 100%;
-    background-color: #0d152b;
+    background-color: #0A1128;
     z-index: 9999;
     overflow-y: auto;
-    transform: translateX(-100%);
+    transform: translateX(-100%) !important;
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+    min-height: 100vh;
+    padding: 1rem;
 }
 
 .mobile-menu-overlay.active + .mobile-menu-content,
 .mobile-menu-overlay.active .mobile-menu-content {
-    transform: translateX(0);
+    transform: translateX(0) !important;
+}
+
+/* Ensure mobile menu content is hidden by default */
+.mobile-menu-content:not(.active) {
+    transform: translateX(-100%) !important;
 }
 
 @media (min-width: 768px) {
@@ -456,11 +463,6 @@ body {
 
 
 
-.mobile-menu-content {
-    background: #0A1128;
-    min-height: 100vh;
-    padding: 1rem;
-}
 
 .mobile-menu-header {
     display: flex;
