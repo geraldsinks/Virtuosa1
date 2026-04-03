@@ -1121,7 +1121,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 // Handle database reset
 function handleDatabaseReset() {
     // Confirm with user
-    const confirmation = prompt('⚠️ DANGER: This will permanently delete ALL products, transactions, and carts!\n\nType "DELETE ALL" to confirm:');
+    const confirmation = prompt('⚠️ DANGER: This will permanently delete ALL data including:\n\n• Products and listings\n• Transactions and orders\n• Shopping carts\n• Disputes and resolutions\n• Notifications\n• User statistics\n\nType "DELETE ALL" to confirm:');
     
     if (confirmation !== 'DELETE ALL') {
         alert('❌ Database reset cancelled. Confirmation text did not match.');
@@ -1160,8 +1160,26 @@ function handleDatabaseReset() {
     .then(data => {
         console.log('✅ Database reset successful:', data);
         
+        // Build comprehensive success message
+        let successMessage = `✅ Database reset successfully!\n\n`;
+        successMessage += `📦 Products deleted: ${data.productsDeleted || 0}\n`;
+        successMessage += `💰 Transactions deleted: ${data.transactionsDeleted || 0}\n`;
+        successMessage += `🛒 Carts deleted: ${data.cartsDeleted || 0}\n`;
+        
+        if (data.disputesDeleted !== undefined) {
+            successMessage += `⚖️ Disputes deleted: ${data.disputesDeleted}\n`;
+        }
+        if (data.notificationsDeleted !== undefined) {
+            successMessage += `🔔 Notifications deleted: ${data.notificationsDeleted}\n`;
+        }
+        if (data.userStatsReset !== undefined) {
+            successMessage += `👥 User statistics reset: ${data.userStatsReset} users\n`;
+        }
+        
+        successMessage += `\nPage will reload in 3 seconds...`;
+        
         // Show success message
-        alert(`✅ Database reset successfully!\n\n- Products deleted: ${data.productsDeleted}\n- Transactions deleted: ${data.transactionsDeleted}\n- Carts deleted: ${data.cartsDeleted}\n\nPage will reload in 3 seconds...`);
+        alert(successMessage);
         
         // Reload page after delay
         setTimeout(() => {

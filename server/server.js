@@ -3287,7 +3287,7 @@ app.post('/api/products/draft', authenticateToken, async (req, res) => {
     }
 });
 
-// Emergency: Delete all products (for database reset)
+// Emergency: Delete all products, transactions, and related data (for database reset)
 app.delete('/api/admin/delete-all-products', authenticateToken, async (req, res) => {
     try {
         // Check if user is admin
@@ -3296,26 +3296,73 @@ app.delete('/api/admin/delete-all-products', authenticateToken, async (req, res)
             return res.status(403).json({ message: 'Admin access required' });
         }
 
-        // Delete all products and transactions
-        const productsResult = await Product.deleteMany({});
-        const transactionsResult = await Transaction.deleteMany({});
-        const cartsResult = await Cart.deleteMany({});
+        console.log('🗑️ Starting comprehensive database reset...');
         
-        console.log(`🗑️ Database reset completed:`);
-        console.log(`   Products deleted: ${productsResult.deletedCount}`);
-        console.log(`   Transactions deleted: ${transactionsResult.deletedCount}`);
+        // Delete all data in proper order to avoid foreign key constraints
+        const results = {};
+
+        // Delete cart items first (depend on products)
+        const cartsResult = await Cart.deleteMany({});
+        results.cartsDeleted = cartsResult.deletedCount;
         console.log(`   Carts deleted: ${cartsResult.deletedCount}`);
+
+        // Delete transactions (depend on products and users)
+        const transactionsResult = await Transaction.deleteMany({});
+        results.transactionsDeleted = transactionsResult.deletedCount;
+        console.log(`   Transactions deleted: ${transactionsResult.deletedCount}`);
+
+        // Delete products
+        const productsResult = await Product.deleteMany({});
+        results.productsDeleted = productsResult.deletedCount;
+        console.log(`   Products deleted: ${productsResult.deletedCount}`);
+
+        // Delete related models if they exist
+        try {
+            const Dispute = require('./models/Dispute');
+            const disputesResult = await Dispute.deleteMany({});
+            results.disputesDeleted = disputesResult.deletedCount;
+            console.log(`   Disputes deleted: ${disputesResult.deletedCount}`);
+        } catch (error) {
+            console.log('   Disputes model not found or already empty');
+        }
+
+        try {
+            const Notification = require('./models/Notification');
+            const notificationsResult = await Notification.deleteMany({});
+            results.notificationsDeleted = notificationsResult.deletedCount;
+            console.log(`   Notifications deleted: ${notificationsResult.deletedCount}`);
+        } catch (error) {
+            console.log('   Notifications model not found or already empty');
+        }
+
+        // Reset user statistics that might be affected
+        const userStatsResult = await User.updateMany(
+            {},
+            {
+                $set: {
+                    successfulTransactions: 0,
+                    totalTransactions: 0,
+                    totalSales: 0,
+                    totalBuyerReviews: 0,
+                    totalSellerReviews: 0,
+                    buyerRating: 5.0,
+                    sellerRating: 5.0
+                }
+            }
+        );
+        results.userStatsReset = userStatsResult.modifiedCount;
+        console.log(`   User statistics reset: ${userStatsResult.modifiedCount} users`);
+
+        console.log(`✅ Database reset completed successfully`);
         
         res.json({
             message: 'Database reset successfully',
-            productsDeleted: productsResult.deletedCount,
-            transactionsDeleted: transactionsResult.deletedCount,
-            cartsDeleted: cartsResult.deletedCount
+            ...results
         });
 
     } catch (error) {
-        console.error('Delete all products error:', error);
-        res.status(500).json({ message: 'Server error' });
+        console.error('❌ Database reset error:', error);
+        res.status(500).json({ message: 'Server error during database reset' });
     }
 });
 
