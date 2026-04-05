@@ -448,33 +448,66 @@ async function initializeMobileCategoryScroller() {
     if (document.querySelector('.mobile-category-scroller')) return;
 
     try {
-        const response = await fetch(`${API_BASE}/public/marketing/category-cards`);
-        if (response.ok) {
-            const categoryCards = await response.json();
-            const activeCats = categoryCards.filter(c => c.active).sort((a,b) => a.displayOrder - b.displayOrder);
-            
-            if (activeCats.length === 0) return;
-            
-            const scrollerContainer = document.createElement('div');
-            scrollerContainer.className = 'mobile-category-scroller md:hidden'; // hide on desktop automatically
-            
-            scrollerContainer.innerHTML = activeCats.map(cat => {
-                const targetUrl = cat.link ? (cat.link.startsWith('/') ? cat.link : '/pages/' + cat.link) : '#';
-                const imageUrl = cat.image?.startsWith('http') ? cat.image : 
-                                (cat.image ? `${API_BASE.replace('/api', '')}${cat.image}` : null);
-                
-                return `
-                    <a href="${targetUrl}" class="mobile-category-item">
-                        <div class="mobile-category-icon">
-                            ${imageUrl ? `<img src="${imageUrl}" class="w-full h-full object-cover rounded-full" alt="${cat.title}">` : `<i class="fas fa-box text-gray-400"></i>`}
-                        </div>
-                        <span class="mobile-category-text">${cat.title}</span>
-                    </a>
-                `;
-            }).join('');
-            
-            searchRow.insertAdjacentElement('afterend', scrollerContainer);
+        let activeCats = [];
+        try {
+            const mkResponse = await fetch(`${API_BASE}/public/marketing/category-cards`);
+            if (mkResponse.ok) {
+                const categoryCards = await mkResponse.json();
+                activeCats = categoryCards.filter(c => c.active).sort((a,b) => a.displayOrder - b.displayOrder);
+            }
+        } catch (e) {
+            console.warn('Could not load marketing categories for scroller:', e);
         }
+        
+        // Fallback to standard categories if marketing is empty
+        if (activeCats.length === 0) {
+            const fallbackResponse = await fetch(`${API_BASE}/categories`);
+            if (fallbackResponse.ok) {
+                const categories = await fallbackResponse.json();
+                // Pick some commonly popular categories to ensure the mobile scroller has data
+                const fallbackNames = ['Hot Deals', 'Best Sellers', "Men's Clothing", "Women's Clothing", 'Electronics', 'Computers & Software', 'Shoes', 'Accessories'];
+                
+                activeCats = fallbackNames.map((name, index) => {
+                    const found = categories.find(c => c.name === name);
+                    return {
+                        title: name,
+                        link: `/products?category=${encodeURIComponent(name)}`,
+                        image: found ? found.image : null,
+                        active: true,
+                        displayOrder: index
+                    };
+                });
+            }
+        }
+        
+        if (activeCats.length === 0) return;
+        
+        const scrollerContainer = document.createElement('div');
+        scrollerContainer.className = 'mobile-category-scroller md:hidden'; // hide on desktop automatically
+        
+        scrollerContainer.innerHTML = activeCats.map(cat => {
+            let targetUrl = cat.link ? (cat.link.startsWith('/') ? cat.link : '/pages/' + cat.link) : `/pages/products.html?category=${encodeURIComponent(cat.title)}`;
+            // Fix double /pages/ in URLs if present
+            if (targetUrl.includes('/pages/pages/')) {
+                targetUrl = targetUrl.replace('/pages/pages/', '/pages/');
+            }
+            if (!targetUrl.startsWith('/') && !targetUrl.startsWith('http')) {
+                 targetUrl = '/' + targetUrl; // Force absolute path to avoid missing products in nested folders
+            }
+            const imageUrl = cat.image?.startsWith('http') ? cat.image : 
+                            (cat.image ? `${API_BASE.replace('/api', '')}${cat.image}` : null);
+            
+            return `
+                <a href="${targetUrl}" class="mobile-category-item">
+                    <div class="mobile-category-icon">
+                        ${imageUrl ? `<img src="${imageUrl}" class="w-full h-full object-cover rounded-full" alt="${cat.title}">` : `<i class="fas fa-search text-gray-400"></i>`}
+                    </div>
+                    <span class="mobile-category-text">${cat.title}</span>
+                </a>
+            `;
+        }).join('');
+        
+        searchRow.insertAdjacentElement('afterend', scrollerContainer);
     } catch (error) {
         console.error('Error loading mobile category scroller:', error);
     }

@@ -896,8 +896,8 @@
                     const isLowStock = showInventory && product.inventoryTracking && product.inventory <= (product.lowStockThreshold || 1);
 
                     return `
-                        <div class="product-card bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group ${isOutOfStock ? 'opacity-75' : ''}">
-                            <div class="relative">
+                        <div class="product-card bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 overflow-hidden group flex flex-col h-full ${isOutOfStock ? 'opacity-75' : ''}">
+                            <div class="relative aspect-square w-full bg-gray-50 overflow-hidden">
                                 <img src="${imageUrl}" 
                                      alt="${product.name}" 
                                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -937,13 +937,13 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="p-4">
-                                <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">${product.name}</h3>
-                                <p class="text-sm text-gray-600 mb-3 line-clamp-2">${product.description}</p>
-                                <div class="flex items-center justify-between mb-3">
-                                    <div>
+                            <div class="p-4 flex flex-col flex-1">
+                                <h3 class="font-semibold text-gray-900 mb-1.5 line-clamp-2 text-[15px] leading-tight">${product.name}</h3>
+                                <p class="text-xs text-gray-500 mb-4 line-clamp-2">${product.description}</p>
+                                <div class="flex items-center justify-between mb-4 mt-auto">
+                                    <div class="flex flex-col">
                                         <div class="flex items-center gap-2">
-                                            <span class="text-xl font-bold text-navy">ZMW ${(product.price || 0).toFixed(2)}</span>
+                                            <span class="text-lg font-bold text-navy">ZMW ${(product.price || 0).toFixed(2)}</span>
                                             ${product.originalPrice && product.originalPrice > product.price ? `
                                                 <span class="text-xs text-gray-400 line-through">ZMW ${product.originalPrice.toFixed(2)}</span>
                                             ` : ''}
@@ -956,11 +956,10 @@
                                             </div>
                                         ` : ''}
                                     </div>
-                                    <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">${product.condition}</span>
+                                    <span class="text-[10px] bg-gray-100 font-medium text-gray-600 px-2 py-1 rounded-full whitespace-nowrap self-start mt-1">${product.condition}</span>
                                 </div>
-                                <div class="flex justify-between items-center mt-4">
-                                    <a href="/product/${product._id}" class="text-gold hover:text-gold-600 text-sm font-medium">View Details</a>
-                                    <button class="w-full bg-button-gold text-white font-semibold py-2 px-4 rounded-lg hover-bg-button-gold transition-colors ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'js-add-to-cart'}"
+                                <div class="flex flex-col gap-2 pt-3 border-t border-gray-100">
+                                    <button class="w-full bg-button-gold text-white font-semibold py-2 px-4 rounded-lg hover-bg-button-gold transition-colors text-sm ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'js-add-to-cart'}"
                                         ${isOutOfStock ? 'disabled' : ''}
                                         data-item-id="${product._id}"
                                         data-item-name="${product.name}"
@@ -969,6 +968,7 @@
                                         data-item-category="${product.category || ''}">
                                         ${isOutOfStock ? (product.status === 'Sold' ? 'Sold Out' : 'Out of Stock') : 'Add to Cart'}
                                     </button>
+                                    <a href="/product/${product._id}" class="text-center text-navy hover:text-gold text-xs font-medium w-full py-1">View Details</a>
                                 </div>
                             </div>
                         </div>
