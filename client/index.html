@@ -309,18 +309,26 @@
         }
 
         .category-card {
-            background-color: #ffffff;
+            background-color: transparent; /* Changed to transparent as image container has white bg */
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
+            overflow: visible; /* Allow shadow/glow to show outside */
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
-            transform-origin: center;
         }
 
         .category-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(-8px);
+        }
+
+        /* Lift and Glow for the image container specifically */
+        .category-card .relative.rounded-xl {
+            transition: all 0.4s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .category-card:hover .relative.rounded-xl {
+            border-color: #FFD700;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1), 0 0 20px rgba(255, 215, 0, 0.25);
         }
 
         .category-image {
@@ -343,6 +351,7 @@
             height: auto;
         }
 
+        /* Category content for mobile overlay */
         .category-content {
             padding: 1.25rem;
             text-align: center;
@@ -1079,7 +1088,8 @@
                 <span class="w-2 h-8 bg-gold rounded-full"></span>
                 Shop Category Areas
             </h2>
-            <div id="category-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 w-full">
+            <div id="category-grid" class="grid grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8 w-full">
+
                 <!-- Skeleton Placeholders -->
                 <div class="skeleton-card animate-pulse"></div>
                 <div class="skeleton-card animate-pulse"></div>
@@ -1504,7 +1514,8 @@
                 // Unified rendering: trust the cardType (square/rectangle) from data
                 categoryGrid.innerHTML = activeCards.map((card, index) => {
                     const isRectangle = card.cardType === 'rectangle';
-                    const cardClass = isRectangle ? 'category-card rectangle-card col-span-1 sm:col-span-2' : 'category-card square-card col-span-1';
+                    // Mobile: Rectangle takes 2 columns. Desktop: Everything takes 1 column for uniform gallery.
+                    const cardClass = isRectangle ? 'category-card rectangle-card col-span-2 lg:col-span-1' : 'category-card square-card col-span-1 lg:col-span-1';
                     
                     // Sanitize and handle both absolute and relative URLs for images
                     const fallbackUrl = `https://placehold.co/400x200?text=${encodeURIComponent(card.title)}`;
@@ -1513,31 +1524,35 @@
                         sanitizedUrl : 
                         (card.image ? `https://api.virtuosazm.com${sanitizedUrl}` : fallbackUrl);
 
-                    // Generate WebP and fallback versions using optimized function
-                    const webpUrl = generateWebpUrl(imageUrl);
-
                     return `
-                <div class="${cardClass} group relative rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-gray-200">
-                    <div class="${isRectangle ? 'aspect-[2/1]' : 'aspect-square'} relative p-0 w-full">
+                <div class="${cardClass} group flex flex-col transition-all duration-300">
+                    <div class="${isRectangle ? 'aspect-[2/1] lg:aspect-square' : 'aspect-square'} relative rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-200 bg-white">
                         <picture>
                             <source srcset="${generateOptimizedCloudinaryUrl(imageUrl, 400, isRectangle ? 200 : 400)} 400w,
-                                    ${generateOptimizedCloudinaryUrl(imageUrl, 768, isRectangle ? 384 : 768)} 768w,
-                                    ${generateOptimizedCloudinaryUrl(imageUrl, 1200, isRectangle ? 600 : 1200)} 1200w" 
+                                    ${generateOptimizedCloudinaryUrl(imageUrl, 768, isRectangle ? 384 : 768)} 768w" 
                                     type="image/webp">
                             <img src="${imageUrl}" 
-                                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                  alt="${encodeHtml(card.title)}" 
                                  loading="${index < 4 ? 'eager' : 'lazy'}">
                         </picture>
-                        <!-- Gradient Overlay -->
-                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent opacity-80 pointer-events-none transition-opacity group-hover:opacity-90"></div>
-                        <div class="absolute bottom-0 left-0 right-0 p-5 z-10 w-full text-left">
-                            <h3 class="font-bold text-white text-base sm:text-lg lg:text-xl drop-shadow-md tracking-tight leading-tight">${encodeHtml(card.title)}</h3>
-                            ${card.description ? `<p class="text-white text-xs sm:text-sm md:text-xs lg:text-sm opacity-80 mt-1 line-clamp-2">${encodeHtml(card.description)}</p>` : ''}
+                        
+                        <!-- Mobile Overlay Layout (Hidden on Desktop) -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent opacity-80 lg:opacity-0 transition-opacity group-hover:opacity-90 lg:group-hover:opacity-0 pointer-events-none"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-5 z-10 w-full text-left lg:hidden">
+                            <h3 class="font-bold text-white text-base sm:text-lg drop-shadow-md tracking-tight leading-tight">${encodeHtml(card.title)}</h3>
+                            ${card.description ? `<p class="text-white text-xs opacity-80 mt-1 line-clamp-1">${encodeHtml(card.description)}</p>` : ''}
                         </div>
+                        
                         <a href="${sanitizeUrl(card.link ? (card.link.startsWith('/') ? card.link : '/pages/' + card.link) : '#')}" class="absolute inset-0 z-20">
                             <span class="sr-only">Explore ${encodeHtml(card.title)}</span>
                         </a>
+                    </div>
+                    
+                    <!-- Desktop Label Layout (Visible only on Desktop) -->
+                    <div class="hidden lg:block pt-3 px-1">
+                        <h3 class="font-bold text-navy text-base group-hover:text-gold transition-colors duration-300 truncate">${encodeHtml(card.title)}</h3>
+                        ${card.description ? `<p class="text-gray-500 text-xs mt-0.5 line-clamp-1">${encodeHtml(card.description)}</p>` : ''}
                     </div>
                 </div>
                   `;

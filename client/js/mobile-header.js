@@ -483,14 +483,14 @@ async function initializeMobileCategoryScroller() {
         if (activeCats.length === 0) return;
         
         const scrollerContainer = document.createElement('div');
-        scrollerContainer.className = 'mobile-category-scroller md:hidden flex flex-row overflow-x-auto whitespace-nowrap hide-scrollbar items-center bg-[#0A1128] gap-4 border-gray-800 transition-all duration-300 ease-in-out origin-top overflow-y-hidden border-b'; // hide on desktop automatically
+        scrollerContainer.className = 'mobile-category-scroller md:hidden flex flex-row overflow-x-auto whitespace-nowrap hide-scrollbar items-center bg-[#0A1128] gap-4 border-gray-100 transition-all duration-300 ease-in-out origin-top overflow-y-hidden border-b shadow-sm'; 
         
         // Define initial visible styles
         scrollerContainer.style.maxHeight = '140px';
-        scrollerContainer.style.paddingTop = '0.75rem';
-        scrollerContainer.style.paddingBottom = '0.75rem';
-        scrollerContainer.style.paddingLeft = '1rem';
-        scrollerContainer.style.paddingRight = '1rem';
+        scrollerContainer.style.paddingTop = '0.875rem';
+        scrollerContainer.style.paddingBottom = '0.875rem';
+        scrollerContainer.style.paddingLeft = '1.25rem';
+        scrollerContainer.style.paddingRight = '1.25rem';
         scrollerContainer.style.opacity = '1';
         
         scrollerContainer.innerHTML = activeCats.map(cat => {
@@ -511,11 +511,11 @@ async function initializeMobileCategoryScroller() {
             cat.imageUrl = imageUrl;
             
             return `
-                <a href="${targetUrl}" class="mobile-category-item flex flex-col items-center no-underline text-gray-400 hover:text-gold transition-colors shrink-0" style="min-width: 56px;">
-                    <div class="mobile-category-icon w-11 h-11 rounded-full bg-gray-800 flex items-center justify-center mb-1.5 overflow-hidden border-2 border-transparent hover:border-gold transition-colors">
+                <a href="${targetUrl}" class="mobile-category-item flex flex-col items-center no-underline text-gray-400 hover:text-gold transition-all duration-300 shrink-0 hover:scale-105" style="min-width: 60px;">
+                    <div class="mobile-category-icon w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center mb-1.5 overflow-hidden border-2 border-transparent hover:border-gold transition-all shadow-sm">
                         ${imageUrl ? `<img src="${imageUrl}" class="w-full h-full object-cover rounded-full" alt="${cat.title}">` : `<i class="fas fa-search text-gray-400"></i>`}
                     </div>
-                    <span class="mobile-category-text text-[10px] font-medium truncate w-[64px] text-center">${cat.title}</span>
+                    <span class="mobile-category-text text-[10px] font-semibold truncate w-[68px] text-center">${cat.title}</span>
                 </a>
             `;
         }).join('');
@@ -542,8 +542,8 @@ async function initializeMobileCategoryScroller() {
                 
                 // 1. Manually add Sell Items 
                 const sellLinkHtml = `
-                    <a href="/pages/seller.html" class="flex flex-col items-center no-underline text-gold hover:text-yellow-300 transition-colors shrink-0" style="min-width: 64px;">
-                        <div class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center mb-1.5 overflow-hidden border-2 border-gold hover:bg-gray-700 transition-all shadow-md hover:shadow-lg">
+                    <a href="/pages/seller.html" class="flex flex-col items-center no-underline text-gold hover:text-yellow-300 transition-all duration-300 shrink-0 group hover:scale-105" style="min-width: 70px;">
+                        <div class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center mb-1.5 overflow-hidden border-2 border-gold group-hover:bg-gray-700 transition-all shadow-md group-hover:shadow-lg group-hover:border-yellow-300">
                             <i class="fas fa-store-alt text-lg"></i>
                         </div>
                         <span class="text-[11px] font-bold text-center w-full truncate">Sell Items</span>
@@ -554,8 +554,8 @@ async function initializeMobileCategoryScroller() {
                 // 2. Map the activeCats to desktop cards
                 const dynamicLinksHtml = activeCats.map(cat => {
                     return `
-                        <a href="${cat.targetUrl}" class="flex flex-col items-center no-underline text-gray-400 hover:text-gold transition-colors shrink-0" style="min-width: 64px;">
-                            <div class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center mb-1.5 overflow-hidden border-2 border-transparent hover:border-gold transition-colors shadow-sm">
+                        <a href="${cat.targetUrl}" class="flex flex-col items-center no-underline text-gray-400 hover:text-gold transition-all duration-300 shrink-0 group hover:scale-105" style="min-width: 70px;">
+                            <div class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center mb-1.5 overflow-hidden border-2 border-transparent group-hover:border-gold transition-all shadow-sm group-hover:shadow-md">
                                 ${cat.imageUrl ? `<img src="${cat.imageUrl}" class="w-full h-full object-cover" alt="${cat.title}">` : `<i class="fas fa-tags text-gray-400"></i>`}
                             </div>
                             <span class="text-[11px] font-medium max-w-[84px] truncate text-center">${cat.title}</span>
