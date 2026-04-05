@@ -108,6 +108,64 @@
             opacity: 1 !important;
         }
 
+        /* Essential Mobile Menu Layout Styles */
+        .mobile-menu-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .mobile-menu-close {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .mobile-menu-section {
+            margin-bottom: 2rem;
+        }
+
+        .mobile-menu-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #9ca3af;
+            margin-bottom: 0.75rem;
+            padding: 0 1rem;
+        }
+
+        .mobile-menu-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+            transition: background 0.2s ease;
+            gap: 0.75rem;
+        }
+
+        .mobile-menu-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-menu-link i {
+            width: 20px;
+            text-align: center;
+            opacity: 0.8;
+        }
+
         /* Defensive CSS for mobile header visibility */
         @media (max-width: 767px) {
             .mobile-header-row-1 {
