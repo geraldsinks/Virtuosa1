@@ -1138,7 +1138,7 @@ function updateCategoryCardsPreview() {
                                 ` : ''}
 
                                 <!-- Universal padding and spacing -->
-                                <div class="aspect-square bg-cover bg-center relative p-0">
+                                <div class="${card.cardType === 'rectangle' ? 'aspect-[2/1]' : 'aspect-square'} bg-cover bg-center relative p-0">
                                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all"></div>
                                     <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
                                         <h3 class="font-semibold text-white text-lg drop-shadow-lg leading-tight">${card.title || card.name || 'Category Name'}</h3>

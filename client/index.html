@@ -1528,36 +1528,31 @@
                     // Generate WebP and fallback versions using optimized function
                     const webpUrl = generateWebpUrl(imageUrl);
 
-                  return `
-                <div class="${cardClass}">
-                <div class="overflow-hidden bg-gray-100">
-                <picture>
-                  <source srcset="${generateOptimizedCloudinaryUrl(imageUrl, 400, isRectangle ? 200 : 140)} 400w,
-                          ${generateOptimizedCloudinaryUrl(imageUrl, 768, isRectangle ? 384 : 280)} 768w,
-                          ${generateOptimizedCloudinaryUrl(imageUrl, 1200, isRectangle ? 600 : 400)} 1200w" 
-                          type="image/webp">
-                  <img src="${imageUrl}" 
-                 srcset="${generateOptimizedCloudinaryUrl(imageUrl, 400, isRectangle ? 200 : 140)} 400w,
-                         ${generateOptimizedCloudinaryUrl(imageUrl, 768, isRectangle ? 384 : 280)} 768w,
-                         ${generateOptimizedCloudinaryUrl(imageUrl, 1200, isRectangle ? 600 : 400)} 1200w"
-                 sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 25vw"
-                 alt="${card.title} - ${card.description || 'Browse on Virtuosa'}" 
-                 class="category-image"
-                 width="${isRectangle ? '800' : '400'}"
-                 height="${isRectangle ? '400' : '280'}"
-                 loading="${index < 4 ? 'eager' : 'lazy'}"
-                 decoding="async"
-                 onerror="handleImageError(this)">
-                </picture>
-                </div>
-                <div class="category-content">
-                <h3 class="category-title">${encodeHtml(card.title)}</h3>
-                <p class="category-description">${encodeHtml(card.description || 'Discover our curated selection in this category')}</p>
-                <a href="${sanitizeUrl(card.link ? (card.link.startsWith('/') ? card.link : '/pages/' + card.link) : '#')}" 
-               class="category-link">Explore Area</a>
+                    return `
+                <div class="${cardClass} group relative rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-gray-200">
+                    <div class="${isRectangle ? 'aspect-[2/1]' : 'aspect-square'} relative p-0 w-full">
+                        <picture>
+                            <source srcset="${generateOptimizedCloudinaryUrl(imageUrl, 400, isRectangle ? 200 : 400)} 400w,
+                                    ${generateOptimizedCloudinaryUrl(imageUrl, 768, isRectangle ? 384 : 768)} 768w,
+                                    ${generateOptimizedCloudinaryUrl(imageUrl, 1200, isRectangle ? 600 : 1200)} 1200w" 
+                                    type="image/webp">
+                            <img src="${imageUrl}" 
+                                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                 alt="${encodeHtml(card.title)}" 
+                                 loading="${index < 4 ? 'eager' : 'lazy'}">
+                        </picture>
+                        <!-- Gradient Overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent opacity-80 pointer-events-none transition-opacity group-hover:opacity-90"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-5 z-10 w-full text-left">
+                            <h3 class="font-bold text-white text-base sm:text-lg lg:text-xl drop-shadow-md tracking-tight leading-tight">${encodeHtml(card.title)}</h3>
+                            ${card.description ? `<p class="text-white text-xs sm:text-sm md:text-xs lg:text-sm opacity-80 mt-1 line-clamp-2">${encodeHtml(card.description)}</p>` : ''}
+                        </div>
+                        <a href="${sanitizeUrl(card.link ? (card.link.startsWith('/') ? card.link : '/pages/' + card.link) : '#')}" class="absolute inset-0 z-20">
+                            <span class="sr-only">Explore ${encodeHtml(card.title)}</span>
+                        </a>
                     </div>
                 </div>
-                    `;
+                  `;
                 }).join('');
             }
 
