@@ -182,10 +182,12 @@ function updateStepDisplay() {
     // Update step indicators
     for (let i = 1; i <= 3; i++) {
         const stepIndicator = document.getElementById(`step${i}-indicator`);
-        if (i <= currentStep) {
-            stepIndicator.className = 'step-active w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0';
-        } else {
-            stepIndicator.className = 'step-inactive w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0';
+        if (stepIndicator) {
+            if (i <= currentStep) {
+                stepIndicator.className = 'step-active w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0';
+            } else {
+                stepIndicator.className = 'step-inactive w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0';
+            }
         }
     }
     
@@ -252,8 +254,26 @@ async function createProduct(event) {
         });
         
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to create product');
+            let errorMessage = 'Failed to create product';
+            
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorMessage;
+            } catch (e) {
+                // If we can't parse JSON, use status text
+                errorMessage = `Server error: ${response.status} ${response.statusText}`;
+                
+                // Provide specific guidance for common errors
+                if (response.status === 502) {
+                    errorMessage = 'Server is temporarily unavailable. Please try again in a few moments.';
+                } else if (response.status === 403) {
+                    errorMessage = 'You need to be a verified seller to create products.';
+                } else if (response.status === 401) {
+                    errorMessage = 'Please log in to create products.';
+                }
+            }
+            
+            throw new Error(errorMessage);
         }
         
         const product = await response.json();

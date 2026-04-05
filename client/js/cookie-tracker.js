@@ -10,7 +10,8 @@ class VirtuosaTracker {
         this.events = [];
         this.sessionId = this.getOrCreateSessionId();
         this.userId = localStorage.getItem('userId') || null;
-        this.endpoint = `${window.API_BASE || '/api'}/analytics/track`;
+        // Initialize endpoint after DOM is loaded to ensure API_BASE is available
+        this.endpoint = this.getEndpoint();
         
         // Track time spent on page
         this.pageLoadTime = Date.now();
@@ -33,6 +34,18 @@ class VirtuosaTracker {
 
         // Periodic flush every 15 seconds
         setInterval(() => this.flush(), 15000);
+    }
+
+    getEndpoint() {
+        // Wait for API_BASE to be available, fallback to relative URL
+        if (window.API_BASE) {
+            return `${window.API_BASE}/analytics/track`;
+        }
+        // Fallback for production
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            return 'https://api.virtuosazm.com/api/analytics/track';
+        }
+        return '/api/analytics/track';
     }
 
     getOrCreateSessionId() {
