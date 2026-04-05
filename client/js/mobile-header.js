@@ -483,7 +483,15 @@ async function initializeMobileCategoryScroller() {
         if (activeCats.length === 0) return;
         
         const scrollerContainer = document.createElement('div');
-        scrollerContainer.className = 'mobile-category-scroller md:hidden flex flex-row overflow-x-auto whitespace-nowrap hide-scrollbar items-center bg-[#0A1128] py-3 px-4 gap-4 border-b border-gray-800'; // hide on desktop automatically
+        scrollerContainer.className = 'mobile-category-scroller md:hidden flex flex-row overflow-x-auto whitespace-nowrap hide-scrollbar items-center bg-[#0A1128] gap-4 border-gray-800 transition-all duration-300 ease-in-out origin-top overflow-y-hidden border-b'; // hide on desktop automatically
+        
+        // Define initial visible styles
+        scrollerContainer.style.maxHeight = '140px';
+        scrollerContainer.style.paddingTop = '0.75rem';
+        scrollerContainer.style.paddingBottom = '0.75rem';
+        scrollerContainer.style.paddingLeft = '1rem';
+        scrollerContainer.style.paddingRight = '1rem';
+        scrollerContainer.style.opacity = '1';
         
         scrollerContainer.innerHTML = activeCats.map(cat => {
             let targetUrl = cat.link ? (cat.link.startsWith('/') ? cat.link : '/pages/' + cat.link) : `/pages/products.html?category=${encodeURIComponent(cat.title)}`;
@@ -508,6 +516,35 @@ async function initializeMobileCategoryScroller() {
         }).join('');
         
         searchRow.insertAdjacentElement('afterend', scrollerContainer);
+        
+        // Implement Auto-Hide Behavior on Scroll
+        let lastScrollY = window.scrollY;
+        const scrollThreshold = 10;
+        
+        window.addEventListener('scroll', () => {
+            // Only apply on mobile viewport
+            if (window.innerWidth >= 768) return;
+            
+            const currentScrollY = window.scrollY;
+            if (Math.abs(currentScrollY - lastScrollY) < scrollThreshold) return;
+            
+            if (currentScrollY > lastScrollY && currentScrollY > 150) {
+                // Scrolling Down: Hide Scroller
+                scrollerContainer.style.maxHeight = '0px';
+                scrollerContainer.style.paddingTop = '0px';
+                scrollerContainer.style.paddingBottom = '0px';
+                scrollerContainer.style.opacity = '0';
+                scrollerContainer.style.borderBottomWidth = '0px';
+            } else {
+                // Scrolling Up: Show Scroller
+                scrollerContainer.style.maxHeight = '140px';
+                scrollerContainer.style.paddingTop = '0.75rem';
+                scrollerContainer.style.paddingBottom = '0.75rem';
+                scrollerContainer.style.opacity = '1';
+                scrollerContainer.style.borderBottomWidth = '1px';
+            }
+            lastScrollY = currentScrollY;
+        }, { passive: true });
     } catch (error) {
         console.error('Error loading mobile category scroller:', error);
     }
