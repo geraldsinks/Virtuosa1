@@ -523,32 +523,44 @@ async function initializeMobileCategoryScroller() {
         searchRow.insertAdjacentElement('afterend', scrollerContainer);
         
         // Implement Auto-Hide Behavior on Scroll
-        let lastScrollY = window.scrollY;
-        const scrollThreshold = 10;
+        let lastScrollY = window.scrollY || document.documentElement.scrollTop;
+        let cumulativeScrollUp = 0;
         
         window.addEventListener('scroll', () => {
             // Only apply on mobile viewport
             if (window.innerWidth >= 768) return;
             
-            const currentScrollY = window.scrollY;
-            if (Math.abs(currentScrollY - lastScrollY) < scrollThreshold) return;
+            const currentScrollY = window.scrollY || document.documentElement.scrollTop;
+            const diff = currentScrollY - lastScrollY;
             
-            if (currentScrollY > lastScrollY && currentScrollY > 150) {
-                // Scrolling Down: Hide Scroller
-                scrollerContainer.style.maxHeight = '0px';
-                scrollerContainer.style.paddingTop = '0px';
-                scrollerContainer.style.paddingBottom = '0px';
-                scrollerContainer.style.opacity = '0';
-                scrollerContainer.style.borderBottomWidth = '0px';
-            } else {
-                // Scrolling Up: Show Scroller
-                scrollerContainer.style.maxHeight = '140px';
-                scrollerContainer.style.paddingTop = '0.75rem';
-                scrollerContainer.style.paddingBottom = '0.75rem';
-                scrollerContainer.style.opacity = '1';
-                scrollerContainer.style.borderBottomWidth = '1px';
+            // Scrolling Down
+            if (diff > 0) {
+                cumulativeScrollUp = 0; // Reset upward scroll intent
+                
+                if (diff > 5 && currentScrollY > 150) {
+                    scrollerContainer.style.maxHeight = '0px';
+                    scrollerContainer.style.paddingTop = '0px';
+                    scrollerContainer.style.paddingBottom = '0px';
+                    scrollerContainer.style.opacity = '0';
+                    scrollerContainer.style.borderBottomWidth = '0px';
+                    lastScrollY = currentScrollY;
+                }
+            } 
+            // Scrolling Up
+            else if (diff < 0) {
+                cumulativeScrollUp += Math.abs(diff);
+                
+                // Show only if scrolled up deliberately (e.g. 50px) OR hit the top
+                if (cumulativeScrollUp > 50 || currentScrollY < 100) {
+                    scrollerContainer.style.maxHeight = '140px';
+                    scrollerContainer.style.paddingTop = '0.75rem';
+                    scrollerContainer.style.paddingBottom = '0.75rem';
+                    scrollerContainer.style.opacity = '1';
+                    scrollerContainer.style.borderBottomWidth = '1px';
+                    lastScrollY = currentScrollY;
+                    cumulativeScrollUp = 0; // Reset after show
+                }
             }
-            lastScrollY = currentScrollY;
         }, { passive: true });
         
         // --- DESKTOP NAV INTEGRATION ---
