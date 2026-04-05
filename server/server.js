@@ -294,6 +294,107 @@ app.get('/api/user/role-info', authenticateToken, async (req, res) => {
     }
 });
 
+// Create product endpoint
+app.post('/api/products', authenticateToken, upload.array('images', 5), async (req, res) => {
+    try {
+        console.log('📦 Creating product for user:', req.user.userId);
+        
+        // Check if user is a seller or admin
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const isSeller = user.isSeller === true || user.isSeller === 'true' || user.isAdmin === true || user.isAdmin === 'true';
+        
+        if (!isSeller) {
+            return res.status(403).json({ message: 'Only sellers can create products' });
+        }
+
+        // Extract product data
+        const {
+            name,
+            description,
+            price,
+            originalPrice,
+            category,
+            subcategory,
+            condition,
+            courseCode,
+            courseName,
+            author,
+            isbn,
+            location,
+            pickupAvailable,
+            deliveryAvailable,
+            listingType,
+            inventory,
+            inventoryTracking,
+            lowStockThreshold
+        } = req.body;
+
+        // Validate required fields
+        if (!name || !description || !price || !category) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+
+        // Create product object
+        const productData = {
+            name: name.trim(),
+            description: description.trim(),
+            price: parseFloat(price),
+            sellerId: req.user.userId,
+            sellerName: user.fullName,
+            category,
+            subcategory: subcategory || '',
+            condition: condition || 'new',
+            location: location || '',
+            pickupAvailable: pickupAvailable === 'true',
+            deliveryAvailable: deliveryAvailable === 'true',
+            listingType: listingType || 'single',
+            status: 'active',
+            createdAt: new Date()
+        };
+
+        // Add optional fields
+        if (originalPrice) productData.originalPrice = parseFloat(originalPrice);
+        if (courseCode) productData.courseCode = courseCode.trim();
+        if (courseName) productData.courseName = courseName.trim();
+        if (author) productData.author = author.trim();
+        if (isbn) productData.isbn = isbn.trim();
+
+        // Add inventory for persistent listings
+        if (listingType === 'persistent') {
+            productData.inventory = parseInt(inventory) || 1;
+            productData.inventoryTracking = inventoryTracking === 'true';
+            productData.lowStockThreshold = parseInt(lowStockThreshold) || 1;
+        }
+
+        // Add images
+        if (req.files && req.files.length > 0) {
+            productData.images = req.files.map(file => file.secure_url || file.path);
+        }
+
+        // Create and save product
+        const product = new Product(productData);
+        await product.save();
+
+        console.log('✅ Product created successfully:', product._id);
+        
+        res.status(201).json({
+            message: 'Product created successfully',
+            product: product
+        });
+
+    } catch (error) {
+        console.error('❌ Error creating product:', error);
+        res.status(500).json({ 
+            message: 'Failed to create product',
+            error: error.message 
+        });
+    }
+});
+
 // Debug endpoint to check file existence
 app.get('/api/debug/file/:filename', async (req, res) => {
     try {

@@ -10,10 +10,7 @@ class VirtuosaTracker {
         this.events = [];
         this.sessionId = this.getOrCreateSessionId();
         this.userId = localStorage.getItem('userId') || null;
-        // Initialize endpoint after DOM is loaded to ensure API_BASE is available
-        this.endpoint = this.getEndpoint();
-        
-        // Track time spent on page
+        // Don't set endpoint here - get it dynamically when needed
         this.pageLoadTime = Date.now();
 
         // Listen for consent updates to retroactively fire tracking
@@ -37,15 +34,23 @@ class VirtuosaTracker {
     }
 
     getEndpoint() {
-        // Wait for API_BASE to be available, fallback to relative URL
+        // Always get the current API_BASE dynamically
         if (window.API_BASE) {
-            return `${window.API_BASE}/analytics/track`;
+            const endpoint = `${window.API_BASE}/analytics/track`;
+            console.log('📊 Using API_BASE endpoint:', endpoint);
+            return endpoint;
         }
-        // Fallback for production
+        
+        // Fallback for production - always use API subdomain
         if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-            return 'https://api.virtuosazm.com/api/analytics/track';
+            const endpoint = 'https://api.virtuosazm.com/api/analytics/track';
+            console.log('📊 Using fallback endpoint:', endpoint);
+            return endpoint;
         }
-        return '/api/analytics/track';
+        
+        const endpoint = '/api/analytics/track';
+        console.log('📊 Using relative endpoint:', endpoint);
+        return endpoint;
     }
 
     getOrCreateSessionId() {
@@ -130,9 +135,13 @@ class VirtuosaTracker {
         const payload = [...this.events];
         this.events = []; // clear the batch
 
+        // Get endpoint dynamically each time
+        const endpoint = this.getEndpoint();
+        console.log('📊 Flushing events to:', endpoint);
+
         // We use fetch if available. If navigating away, fetch keepalive is good.
         try {
-            fetch(this.endpoint, {
+            fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

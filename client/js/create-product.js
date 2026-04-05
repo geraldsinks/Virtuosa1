@@ -171,33 +171,54 @@ function validateStep(step) {
 
 // Update step display
 function updateStepDisplay() {
+    // Ensure DOM is ready
+    if (document.readyState !== 'complete' && document.readyState !== 'interactive') {
+        console.warn('DOM not ready, skipping updateStepDisplay');
+        return;
+    }
+    
     // Hide all step contents
     document.querySelectorAll('.step-content').forEach(content => {
         content.classList.add('hidden');
     });
     
     // Show current step content
-    document.getElementById(`step${currentStep}Content`).classList.remove('hidden');
+    const currentStepContent = document.getElementById(`step${currentStep}Content`);
+    if (currentStepContent) {
+        currentStepContent.classList.remove('hidden');
+    } else {
+        console.warn(`Step ${currentStep} content not found`);
+    }
     
-    // Update step indicators
+    // Update step indicators with better error handling
     for (let i = 1; i <= 3; i++) {
         const stepIndicator = document.getElementById(`step${i}-indicator`);
         if (stepIndicator) {
-            if (i <= currentStep) {
-                stepIndicator.className = 'step-active w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0';
-            } else {
-                stepIndicator.className = 'step-inactive w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0';
+            try {
+                if (i <= currentStep) {
+                    stepIndicator.className = 'step-active w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0';
+                } else {
+                    stepIndicator.className = 'step-inactive w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0';
+                }
+            } catch (error) {
+                console.error(`Error updating step ${i} indicator:`, error);
             }
+        } else {
+            console.warn(`Step ${i} indicator not found`);
         }
     }
     
-    // Update progress line
+    // Update progress lines
     const progressLines = document.querySelectorAll('.flex.items-center.justify-between > div.w-16');
     progressLines.forEach((line, index) => {
-        if (index < currentStep - 1) {
-            line.className = 'w-16 h-1 bg-blue-500';
-        } else {
-            line.className = 'w-16 h-1 bg-gray-300';
+        try {
+            if (index < currentStep - 1) {
+                line.className = 'w-16 h-1 bg-blue-500';
+            } else {
+                line.className = 'w-16 h-1 bg-gray-300';
+            }
+        } catch (error) {
+            console.error(`Error updating progress line ${index}:`, error);
         }
     });
 }
