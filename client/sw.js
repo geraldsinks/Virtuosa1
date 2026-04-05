@@ -1,37 +1,57 @@
-// Virtuosa Service Worker for Background Notifications
-const CACHE_VERSION = 'v1.3.0';
+// Virtuosa Service Worker v2.0.0
+// Multi-strategy caching + Push Notifications + Offline Support
+const CACHE_VERSION = 'v2.0.0';
 const CACHE_NAME = `virtuosa-${CACHE_VERSION}`;
-const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB max cache size
-const MAX_CACHE_ENTRIES = 100; // Maximum number of cached items
+const MAX_CACHE_ENTRIES = 150;
 
-const urlsToCache = [
+// ──────────────────────────────────────────
+// PRECACHE: Core app shell (install-time)
+// ──────────────────────────────────────────
+const PRECACHE_URLS = [
   '/',
   '/index.html',
-  '/pages/notifications.html',
+  '/manifest.json',
   '/css/style.css',
-  '/js/notifications.js',
   '/js/config.js',
-  '/favicon.ico'
+  '/js/pwa-register.js',
+  '/js/header.js',
+  '/js/mobile-header.js',
+  '/js/router.js',
+  '/js/url-helper.js',
+  '/js/critical-css.js',
+  '/favicon.svg',
+  '/favicon-enhanced.svg',
+  '/assets/images/icon-192x192.png',
+  '/assets/images/icon-512x512.png',
+  '/assets/images/apple-touch-icon-180x180.png'
 ];
 
-// IndexedDB for persistent cache metadata storage
+// Patterns for routing strategies
+const API_PATTERN = /\/api\//;
+const STATIC_ASSET_PATTERN = /\.(css|js|svg|png|jpg|jpeg|webp|gif|woff2?|ttf|eot|ico)$/i;
+const CDN_PATTERN = /^https:\/\/(cdn\.tailwindcss\.com|fonts\.googleapis\.com|fonts\.gstatic\.com|cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net)/;
+const IMAGE_CDN_PATTERN = /^https:\/\/res\.cloudinary\.com/;
+const HTML_PATTERN = /\.(html?)$/i;
+
+// ──────────────────────────────────────────
+// IndexedDB for cache metadata (LRU)
+// ──────────────────────────────────────────
 const DB_NAME = 'virtuosa-sw-db';
 const DB_VERSION = 1;
 const STORE_NAME = 'cache-metadata';
 
-// Cache management utilities with IndexedDB
 const cacheManager = {
-  // Initialize IndexedDB
+  db: null,
+
   async initDB() {
+    if (this.db) return this.db;
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
-      
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         this.db = request.result;
         resolve(this.db);
       };
-      
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
         if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -42,277 +62,261 @@ const cacheManager = {
     });
   },
 
-  // Store timestamp in IndexedDB
   async setTimestamp(requestUrl) {
     if (!this.db) await this.initDB();
-    
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction([STORE_NAME], 'readwrite');
-      const store = transaction.objectStore(STORE_NAME);
-      
-      const data = {
-        url: requestUrl,
-        timestamp: Date.now()
-      };
-      
-      const request = store.put(data);
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
+      const tx = this.db.transaction([STORE_NAME], 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      store.put({ url: requestUrl, timestamp: Date.now() });
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
     });
   },
 
-  // Get timestamp from IndexedDB
   async getTimestamp(requestUrl) {
     if (!this.db) await this.initDB();
-    
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction([STORE_NAME], 'readonly');
-      const store = transaction.objectStore(STORE_NAME);
-      
-      const request = store.get(requestUrl);
-      request.onsuccess = () => resolve(request.result?.timestamp);
-      request.onerror = () => reject(request.error);
+      const tx = this.db.transaction([STORE_NAME], 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const req = store.get(requestUrl);
+      req.onsuccess = () => resolve(req.result?.timestamp);
+      req.onerror = () => reject(req.error);
     });
   },
 
-  // Delete timestamp from IndexedDB
   async deleteTimestamp(requestUrl) {
     if (!this.db) await this.initDB();
-    
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction([STORE_NAME], 'readwrite');
-      const store = transaction.objectStore(STORE_NAME);
-      
-      const request = store.delete(requestUrl);
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
+      const tx = this.db.transaction([STORE_NAME], 'readwrite');
+      tx.objectStore(STORE_NAME).delete(requestUrl);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
     });
   },
 
-  // Clean up old timestamps periodically
   async cleanupOldTimestamps() {
     if (!this.db) await this.initDB();
-    
-    const maxAge = 24 * 60 * 60 * 1000; // 24 hours
-    const now = Date.now();
-    const cutoffTime = now - maxAge;
-    
+    const cutoff = Date.now() - 24 * 60 * 60 * 1000; // 24 hours
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction([STORE_NAME], 'readwrite');
-      const store = transaction.objectStore(STORE_NAME);
-      const index = store.index('timestamp');
-      
-      const request = index.openCursor(IDBKeyRange.upperBound(cutoffTime));
-      let deletedCount = 0;
-      
-      request.onsuccess = (event) => {
-        const cursor = event.target.result;
-        if (cursor) {
-          cursor.delete();
-          deletedCount++;
-          cursor.continue();
-        } else {
-          if (deletedCount > 0) {
-            console.log(`🧹 Cleaned ${deletedCount} expired timestamp entries from IndexedDB`);
-          }
+      const tx = this.db.transaction([STORE_NAME], 'readwrite');
+      const index = tx.objectStore(STORE_NAME).index('timestamp');
+      const cursor = index.openCursor(IDBKeyRange.upperBound(cutoff));
+      let count = 0;
+      cursor.onsuccess = (e) => {
+        const c = e.target.result;
+        if (c) { c.delete(); count++; c.continue(); }
+        else {
+          if (count > 0) console.log(`[SW] Cleaned ${count} expired cache entries`);
           resolve();
         }
       };
-      
-      request.onerror = () => reject(request.error);
+      cursor.onerror = () => reject(cursor.error);
     });
   },
 
-  // Get cache size estimate without loading blobs
-  async getCacheSizeEstimate(cache) {
-    const keys = await cache.keys();
-    return { size: 0, count: keys.length }; // Estimate count without loading all data
-  },
-
-  // Implement LRU eviction to maintain cache limits
   async enforceCacheLimits(cache) {
-    const { count } = await this.getCacheSizeEstimate(cache);
-    
-    if (count <= MAX_CACHE_ENTRIES) {
-      return; // Cache is within limits
-    }
-
-    console.log(`Cache exceeds limit: ${count} entries. Enforcing LRU eviction.`);
-    
-    // Get all cache entries with timestamps from IndexedDB
     const keys = await cache.keys();
-    const entries = [];
-    
-    for (const request of keys) {
-      try {
-        const timestamp = await this.getTimestamp(request.url) || Date.now();
-        entries.push({
-          request,
-          timestamp
-        });
-      } catch (error) {
-        console.error('Error getting timestamp:', error);
-        entries.push({
-          request,
-          timestamp: Date.now()
-        });
-      }
-    }
+    if (keys.length <= MAX_CACHE_ENTRIES) return;
 
-    // Sort by timestamp (oldest first) for LRU eviction
-    entries.sort((a, b) => a.timestamp - b.timestamp);
-    
-    // Remove oldest entries until within limit
-    let currentCount = count;
-    
-    for (const entry of entries) {
-      if (currentCount <= MAX_CACHE_ENTRIES) {
-        break;
-      }
-      
-      await cache.delete(entry.request);
-      await this.deleteTimestamp(entry.request.url);
-      currentCount--;
-      console.log(`Evicted from cache: ${entry.request.url}`);
+    console.log(`[SW] Cache at ${keys.length} entries, enforcing limit of ${MAX_CACHE_ENTRIES}`);
+    const entries = [];
+    for (const request of keys) {
+      const ts = (await this.getTimestamp(request.url).catch(() => null)) || 0;
+      entries.push({ request, timestamp: ts });
     }
-    
-    console.log(`Cache cleanup complete. New count: ${currentCount} entries`);
+    entries.sort((a, b) => a.timestamp - b.timestamp);
+
+    let current = keys.length;
+    for (const entry of entries) {
+      if (current <= MAX_CACHE_ENTRIES) break;
+      await cache.delete(entry.request);
+      await this.deleteTimestamp(entry.request.url).catch(() => {});
+      current--;
+    }
+    console.log(`[SW] Cache trimmed to ${current} entries`);
   },
 
-  // Initialize periodic cleanup
   initPeriodicCleanup() {
-    // Clean up timestamps every 10 minutes
     setInterval(() => {
-      this.cleanupOldTimestamps().catch(error => {
-        console.error('Periodic cleanup failed:', error);
-      });
-    }, 10 * 60 * 1000); // Every 10 minutes
+      this.cleanupOldTimestamps().catch(() => {});
+    }, 10 * 60 * 1000);
   }
 };
 
-// Install event - cache resources
+// ──────────────────────────────────────────
+// INSTALL: Precache app shell
+// ──────────────────────────────────────────
 self.addEventListener('install', (event) => {
-  console.log('Service Worker: Installing...');
+  console.log('[SW] Installing v' + CACHE_VERSION);
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Service Worker: Caching files');
-        return cache.addAll(urlsToCache);
+        // Cache each URL individually to be resilient to individual failures
+        return Promise.allSettled(
+          PRECACHE_URLS.map(url =>
+            cache.add(url).catch(err =>
+              console.warn(`[SW] Failed to precache ${url}:`, err.message)
+            )
+          )
+        );
       })
       .then(() => {
-        console.log('Service Worker: Installation complete');
+        console.log('[SW] Precaching complete');
         return self.skipWaiting();
       })
-      .catch((error) => {
-        console.error('Service Worker: Cache installation failed:', error);
-        // Try to cache essential files individually
-        return caches.open(CACHE_NAME).then((cache) => {
-          const essentialFiles = ['/index.html', '/favicon.ico'];
-          return Promise.all(
-            essentialFiles.map(url => 
-              cache.add(url).catch(err => 
-                console.error(`Failed to cache ${url}:`, err)
-              )
-            )
-          );
-        });
-      })
   );
 });
 
-// Activate event - clean up old caches
+// ──────────────────────────────────────────
+// ACTIVATE: Clean old caches, take control
+// ──────────────────────────────────────────
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker: Activating...');
+  console.log('[SW] Activating v' + CACHE_VERSION);
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          // Only delete caches that don't match current version
-          if (!cacheName.startsWith(`virtuosa-${CACHE_VERSION}`)) {
-            console.log('Service Worker: Clearing old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-          // Also clean up any caches with timestamp pattern (old format)
-          if (cacheName.includes('-') && cacheName.split('-').length > 3) {
-            const parts = cacheName.split('-');
-            // Check if last part looks like a timestamp
-            const lastPart = parts[parts.length - 1];
-            if (lastPart.length === 13 && !isNaN(lastPart)) {
-              console.log('Service Worker: Clearing timestamp-based cache:', cacheName);
-              return caches.delete(cacheName);
-            }
-          }
-        })
-      );
-    }).then(() => {
-      console.log('Service Worker: Activation complete');
-      return self.clients.claim();
-    }).then(() => {
-      // Initialize IndexedDB and periodic cleanup after activation
-      return cacheManager.initDB().then(() => {
+    caches.keys()
+      .then((names) => Promise.all(
+        names
+          .filter(n => n.startsWith('virtuosa-') && n !== CACHE_NAME)
+          .map(n => {
+            console.log('[SW] Deleting old cache:', n);
+            return caches.delete(n);
+          })
+      ))
+      .then(() => self.clients.claim())
+      .then(() => cacheManager.initDB())
+      .then(() => {
         cacheManager.initPeriodicCleanup();
-        console.log('Service Worker: IndexedDB and periodic cleanup initialized');
-      });
-    })
-  );
-});
-
-// Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        // Check cache first
-        return cache.match(event.request)
-          .then((response) => {
-            // Cache hit - return response
-            if (response) {
-              return response;
-            }
-
-            // Clone the request
-            const fetchRequest = event.request.clone();
-
-            return fetch(fetchRequest).then((response) => {
-              // Check if valid response
-              if (!response || response.status !== 200 || response.type !== 'basic') {
-                return response;
-              }
-
-              // Clone the response
-              const responseToCache = response.clone();
-
-              // Store timestamp separately and cache the response
-              cacheManager.setTimestamp(event.request.url);
-              
-              // Cache the response and enforce limits
-              cache.put(event.request, responseToCache).then(() => {
-                return cacheManager.enforceCacheLimits(cache);
-              }).catch((error) => {
-                console.error('Cache put error:', error);
-              });
-
-              return response;
-            }).catch(() => {
-              // Offline fallback
-              if (event.request.destination === 'document') {
-                return caches.match('/index.html');
-              }
-            });
-          });
+        console.log('[SW] Activation complete');
       })
   );
 });
 
-// Push event - handle push notifications
+// ──────────────────────────────────────────
+// FETCH: Multi-strategy routing
+// ──────────────────────────────────────────
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip non-GET requests (let mutations go straight to network)
+  if (request.method !== 'GET') return;
+
+  // Skip chrome-extension, devtools, etc.
+  if (!url.protocol.startsWith('http')) return;
+
+  // Strategy routing
+  if (API_PATTERN.test(url.pathname)) {
+    // API calls → Network-first with cache fallback
+    event.respondWith(networkFirst(request));
+  } else if (CDN_PATTERN.test(url.origin)) {
+    // External CDN resources → Stale-while-revalidate
+    event.respondWith(staleWhileRevalidate(request));
+  } else if (IMAGE_CDN_PATTERN.test(url.origin)) {
+    // Cloudinary images → Cache-first (images rarely change)
+    event.respondWith(cacheFirst(request));
+  } else if (STATIC_ASSET_PATTERN.test(url.pathname)) {
+    // Local static assets → Cache-first
+    event.respondWith(cacheFirst(request));
+  } else {
+    // HTML pages and everything else → Network-first
+    event.respondWith(networkFirst(request));
+  }
+});
+
+// ──────────────────────────────────────────
+// Caching Strategies
+// ──────────────────────────────────────────
+
+/**
+ * Cache-First: Try cache, fall back to network.
+ * Good for static assets that change infrequently.
+ */
+async function cacheFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      cache.put(request, response.clone());
+      cacheManager.setTimestamp(request.url).catch(() => {});
+      cacheManager.enforceCacheLimits(cache).catch(() => {});
+    }
+    return response;
+  } catch (err) {
+    // If it was an image request, return a transparent 1px placeholder
+    if (/\.(png|jpg|jpeg|webp|gif|svg)$/i.test(request.url)) {
+      return new Response('', { status: 200, headers: { 'Content-Type': 'image/svg+xml' } });
+    }
+    return new Response('Offline', { status: 503 });
+  }
+}
+
+/**
+ * Network-First: Try network, fall back to cache.
+ * Good for HTML pages and API responses.
+ */
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+
+  try {
+    const response = await fetch(request);
+    if (response.ok && response.type !== 'opaque') {
+      cache.put(request, response.clone());
+      cacheManager.setTimestamp(request.url).catch(() => {});
+      cacheManager.enforceCacheLimits(cache).catch(() => {});
+    }
+    return response;
+  } catch (err) {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+
+    // For navigation requests, show the offline fallback (index.html)
+    if (request.mode === 'navigate' || request.destination === 'document') {
+      const fallback = await cache.match('/index.html');
+      if (fallback) return fallback;
+    }
+
+    return new Response('You are offline', {
+      status: 503,
+      headers: { 'Content-Type': 'text/plain' }
+    });
+  }
+}
+
+/**
+ * Stale-While-Revalidate: Serve cached immediately, update in background.
+ * Good for CDN libraries and fonts that update infrequently.
+ */
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+
+  const fetchPromise = fetch(request)
+    .then((response) => {
+      if (response.ok) {
+        cache.put(request, response.clone());
+        cacheManager.setTimestamp(request.url).catch(() => {});
+      }
+      return response;
+    })
+    .catch(() => cached || new Response('Offline', { status: 503 }));
+
+  return cached || fetchPromise;
+}
+
+// ──────────────────────────────────────────
+// PUSH NOTIFICATIONS
+// ──────────────────────────────────────────
 self.addEventListener('push', (event) => {
-  console.log('Service Worker: Push received');
-  
-  let notificationData = {
+  console.log('[SW] Push received');
+
+  let data = {
     title: 'Virtuosa Notification',
     body: 'You have a new notification',
-    icon: '/favicon.ico',
-    badge: '/favicon.ico',
+    icon: '/assets/images/icon-192x192.png',
+    badge: '/assets/images/icon-96x96.png',
     tag: 'virtuosa-notification',
     requireInteraction: false,
     actions: []
@@ -320,225 +324,137 @@ self.addEventListener('push', (event) => {
 
   if (event.data) {
     try {
-      const data = event.data.json();
-      notificationData = {
-        ...notificationData,
-        ...data
-      };
+      const payload = event.data.json();
+      data = { ...data, ...payload };
 
-      // Set requireInteraction based on priority
-      if (data.priority === 'high' || data.priority === 'critical') {
-        notificationData.requireInteraction = true;
+      if (payload.priority === 'high' || payload.priority === 'critical') {
+        data.requireInteraction = true;
       }
-
-      // Add action buttons if actionUrl is provided
-      if (data.actionUrl && data.actionText) {
-        notificationData.actions = [
-          {
-            action: 'view',
-            title: data.actionText || 'View Details'
-          },
-          {
-            action: 'dismiss',
-            title: 'Dismiss'
-          }
+      if (payload.actionUrl && payload.actionText) {
+        data.actions = [
+          { action: 'view', title: payload.actionText || 'View Details' },
+          { action: 'dismiss', title: 'Dismiss' }
         ];
       }
-
-    } catch (error) {
-      console.error('Service Worker: Error parsing push data:', error);
+    } catch (err) {
+      console.error('[SW] Error parsing push data:', err);
     }
   }
 
   event.waitUntil(
-    self.registration.showNotification(notificationData.title, {
-      body: notificationData.body,
-      icon: notificationData.icon,
-      badge: notificationData.badge,
-      tag: notificationData.tag,
-      requireInteraction: notificationData.requireInteraction,
-      actions: notificationData.actions,
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: data.icon,
+      badge: data.badge,
+      tag: data.tag,
+      requireInteraction: data.requireInteraction,
+      actions: data.actions,
       data: {
-        url: notificationData.actionUrl || '/',
-        notificationId: notificationData.id,
+        url: data.actionUrl || '/',
+        notificationId: data.id,
         timestamp: Date.now()
       }
     })
   );
 });
 
-// Notification click event
+// Notification click
 self.addEventListener('notificationclick', (event) => {
-  console.log('Service Worker: Notification click received');
-
   event.notification.close();
+  if (event.action === 'dismiss') return;
 
-  const action = event.action;
-  const notificationData = event.notification.data;
-
-  if (action === 'dismiss') {
-    // User dismissed the notification
-    return;
-  }
-
-  // Default action or 'view' action - open the app
+  const url = event.notification.data?.url || '/';
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
-      .then((clientList) => {
-        // Focus existing window if available
-        for (const client of clientList) {
-          if (client.url === notificationData.url && 'focus' in client) {
-            return client.focus();
-          }
+      .then((windowClients) => {
+        for (const client of windowClients) {
+          if (client.url === url && 'focus' in client) return client.focus();
         }
-
-        // Open new window
-        if (clients.openWindow) {
-          return clients.openWindow(notificationData.url);
-        }
+        return clients.openWindow ? clients.openWindow(url) : null;
       })
   );
 });
 
-// Notification close event (user manually closed)
+// Notification close (analytics)
 self.addEventListener('notificationclose', (event) => {
-  console.log('Service Worker: Notification closed');
-  
-  // You can track notification analytics here
-  const notificationData = event.notification.data;
-  
-  // Send analytics to server if needed
-  if (notificationData.notificationId) {
+  const data = event.notification.data;
+  if (data?.notificationId) {
     fetch('/api/notifications/analytics/dismiss', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        notificationId: notificationData.notificationId,
+        notificationId: data.notificationId,
         dismissedAt: new Date().toISOString()
       })
-    }).catch(error => {
-      console.error('Failed to send notification analytics:', error);
-    });
+    }).catch(() => {});
   }
 });
 
-// Background sync for offline notifications
+// ──────────────────────────────────────────
+// BACKGROUND SYNC
+// ──────────────────────────────────────────
 self.addEventListener('sync', (event) => {
-  console.log('Service Worker: Background sync');
-  
   if (event.tag === 'background-sync-notifications') {
-    event.waitUntil(
-      // Sync pending notifications
-      syncNotifications()
-    );
+    event.waitUntil(syncNotifications());
   }
 });
 
-// Periodic sync for updating notifications
 self.addEventListener('periodicsync', (event) => {
-  console.log('Service Worker: Periodic sync');
-  
   if (event.tag === 'periodic-sync-notifications') {
-    event.waitUntil(
-      // Check for new notifications periodically
-      checkForNewNotifications()
-    );
+    event.waitUntil(checkForNewNotifications());
   }
 });
 
-// Helper function to sync notifications
 async function syncNotifications() {
   try {
-    // Get any stored offline actions
-    const offlineActions = await getOfflineActions();
-    
-    for (const action of offlineActions) {
+    const actions = await getOfflineActions();
+    for (const action of actions) {
       try {
         await fetch(action.url, action.options);
         await removeOfflineAction(action.id);
-      } catch (error) {
-        console.error('Failed to sync action:', error);
+      } catch (err) {
+        console.error('[SW] Failed to sync action:', err);
       }
     }
-  } catch (error) {
-    console.error('Background sync failed:', error);
+  } catch (err) {
+    console.error('[SW] Background sync failed:', err);
   }
 }
 
-// Helper function to check for new notifications
 async function checkForNewNotifications() {
-  try {
-    // This would typically check with the server for new notifications
-    // Implementation depends on your API structure
-    console.log('Checking for new notifications...');
-  } catch (error) {
-    console.error('Periodic sync failed:', error);
-  }
+  console.log('[SW] Checking for new notifications...');
 }
 
-// Helper functions for offline storage (using IndexedDB)
-async function getOfflineActions() {
-  // Implementation for getting stored offline actions
-  return [];
-}
+async function getOfflineActions() { return []; }
+async function removeOfflineAction(id) { console.log('[SW] Removed offline action:', id); }
 
-async function removeOfflineAction(actionId) {
-  // Implementation for removing stored offline action
-  console.log('Removed offline action:', actionId);
-}
-
-// Message event for communication with main app
+// ──────────────────────────────────────────
+// MESSAGE HANDLER
+// ──────────────────────────────────────────
 self.addEventListener('message', (event) => {
-  console.log('Service Worker: Message received', event.data);
-  
-  const { type, data } = event.data;
-  
+  const { type } = event.data || {};
+
   switch (type) {
     case 'SKIP_WAITING':
       self.skipWaiting();
       break;
-      
+
     case 'GET_NOTIFICATION_COUNT':
-      // Get notification count and send back to client
-      getNotificationCount().then(count => {
-        event.ports[0].postMessage({ type: 'NOTIFICATION_COUNT', count });
+      self.registration.getNotifications().then(n => {
+        event.ports[0]?.postMessage({ type: 'NOTIFICATION_COUNT', count: n.length });
       });
       break;
-      
+
     case 'CLEAR_NOTIFICATIONS':
-      // Clear all notifications
-      clearAllNotifications().then(() => {
-        event.ports[0].postMessage({ type: 'NOTIFICATIONS_CLEARED' });
+      self.registration.getNotifications().then(notifications => {
+        notifications.forEach(n => n.close());
+        event.ports[0]?.postMessage({ type: 'NOTIFICATIONS_CLEARED' });
       });
       break;
-      
+
     default:
-      console.log('Unknown message type:', type);
+      console.log('[SW] Unknown message type:', type);
   }
 });
 
-// Helper function to get notification count
-async function getNotificationCount() {
-  try {
-    const notifications = await self.registration.getNotifications();
-    return notifications.length;
-  } catch (error) {
-    console.error('Failed to get notification count:', error);
-    return 0;
-  }
-}
-
-// Helper function to clear all notifications
-async function clearAllNotifications() {
-  try {
-    const notifications = await self.registration.getNotifications();
-    notifications.forEach(notification => notification.close());
-    console.log('All notifications cleared');
-  } catch (error) {
-    console.error('Failed to clear notifications:', error);
-  }
-}
-
-console.log('Service Worker: Loaded successfully');
+console.log('[SW] Virtuosa Service Worker v' + CACHE_VERSION + ' loaded');

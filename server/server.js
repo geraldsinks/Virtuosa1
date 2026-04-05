@@ -233,6 +233,9 @@ app.use(express.json());
 const { checkMaintenance } = require('./middleware/maintenance');
 app.use('/api', checkMaintenance);
 
+// Mount Analytics and Cookie Tracking Routes
+app.use('/api/analytics', require('./routes/analytics'));
+
 // Serve uploads from the correct directory based on environment
 const uploadsPath = path.join(basePath, 'uploads');
 console.log('📂 Serving uploads from:', uploadsPath);

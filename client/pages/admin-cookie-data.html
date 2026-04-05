@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Cookie & Tracking Analytics</title>
+    <!-- Core Assets -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/admin-header.js"></script>
+</head>
+<body class="bg-[#f8f9fa] font-['Montserrat']">
+    <div id="admin-header-placeholder"></div>
+
+    <div class="flex h-[calc(100vh-64px)] overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white shadow-xl flex-shrink-0 hidden md:flex flex-col z-10">
+            <div class="p-6">
+                <h2 class="text-[#0A1128] text-xl font-bold font-serif">Harvested Data</h2>
+            </div>
+            <nav class="flex-1 overflow-y-auto px-4 space-y-1">
+                <a href="admin-dashboard.html" class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-[#0A1128]/5 hover:text-[#0A1128] rounded-xl transition-all">
+                    <i class="fas fa-home w-5"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="strategic-analytics.html" class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-[#0A1128]/5 hover:text-[#0A1128] rounded-xl transition-all">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span>Financial Analytics</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 bg-[#0A1128] text-[#FFD700] rounded-xl shadow-md font-semibold">
+                    <i class="fas fa-cookie-bite w-5"></i>
+                    <span>Cookie Analytics</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto w-full relative">
+            <div class="p-4 md:p-8 max-w-[1600px] mx-auto pb-24">
+                
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold font-serif text-[#0A1128]">Cookie Harvesting Data</h1>
+                        <p class="text-sm text-gray-500 mt-1">Aggregated insights from users who opted into tracking cookies.</p>
+                    </div>
+                    
+                    <div class="flex gap-2 bg-white rounded-lg shadow-sm p-1 border">
+                        <button class="timeframe-btn px-4 py-2 text-sm font-medium rounded-md active bg-[#0A1128] text-white" data-period="24h">24h</button>
+                        <button class="timeframe-btn px-4 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50" data-period="7d">7 Days</button>
+                        <button class="timeframe-btn px-4 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50" data-period="30d">30 Days</button>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Total Events -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                                <i class="fas fa-satellite-dish text-xl"></i>
+                            </div>
+                            <span class="text-xs font-semibold px-2.5 py-1 bg-green-50 text-green-600 rounded-full flex items-center gap-1">
+                                <i class="fas fa-arrow-up"></i> Live
+                            </span>
+                        </div>
+                        <h3 class="text-gray-500 text-sm font-medium">Total Events Recorded</h3>
+                        <p class="text-2xl font-bold text-[#0A1128] mt-1" id="kpi-total-events">-</p>
+                    </div>
+
+                    <!-- Unique Sessions -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+                                <i class="fas fa-users text-xl"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-gray-500 text-sm font-medium">Unique Tracking Sessions</h3>
+                        <p class="text-2xl font-bold text-[#0A1128] mt-1" id="kpi-unique-sessions">-</p>
+                    </div>
+
+                    <!-- Pageviews -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600">
+                                <i class="fas fa-eye text-xl"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-gray-500 text-sm font-medium">Analytics (Pageviews)</h3>
+                        <p class="text-2xl font-bold text-[#0A1128] mt-1" id="kpi-pageviews">-</p>
+                    </div>
+
+                    <!-- Marketing Clicks -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-[#FFF9E6] flex items-center justify-center text-[#B8860B]">
+                                <i class="fas fa-mouse-pointer text-xl"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-gray-500 text-sm font-medium">Marketing Clicks</h3>
+                        <p class="text-2xl font-bold text-[#0A1128] mt-1" id="kpi-marketing">-</p>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2">
+                        <h3 class="text-[#0A1128] font-bold mb-6">Pageviews Over Time</h3>
+                        <div class="relative h-64 w-full">
+                            <canvas id="viewsChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h3 class="text-[#0A1128] font-bold mb-6">Event Distribution</h3>
+                        <div class="relative h-56 w-full flex justify-center">
+                            <canvas id="donutChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tables Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Top Pages Table -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                            <h3 class="font-bold text-[#0A1128]">Most Visited Pages</h3>
+                            <i class="fas fa-file-alt text-gray-400"></i>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 border-b">
+                                    <tr>
+                                        <th class="px-6 py-3">Path</th>
+                                        <th class="px-6 py-3 text-right">Views</th>
+                                        <th class="px-6 py-3 text-right">Unique Users</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top-pages-table" class="divide-y divide-gray-50">
+                                    <tr><td colspan="3" class="px-6 py-8 text-center text-gray-400">Loading data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Top Products Table (Marketing Tracking) -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                            <h3 class="font-bold text-[#0A1128]">Marketing: Highest Clicked Products</h3>
+                            <i class="fas fa-box text-gray-400"></i>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 border-b">
+                                    <tr>
+                                        <th class="px-6 py-3">Product</th>
+                                        <th class="px-6 py-3 text-right">Price</th>
+                                        <th class="px-6 py-3 text-right">Clicks</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top-products-table" class="divide-y divide-gray-50">
+                                    <tr><td colspan="3" class="px-6 py-8 text-center text-gray-400">Loading data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/url-helper.js"></script>
+    <script src="js/admin-cookie-data.js"></script>
+    <script>
+        // Check auth inline
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+</html>
