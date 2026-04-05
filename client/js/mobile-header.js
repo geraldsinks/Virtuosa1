@@ -520,51 +520,14 @@ async function initializeMobileCategoryScroller() {
             `;
         }).join('');
         
-        searchRow.insertAdjacentElement('afterend', scrollerContainer);
-        
-        // Implement Auto-Hide Behavior on Scroll
-        let lastScrollY = window.scrollY || document.documentElement.scrollTop;
-        let cumulativeScrollUp = 0;
-        let cumulativeScrollDown = 0;
-        
-        window.addEventListener('scroll', () => {
-            // Only apply on mobile viewport
-            if (window.innerWidth >= 768) return;
-            
-            const currentScrollY = window.scrollY || document.documentElement.scrollTop;
-            const diff = currentScrollY - lastScrollY;
-            lastScrollY = currentScrollY; // MUST update every frame to measure delta
-            
-            if (Math.abs(diff) < 1) return; // ignore micro jitters
-            
-            // Scrolling Down
-            if (diff > 0) {
-                cumulativeScrollUp = 0; // Reset upward scroll intent
-                cumulativeScrollDown += diff;
-                
-                if (cumulativeScrollDown > 15 && currentScrollY > 150) {
-                    scrollerContainer.style.maxHeight = '0px';
-                    scrollerContainer.style.paddingTop = '0px';
-                    scrollerContainer.style.paddingBottom = '0px';
-                    scrollerContainer.style.opacity = '0';
-                    scrollerContainer.style.borderBottomWidth = '0px';
-                }
-            } 
-            // Scrolling Up
-            else if (diff < 0) {
-                cumulativeScrollDown = 0; // Reset downward scroll intent
-                cumulativeScrollUp += Math.abs(diff);
-                
-                // Show only if scrolled up deliberately OR hit the top
-                if (cumulativeScrollUp > 40 || currentScrollY < 100) {
-                    scrollerContainer.style.maxHeight = '140px';
-                    scrollerContainer.style.paddingTop = '0.75rem';
-                    scrollerContainer.style.paddingBottom = '0.75rem';
-                    scrollerContainer.style.opacity = '1';
-                    scrollerContainer.style.borderBottomWidth = '1px';
-                }
-            }
-        }, { passive: true });
+        // Inject the mobile scroller OUTSIDE the sticky header so it scrolls away naturally
+        // just like the desktop nav does natively.
+        const mainHeader = document.querySelector('header');
+        if (mainHeader) {
+            mainHeader.insertAdjacentElement('afterend', scrollerContainer);
+        } else {
+            searchRow.insertAdjacentElement('afterend', scrollerContainer); // Fallback
+        }
         
         // --- DESKTOP NAV INTEGRATION ---
         const desktopMenuContainer = document.querySelector('.nav-row-2-container');
