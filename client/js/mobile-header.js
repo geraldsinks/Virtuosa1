@@ -11,8 +11,6 @@ function fixServerUrl(url) {
 window.fixServerUrl = fixServerUrl;
 
 document.addEventListener('DOMContentLoaded', async function() {
-    // Wait a bit for config.js to load if needed
-    await new Promise(resolve => setTimeout(resolve, 100));
     await initializeMobileHeader();
 });
 

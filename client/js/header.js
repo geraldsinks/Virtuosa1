@@ -179,7 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         userDropdown.appendChild(messagesLink);
                     }
                 }
-            }
             } catch (error) {
                 console.error('Error fetching user data:', error);
                 // Fallback: show seller links if user has seller data in localStorage

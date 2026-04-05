@@ -17,7 +17,7 @@
     <meta name="theme-color" content="#0A1128">
     
     <script src="https://cdn.tailwindcss.com" defer></script>
-    <script src="../js/critical-css.js"></script>
+    <script src="js/critical-css.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <!-- Performance Resource Hints -->
     <link rel="preconnect" href="https://api.virtuosazm.com">
@@ -69,13 +69,32 @@
         /* Critical CSS - Immediately hide mobile menu to prevent FOUC */
         #mobile-menu-overlay {
             display: none !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9998;
         }
         
         .mobile-menu-content {
             display: none !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background-color: #0A1128;
+            z-index: 9999;
+            overflow-y: auto;
             transform: translateX(-100%) !important;
             visibility: hidden !important;
             opacity: 0 !important;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+            min-height: 100vh;
+            padding: 1rem;
         }
         
         #mobile-menu-overlay.active {
