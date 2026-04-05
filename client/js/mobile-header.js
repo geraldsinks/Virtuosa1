@@ -77,6 +77,9 @@ async function initializeMobileHeader() {
     
     // Handle responsive behavior
     handleResponsiveBehavior();
+    
+    // Initialize horizontal category scroller
+    initializeMobileCategoryScroller();
 }
 
 // Mobile Menu Functions
@@ -433,6 +436,48 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+// Mobile Category Scroller Functions
+async function initializeMobileCategoryScroller() {
+    // Check if we have the mobile header search row to append below
+    const searchRow = document.querySelector('.mobile-header-row-2');
+    if (!searchRow) return;
+    
+    // Prevent multiple scrollers
+    if (document.querySelector('.mobile-category-scroller')) return;
+
+    try {
+        const response = await fetch(`${API_BASE}/public/marketing/category-cards`);
+        if (response.ok) {
+            const categoryCards = await response.json();
+            const activeCats = categoryCards.filter(c => c.active).sort((a,b) => a.displayOrder - b.displayOrder);
+            
+            if (activeCats.length === 0) return;
+            
+            const scrollerContainer = document.createElement('div');
+            scrollerContainer.className = 'mobile-category-scroller md:hidden'; // hide on desktop automatically
+            
+            scrollerContainer.innerHTML = activeCats.map(cat => {
+                const targetUrl = cat.link ? (cat.link.startsWith('/') ? cat.link : '/pages/' + cat.link) : '#';
+                const imageUrl = cat.image?.startsWith('http') ? cat.image : 
+                                (cat.image ? `${API_BASE.replace('/api', '')}${cat.image}` : null);
+                
+                return `
+                    <a href="${targetUrl}" class="mobile-category-item">
+                        <div class="mobile-category-icon">
+                            ${imageUrl ? `<img src="${imageUrl}" class="w-full h-full object-cover rounded-full" alt="${cat.title}">` : `<i class="fas fa-box text-gray-400"></i>`}
+                        </div>
+                        <span class="mobile-category-text">${cat.title}</span>
+                    </a>
+                `;
+            }).join('');
+            
+            searchRow.insertAdjacentElement('afterend', scrollerContainer);
+        }
+    } catch (error) {
+        console.error('Error loading mobile category scroller:', error);
+    }
 }
 
 // Export functions for global access
