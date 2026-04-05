@@ -1200,7 +1200,7 @@ function updateCategoryCardsPreview() {
             <!-- Shop by Category section (interactive) -->
             <section class="py-16 bg-gray-50">
                 <div class="container mx-auto px-6">
-                    <h2 class="text-4xl font-bold text-navy text-center mb-12">Shop by Category</h2>
+                    <h2 class="text-4xl font-bold text-[#0A1128] text-center mb-12">Shop by Category</h2>
 
                     <!-- Interactive category grid with universal spacing -->
                     <div id="interactive-cards-grid" class="relative grid ${currentPreviewMode === 'mobile' ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6'} gap-8 max-w-7xl mx-auto">
@@ -1219,14 +1219,22 @@ function updateCategoryCardsPreview() {
                                     <div class="resize-handle resize-se absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 cursor-se-resize" onmousedown="startResize(event, '${card.id}', 'se')"></div>
                                 ` : ''}
 
-                                <!-- Universal padding and spacing -->
-                                <div class="${card.cardType === 'rectangle' ? 'aspect-[2/1]' : 'aspect-square'} bg-cover bg-center relative p-0">
+                                <div class="${card.cardType === 'rectangle' ? 'aspect-[2/1] lg:aspect-square' : 'aspect-square'} bg-cover bg-center relative p-0 overflow-hidden rounded-xl border border-gray-200 bg-white">
                                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all"></div>
-                                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
-                                        <h3 class="font-semibold text-white text-lg drop-shadow-lg leading-tight">${card.title || card.name || 'Category Name'}</h3>
+                                    
+                                    <!-- Mobile Overlay Layout (Hidden on Desktop) -->
+                                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent opacity-80 lg:opacity-0 transition-opacity pointer-events-none"></div>
+                                    <div class="absolute bottom-0 left-0 right-0 p-5 z-10 w-full text-left lg:hidden">
+                                        <h3 class="font-bold text-white text-base sm:text-lg drop-shadow-md tracking-tight leading-tight">${card.title || card.name || 'Category Name'}</h3>
                                         ${card.isPreset ? '<span class="text-xs text-green-300 mt-1 block">Preset</span>' : ''}
-                                        ${card.isUserAdded ? '<span class="text-xs text-blue-300 mt-1 block">Custom</span>' : ''}
                                     </div>
+                                </div>
+
+                                <!-- Desktop Label Layout (Visible only on Desktop) -->
+                                <div class="hidden lg:block pt-3 px-1">
+                                    <h3 class="font-bold text-[#0A1128] text-base group-hover:text-gold transition-colors duration-300">${card.title || card.name || 'Category Name'}</h3>
+                                    <p class="text-[#4B5563] text-xs mt-0.5 line-clamp-2">${card.description || card.name || ''}</p>
+                                    ${card.isPreset ? '<span class="text-[10px] text-green-600 font-medium uppercase tracking-wider mt-1 block">Preset</span>' : ''}
                                 </div>
 
                                 <!-- Card actions -->
@@ -2401,7 +2409,7 @@ function renderPromotions(promotions) {
         <div class="border border-gray-200 rounded-lg p-4">
             <div class="flex justify-between items-start">
                 <div class="flex-1">
-                    <h3 class="font-bold text-navy">${promo.title}</h3>
+                    <h3 class="font-bold text-[#0A1128]">${promo.title}</h3>
                     <p class="text-gray-600 text-sm">${promo.description || 'No description'}</p>
                     <div class="flex items-center space-x-2 mt-2">
                         <span class="px-2 py-1 text-xs rounded-full ${promo.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
@@ -2440,7 +2448,7 @@ function renderBanners(banners) {
         <div class="border border-gray-200 rounded-lg p-4">
             <div class="flex justify-between items-start">
                 <div class="flex-1">
-                    <h3 class="font-bold text-navy">${banner.title}</h3>
+                    <h3 class="font-bold text-[#0A1128]">${banner.title}</h3>
                     <div class="mt-2">
                         <img src="${fixServerUrl(banner.imageUrl)}" alt="${banner.title}" class="w-32 h-20 object-cover rounded">
                     </div>
