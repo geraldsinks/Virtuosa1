@@ -1,9 +1,105 @@
-1// Mobile Menu Functionality
+// Mobile Menu Functionality
 document.addEventListener('DOMContentLoaded', function() {
     const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
     const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
     const mobileMenuClose = document.getElementById('mobile-menu-close');
     const mobileMenuContent = document.querySelector('.mobile-menu-content');
+
+    /**
+     * Standardized Mobile Menu Sections
+     * This ensures all pages have consistent, functional navigation.
+     */
+    function injectStandardMenuSections() {
+        if (!mobileMenuContent) return;
+
+        // Preserve header
+        const header = mobileMenuContent.querySelector('.mobile-menu-header');
+        
+        // Find existing sections
+        const sections = Array.from(mobileMenuContent.querySelectorAll('.mobile-menu-section'));
+        
+        // 1. Account Section (Fixed & Synced)
+        let accountSection = sections.find(s => s.querySelector('.mobile-menu-title')?.textContent === 'Account');
+        if (accountSection) {
+            accountSection.innerHTML = `
+                <div class="mobile-menu-title">Account</div>
+                <a href="/pages/login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span id="mobile-menu-sign-text">Sign In</span>
+                </a>
+                <a href="/pages/profile.html" class="mobile-menu-link">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="/pages/buyer-dashboard.html" class="mobile-menu-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/orders.html" class="mobile-menu-link">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>My Orders</span>
+                </a>
+                <a href="/pages/transactions.html" class="mobile-menu-link">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+            `;
+        }
+
+        // 2. Shopping Section (Modernized, no placeholders)
+        let shoppingSection = sections.find(s => s.querySelector('.mobile-menu-title')?.textContent === 'Shopping');
+        if (shoppingSection) {
+            shoppingSection.innerHTML = `
+                <div class="mobile-menu-title">Shopping</div>
+                <a href="/index.html" class="mobile-menu-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="/pages/products.html" class="mobile-menu-link">
+                    <i class="fas fa-th-large"></i>
+                    <span>All Products</span>
+                </a>
+                <a href="javascript:void(0)" onclick="window.openCategories()" class="mobile-menu-link">
+                    <i class="fas fa-list"></i>
+                    <span>Categories</span>
+                </a>
+                <a href="/pages/products.html?category=Hot%20Deals" class="mobile-menu-link">
+                    <i class="fas fa-tag"></i>
+                    <span>Hot Deals</span>
+                </a>
+                <a id="mobile-seller-link" href="/pages/seller.html" class="mobile-menu-link">
+                    <i id="mobile-seller-icon" class="fas fa-store"></i>
+                    <span id="mobile-seller-text">Become a Seller</span>
+                </a>
+            `;
+        }
+
+        // 3. Support Section (Fixed placeholders)
+        let supportSection = sections.find(s => ['Customer Service', 'Support', 'Customer'].includes(s.querySelector('.mobile-menu-title')?.textContent));
+        if (!supportSection) {
+            // Create if it doesn't exist
+            supportSection = document.createElement('div');
+            supportSection.className = 'mobile-menu-section';
+            mobileMenuContent.appendChild(supportSection);
+        }
+        
+        supportSection.innerHTML = `
+            <div class="mobile-menu-title">Support</div>
+            <a href="/pages/faq.html" class="mobile-menu-link">
+                <i class="fas fa-question-circle"></i>
+                <span>Help Center</span>
+            </a>
+            <a href="/pages/contact-support.html" class="mobile-menu-link">
+                <i class="fas fa-envelope"></i>
+                <span>Contact Us</span>
+            </a>
+            <a href="javascript:void(0)" onclick="window.showTokenRewards()" class="mobile-menu-link">
+                <i class="fas fa-coins text-gold"></i>
+                <span>Token Rewards</span>
+            </a>
+        `;
+    }
+
 
     // Store event listeners for proper cleanup
     const eventListeners = [];
@@ -183,7 +279,8 @@ document.addEventListener('DOMContentLoaded', function() {
         eventListeners.length = 0;
     }
 
-    // Initialize menu sections
+    // Run injection before user UI updates
+    injectStandardMenuSections();
     updateUserMenuSections();
 
     // Listen for storage changes (when user logs in/out)

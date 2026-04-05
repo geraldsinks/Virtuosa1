@@ -163,6 +163,27 @@ class CleanRouter {
             'seller-orders': '/pages/seller-orders.html',
             'order-details': '/pages/order-details.html'
         };
+
+        // Protected routes that require authentication
+        this.protectedRoutes = [
+            'dashboard',
+            'seller-dashboard',
+            'admin',
+            'profile',
+            'settings',
+            'orders',
+            'order',
+            'messages',
+            'notifications',
+            'transactions',
+            'cart',
+            'checkout',
+            'create-product',
+            'edit-product',
+            'my-products',
+            'seller-analytics',
+            'seller-orders'
+        ];
         
         // Dynamic route patterns
         this.dynamicRoutes = {
@@ -621,9 +642,34 @@ class CleanRouter {
     // Load the actual HTML file with proper navigation
     async loadPage(path, params = {}) {
         console.log('🚀 ROUTER loadPage called with:', { path, params });
-        console.log('📁 Available routes:', this.routes);
-        console.log('🔄 Available dynamic routes:', this.dynamicRoutes);
         
+        // Faster Login Check
+        const pathForMatching = path.split('?')[0];
+        const normalizedPath = pathForMatching
+            .replace(/^\//, '')
+            .replace(/\.html$/, '')
+            .replace(/^pages\//, '');
+
+        if (this.protectedRoutes.includes(normalizedPath)) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.warn('🔒 Protected route access denied (Faster Check):', normalizedPath);
+                
+                // Show premium "Login Required" toast immediately
+                if (window.showToast) {
+                    window.showToast('Authentication required. Redirecting to login...', 'auth', 2000);
+                } else {
+                    alert('Please login to access this page.');
+                }
+                
+                // Stop navigation and redirect to login after a short delay
+                setTimeout(() => {
+                    this.navigate('/login');
+                }, 1500);
+                return;
+            }
+        }
+
         try {
             this.showLoading();
             

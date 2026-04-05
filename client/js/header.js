@@ -567,4 +567,145 @@ document.addEventListener('DOMContentLoaded', () => {
         // Direct navigation - bypass router completely
         window.location.href = productDetailUrl;
     }
+
+    /**
+     * Unified Toast Notification System
+     */
+    window.showToast = function(message, type = 'success', duration = 4000) {
+        // Remove existing toast if any
+        const existingToast = document.getElementById('virtuosa-toast');
+        if (existingToast) {
+            existingToast.remove();
+        }
+
+        const toast = document.createElement('div');
+        toast.id = 'virtuosa-toast';
+        
+        // Premium styling for toast
+        let bgColor = '#0A1128'; // Navy
+        let icon = 'fa-info-circle';
+        
+        if (type === 'success') {
+            bgColor = '#10B981'; // Green
+            icon = 'fa-check-circle';
+        } else if (type === 'error') {
+            bgColor = '#EF4444'; // Red
+            icon = 'fa-exclamation-circle';
+        } else if (type === 'warning') {
+            bgColor = '#F59E0B'; // Amber
+            icon = 'fa-exclamation-triangle';
+        } else if (type === 'auth') {
+            bgColor = '#C19A6B'; // Gold
+            icon = 'fa-lock';
+        }
+
+        toast.className = 'fixed bottom-5 right-5 z-[9999] flex items-center p-4 rounded-xl shadow-2xl text-white transform transition-all duration-300 translate-y-10 opacity-0';
+        toast.style.backgroundColor = bgColor;
+        toast.style.minWidth = '300px';
+        
+        toast.innerHTML = `
+            <div class="flex items-center w-full">
+                <div class="flex-shrink-0 mr-3">
+                    <i class="fas ${icon} text-lg"></i>
+                </div>
+                <div class="flex-1 text-sm font-medium mr-3">
+                    ${message}
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 text-white/50 hover:text-white transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="absolute bottom-0 left-0 h-1 bg-white/30 rounded-full transition-all duration-linear" style="width: 100%; transition-duration: ${duration}ms"></div>
+        `;
+
+        document.body.appendChild(toast);
+
+        // Animate in
+        requestAnimationFrame(() => {
+            toast.classList.remove('translate-y-10', 'opacity-0');
+        });
+
+        // Progress bar animation
+        const progressBar = toast.querySelector('div:last-child');
+        setTimeout(() => {
+            if (progressBar) progressBar.style.width = '0%';
+        }, 10);
+
+        // Auto remove
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, duration);
+    };
+
+    /**
+     * Mobile Menu Categories Helper
+     */
+    window.openCategories = function() {
+        // Redirect to products with category filter cleared or open a specific view
+        window.location.href = '/pages/products.html';
+        // In a real SPA we might open a category drawer
+    };
+
+    /**
+     * Virtuosa Token Rewards Modal
+     */
+    window.showTokenRewards = function() {
+        const modal = document.createElement('div');
+        modal.id = 'token-rewards-modal';
+        modal.className = 'fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-navy/80 backdrop-blur-md animate-fade-in';
+        
+        modal.innerHTML = `
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all animate-scale-up">
+                <div class="bg-gradient-to-r from-gold to-yellow-500 p-8 text-navy text-center relative">
+                    <button onclick="document.getElementById('token-rewards-modal').remove()" class="absolute top-4 right-4 text-navy/50 hover:text-navy transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                    <div class="bg-white/30 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                        <i class="fas fa-coins text-4xl text-navy"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold">Virtuosa Token Rewards</h2>
+                    <p class="text-navy/80 font-medium">Earn as you shop, spend as you like</p>
+                </div>
+                <div class="p-8 space-y-6">
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="flex items-start p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            <div class="bg-green-100 p-3 rounded-xl mr-4">
+                                <i class="fas fa-plus text-green-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-navy">How to Earn</h3>
+                                <p class="text-sm text-gray-600">Get 5 tokens for every successful purchase and 10 tokens for each verified review you write.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            <div class="bg-gold/20 p-3 rounded-xl mr-4">
+                                <i class="fas fa-gift text-gold"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-navy">Redeem Benefits</h3>
+                                <p class="text-sm text-gray-600">Use tokens to unlock premium badges, free delivery vouchers, and exclusive seller analytics.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            <div class="bg-blue-100 p-3 rounded-xl mr-4">
+                                <i class="fas fa-users text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-navy">Community Power</h3>
+                                <p class="text-sm text-gray-600">Tokens are a sign of trust. High token balances boost your visibility in the marketplace.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="document.getElementById('token-rewards-modal').remove()" class="w-full bg-navy text-white py-4 rounded-2xl font-bold hover:bg-gray-800 transition-all shadow-lg active:scale-95">
+                        Got it, thanks!
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    };
 });
