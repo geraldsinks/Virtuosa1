@@ -16,7 +16,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
 
     if (!token) {
-        window.location.href = '/login.html';
+        if (window.router) {
+            window.router.navigate('/login.html');
+        } else {
+            window.location.href = '/login.html';
+        }
         return;
     }
 
@@ -78,7 +82,11 @@ async function loadDashboardData() {
     const token = localStorage.getItem('token');
     
     if (!token) {
-        window.location.href = '/login.html';
+        if (window.router) {
+            window.router.navigate('/login.html');
+        } else {
+            window.location.href = '/login.html';
+        }
         return;
     }
 
@@ -115,12 +123,20 @@ async function loadDashboardData() {
                     // Authentication expired - redirect to login
                     console.warn('🚫 Authentication expired, redirecting to login');
                     localStorage.removeItem('token');
-                    window.location.href = '/login.html';
+                    if (window.router) {
+                        window.router.navigate('/login.html');
+                    } else {
+                        window.location.href = '/login.html';
+                    }
                     return;
                 } else if (roleResponse.status === 403) {
                     // Access forbidden - user doesn't have buyer access
                     console.warn('🚫 Access forbidden for buyer dashboard');
-                    window.location.href = '/pages/dashboard.html';
+                    if (window.router) {
+                        window.router.navigate('/pages/dashboard.html');
+                    } else {
+                        window.location.href = '/pages/dashboard.html';
+                    }
                     return;
                 } else {
                     console.warn('Role info fetch failed, using fallback');

@@ -143,6 +143,20 @@ class CleanRouter {
             'admin-mass-messaging': '/pages/admin-mass-messaging.html',
             'admin-retention': '/pages/admin-retention.html',
             'admin-asset-library': '/pages/admin-asset-library.html',
+            'strategic-analytics': '/pages/strategic-analytics.html',
+            'admin-cookie-data': '/pages/admin-cookie-data.html',
+            'admin-maintenance': '/pages/admin-maintenance.html',
+            'admin-transactions': '/pages/admin-transactions.html',
+            'admin-disputes': '/pages/admin-disputes.html',
+            'admin-support': '/pages/admin-support.html',
+            'admin-live-chat': '/pages/admin-live-chat.html',
+            'admin-maintenance-reports': '/pages/admin-maintenance-reports.html',
+            'admin-ui-queries': '/pages/admin-ui-queries.html',
+            'admin-transaction-reports': '/pages/admin-transaction-reports.html',
+            'admin-risk-management': '/pages/admin-risk-management.html',
+            'admin-analytics-reports': '/pages/admin-analytics-reports.html',
+            'admin-growth-metrics': '/pages/admin-growth-metrics.html',
+            'admin-about': '/pages/admin-dashboard.html?tab=about',
             'marketing-dashboard': '/pages/marketing-dashboard.html',
             'marketing': '/pages/marketing.html',
             'seller-analytics': '/pages/seller-analytics.html',
@@ -625,8 +639,15 @@ class CleanRouter {
                 routeParams = dynamicMatch.params;
                 console.log('✅ Using dynamic route:', pageFile, 'params:', routeParams);
             } else {
-                pageFile = this.routes[path] || '/index.html';
-                console.log('📄 Using static route:', pageFile);
+                // Normalize path for matching (strip query string, leading slash, .html, and pages/ prefix)
+                const pathForMatching = path.split('?')[0];
+                const normalizedPath = pathForMatching
+                    .replace(/^\//, '')
+                    .replace(/\.html$/, '')
+                    .replace(/^pages\//, '');
+                
+                pageFile = this.routes[normalizedPath] || this.routes[path] || '/index.html';
+                console.log(`📄 Using static route: ${pageFile} (normalized: ${normalizedPath})`);
             }
             
             // Validate route

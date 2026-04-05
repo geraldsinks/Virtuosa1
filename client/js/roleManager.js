@@ -113,7 +113,11 @@ class RoleManager {
                 // If auth expired, clear token and redirect to login
                 if (apiError.message === 'Authentication expired') {
                     this.clearAllData();
-                    window.location.href = '/login.html';
+                    if (window.router) {
+                        window.router.navigate('/login.html');
+                    } else {
+                        window.location.href = '/login.html';
+                    }
                     throw apiError;
                 }
             }
@@ -365,7 +369,11 @@ class RoleManager {
                 } catch (error) {
                     console.error('❌ Failed to initialize for access check:', error);
                     this.accessCheckCache.set(cacheKey, false);
-                    window.location.href = '/login.html';
+                    if (window.router) {
+                        window.router.navigate('/login.html');
+                    } else {
+                        window.location.href = '/login.html';
+                    }
                     return false;
                 }
             } else {
@@ -375,7 +383,11 @@ class RoleManager {
                 } catch (error) {
                     console.error('❌ Failed to initialize for access check:', error);
                     this.accessCheckCache.set(cacheKey, false);
-                    window.location.href = '/login.html';
+                    if (window.router) {
+                        window.router.navigate('/login.html');
+                    } else {
+                        window.location.href = '/login.html';
+                    }
                     return false;
                 } finally {
                     this.initializationLock = false;
@@ -408,7 +420,11 @@ class RoleManager {
         
         if (attempts >= 1) {
             console.error('🚫 Redirect loop detected, stopping redirects');
-            window.location.href = '/login.html';
+            if (window.router) {
+                window.router.navigate('/login.html');
+            } else {
+                window.location.href = '/login.html';
+            }
             return;
         }
         
@@ -427,13 +443,17 @@ class RoleManager {
 
         // Smart redirect logic - redirect to the highest privilege dashboard user can access
         if (this.canAccessDashboard('admin') && !currentPath.includes('admin-dashboard.html')) {
-            window.location.href = '/pages/admin-dashboard.html';
+            if (window.router) window.router.navigate('/pages/admin-dashboard.html');
+            else window.location.href = '/pages/admin-dashboard.html';
         } else if (this.canAccessDashboard('seller') && !currentPath.includes('seller-dashboard.html')) {
-            window.location.href = '/pages/seller-dashboard.html';
+            if (window.router) window.router.navigate('/pages/seller-dashboard.html');
+            else window.location.href = '/pages/seller-dashboard.html';
         } else if (this.canAccessDashboard('buyer') && !currentPath.includes('buyer-dashboard.html')) {
-            window.location.href = '/pages/buyer-dashboard.html';
+            if (window.router) window.router.navigate('/pages/buyer-dashboard.html');
+            else window.location.href = '/pages/buyer-dashboard.html';
         } else if (!currentPath.includes('login.html')) {
-            window.location.href = '/login.html';
+            if (window.router) window.router.navigate('/login.html');
+            else window.location.href = '/login.html';
         }
     }
 

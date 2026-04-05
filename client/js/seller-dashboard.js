@@ -40,7 +40,11 @@ document.addEventListener('click', function(event) {
 window.logout = function() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/login';
+    if (window.router) {
+        window.router.navigate('/login');
+    } else {
+        window.location.href = '/login';
+    }
 };
 
 // Check seller access and update UI
@@ -68,7 +72,11 @@ async function checkSellerAccess(token) {
         if (!user.isSeller && !user.isAdmin) {
             showMessage('Access denied. Seller or admin privileges required.', true);
             setTimeout(() => {
-                window.location.href = '/dashboard';
+                if (window.router) {
+                    window.router.navigate('/dashboard');
+                } else {
+                    window.location.href = '/dashboard';
+                }
             }, 2000);
             return;
         }
@@ -104,7 +112,11 @@ async function checkSellerAccess(token) {
         console.error('Seller check failed:', error);
         showMessage(error.message || 'Authentication failed', true);
         setTimeout(() => {
-            window.location.href = '/login';
+            if (window.router) {
+                window.router.navigate('/login');
+            } else {
+                window.location.href = '/login';
+            }
         }, 2000);
         return;
     }
@@ -122,7 +134,11 @@ window.fixServerUrl = fixServerUrl;
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
     if (!token) {
-        window.location.href = '/login';
+        if (window.router) {
+            window.router.navigate('/login');
+        } else {
+            window.location.href = '/login';
+        }
         return;
     }
 
@@ -192,7 +208,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (response.status === 401) {
                     errorMessage = 'Session expired. Please log in again.';
                     setTimeout(() => {
-                        window.location.href = '/login';
+                        if (window.router) {
+                            window.router.navigate('/login');
+                        } else {
+                            window.location.href = '/login';
+                        }
                     }, 2000);
                 } else if (response.status === 403) {
                     errorMessage = 'Seller access required. Please verify your seller account.';
@@ -583,7 +603,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="space-y-3 border-t pt-3 mt-auto">
                     <!-- Primary Actions -->
                     <div class="flex gap-2">
-                        <button onclick="window.location.href='/product/${product._id}'"
+                        <button onclick="window.router ? window.router.navigate('/product/${product._id}') : window.location.href='/product/${product._id}'"
                             class="flex-1 bg-white border border-gray-200 text-navy text-xs py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors font-semibold flex items-center justify-center gap-1">
                             <i data-lucide="eye" class="w-3 h-3"></i> View
                         </button>
@@ -617,7 +637,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     window.editProduct = (productId) => {
-        window.location.href = `/edit-product?id=${productId}`;
+        if (window.router) {
+            window.router.navigate(`/edit-product?id=${productId}`);
+        } else {
+            window.location.href = `/edit-product?id=${productId}`;
+        }
     };
 
     window.deleteProduct = async (productId) => {

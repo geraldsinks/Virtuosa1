@@ -140,6 +140,13 @@ function getUserRoleInfo() {
         
         // Load dashboard data
         loadDashboardData();
+
+        // Check for tab parameter in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        if (tab) {
+            setTimeout(() => showTab(tab), 100);
+        }
     })
     .catch(error => {
         console.error('Failed to get role info:', error);
