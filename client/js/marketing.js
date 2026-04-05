@@ -1219,21 +1219,22 @@ function updateCategoryCardsPreview() {
                                     <div class="resize-handle resize-se absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 cursor-se-resize" onmousedown="startResize(event, '${card.id}', 'se')"></div>
                                 ` : ''}
 
-                                <div class="${card.cardType === 'rectangle' ? 'aspect-[2/1] lg:aspect-square' : 'aspect-square'} bg-cover bg-center relative p-0 overflow-hidden rounded-xl border border-gray-200 bg-white">
+                                <div class="${card.cardType === 'rectangle' ? 'aspect-[2/1] md:aspect-square' : 'aspect-square'} bg-cover bg-center relative p-0 overflow-hidden rounded-xl border border-gray-200 bg-white"
+                                     style="background-image: url('${imageUrl}');">
                                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all"></div>
                                     
-                                    <!-- Mobile Overlay Layout (Hidden on Desktop) -->
-                                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent opacity-80 lg:opacity-0 transition-opacity pointer-events-none"></div>
-                                    <div class="absolute bottom-0 left-0 right-0 p-5 z-10 w-full text-left lg:hidden">
+                                    <!-- Mobile Overlay Layout (Hidden on Desktop/Medium screens) -->
+                                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent opacity-80 md:opacity-0 transition-opacity pointer-events-none"></div>
+                                    <div class="absolute bottom-0 left-0 right-0 p-5 z-10 w-full text-left md:hidden">
                                         <h3 class="font-bold text-white text-base sm:text-lg drop-shadow-md tracking-tight leading-tight">${card.title || card.name || 'Category Name'}</h3>
                                         ${card.isPreset ? '<span class="text-xs text-green-300 mt-1 block">Preset</span>' : ''}
                                     </div>
                                 </div>
 
-                                <!-- Desktop Label Layout (Visible only on Desktop) -->
-                                <div class="hidden lg:block pt-3 px-1">
-                                    <h3 class="font-bold text-[#0A1128] text-base group-hover:text-gold transition-colors duration-300">${card.title || card.name || 'Category Name'}</h3>
-                                    <p class="text-[#4B5563] text-xs mt-0.5 line-clamp-2">${card.description || card.name || ''}</p>
+                                <!-- Desktop Label Layout (Visible on Medium screens and up) -->
+                                <div class="hidden md:block pt-3 px-1">
+                                    <h3 class="category-title group-hover:text-gold transition-colors duration-300">${card.title || card.name || 'Category Name'}</h3>
+                                    <p class="category-description mt-0.5 line-clamp-2">${card.description || card.name || ''}</p>
                                     ${card.isPreset ? '<span class="text-[10px] text-green-600 font-medium uppercase tracking-wider mt-1 block">Preset</span>' : ''}
                                 </div>
 
