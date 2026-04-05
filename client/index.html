@@ -1560,7 +1560,7 @@
                         (card.image ? `https://api.virtuosazm.com${sanitizedUrl}` : fallbackUrl);
 
                     return `
-                <div class="${cardClass} group flex flex-col transition-all duration-300">
+                <div class="${cardClass} group flex flex-col transition-all duration-300 border-4 border-blue-500">
                     <div class="${isRectangle ? 'aspect-[2/1] md:aspect-square' : 'aspect-square'} relative rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-200 bg-white">
                         <picture>
                             <source srcset="${generateOptimizedCloudinaryUrl(imageUrl, 400, isRectangle ? 200 : 400)} 400w,
@@ -1585,7 +1585,7 @@
                     </div>
                     
                     <!-- Desktop Label Layout (Visible on Large screens and up) -->
-                    <div class="hidden lg:block pt-3 px-1">
+                    <div class="hidden lg:block pt-3 px-1 bg-yellow-100 border-2 border-red-500">
                         <h3 class="category-title group-hover:text-gold transition-colors duration-300">${encodeHtml(card.title || card.name)}</h3>
                         ${card.description ? `<p class="category-description mt-0.5 line-clamp-2">${encodeHtml(card.description)}</p>` : ''}
                     </div>
