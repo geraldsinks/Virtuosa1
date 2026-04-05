@@ -682,6 +682,41 @@
             }
         }
 
+        /* Custom responsive classes for category titles */
+        .desktop-only-mobile {
+            display: block;
+        }
+        
+        .desktop-only-titles {
+            display: none;
+        }
+        
+        .desktop-title-hidden {
+            opacity: 0.8;
+        }
+        
+        .desktop-group-hover:opacity-0 {
+            opacity: 0.8;
+        }
+        
+        @media (min-width: 1024px) {
+            .desktop-only-mobile {
+                display: none;
+            }
+            
+            .desktop-only-titles {
+                display: block;
+            }
+            
+            .desktop-title-hidden {
+                opacity: 0;
+            }
+            
+            .desktop-group-hover:opacity-0:hover {
+                opacity: 0;
+            }
+        }
+
         /* Hide desktop header on mobile */
         @media (max-width: 767px) {
             .desktop-header {
@@ -1573,8 +1608,8 @@
                         </picture>
                         
                         <!-- Mobile Overlay Layout (Hidden on Large screens and up) -->
-                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent opacity-80 lg:opacity-0 transition-opacity group-hover:opacity-90 lg:group-hover:opacity-0 pointer-events-none"></div>
-                        <div class="absolute bottom-0 left-0 right-0 p-5 z-10 w-full text-left lg:hidden">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent opacity-80 desktop-title-hidden transition-opacity group-hover:opacity-90 desktop-group-hover:opacity-0 pointer-events-none"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-5 z-10 w-full text-left desktop-only-mobile">
                             <h3 class="font-bold text-white text-base sm:text-lg drop-shadow-md tracking-tight leading-tight">${encodeHtml(card.title || card.name)}</h3>
                             ${card.description ? `<p class="text-white text-xs opacity-80 mt-1 line-clamp-1">${encodeHtml(card.description)}</p>` : ''}
                         </div>
@@ -1585,7 +1620,7 @@
                     </div>
                     
                     <!-- Desktop Label Layout (Visible on Large screens and up) -->
-                    <div class="hidden lg:block pt-3 px-1 bg-yellow-100 border-2 border-red-500">
+                    <div class="desktop-only-titles pt-3 px-1 bg-yellow-100 border-2 border-red-500">
                         <h3 class="category-title group-hover:text-gold transition-colors duration-300">${encodeHtml(card.title || card.name)}</h3>
                         ${card.description ? `<p class="category-description mt-0.5 line-clamp-2">${encodeHtml(card.description)}</p>` : ''}
                     </div>
