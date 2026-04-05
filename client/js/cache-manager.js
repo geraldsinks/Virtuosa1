@@ -12,6 +12,9 @@ class CacheManager {
         this.maxRetries = 3; // Maximum retry attempts for quota exceeded errors
         this.maxCacheSize = 5 * 1024 * 1024; // 5MB max cache size
         this.evictionThreshold = 0.8; // Evict when cache is 80% full
+        
+        // In-memory cache for ultra-fast access
+        this.memoryCache = new Map();
     }
 
     // Generate cache key
@@ -36,10 +39,13 @@ class CacheManager {
             
             const serializedData = JSON.stringify(cacheData);
             
+            // Update memory cache
+            this.memoryCache.set(cacheKey, cacheData);
+            
             // Check if this single item would exceed quota
             if (serializedData.length > this.maxCacheSize) {
-                console.warn('Cache item too large, skipping:', key);
-                return false;
+                console.warn('Cache item too large, skipping storage:', key);
+                return true; // Still "success" because it's in memory
             }
             
             localStorage.setItem(cacheKey, serializedData);
@@ -148,6 +154,16 @@ class CacheManager {
     get(key) {
         try {
             const cacheKey = this._generateKey(key);
+            
+            // Try memory cache first
+            if (this.memoryCache.has(cacheKey)) {
+                const memData = this.memoryCache.get(cacheKey);
+                if (Date.now() - memData.timestamp < memData.ttl) {
+                    return memData.data;
+                }
+                this.memoryCache.delete(cacheKey);
+            }
+
             const cached = localStorage.getItem(cacheKey);
             
             if (!cached) return null;
@@ -160,6 +176,9 @@ class CacheManager {
                 this.remove(key);
                 return null;
             }
+
+            // Hydrate memory cache
+            this.memoryCache.set(cacheKey, cacheData);
 
             return cacheData.data;
         } catch (error) {

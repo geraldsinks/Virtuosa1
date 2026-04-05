@@ -176,6 +176,37 @@ class CleanRouter {
             maxErrors: 3,
             errorHistory: []
         };
+
+        // Cache for page fragments
+        this.pageCache = new Map();
+        
+        // Initial setup
+        this.setupClickInterceptor();
+    }
+
+    // Intercept clicks on anchor tags for SPA navigation
+    setupClickInterceptor() {
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (!link) return;
+
+            const href = link.getAttribute('href');
+            if (!href) return;
+
+            // Skip external links, mailto, tel, etc.
+            if (href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) {
+                return;
+            }
+
+            // Skip links that have download attribute or target="_blank"
+            if (link.hasAttribute('download') || link.getAttribute('target') === '_blank') {
+                return;
+            }
+
+            // If it's a relative internal link, route it through our SPA router
+            e.preventDefault();
+            this.navigate(href);
+        });
     }
 
     // Parse dynamic route and extract parameters with improved validation
@@ -604,44 +635,33 @@ class CleanRouter {
                 throw new Error(`Invalid route: ${path}`);
             }
             
-            // Combine route parameters with query parameters (query params take precedence)
+            // Combined params
             const allParams = { ...routeParams, ...params };
-            console.log('🔗 Combined params:', allParams);
             
             // Build the final URL with parameters
             let finalUrl = pageFile;
             if (Object.keys(allParams).length > 0) {
-                finalUrl += '?' + new URLSearchParams(allParams).toString();
+                const searchParams = new URLSearchParams(allParams).toString();
+                finalUrl += '?' + searchParams;
             }
-            console.log('🌐 Final URL:', finalUrl);
-            
-            // For clean URLs, do a full page redirect to ensure proper loading
-            if (path.includes('/') && !path.includes('.html')) {
-                console.log('🔄 Clean URL detected, doing full redirect');
-                // This is a clean URL - redirect to the actual HTML file
-                // Pass route parameters as query parameters for the target page
-                const queryString = Object.keys(routeParams).length > 0 
-                    ? '?' + new URLSearchParams(routeParams).toString() 
-                    : '';
-                console.log('🔗 Redirecting to:', finalUrl + queryString);
-                
-                // Add delay to see logs
-                setTimeout(() => {
-                    window.location.href = finalUrl + queryString;
-                }, 100);
+
+            // If it's an SPA-compatible route, load it dynamically
+            // We use dynamic loading if it's a known route and NOT a direct .html request (unless it's index)
+            const isSPARoute = (this.routes[path] || this.parseDynamicRoute(path) || path === '/' || path === '' || path === 'index.html');
+
+            if (isSPARoute) {
+                console.log('✨ SPA navigation to:', path);
+                this.loadContentDynamically(pageFile, allParams);
                 return;
             }
             
-            // For direct HTML file access, also do full redirect
-            console.log('📄 HTML file access, redirecting to:', finalUrl);
-            setTimeout(() => {
-                window.location.href = finalUrl;
-            }, 100);
+            // Fallback for non-SPA routes
+            console.log('🔄 Non-SPA route, doing full redirect to:', finalUrl);
+            window.location.href = finalUrl;
             
         } catch (error) {
             console.error('❌ Router loadPage error:', error);
-            // Fallback to direct redirect
-            window.location.href = '/pages/' + path + '.html';
+            window.location.href = path.endsWith('.html') ? path : '/pages/' + path + '.html';
         } finally {
             setTimeout(() => {
                 this.hideLoading();
@@ -673,6 +693,14 @@ class CleanRouter {
                 throw new Error(`Invalid page file path: ${pageFile}`);
             }
             
+            // Try to get from cache first
+            if (this.pageCache.has(pageFile)) {
+                console.log('⚡ Using cached page fragment for:', pageFile);
+                const cachedHtml = this.pageCache.get(pageFile);
+                this.renderPageContent(cachedHtml, pageFile, params);
+                return;
+            }
+
             // Fetch the page content with timeout
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
@@ -702,57 +730,10 @@ class CleanRouter {
             
             const html = await response.text();
             
-            // Validate the HTML content
-            if (!html || html.trim().length === 0) {
-                throw new Error(`Empty content received for: ${pageFile}`);
-            }
+            // Cache the fragment
+            this.pageCache.set(pageFile, html);
             
-            // Parse the HTML
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            
-            // Check for parsing errors
-            const parserError = doc.querySelector('parsererror');
-            if (parserError) {
-                throw new Error(`HTML parsing error for: ${pageFile}`);
-            }
-            
-            // Update the page title
-            const newTitle = doc.querySelector('title');
-            if (newTitle) {
-                document.title = newTitle.textContent;
-            }
-            
-            // Update the main content area
-            const newContent = doc.querySelector('main, #main, .main, body');
-            const currentContent = document.querySelector('main, #main, .main');
-            
-            if (newContent && currentContent) {
-                currentContent.innerHTML = newContent.innerHTML;
-            } else if (newContent) {
-                // Fallback: replace entire body content
-                document.body.innerHTML = newContent.innerHTML;
-            } else {
-                throw new Error(`No content area found in: ${pageFile}`);
-            }
-            
-            // Execute any scripts in the new content
-            this.executeScripts(doc);
-            
-            // Update URL with parameters
-            const queryString = Object.keys(params).length > 0 
-                ? '?' + new URLSearchParams(params).toString() 
-                : '';
-            
-            if (queryString) {
-                history.replaceState({}, '', window.location.pathname + queryString);
-            }
-            
-            // Reinitialize URL helper for new content
-            if (window.URLHelper) {
-                window.URLHelper.updatePageLinks();
-            }
-            
+            this.renderPageContent(html, pageFile, params);
         } catch (error) {
             const errorResult = this.handleNavigationError(error, 'content-loading');
             if (errorResult.action === 'fallback') {
@@ -761,6 +742,69 @@ class CleanRouter {
         }
     }
     
+    // Render page content with transitions
+    renderPageContent(html, pageFile, params = {}) {
+        // Validate the HTML content
+        if (!html || html.trim().length === 0) {
+            throw new Error(`Empty content received for: ${pageFile}`);
+        }
+        
+        // Parse the HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        // Check for parsing errors
+        const parserError = doc.querySelector('parsererror');
+        if (parserError) {
+            throw new Error(`HTML parsing error for: ${pageFile}`);
+        }
+        
+        // Update the page title
+        const newTitle = doc.querySelector('title');
+        if (newTitle) {
+            document.title = newTitle.textContent;
+        }
+        
+        // Get the main content area
+        const newContent = doc.querySelector('main, #main, .main, body');
+        const currentContent = document.querySelector('main, #main, .main') || document.body;
+        
+        if (newContent && currentContent) {
+            // Apply fade-out transition
+            currentContent.style.transition = 'opacity 150ms ease-in-out';
+            currentContent.style.opacity = '0';
+            
+            setTimeout(() => {
+                currentContent.innerHTML = newContent.innerHTML;
+                
+                // Execute any scripts in the new content
+                this.executeScripts(doc);
+                
+                // Fade back in
+                currentContent.style.opacity = '1';
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Update URL with parameters
+                const queryString = Object.keys(params).length > 0 
+                    ? '?' + new URLSearchParams(params).toString() 
+                    : '';
+                
+                if (queryString) {
+                    history.replaceState({}, '', window.location.pathname + queryString);
+                }
+                
+                // Reinitialize URL helper for new content
+                if (window.URLHelper) {
+                    window.URLHelper.updatePageLinks();
+                }
+            }, 150);
+        } else {
+            throw new Error(`No content area found in: ${pageFile}`);
+        }
+    }
+
     // Standardized error handling for navigation
     handleNavigationError(error, context = 'navigation') {
         const errorInfo = {

@@ -12,6 +12,14 @@ body {
     font-family: 'Inter', sans-serif;
 }
 
+/* Rendering Optimization */
+#category-grid,
+.v-grid-products,
+.product-grid {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 500px;
+}
+
 .bg-navy {
     background-color: var(--navy);
 }
