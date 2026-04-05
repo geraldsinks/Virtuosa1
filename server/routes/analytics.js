@@ -4,12 +4,15 @@ const mongoose = require('mongoose');
 const AnalyticsEvent = require('../models/AnalyticsEvent');
 const { protect, admin } = require('../middleware/auth');
 
+console.log('📊 Analytics routes loaded');
+
 /**
  * @route   GET /api/analytics/track
  * @desc    Handle incorrect GET requests to track endpoint
  * @access  Public
  */
 router.get('/track', (req, res) => {
+  console.log('📊 Analytics GET /track called');
   res.status(405).json({ 
     success: false, 
     message: 'Method not allowed. Use POST for analytics tracking.',
@@ -24,6 +27,7 @@ router.get('/track', (req, res) => {
  * @access  Public (Optional User ID)
  */
 router.post('/track', async (req, res) => {
+  console.log('📊 Analytics POST /track called');
   try {
     const { events } = req.body;
 

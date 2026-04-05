@@ -222,6 +222,7 @@ webpush.setVapidDetails(
 );
 
 console.log('🔑 VAPID keys configured for push notifications');
+console.log('🌐 CORS configured for origins:', ["https://virtuosazm.com", "https://virtuosa1.vercel.app", "http://localhost:5500"]);
 app.use(cors( {
     origin: ["https://virtuosazm.com", "https://virtuosa1.vercel.app", "http://localhost:5500"],
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -234,7 +235,9 @@ const { checkMaintenance } = require('./middleware/maintenance');
 app.use('/api', checkMaintenance);
 
 // Mount Analytics and Cookie Tracking Routes
+console.log('📊 Mounting analytics routes...');
 app.use('/api/analytics', require('./routes/analytics'));
+console.log('📊 Analytics routes mounted');
 
 // Serve uploads from the correct directory based on environment
 const uploadsPath = path.join(basePath, 'uploads');
