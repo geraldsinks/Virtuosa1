@@ -25,11 +25,16 @@
         }
 
         .bg-button-gold {
-            background-color: #C19A6B;
+            background: linear-gradient(135deg, #C19A6B, #d6ae7e);
+            box-shadow: 0 4px 15px -3px rgba(193, 154, 107, 0.4);
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .hover-bg-button-gold:hover {
-            background-color: #A98B68;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -4px rgba(193, 154, 107, 0.5);
+            background: linear-gradient(135deg, #A98B68, #c4a17a);
         }
 
         .bg-dark-navy {
@@ -46,11 +51,29 @@
 
         .tab-content.active {
             display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-button {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .tab-button:hover {
+            color: #C19A6B;
         }
 
         .tab-button.active {
-            background-color: #C19A6B;
-            color: white;
+            background: linear-gradient(135deg, #C19A6B, #d6ae7e);
+            color: white !important;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(193, 154, 107, 0.3);
+            border-bottom: none !important;
         }
 
         .asset-grid {
