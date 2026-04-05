@@ -181,11 +181,11 @@ function updateStepDisplay() {
     
     // Update step indicators
     for (let i = 1; i <= 3; i++) {
-        const stepIndicator = document.getElementById(`step${i}`);
+        const stepIndicator = document.getElementById(`step${i}-indicator`);
         if (i <= currentStep) {
-            stepIndicator.className = 'step-indicator bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-medium';
+            stepIndicator.className = 'step-active w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0';
         } else {
-            stepIndicator.className = 'step-indicator bg-gray-300 text-gray-600 rounded-full w-8 h-8 flex items-center justify-center text-sm font-medium';
+            stepIndicator.className = 'step-inactive w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0';
         }
     }
     

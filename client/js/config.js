@@ -3,6 +3,9 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
     ? 'http://localhost:5000/api'
     : 'https://api.virtuosazm.com/api';
 
+// Make API_BASE available globally
+window.API_BASE = API_BASE;
+
 // Fallback image URLs for consistency
 const FALLBACK_IMAGES = {
     HERO: 'https://placehold.co/1200x600/0A1128/FFFFFF?text=Virtuosa+Campus+Life',

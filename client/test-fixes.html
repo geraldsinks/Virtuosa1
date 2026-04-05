@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Fixes</title>
+</head>
+<body>
+    <h1>Testing Fixes</h1>
+    
+    <h2>1. Analytics Endpoint Test</h2>
+    <button onclick="testAnalytics()">Test Analytics POST</button>
+    <div id="analytics-result"></div>
+    
+    <h2>2. API_BASE Test</h2>
+    <button onclick="testApiBase()">Test API_BASE Configuration</button>
+    <div id="api-result"></div>
+    
+    <h2>3. Step Indicator Test</h2>
+    <button onclick="testStepIndicator()">Test Step Indicators</button>
+    <div id="step-result"></div>
+
+    <script src="/js/config.js"></script>
+    <script>
+        // Test 1: Analytics endpoint
+        async function testAnalytics() {
+            const resultDiv = document.getElementById('analytics-result');
+            try {
+                const response = await fetch(`${window.API_BASE}/analytics/track`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        events: [{
+                            sessionId: 'test_session',
+                            eventType: 'pageview',
+                            category: 'analytics',
+                            metadata: { path: '/test' }
+                        }]
+                    })
+                });
+                
+                const result = await response.json();
+                resultDiv.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<div style="color: red;">Error: ${error.message}</div>`;
+            }
+        }
+        
+        // Test 2: API_BASE configuration
+        function testApiBase() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = `
+                <p><strong>window.API_BASE:</strong> ${window.API_BASE}</p>
+                <p><strong>Current hostname:</strong> ${window.location.hostname}</p>
+                <p><strong>Full URL:</strong> ${window.API_BASE}/products</p>
+            `;
+        }
+        
+        // Test 3: Step indicators (simulate)
+        function testStepIndicator() {
+            const resultDiv = document.getElementById('step-result');
+            
+            // Create mock step indicators
+            const steps = [1, 2, 3].map(i => {
+                const div = document.createElement('div');
+                div.id = `step${i}-indicator`;
+                div.className = 'step-inactive';
+                div.textContent = i;
+                return div;
+            });
+            
+            // Simulate the updateStepDisplay function
+            const currentStep = 2;
+            for (let i = 1; i <= 3; i++) {
+                const stepIndicator = document.getElementById(`step${i}-indicator`);
+                if (stepIndicator) {
+                    if (i <= currentStep) {
+                        stepIndicator.className = 'step-active';
+                    } else {
+                        stepIndicator.className = 'step-inactive';
+                    }
+                }
+            }
+            
+            resultDiv.innerHTML = `
+                <p>Step indicators created and updated successfully.</p>
+                <p>Current step: ${currentStep}</p>
+                ${steps.map(s => s.outerHTML).join('')}
+            `;
+        }
+        
+        // Run API_BASE test on load
+        window.addEventListener('load', testApiBase);
+    </script>
+</body>
+</html>

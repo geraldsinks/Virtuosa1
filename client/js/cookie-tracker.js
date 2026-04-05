@@ -10,7 +10,7 @@ class VirtuosaTracker {
         this.events = [];
         this.sessionId = this.getOrCreateSessionId();
         this.userId = localStorage.getItem('userId') || null;
-        this.endpoint = '/api/analytics/track';
+        this.endpoint = `${window.API_BASE || '/api'}/analytics/track`;
         
         // Track time spent on page
         this.pageLoadTime = Date.now();

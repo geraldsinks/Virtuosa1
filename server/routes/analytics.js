@@ -5,6 +5,20 @@ const AnalyticsEvent = require('../models/AnalyticsEvent');
 const { protect, admin } = require('../middleware/auth');
 
 /**
+ * @route   GET /api/analytics/track
+ * @desc    Handle incorrect GET requests to track endpoint
+ * @access  Public
+ */
+router.get('/track', (req, res) => {
+  res.status(405).json({ 
+    success: false, 
+    message: 'Method not allowed. Use POST for analytics tracking.',
+    method: 'POST',
+    endpoint: '/api/analytics/track'
+  });
+});
+
+/**
  * @route   POST /api/analytics/track
  * @desc    Receive batched analytics events from the client
  * @access  Public (Optional User ID)
