@@ -46,7 +46,7 @@ body {
 
 /* Hide an element and remove it from the layout */
 .hidden {
-    display: none !important;
+    display: none;
 }
 
 /* Seller Dashboard Links */
