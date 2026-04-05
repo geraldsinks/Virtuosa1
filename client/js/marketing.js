@@ -863,6 +863,57 @@ const PRESET_LAYOUTS = {
         { index: 9, cardType: 'rectangle' },  // Food & Beverages
         { index: 10, cardType: 'square' },    // Sports & Outdoors
         { index: 11, cardType: 'square' }     // Home & Living
+    ],
+    'modern-minimal': [
+        // Modern Minimal: Clean grid with occasional large highlights
+        { index: 12, cardType: 'rectangle' }, // Hot Deals (Feature)
+        { index: 0, cardType: 'square' },     // Electronics
+        { index: 1, cardType: 'square' },     // Computers
+        { index: 13, cardType: 'square' },    // Best Sellers
+        { index: 3, cardType: 'square' },     // Jewellery
+        { index: 10, cardType: 'rectangle' }, // Sports (High impact)
+        { index: 4, cardType: 'square' },     // Men's
+        { index: 5, cardType: 'square' },     // Women's
+        { index: 6, cardType: 'square' },     // Shoes
+        { index: 7, cardType: 'square' },     // Accessories
+        { index: 11, cardType: 'rectangle' }, // Home
+        { index: 8, cardType: 'square' },     // Beauty
+        { index: 9, cardType: 'square' },     // Food
+        { index: 2, cardType: 'square' }      // Services
+    ],
+    'vibrant-mosaic': [
+        // Vibrant Mosaic: Dynamic mixing of shapes for high engagement
+        { index: 4, cardType: 'square' },     // Men's
+        { index: 5, cardType: 'square' },     // Women's
+        { index: 12, cardType: 'rectangle' }, // Hot Deals
+        { index: 1, cardType: 'square' },     // Computers
+        { index: 0, cardType: 'square' },     // Electronics
+        { index: 13, cardType: 'rectangle' }, // Best Sellers
+        { index: 7, cardType: 'square' },     // Accessories
+        { index: 6, cardType: 'square' },     // Shoes
+        { index: 3, cardType: 'rectangle' },  // Jewellery
+        { index: 8, cardType: 'square' },     // Beauty
+        { index: 9, cardType: 'square' },     // Food
+        { index: 11, cardType: 'rectangle' }, // Home
+        { index: 10, cardType: 'square' },    // Sports
+        { index: 2, cardType: 'square' }      // Services
+    ],
+    'editorial-gallery': [
+        // Editorial Gallery: Magazine style focus on featured sections
+        { index: 0, cardType: 'rectangle' },  // Electronics (Leading)
+        { index: 1, cardType: 'rectangle' },  // Computers (Leading)
+        { index: 12, cardType: 'square' },    // Hot Deals
+        { index: 13, cardType: 'square' },    // Best Sellers
+        { index: 4, cardType: 'square' },     // Men's
+        { index: 5, cardType: 'square' },     // Women's
+        { index: 10, cardType: 'rectangle' }, // Sports
+        { index: 11, cardType: 'rectangle' }, // Home
+        { index: 6, cardType: 'square' },     // Shoes
+        { index: 7, cardType: 'square' },     // Accessories
+        { index: 3, cardType: 'square' },     // Jewellery
+        { index: 8, cardType: 'square' },     // Beauty
+        { index: 9, cardType: 'square' },     // Food
+        { index: 2, cardType: 'square' }      // Services
     ]
 };
 
@@ -1037,10 +1088,8 @@ function updateAdSliderPreview() {
     }
 }
 
-function updateCategoryCardsPreview() {
-    const previewContainer = document.getElementById('category-cards-preview');
-    if (!previewContainer) return;
 
+function getCurrentCategoryCards() {
     let categoryCards = [];
 
     if (currentCategoryPreviewMode === 'free') {
@@ -1053,25 +1102,48 @@ function updateCategoryCardsPreview() {
             const title = document.getElementById(`card-title-${id}`)?.value || '';
             const image = document.getElementById(`card-image-${id}`)?.value || '';
             const cardType = document.getElementById(`card-type-${id}`)?.value || 'square';
+            const link = document.getElementById(`card-link-${id}`)?.value || '#';
 
             if (name || title) {
-                categoryCards.push({ id, name, title, image, cardType });
+                categoryCards.push({ id, name, title, image, cardType, link });
             }
         });
     } else {
-        // Preset mode: use selected preset style with all 14 categories
-        categoryCards = getPresetCategories(currentPresetStyle).map((preset, index) => ({
-            id: `preset-${currentPresetStyle}-${index}`,
-            name: preset.name,
-            title: preset.title,
-            image: `https://placehold.co/400x400/CCCCCC/FFFFFF?text=${encodeURIComponent(preset.title)}`,
-            cardType: preset.cardType,
-            link: preset.link,
-            isPreset: true,
-            presetStyle: currentPresetStyle
-        }));
+        // Preset mode: use selected preset style merged with management data
+        categoryCards = getPresetCategories(currentPresetStyle).map((preset, index) => {
+            // Find if this preset category exists in the management list (database)
+            const managementCard = Array.from(document.querySelectorAll('#category-cards-list > div')).find(cardEl => {
+                const nameInput = cardEl.querySelector('input[id^="card-name-"]');
+                return nameInput && nameInput.value === preset.name;
+            });
 
-        // Add any additional user-created cards
+            if (managementCard) {
+                const id = managementCard.querySelector('input[id^="card-name-"]').id.replace('card-name-', '');
+                return {
+                    id: id,
+                    name: preset.name,
+                    title: document.getElementById(`card-title-${id}`)?.value || preset.title,
+                    image: document.getElementById(`card-image-${id}`)?.value || preset.image || `https://placehold.co/400x400/CCCCCC/FFFFFF?text=${encodeURIComponent(preset.title)}`,
+                    cardType: preset.cardType,
+                    link: document.getElementById(`card-link-${id}`)?.value || preset.link,
+                    isPreset: true,
+                    presetStyle: currentPresetStyle
+                };
+            }
+
+            return {
+                id: `preset-${currentPresetStyle}-${index}`,
+                name: preset.name,
+                title: preset.title,
+                image: preset.image || `https://placehold.co/400x400/CCCCCC/FFFFFF?text=${encodeURIComponent(preset.title)}`,
+                cardType: preset.cardType,
+                link: preset.link,
+                isPreset: true,
+                presetStyle: currentPresetStyle
+            };
+        });
+
+        // Add any additional user-created cards not in the preset
         document.querySelectorAll('#category-cards-list > div').forEach(card => {
             const id = card.querySelector('input[id^="card-name-"]')?.id?.replace('card-name-', '');
             if (!id) return;
@@ -1080,12 +1152,22 @@ function updateCategoryCardsPreview() {
             const title = document.getElementById(`card-title-${id}`)?.value || '';
             const image = document.getElementById(`card-image-${id}`)?.value || '';
             const cardType = document.getElementById(`card-type-${id}`)?.value || 'square';
+            const link = document.getElementById(`card-link-${id}`)?.value || '#';
 
             if ((name || title) && !categoryCards.some(c => c.name === name)) {
-                categoryCards.push({ id, name, title, image, cardType, isUserAdded: true });
+                categoryCards.push({ id, name, title, image, cardType, link, isUserAdded: true });
             }
         });
     }
+
+    return categoryCards;
+}
+
+function updateCategoryCardsPreview() {
+    const previewContainer = document.getElementById('category-cards-preview');
+    if (!previewContainer) return;
+
+    const categoryCards = getCurrentCategoryCards();
 
     // Simulate the full index.html layout with universal padding and spacing
     const previewContent = `
@@ -1895,7 +1977,7 @@ function editPresetCardsInManagement() {
 function publishPresetToIndex() {
     if (currentCategoryPreviewMode !== 'preset') return;
 
-    const presetCategories = getPresetCategories(currentPresetStyle);
+    const presetCategories = getCurrentCategoryCards();
 
     // Show loading indicator
     showToast(`Publishing ${currentPresetStyle} preset to index.html...`, 'info');
@@ -1907,7 +1989,7 @@ function publishPresetToIndex() {
                 name: category.name,
                 title: category.title,
                 description: category.name,
-                image: category.image || `https://placehold.co/400x400/CCCCCC/FFFFFF?text=${encodeURIComponent(category.title)}`,
+                image: category.image,
                 link: category.link,
                 cardType: category.cardType,
                 active: true,
@@ -2000,7 +2082,7 @@ async function publishPreset() {
 
     if (!confirm(`Are you sure you want to publish the ${currentPresetStyle} preset? This will overwrite existing category cards on the home page.`)) return;
 
-    const presetCategories = getPresetCategories(currentPresetStyle);
+    const presetCategories = getCurrentCategoryCards();
     console.log(`Publishing ${currentPresetStyle} preset with ${presetCategories.length} cards:`, presetCategories);
 
     // Show loading indicator
