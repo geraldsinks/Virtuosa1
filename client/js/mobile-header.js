@@ -502,8 +502,13 @@ async function initializeMobileCategoryScroller() {
             if (!targetUrl.startsWith('/') && !targetUrl.startsWith('http')) {
                  targetUrl = '/' + targetUrl; // Force absolute path to avoid missing products in nested folders
             }
+            // Enhance cat object with cleaned URL for desktop reuse
+            cat.targetUrl = targetUrl;
+            
             const imageUrl = cat.image?.startsWith('http') ? cat.image : 
                             (cat.image ? `${API_BASE.replace('/api', '')}${cat.image}` : null);
+            // Enhance cat object with cleaned image mapping for desktop reuse
+            cat.imageUrl = imageUrl;
             
             return `
                 <a href="${targetUrl}" class="mobile-category-item flex flex-col items-center no-underline text-gray-400 hover:text-gold transition-colors shrink-0" style="min-width: 56px;">
@@ -545,8 +550,57 @@ async function initializeMobileCategoryScroller() {
             }
             lastScrollY = currentScrollY;
         }, { passive: true });
+        
+        // --- DESKTOP NAV INTEGRATION ---
+        const desktopMenuContainer = document.querySelector('.nav-row-2-container');
+        if (desktopMenuContainer) {
+            // Find the scrolling flex container next to Explore button
+            const desktopMenu = desktopMenuContainer.querySelector('.flex.items-center.overflow-x-auto');
+            if (desktopMenu) {
+                // Clear out the static text links completely
+                desktopMenu.innerHTML = '';
+                // Adjust desktop menu styling class to fit circles better
+                desktopMenu.className = 'flex items-center overflow-x-auto hide-scrollbar py-2 w-full gap-6 pl-2';
+                
+                // 1. Manually add Sell Items 
+                const sellLinkHtml = `
+                    <a href="/pages/seller.html" class="flex flex-col items-center no-underline text-gold hover:text-yellow-300 transition-colors shrink-0" style="min-width: 64px;">
+                        <div class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center mb-1.5 overflow-hidden border-2 border-gold hover:bg-gray-700 transition-all shadow-md hover:shadow-lg">
+                            <i class="fas fa-store-alt text-lg"></i>
+                        </div>
+                        <span class="text-[11px] font-bold text-center w-full truncate">Sell Items</span>
+                    </a>
+                    <div class="w-px h-10 bg-gray-700 mx-2 shrink-0"></div>
+                `;
+                
+                // 2. Map the activeCats to desktop cards
+                const dynamicLinksHtml = activeCats.map(cat => {
+                    return `
+                        <a href="${cat.targetUrl}" class="flex flex-col items-center no-underline text-gray-400 hover:text-gold transition-colors shrink-0" style="min-width: 64px;">
+                            <div class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center mb-1.5 overflow-hidden border-2 border-transparent hover:border-gold transition-colors shadow-sm">
+                                ${cat.imageUrl ? `<img src="${cat.imageUrl}" class="w-full h-full object-cover" alt="${cat.title}">` : `<i class="fas fa-tags text-gray-400"></i>`}
+                            </div>
+                            <span class="text-[11px] font-medium max-w-[84px] truncate text-center">${cat.title}</span>
+                        </a>
+                    `;
+                }).join('');
+                
+                desktopMenu.innerHTML = sellLinkHtml + dynamicLinksHtml;
+                
+                // Add mouse wheel horizontal scrolling support since desktops don't easily touch-drag
+                desktopMenu.addEventListener('wheel', (e) => {
+                    if (e.deltaY !== 0) {
+                        // Transform vertical wheel to horizontal
+                        e.preventDefault();
+                        desktopMenu.scrollLeft += e.deltaY;
+                    }
+                }, { passive: false });
+            }
+        }
+        // --- END DESKTOP NAV INTEGRATION ---
+        
     } catch (error) {
-        console.error('Error loading mobile category scroller:', error);
+        console.error('Error loading category scroller:', error);
     }
 }
 
