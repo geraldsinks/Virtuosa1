@@ -483,7 +483,7 @@ async function initializeMobileCategoryScroller() {
         if (activeCats.length === 0) return;
         
         const scrollerContainer = document.createElement('div');
-        scrollerContainer.className = 'mobile-category-scroller md:hidden'; // hide on desktop automatically
+        scrollerContainer.className = 'mobile-category-scroller md:hidden flex flex-row overflow-x-auto whitespace-nowrap hide-scrollbar items-center bg-[#0A1128] py-3 px-4 gap-4 border-b border-gray-800'; // hide on desktop automatically
         
         scrollerContainer.innerHTML = activeCats.map(cat => {
             let targetUrl = cat.link ? (cat.link.startsWith('/') ? cat.link : '/pages/' + cat.link) : `/pages/products.html?category=${encodeURIComponent(cat.title)}`;
@@ -498,11 +498,11 @@ async function initializeMobileCategoryScroller() {
                             (cat.image ? `${API_BASE.replace('/api', '')}${cat.image}` : null);
             
             return `
-                <a href="${targetUrl}" class="mobile-category-item">
-                    <div class="mobile-category-icon">
+                <a href="${targetUrl}" class="mobile-category-item flex flex-col items-center no-underline text-gray-400 hover:text-gold transition-colors shrink-0" style="min-width: 56px;">
+                    <div class="mobile-category-icon w-11 h-11 rounded-full bg-gray-800 flex items-center justify-center mb-1.5 overflow-hidden border-2 border-transparent hover:border-gold transition-colors">
                         ${imageUrl ? `<img src="${imageUrl}" class="w-full h-full object-cover rounded-full" alt="${cat.title}">` : `<i class="fas fa-search text-gray-400"></i>`}
                     </div>
-                    <span class="mobile-category-text">${cat.title}</span>
+                    <span class="mobile-category-text text-[10px] font-medium truncate w-[64px] text-center">${cat.title}</span>
                 </a>
             `;
         }).join('');
