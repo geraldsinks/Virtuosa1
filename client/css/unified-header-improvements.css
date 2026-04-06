@@ -1,0 +1,394 @@
+/* Unified Header CSS Improvements */
+/* This file contains enhanced styling for better mobile and desktop appearance */
+
+:root {
+    --gold: #FFD700;
+    --navy: #0A1128;
+    --slate-900: #0F172A;
+}
+
+/* ===== MOBILE HEADER IMPROVEMENTS ===== */
+
+/* Mobile Header Row 1 - Better Spacing */
+.mobile-header-row-1 {
+    padding: 0.5rem 0;
+}
+
+.mobile-header-row-1 .flex {
+    gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+    .mobile-header-row-1 .flex {
+        gap: 0.75rem;
+    }
+}
+
+.mobile-logo {
+    letter-spacing: -0.01em;
+}
+
+/* Mobile Actions - Improved Sizing */
+.flex.items-center.gap-1 > a,
+.flex.items-center.gap-2 > a {
+    transition: all 0.3s ease;
+}
+
+.flex.items-center.gap-1 > a:active,
+.flex.items-center.gap-2 > a:active {
+    transform: scale(0.95);
+}
+
+/* Mobile Sell Button - Hide text on small screens */
+@media (max-width: 384px) {
+    .mobile-header-row-1 .flex > a:first-child span {
+        display: none;
+    }
+}
+
+/* ===== MOBILE SEARCH IMPROVEMENTS ===== */
+
+.mobile-header-row-2 {
+    position: relative;
+    z-index: 30;
+}
+
+.mobile-search-container input {
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.mobile-search-container input:focus {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 215, 0, 0.6);
+}
+
+/* ===== HORIZONTAL CATEGORY SCROLLER IMPROVEMENTS ===== */
+
+.mobile-category-scroller {
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+}
+
+.mobile-category-scroller::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+}
+
+.mobile-category-item {
+    flex-shrink: 0;
+    padding: 0.5rem 0.25rem;
+}
+
+.mobile-category-icon {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background-size: cover;
+    background-position: center;
+}
+
+.mobile-category-icon img {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    image-rendering: crisp-edges;
+    -webkit-font-smoothing: antialiased;
+}
+
+.mobile-category-item:hover .mobile-category-icon img {
+    opacity: 0.9;
+}
+
+.mobile-category-text {
+    transition: all 0.3s ease;
+}
+
+/* ===== USER DROPDOWN IMPROVEMENTS ===== */
+
+#user-dropdown-container {
+    position: relative;
+}
+
+#user-dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 0.75rem;
+    min-width: 16rem;
+    border-radius: 1rem;
+    z-index: 60;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+#user-dropdown.hidden {
+    display: none;
+}
+
+#user-dropdown.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#user-dropdown-button {
+    position: relative;
+    z-index: 61;
+}
+
+/* ===== AD SLIDER IMPROVEMENTS ===== */
+
+.ad-slider-section {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    padding: 2rem 0;
+}
+
+#ad-slider {
+    box-shadow: 0 20px 50px -15px rgba(0, 10, 20, 0.3);
+    border-radius: 1.5rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.ad-card {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.ad-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.5) 100%);
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.ad-card:hover::before {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+.ad-card:hover {
+    transform: scale(1.02);
+    filter: brightness(1.05);
+}
+
+.ad-card .absolute.inset-0 {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.5) 100%);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ad-card:hover .absolute.inset-0 {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+.ad-card h3,
+.ad-card p {
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    z-index: 3;
+    position: relative;
+}
+
+.ad-card h3 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+/* ===== SLIDER CONTROLS ===== */
+
+#prev-ad,
+#next-ad {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    z-index: 20;
+}
+
+#prev-ad:hover,
+#next-ad:hover {
+    background: rgba(255, 255, 255, 0.95) !important;
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 215, 0, 0.6);
+}
+
+#prev-ad:active,
+#next-ad:active {
+    transform: scale(0.95);
+}
+
+/* Dots Indicator */
+#slider-dots {
+    position: relative;
+    z-index: 15;
+}
+
+#slider-dots button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#slider-dots button:hover {
+    transform: scale(1.2);
+}
+
+#slider-dots button.active {
+    background-color: var(--gold);
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+}
+
+/* Progress Bar */
+#slider-progress {
+    height: 3px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+#slider-progress div {
+    height: 100%;
+    background: linear-gradient(90deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
+    background-size: 200% 100%;
+    animation: progressShine 5s linear infinite;
+    border-radius: 2px;
+}
+
+@keyframes progressShine {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* ===== RESPONSIVE IMPROVEMENTS ===== */
+
+/* Tablet and up */
+@media (min-width: 768px) {
+    .mobile-header-row-1,
+    .mobile-header-row-2 {
+        display: none;
+    }
+
+    .ad-slider-section {
+        padding: 3rem 0;
+    }
+
+    #ad-slider {
+        height: 24rem;
+    }
+
+    .ad-card h3 {
+        font-size: 3rem;
+    }
+
+    .ad-card p {
+        font-size: 1.25rem;
+    }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+    .desktop-header {
+        display: none !important;
+    }
+
+    .ad-slider-section {
+        padding: 1rem 0;
+        margin: 0 -1rem;
+    }
+
+    #ad-slider {
+        height: 15rem;
+        border-radius: 0;
+        margin: 0;
+    }
+
+    .ad-card h3 {
+        font-size: 1.5rem;
+    }
+
+    .ad-card p {
+        font-size: 1rem;
+    }
+
+    #prev-ad,
+    #next-ad {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1rem;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 384px) {
+    .mobile-header-row-1 .flex {
+        gap: 0.25rem;
+    }
+
+    .mobile-header-row-1 {
+        padding: 0.25rem 0;
+    }
+
+    #ad-slider {
+        height: 12rem;
+    }
+
+    .ad-card h3 {
+        font-size: 1.25rem;
+    }
+
+    .ad-card p {
+        font-size: 0.875rem;
+    }
+
+    .mobile-category-icon {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .mobile-category-text {
+        font-size: 0.75rem;
+    }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+/* Focus visible styles */
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: more) {
+    .mobile-category-icon {
+        border-width: 3px;
+    }
+
+    #slider-dots button.active {
+        box-shadow: 0 0 16px rgba(255, 215, 0, 0.8);
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

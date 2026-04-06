@@ -80,6 +80,7 @@
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/skeletons.css">
+    <link rel="stylesheet" href="css/unified-header-improvements.css">
     <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
     
     <!-- Open Graph / Facebook -->
@@ -251,6 +252,10 @@
             transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
 
         .ad-card::before {
@@ -260,26 +265,28 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%);
-            opacity: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 100%);
+            opacity: 1;
             transition: opacity 0.3s ease;
+            z-index: 1;
         }
 
         .ad-card:hover::before {
-            opacity: 1;
+            background: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%);
         }
 
         .ad-card:hover {
             transform: scale(1.02);
+            filter: brightness(1.05);
         }
 
         .ad-card .absolute.inset-0 {
-            background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%);
-            backdrop-filter: blur(1px);
+            background: linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 100%);
+            z-index: 2;
         }
 
         .ad-card:hover .absolute.inset-0 {
-            background: linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 100%);
+            background: linear-gradient(135deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.4) 100%);
         }
 
         /* Enhanced navigation buttons */

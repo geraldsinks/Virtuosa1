@@ -261,8 +261,8 @@ class UnifiedHeader {
         return `
 <header class="bg-gradient-to-r from-slate-900 via-navy to-slate-800 text-white shadow-2xl sticky top-0 z-50 backdrop-blur-sm bg-opacity-95 border-b border-gold/20" role="banner">
     <!-- Mobile Header Row 1 (Hamburger, Logo, Actions) -->
-    <div class="v-container mobile-header-row-1 md:hidden">
-        <div class="flex items-center justify-between py-4 px-2">
+    <div class="v-container mobile-header-row-1 md:hidden px-2 sm:px-3">
+        <div class="flex items-center justify-between py-3 sm:py-4 gap-2 sm:gap-3">
             <!-- Hamburger Menu -->
             <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-all duration-300 p-2 rounded-lg hover:bg-white/10 group" 
                     aria-label="Toggle menu" aria-controls="mobile-menu-overlay" aria-expanded="false">
@@ -273,39 +273,39 @@ class UnifiedHeader {
 
             <!-- Brand Logo -->
             <div class="flex-1 text-center">
-                <a href="/" class="text-2xl font-bold bg-gradient-to-r from-gold via-yellow-400 to-gold bg-clip-text text-transparent hover:from-yellow-300 hover:to-yellow-500 transition-all duration-300 mobile-logo transform hover:scale-105">
+                <a href="/" class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gold via-yellow-400 to-gold bg-clip-text text-transparent hover:from-yellow-300 hover:to-yellow-500 transition-all duration-300 mobile-logo transform hover:scale-105">
                     Virtuosa
                 </a>
             </div>
 
             <!-- Mobile Actions -->
-            <div class="flex items-center space-x-1">
+            <div class="flex items-center gap-1 sm:gap-2">
                 <!-- Quick Sell Button -->
-                <a href="/pages/seller.html" class="v-touch bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl" 
+                <a href="/pages/seller.html" class="v-touch bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl whitespace-nowrap" 
                    aria-label="Start Selling">
                     <i class="fas fa-plus text-xs mr-1"></i>
-                    Sell
+                    <span class="hidden xs:inline">Sell</span>
                 </a>
 
                 <!-- Notifications -->
                 <a href="/pages/notifications.html" class="relative v-touch text-white hover:text-gold transition-all duration-300 p-2 rounded-lg hover:bg-white/10 group" 
                    aria-label="Notifications">
-                    <i class="fas fa-bell text-lg group-hover:scale-110 transition-transform duration-200"></i>
-                    <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-gradient-to-r from-red-500 to-pink-600 rounded-full shadow-lg animate-pulse hidden">0</span>
+                    <i class="fas fa-bell text-base sm:text-lg group-hover:scale-110 transition-transform duration-200"></i>
+                    <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-gradient-to-r from-red-500 to-pink-600 rounded-full shadow-lg animate-pulse hidden">0</span>
                 </a>
 
                 <!-- Cart -->
                 <a href="/pages/cart.html" class="relative v-touch text-white hover:text-gold transition-all duration-300 p-2 rounded-lg hover:bg-white/10 group" 
                    aria-label="Shopping cart">
-                    <i class="fas fa-shopping-cart text-lg group-hover:scale-110 transition-transform duration-200"></i>
-                    <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-lg hidden">0</span>
+                    <i class="fas fa-shopping-cart text-base sm:text-lg group-hover:scale-110 transition-transform duration-200"></i>
+                    <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-lg hidden">0</span>
                 </a>
             </div>
         </div>
     </div>
 
     <!-- Mobile Header Row 2 (Search) -->
-    <div class="v-container mobile-header-row-2 pb-4 md:hidden px-4">
+    <div class="v-container mobile-header-row-2 pb-4 md:hidden px-4 relative z-30">
         <div class="relative mobile-search-container">
             <div class="relative">
                 <input id="mobile-search-input" type="text" 
@@ -405,7 +405,7 @@ class UnifiedHeader {
             </div>
 
             <!-- User Dropdown (hidden until logged in) -->
-            <div id="user-dropdown-container" class="hidden">
+            <div id="user-dropdown-container" class="hidden relative">
                 <button id="user-dropdown-button" onclick="toggleUserMenu()"
                     class="text-white hover:text-gold transition-all duration-300 p-2 rounded-xl hover:bg-white/10 flex items-center space-x-2 group"
                     aria-label="User menu" aria-expanded="false">
@@ -417,7 +417,7 @@ class UnifiedHeader {
                 </button>
 
                 <div id="user-dropdown"
-                    class="absolute right-0 top-full mt-3 w-64 bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-2xl z-[60] py-4 text-white border border-gold/20"
+                    class="absolute right-0 top-full mt-3 w-64 bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-2xl z-[60] py-4 text-white border border-gold/20 hidden"
                     role="menu">
                     <div class="px-4 pb-4 border-b border-gold/20 mb-2">
                         <div class="flex items-center space-x-3 mb-3">
@@ -688,10 +688,10 @@ class UnifiedHeader {
             if (activeCats.length === 0) return;
             
             const scrollerContainer = document.createElement('div');
-            scrollerContainer.className = 'mobile-category-scroller md:hidden flex flex-row overflow-x-auto whitespace-nowrap hide-scrollbar items-center bg-[#0A1128] gap-4 border-gray-100 transition-all duration-300 ease-in-out origin-top overflow-y-hidden border-b shadow-sm'; 
+            scrollerContainer.className = 'mobile-category-scroller md:hidden flex flex-row overflow-x-auto items-center bg-gradient-to-r from-slate-900/80 via-navy/80 to-slate-900/80 backdrop-blur-sm gap-4 border-gold/20 transition-all duration-300 ease-in-out border-b shadow-lg relative z-20';
             
-            // Define initial visible styles
-            scrollerContainer.style.maxHeight = '140px';
+            // Define initial visible styles with better appearance
+            scrollerContainer.style.maxHeight = '120px';
             scrollerContainer.style.paddingTop = '0.875rem';
             scrollerContainer.style.paddingBottom = '0.875rem';
             scrollerContainer.style.paddingLeft = '1.25rem';
@@ -716,11 +716,11 @@ class UnifiedHeader {
                 cat.imageUrl = imageUrl;
                 
                 return `
-                    <a href="${targetUrl}" class="mobile-category-item flex flex-col items-center no-underline text-gray-400 hover:text-gold transition-all duration-300 shrink-0 hover:scale-105" style="min-width: 60px;">
-                        <div class="mobile-category-icon w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center mb-1.5 overflow-hidden border-2 border-transparent hover:border-gold transition-all shadow-sm">
-                            ${imageUrl ? `<img src="${imageUrl}" class="w-full h-full object-cover rounded-full" alt="${cat.title}">` : `<i class="fas fa-search text-gray-400"></i>`}
+                    <a href="${targetUrl}" class="mobile-category-item flex flex-col items-center no-underline text-gray-300 hover:text-gold transition-all duration-300 shrink-0 hover:scale-110 group" style="min-width: 70px;">
+                        <div class="mobile-category-icon w-14 h-14 rounded-full bg-gradient-to-br from-gold/20 to-yellow-500/10 flex items-center justify-center mb-2 overflow-hidden border-2 border-gold/40 hover:border-gold transition-all shadow-md group-hover:shadow-lg group-hover:from-gold/40 group-hover:to-yellow-500/20">
+                            ${imageUrl ? `<img src="${imageUrl}" class="w-full h-full object-cover rounded-full" alt="${cat.title}" style="object-fit: cover;">` : `<i class="fas fa-tag text-gold text-lg"></i>`}
                         </div>
-                        <span class="mobile-category-text text-[10px] font-semibold truncate w-[68px] text-center">${cat.title}</span>
+                        <span class="mobile-category-text text-[11px] font-semibold truncate w-[70px] text-center text-white group-hover:text-gold transition-colors">${cat.title}</span>
                     </a>
                 `;
             }).join('');
