@@ -635,10 +635,154 @@ class UnifiedHeader {
     }
 
     /**
-     * Handle mobile search input
+     * Handle mobile search input with suggestions
      */
-    handleMobileSearchInput(query, suggestionsContainer) {
-        // Implementation for mobile search input handling
+    async handleMobileSearchInput(query, suggestionsContainer) {
+        clearTimeout(this.mobileSearchTimeout);
+        
+        if (query.length >= 2) {
+            this.mobileSearchTimeout = setTimeout(async () => {
+                await this.showMobileSearchSuggestions(query, suggestionsContainer);
+            }, 300);
+        } else {
+            this.hideMobileSearchSuggestions(suggestionsContainer);
+        }
+    }
+
+    /**
+     * Show mobile search suggestions
+     */
+    async showMobileSearchSuggestions(query, suggestionsContainer) {
+        try {
+            const suggestions = await this.fetchSearchSuggestions(query);
+            
+            if (suggestions.length === 0) {
+                suggestionsContainer.innerHTML = `
+                    <div class="px-4 py-3 text-gray-400 text-sm">
+                        No suggestions found
+                    </div>
+                `;
+                suggestionsContainer.classList.remove('hidden');
+                return;
+            }
+
+            suggestionsContainer.innerHTML = suggestions.map(item => {
+                const imageUrl = item.image ? 
+                    (item.image.startsWith('/') ? `${API_BASE.replace('/api', '')}${item.image}` : item.image) : 
+                    null;
+                
+                return `
+                    <div class="mobile-search-suggestion-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-b-0"
+                         data-product-id="${item.id}"
+                         data-product-name="${this.escapeHtmlAttribute(item.title)}">
+                        <div class="flex items-center space-x-3">
+                            ${imageUrl ? `
+                                <img src="${imageUrl}" alt="${item.title}" class="w-8 h-8 object-cover rounded" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-8 h-8 bg-gray-600 rounded flex items-center justify-center" style="display:none;">
+                                    <i class="fas fa-box text-gray-400 text-xs"></i>
+                                </div>
+                            ` : `
+                                <div class="w-8 h-8 bg-gray-600 rounded flex items-center justify-center">
+                                    <i class="fas fa-box text-gray-400 text-xs"></i>
+                                </div>
+                            `}
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-white line-clamp-1">${item.title}</div>
+                                <div class="text-xs text-gray-400">${item.category}</div>
+                            </div>
+                            <div class="text-gold text-sm font-bold">K${item.price ? item.price.toLocaleString() : '0'}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add click listeners for suggestions
+            suggestionsContainer.addEventListener('click', (e) => {
+                const suggestionItem = e.target.closest('.mobile-search-suggestion-item');
+                if (suggestionItem) {
+                    const productId = suggestionItem.dataset.productId;
+                    const productName = suggestionItem.dataset.productName;
+                    this.selectMobileSearchSuggestion(productName, productId);
+                }
+            });
+
+            suggestionsContainer.classList.remove('hidden');
+        } catch (error) {
+            console.error('Error fetching search suggestions:', error);
+            suggestionsContainer.innerHTML = `
+                <div class="px-4 py-3 text-gray-400 text-sm">
+                    Error loading suggestions
+                </div>
+            `;
+            suggestionsContainer.classList.remove('hidden');
+        }
+    }
+
+    /**
+     * Hide mobile search suggestions
+     */
+    hideMobileSearchSuggestions(suggestionsContainer) {
+        if (suggestionsContainer) {
+            suggestionsContainer.classList.add('hidden');
+        }
+    }
+
+    /**
+     * Fetch search suggestions from API
+     */
+    async fetchSearchSuggestions(query) {
+        try {
+            const response = await fetch(`${API_BASE}/search/suggestions?q=${encodeURIComponent(query)}`);
+            if (response.ok) {
+                const suggestions = await response.json();
+                return suggestions;
+            } else {
+                console.error('Search suggestions failed:', response.status);
+                return [];
+            }
+        } catch (error) {
+            console.error('Error fetching search suggestions:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Select mobile search suggestion
+     */
+    selectMobileSearchSuggestion(productName, productId) {
+        console.log('🚀 MOBILE SEARCH SUGGESTION CLICKED');
+        console.log('📦 Product Name:', productName);
+        console.log('🆔 Product ID:', productId);
+        
+        const mobileSearchInput = document.getElementById('mobile-search-input');
+        if (mobileSearchInput) {
+            mobileSearchInput.value = productName;
+        }
+        this.hideMobileSearchSuggestions(document.getElementById('mobile-search-suggestions'));
+        
+        // Use clean URL format
+        const productDetailUrl = `/product/${productId}`;
+        console.log('🔗 Navigating to clean URL:', productDetailUrl);
+        
+        window.location.href = productDetailUrl;
+    }
+
+    /**
+     * Perform mobile search
+     */
+    performMobileSearch(query) {
+        const trimmedQuery = query.trim();
+        
+        if (trimmedQuery) {
+            console.log('Mobile search for:', trimmedQuery);
+            
+            // Use clean URL format for search
+            const productsPath = `/products?q=${encodeURIComponent(trimmedQuery)}`;
+            console.log('Final mobile search path:', productsPath);
+            
+            window.location.href = productsPath;
+        }
     }
 
     /**
@@ -931,22 +1075,132 @@ class UnifiedHeader {
     }
 
     /**
-     * Initialize search functionality (adapted from mobile-header.js)
+     * Initialize desktop search functionality (from header.js)
      */
-    initializeSearch() {
-        const mobileSearchInput = document.getElementById('mobile-search-input');
+    async initializeDesktopSearch() {
         const desktopSearchInput = document.getElementById('desktop-search-input');
-        const mobileSearchButton = document.getElementById('mobile-search-button');
         const desktopSearchButton = document.getElementById('desktop-search-button');
+        const desktopSearchSuggestions = document.getElementById('home-search-suggestions');
+        
+        if (!desktopSearchInput || !desktopSearchSuggestions) return;
+        
+        let searchTimeout;
+        
+        // Load products for search suggestions
+        await this.loadProductsForDesktopSearch();
+        
+        // Search input events
+        desktopSearchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            
+            if (query.length >= 2) {
+                searchTimeout = setTimeout(() => {
+                    this.showDesktopSearchSuggestions(query);
+                }, 300);
+            } else {
+                this.hideDesktopSearchSuggestions();
+            }
+        });
+        
+        // Keep focus on input when clicking suggestions
+        desktopSearchSuggestions.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+        });
 
-        // Initialize mobile search
-        if (mobileSearchInput && mobileSearchButton) {
-            this.initializeMobileSearch();
+        // Delegate clicks to suggestion items
+        desktopSearchSuggestions.addEventListener('click', (e) => {
+            const suggestionItem = e.target.closest('.desktop-search-suggestion-item');
+            if (!suggestionItem) return;
+
+            const productId = suggestionItem.dataset.productId;
+            const productName = suggestionItem.dataset.productName || '';
+            if (!productId) return;
+
+            this.selectDesktopSearchSuggestion(productName, productId);
+        });
+        
+        // Click outside to close suggestions
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.v-header-search')) {
+                this.hideDesktopSearchSuggestions();
+            }
+        }.bind(this));
+        
+        // Search button click
+        if (desktopSearchButton) {
+            desktopSearchButton.addEventListener('click', () => {
+                this.performDesktopSearch(desktopSearchInput.value);
+            });
         }
+        
+        // Enter key in search input
+        desktopSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.performDesktopSearch(desktopSearchInput.value);
+            }
+        });
+    }
+    
+    async loadProductsForDesktopSearch() {
+        try {
+            const response = await fetch(`${API_BASE}/products`);
+            if (response.ok) {
+                const data = await response.json();
+                window.desktopAllProducts = data.products || [];
+            }
+        } catch (error) {
+            console.error('Error loading products for desktop search:', error);
+            window.desktopAllProducts = [];
+        }
+    }
+    
+    getDesktopSearchSuggestions(query, products) {
+        const lowerQuery = query.toLowerCase();
+        return products
+            .filter(product => 
+                product.name.toLowerCase().includes(lowerQuery) ||
+                product.category.toLowerCase().includes(lowerQuery) ||
+                product.description.toLowerCase().includes(lowerQuery)
+            )
+            .slice(0, 5); // Limit to 5 suggestions
+    }
 
-        // Desktop search (adapted from header.js)
+    selectDesktopSearchSuggestion(productName, productId) {
+        console.log('🚀 DESKTOP SEARCH SUGGESTION CLICKED');
+        console.log('📦 Product Name:', productName);
+        console.log('🆔 Product ID:', productId);
+        
+        const desktopSearchInput = document.getElementById('desktop-search-input');
         if (desktopSearchInput) {
-            this.initializeDesktopSearch();
+            desktopSearchInput.value = productName;
+        }
+        this.hideDesktopSearchSuggestions();
+        
+        // Use clean URL format
+        const productDetailUrl = `/product/${productId}`;
+        console.log('🔗 Navigating directly to:', productDetailUrl);
+        
+        window.location.href = productDetailUrl;
+    }
+
+    performDesktopSearch(query) {
+        const trimmedQuery = query.trim();
+        
+        if (trimmedQuery) {
+            console.log('Desktop search for:', trimmedQuery);
+            
+            // Use clean URL format for search
+            const productsPath = `/products?q=${encodeURIComponent(trimmedQuery)}`;
+            console.log('Final desktop search path:', productsPath);
+            
+            window.location.href = productsPath;
+        }
+    }
+
+    hideDesktopSearchSuggestions() {
+        const desktopSearchSuggestions = document.getElementById('home-search-suggestions');
+        if (desktopSearchSuggestions) {
+            desktopSearchSuggestions.classList.add('hidden');
         }
     }
 
@@ -979,13 +1233,13 @@ class UnifiedHeader {
         
         // Search button click
         mobileSearchButton.addEventListener('click', () => {
-            this.performSearch();
+            this.performMobileSearch(mobileSearchInput.value);
         });
         
         // Enter key in search input
         mobileSearchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                this.performSearch();
+                this.performMobileSearch(mobileSearchInput.value);
             }
         });
         
@@ -1104,187 +1358,6 @@ class UnifiedHeader {
         if (mobileSearchSuggestions) {
             mobileSearchSuggestions.classList.add('hidden');
         }
-    }
-
-    performSearch() {
-        const mobileSearchInput = document.getElementById('mobile-search-input');
-        const query = mobileSearchInput.value.trim();
-        if (query) {
-            window.location.href = `/pages/products.html?search=${encodeURIComponent(query)}`;
-        }
-    }
-
-    selectMobileSearchSuggestion(productName, productId) {
-        // Navigate to product detail page
-        window.location.href = `/pages/product-detail.html?id=${productId}`;
-    }
-
-    escapeHtmlAttribute(value) {
-        return String(value || '')
-            .replace(/&/g, '&amp;')
-            .replace(/"/g, '&quot;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
-    }
-
-    /**
-     * Initialize desktop search (from header.js)
-     */
-    initializeDesktopSearch() {
-        const desktopSearchInput = document.getElementById('desktop-search-input');
-        const desktopSearchButton = document.getElementById('desktop-search-button');
-        const desktopSearchSuggestions = document.getElementById('home-search-suggestions');
-        
-        if (!desktopSearchInput || !desktopSearchSuggestions) return;
-        
-        let searchTimeout;
-        
-        // Load products for search suggestions
-        this.loadProductsForDesktopSearch();
-        
-        // Search input events
-        desktopSearchInput.addEventListener('input', (e) => {
-            const query = e.target.value.trim();
-            
-            if (query.length >= 2) {
-                searchTimeout = setTimeout(() => {
-                    this.showDesktopSearchSuggestions(query);
-                }, 300);
-            } else {
-                this.hideDesktopSearchSuggestions();
-            }
-        });
-        
-        // Search button click
-        if (desktopSearchButton) {
-            desktopSearchButton.addEventListener('click', () => {
-                this.performDesktopSearch();
-            });
-        }
-        
-        // Enter key in search input
-        desktopSearchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.performDesktopSearch();
-            }
-        });
-        
-        // Keep focus on input when clicking suggestions
-        desktopSearchSuggestions.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-        });
-
-        // Delegate clicks to suggestion items
-        desktopSearchSuggestions.addEventListener('click', (e) => {
-            const suggestionItem = e.target.closest('.desktop-search-suggestion-item');
-            if (!suggestionItem) return;
-
-            const productId = suggestionItem.dataset.productId;
-            const productName = suggestionItem.dataset.productName || '';
-            if (!productId) return;
-
-            this.selectDesktopSearchSuggestion(productName, productId);
-        });
-        
-        // Click outside to close suggestions
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.v-header-search')) {
-                this.hideDesktopSearchSuggestions();
-            }
-        });
-    }
-
-    async loadProductsForDesktopSearch() {
-        try {
-            const response = await fetch(`${API_BASE}/products`);
-            if (response.ok) {
-                const data = await response.json();
-                window.desktopAllProducts = data.products || [];
-            }
-        } catch (error) {
-            console.error('Error loading products for desktop search:', error);
-            window.desktopAllProducts = [];
-        }
-    }
-
-    showDesktopSearchSuggestions(query) {
-        const desktopSearchSuggestions = document.getElementById('home-search-suggestions');
-        const suggestions = this.getDesktopSearchSuggestions(query, window.desktopAllProducts || []);
-        
-        if (suggestions.length > 0) {
-            desktopSearchSuggestions.innerHTML = suggestions.map(product => {
-                const imageUrl = product.images && product.images[0] 
-                    ? (product.images[0].startsWith('http') ? product.images[0] : this.fixServerUrl(product.images[0]))
-                    : 'https://placehold.co/40x40?text=No+Image';
-                
-                return `
-                <div class="desktop-search-suggestion-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-b-0"
-                     data-product-id="${product._id}"
-                     data-product-name="${this.escapeHtmlAttribute(product.name)}">
-                    <div class="flex items-center space-x-3">
-                        <img src="${imageUrl}" 
-                             alt="${product.name}" 
-                             class="w-10 h-10 object-cover rounded">
-                        <div class="flex-1 min-w-0">
-                            <div class="text-sm font-medium text-white truncate">${product.name}</div>
-                            <div class="text-xs text-gray-400">${product.category}</div>
-                        </div>
-                        <div class="text-sm font-bold text-gold">K${product.price}</div>
-                    </div>
-                </div>
-            `;
-            }).join('');
-            desktopSearchSuggestions.classList.remove('hidden');
-        } else {
-            desktopSearchSuggestions.innerHTML = `
-                <div class="px-4 py-3 text-gray-400 text-sm">
-                    No products found for "${query}"
-                </div>
-            `;
-            desktopSearchSuggestions.classList.remove('hidden');
-        }
-    }
-
-    hideDesktopSearchSuggestions() {
-        const desktopSearchSuggestions = document.getElementById('home-search-suggestions');
-        if (desktopSearchSuggestions) {
-            desktopSearchSuggestions.classList.add('hidden');
-        }
-    }
-
-    getDesktopSearchSuggestions(query, products) {
-        const lowerQuery = query.toLowerCase();
-        return products
-            .filter(product => 
-                product.name.toLowerCase().includes(lowerQuery) ||
-                product.category.toLowerCase().includes(lowerQuery) ||
-                product.description.toLowerCase().includes(lowerQuery)
-            )
-            .slice(0, 5); // Limit to 5 suggestions
-    }
-
-    performDesktopSearch() {
-        const desktopSearchInput = document.getElementById('desktop-search-input');
-        const query = desktopSearchInput.value.trim();
-        if (query) {
-            window.location.href = `/pages/products.html?search=${encodeURIComponent(query)}`;
-        }
-    }
-
-    selectDesktopSearchSuggestion(productName, productId) {
-        console.log('🚀 DESKTOP SEARCH SUGGESTION CLICKED');
-        console.log('📦 Product Name:', productName);
-        console.log('🆔 Product ID:', productId);
-        
-        const desktopSearchInput = document.getElementById('desktop-search-input');
-        desktopSearchInput.value = productName;
-        this.hideDesktopSearchSuggestions();
-        
-        // Direct navigation to product detail page
-        const productDetailUrl = `/pages/product-detail.html?id=${productId}`;
-        console.log('🔗 Navigating directly to:', productDetailUrl);
-        
-        window.location.href = productDetailUrl;
     }
 
     fixServerUrl(url) {
@@ -1463,22 +1536,213 @@ class UnifiedHeader {
     }
 
     /**
-     * Initialization fallback for basic functionality
+     * Initialize mobile menu functionality (from mobile-menu.js)
      */
-    initializeBasicFunctionality() {
-        console.warn('Running in basic functionality mode');
+    initializeMobileMenu() {
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+        const mobileMenuClose = document.getElementById('mobile-menu-close');
+        const mobileMenuContent = document.getElementById('mobile-menu-content');
+
+        // Open mobile menu
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', () => {
+                this.openMobileMenu();
+            });
+        }
+
+        // Close mobile menu
+        if (mobileMenuClose) {
+            mobileMenuClose.addEventListener('click', () => {
+                this.closeMobileMenu();
+            });
+        }
+
+        // Close menu when clicking overlay
+        if (mobileMenuOverlay) {
+            mobileMenuOverlay.addEventListener('click', (e) => {
+                if (e.target === mobileMenuOverlay) {
+                    this.closeMobileMenu();
+                }
+            });
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (mobileMenuContent && !mobileMenuContent.contains(e.target) && 
+                mobileMenuToggle && !mobileMenuToggle.contains(e.target)) {
+                this.closeMobileMenu();
+            }
+        });
+    }
+
+    /**
+     * Open mobile menu
+     */
+    openMobileMenu() {
+        console.log('📱 Opening mobile menu');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+        const mobileMenuContent = document.getElementById('mobile-menu-content');
         
-        // Still initialize mobile menu even if auth fails
-        this.initializeMobileMenu();
+        if (mobileMenuOverlay) {
+            mobileMenuOverlay.classList.add('active');
+        }
         
-        // Still initialize search
-        this.initializeSearch();
+        if (mobileMenuContent) {
+            mobileMenuContent.classList.add('active');
+        }
+        
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    /**
+     * Close mobile menu
+     */
+    closeMobileMenu() {
+        console.log('📱 Closing mobile menu');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+        const mobileMenuContent = document.getElementById('mobile-menu-content');
+        
+        if (mobileMenuOverlay) {
+            mobileMenuOverlay.classList.remove('active');
+        }
+        
+        if (mobileMenuContent) {
+            mobileMenuContent.classList.remove('active');
+        }
+        
+        document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    /**
+     * Initialize notifications functionality
+     */
+    async initializeNotifications() {
+        await this.updateCartBadge();
+        this.setupNotificationListeners();
+    }
+
+    /**
+     * Update cart badge
+     */
+    async updateCartBadge() {
+        const cartBadges = document.querySelectorAll('.cart-badge-count');
+        if (cartBadges.length === 0) return;
+        
+        try {
+            // Use the same getCart function as cart.js for consistency
+            const cart = await this.getCart();
+            const itemCount = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+            
+            cartBadges.forEach(badge => {
+                badge.textContent = itemCount;
+                
+                if (itemCount > 0) {
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            });
+        } catch (error) {
+            console.error('Error updating cart badge:', error);
+            // Fallback to localStorage if getCart fails
+            const cart = JSON.parse(localStorage.getItem('virtuosa_cart') || '[]');
+            const itemCount = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+            
+            cartBadges.forEach(badge => {
+                badge.textContent = itemCount;
+                
+                if (itemCount > 0) {
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            });
+        }
+    }
+
+    /**
+     * Setup notification listeners
+     */
+    setupNotificationListeners() {
+        // Listen for cart updates
+        window.addEventListener('cartUpdated', async () => {
+            await this.updateCartBadge();
+        });
+
+        // Listen for authentication changes
+        window.addEventListener('authStateChanged', () => {
+            console.log('Auth state changed, updating header...');
+            this.initializeAuthState();
+        });
+    }
+
+    /**
+     * Initialize user dropdown
+     */
+    initializeUserDropdown() {
+        // Click outside to close dropdown
+        document.addEventListener('click', (event) => {
+            const userDropdown = document.getElementById('user-dropdown');
+            const userMenu = document.getElementById('user-dropdown-button');
+            if (userDropdown && userMenu && !userMenu.contains(event.target)) {
+                userDropdown.classList.add('hidden');
+            }
+        });
+    }
+
+    /**
+     * Setup auth state observer
+     */
+    setupAuthStateObserver() {
+        // Listen for storage changes (when user logs in/out from other tabs)
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'token' || e.key === 'userEmail') {
+                this.initializeAuthState();
+            }
+        });
+    }
+
+    /**
+     * Helper function to fix URLs to point to server
+     */
+    fixServerUrl(url) {
+        if (!url) return url;
+        return url.startsWith('/') ? `${API_BASE}${url}` : url;
+    }
+
+
+    /**
+     * Get cart items (fallback method)
+     */
+    async getCart() {
+        try {
+            // Try to get cart from API first
+            const token = localStorage.getItem('token');
+            if (token) {
+                const response = await fetch(`${API_BASE}/cart`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    return await response.json();
+                }
+            }
+        } catch (error) {
+            console.log('API cart fetch failed, using localStorage');
+        }
+        
+        // Fallback to localStorage
+        return JSON.parse(localStorage.getItem('virtuosa_cart') || '[]');
     }
 }
 
-// Make global functions
+// Make global functions for backward compatibility
 window.closeMobileMenu = function() {
-    window.mobileMenuManager?.closeMobileMenu();
+    window.unifiedHeader?.closeMobileMenu();
+};
+
+window.openMobileMenu = function() {
+    window.unifiedHeader?.openMobileMenu();
 };
 
 window.toggleUserMenu = function() {
@@ -1486,7 +1750,188 @@ window.toggleUserMenu = function() {
     if (dropdown) dropdown.classList.toggle('hidden');
 };
 
+window.logout = async function(event) {
+    if (event) event.preventDefault();
+    try {
+        await fetch(`${API_BASE}/auth/logout`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        // Full storage cleanup
+        localStorage.clear();
+        sessionStorage.clear();
+
+        console.log('✅ Logout successful, storage cleared');
+        window.location.href = '/login';
+    } catch (error) {
+        console.error('Logout error:', error);
+        // Fallback: Clear storage anyway and redirect
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = '/login';
+    }
+};
+
+window.performSearch = function(query) {
+    const trimmedQuery = (query || "").trim();
+    if (!trimmedQuery) return;
+
+    console.log('Performing search for:', trimmedQuery);
+    const productsPath = `/products?q=${encodeURIComponent(trimmedQuery)}`;
+    console.log('Final search path:', productsPath);
+    
+    window.location.href = productsPath;
+};
+
+window.handleCategoryClick = function(category) {
+    if (!category) return;
+
+    console.log('Category clicked:', category);
+    const categoryUrl = `/products?category=${encodeURIComponent(category)}`;
+    console.log('Navigating to products with category:', categoryUrl);
+    
+    window.location.href = categoryUrl;
+};
+
+window.openCategories = function() {
+    window.location.href = '/pages/products.html';
+};
+
+window.showTokenRewards = function() {
+    const modal = document.createElement('div');
+    modal.id = 'token-rewards-modal';
+    modal.className = 'fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-navy/80 backdrop-blur-md animate-fade-in';
+    
+    modal.innerHTML = `
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all animate-scale-up">
+            <div class="bg-gradient-to-r from-gold to-yellow-500 p-8 text-navy text-center relative">
+                <button onclick="document.getElementById('token-rewards-modal').remove()" class="absolute top-4 right-4 text-navy/50 hover:text-navy transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                <div class="bg-white/30 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                    <i class="fas fa-coins text-4xl text-navy"></i>
+                </div>
+                <h2 class="text-2xl font-bold">Virtuosa Token Rewards</h2>
+                <p class="text-navy/80 font-medium">Earn as you shop, spend as you like</p>
+            </div>
+            <div class="p-8 space-y-6">
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="flex items-start p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div class="bg-green-100 p-3 rounded-xl mr-4">
+                            <i class="fas fa-plus text-green-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-navy">How to Earn</h3>
+                            <p class="text-sm text-gray-600">Get 5 tokens for every successful purchase and 10 tokens for each verified review you write.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div class="bg-gold/20 p-3 rounded-xl mr-4">
+                            <i class="fas fa-gift text-gold"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-navy">Redeem Benefits</h3>
+                            <p class="text-sm text-gray-600">Use tokens to unlock premium badges, free delivery vouchers, and exclusive seller analytics.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div class="bg-blue-100 p-3 rounded-xl mr-4">
+                            <i class="fas fa-users text-blue-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-navy">Community Power</h3>
+                            <p class="text-sm text-gray-600">Tokens are a sign of trust. High token balances boost your visibility in the marketplace.</p>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('token-rewards-modal').remove()" class="w-full bg-navy text-white py-4 rounded-2xl font-bold hover:bg-gray-800 transition-all shadow-lg active:scale-95">
+                    Got it, thanks!
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+};
+
+window.showToast = function(message, type = 'success', duration = 4000) {
+    // Remove existing toast if any
+    const existingToast = document.getElementById('virtuosa-toast');
+    if (existingToast) {
+        existingToast.remove();
+    }
+
+    const toast = document.createElement('div');
+    toast.id = 'virtuosa-toast';
+    
+    // Premium styling for toast
+    let bgColor = '#0A1128'; // Navy
+    let icon = 'fa-info-circle';
+    
+    if (type === 'success') {
+        bgColor = '#10B981'; // Green
+        icon = 'fa-check-circle';
+    } else if (type === 'error') {
+        bgColor = '#EF4444'; // Red
+        icon = 'fa-exclamation-circle';
+    } else if (type === 'warning') {
+        bgColor = '#F59E0B'; // Amber
+        icon = 'fa-exclamation-triangle';
+    } else if (type === 'auth') {
+        bgColor = '#C19A6B'; // Gold
+        icon = 'fa-lock';
+    }
+
+    toast.className = 'fixed bottom-5 right-5 z-[9999] flex items-center p-4 rounded-xl shadow-2xl text-white transform transition-all duration-300 translate-y-10 opacity-0';
+    toast.style.backgroundColor = bgColor;
+    toast.style.minWidth = '300px';
+    
+    toast.innerHTML = `
+        <div class="flex items-center w-full">
+            <div class="flex-shrink-0 mr-3">
+                <i class="fas ${icon} text-lg"></i>
+            </div>
+            <div class="flex-1 text-sm font-medium mr-3">
+                ${message}
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 text-white/50 hover:text-white transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="absolute bottom-0 left-0 h-1 bg-white/30 rounded-full transition-all duration-linear" style="width: 100%; transition-duration: ${duration}ms"></div>
+    `;
+
+    document.body.appendChild(toast);
+
+    // Animate in
+    requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-10', 'opacity-0');
+    });
+
+    // Progress bar animation
+    const progressBar = toast.querySelector('div:last-child');
+    setTimeout(() => {
+        if (progressBar) progressBar.style.width = '0%';
+    }, 10);
+
+    // Auto remove
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.classList.add('translate-y-10', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, duration);
+};
+
 // Initialize on load
 if (typeof document !== 'undefined') {
-    window.unifiedHeader = new UnifiedHeader();
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.unifiedHeader = new UnifiedHeader();
+        });
+    } else {
+        window.unifiedHeader = new UnifiedHeader();
+    }
 }

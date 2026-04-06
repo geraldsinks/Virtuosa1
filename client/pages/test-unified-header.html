@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Header Test - Virtuosa</title>
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .text-gold {
+            color: #FFD700;
+        }
+        
+        .bg-gold {
+            background-color: #FFD700;
+        }
+        
+        .bg-navy {
+            background-color: #0A1128;
+        }
+        
+        .test-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        
+        .test-result {
+            padding: 0.5rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .test-pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .test-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .test-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Unified Header will be automatically inserted here -->
+    
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl font-bold text-center mb-8 text-navy">
+                <i class="fas fa-flask text-gold mr-2"></i>
+                Unified Header System Test
+            </h1>
+            
+            <!-- Test Results Section -->
+            <div class="test-section">
+                <h2 class="text-xl font-semibold mb-4">
+                    <i class="fas fa-clipboard-check text-gold mr-2"></i>
+                    Test Results
+                </h2>
+                <div id="test-results">
+                    <div class="test-result test-info">
+                        Running tests... Please wait.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Manual Test Section -->
+            <div class="test-section">
+                <h2 class="text-xl font-semibold mb-4">
+                    <i class="fas fa-hand-pointer text-gold mr-2"></i>
+                    Manual Tests
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="font-semibold mb-2">Mobile Menu</h3>
+                        <p class="text-sm text-gray-600 mb-2">Test mobile menu functionality:</p>
+                        <ul class="text-sm space-y-1">
+                            <li>✓ Click hamburger menu (mobile)</li>
+                            <li>✓ Verify menu opens with overlay</li>
+                            <li>✓ Test menu navigation links</li>
+                            <li>✓ Test close button and overlay click</li>
+                            <li>✓ Test responsive behavior</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="font-semibold mb-2">Search Functionality</h3>
+                        <p class="text-sm text-gray-600 mb-2">Test search features:</p>
+                        <ul class="text-sm space-y-1">
+                            <li>✓ Type in mobile search (min 2 chars)</li>
+                            <li>✓ Verify suggestions appear</li>
+                            <li>✓ Click suggestion for navigation</li>
+                            <li>✓ Test desktop search</li>
+                            <li>✓ Verify clean URL navigation</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="font-semibold mb-2">Authentication State</h3>
+                        <p class="text-sm text-gray-600 mb-2">Test auth UI changes:</p>
+                        <ul class="text-sm space-y-1">
+                            <li>✓ Verify login/register links</li>
+                            <li>✓ Test login state changes</li>
+                            <li>✓ Verify user dropdown appears</li>
+                            <li>✓ Test logout functionality</li>
+                            <li>✓ Check role-based sections</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="font-semibold mb-2">Cart & Notifications</h3>
+                        <p class="text-sm text-gray-600 mb-2">Test badge updates:</p>
+                        <ul class="text-sm space-y-1">
+                            <li>✓ Check cart badge visibility</li>
+                            <li>✓ Test notification badges</li>
+                            <li>✓ Verify responsive layout</li>
+                            <li>✓ Test hover effects</li>
+                            <li>✓ Check accessibility</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feature Verification -->
+            <div class="test-section">
+                <h2 class="text-xl font-semibold mb-4">
+                    <i class="fas fa-check-double text-gold mr-2"></i>
+                    Feature Verification
+                </h2>
+                
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold mb-3">Expected Features:</h3>
+                    <div class="grid md:grid-cols-2 gap-2 text-sm">
+                        <div><span class="text-gold">✓</span> Unified header injection</div>
+                        <div><span class="text-gold">✓</span> Mobile menu with overlay</div>
+                        <div><span class="text-gold">✓</span> Desktop search with suggestions</div>
+                        <div><span class="text-gold">✓</span> Mobile search with suggestions</div>
+                        <div><span class="text-gold">✓</span> Clean URL navigation</div>
+                        <div><span class="text-gold">✓</span> Category scroller</div>
+                        <div><span class="text-gold">✓</span> Auth state management</div>
+                        <div><span class="text-gold">✓</span> Cart badge updates</div>
+                        <div><span class="text-gold">✓</span> Notification badges</div>
+                        <div><span class="text-gold">✓</span> User dropdown</div>
+                        <div><span class="text-gold">✓</span> Role-based sections</div>
+                        <div><span class="text-gold">✓</span> Responsive design</div>
+                        <div><span class="text-gold">✓</span> Modern animations</div>
+                        <div><span class="text-gold">✓</span> Performance optimization</div>
+                        <div><span class="text-gold">✓</span> No script conflicts</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Debug Information -->
+            <div class="test-section">
+                <h2 class="text-xl font-semibold mb-4">
+                    <i class="fas fa-bug text-gold mr-2"></i>
+                    Debug Information
+                </h2>
+                <div id="debug-info" class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm">
+                    Loading debug information...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="../js/config.js"></script>
+    <script src="../js/unified-header.js"></script>
+    
+    <script>
+        // Test Suite
+        class HeaderTester {
+            constructor() {
+                this.results = [];
+                this.debugInfo = {};
+            }
+            
+            async runAllTests() {
+                console.log('🧪 Starting Unified Header Tests...');
+                
+                this.testHeaderInjection();
+                this.testMobileMenuElements();
+                this.testSearchElements();
+                this.testAuthElements();
+                this.testResponsiveElements();
+                this.testGlobalFunctions();
+                this.testEventListeners();
+                
+                this.displayResults();
+                this.displayDebugInfo();
+            }
+            
+            testHeaderInjection() {
+                this.addTest('Header Injection', () => {
+                    const header = document.querySelector('header');
+                    if (!header) throw new Error('Header not found');
+                    
+                    const mobileToggle = document.getElementById('mobile-menu-toggle');
+                    const desktopSearch = document.getElementById('desktop-search-input');
+                    const mobileSearch = document.getElementById('mobile-search-input');
+                    
+                    if (!mobileToggle) throw new Error('Mobile menu toggle not found');
+                    if (!desktopSearch) throw new Error('Desktop search not found');
+                    if (!mobileSearch) throw new Error('Mobile search not found');
+                    
+                    return '✓ Header and all major elements injected successfully';
+                });
+            }
+            
+            testMobileMenuElements() {
+                this.addTest('Mobile Menu Elements', () => {
+                    const overlay = document.getElementById('mobile-menu-overlay');
+                    const content = document.getElementById('mobile-menu-content');
+                    const closeBtn = document.getElementById('mobile-menu-close');
+                    
+                    if (!overlay) throw new Error('Mobile menu overlay not found');
+                    if (!content) throw new Error('Mobile menu content not found');
+                    if (!closeBtn) throw new Error('Mobile menu close button not found');
+                    
+                    return '✓ All mobile menu elements present';
+                });
+            }
+            
+            testSearchElements() {
+                this.addTest('Search Elements', () => {
+                    const desktopSuggestions = document.getElementById('home-search-suggestions');
+                    const mobileSuggestions = document.getElementById('mobile-search-suggestions');
+                    
+                    if (!desktopSuggestions) throw new Error('Desktop search suggestions not found');
+                    if (!mobileSuggestions) throw new Error('Mobile search suggestions not found');
+                    
+                    return '✓ All search elements present';
+                });
+            }
+            
+            testAuthElements() {
+                this.addTest('Authentication Elements', () => {
+                    const loginLink = document.getElementById('login-link');
+                    const userDropdown = document.getElementById('user-dropdown-container');
+                    const mobileSignLink = document.getElementById('mobile-menu-sign-link');
+                    
+                    if (!loginLink) throw new Error('Login link not found');
+                    if (!userDropdown) throw new Error('User dropdown container not found');
+                    if (!mobileSignLink) throw new Error('Mobile sign link not found');
+                    
+                    return '✓ All authentication elements present';
+                });
+            }
+            
+            testResponsiveElements() {
+                this.addTest('Responsive Elements', () => {
+                    const mobileHeader = document.querySelector('.mobile-header-row-1');
+                    const desktopHeader = document.querySelector('.desktop-header');
+                    const categoryScroller = document.querySelector('.mobile-category-scroller');
+                    
+                    if (!mobileHeader) throw new Error('Mobile header row not found');
+                    if (!desktopHeader) throw new Error('Desktop header not found');
+                    
+                    return categoryScroller ? '✓ Category scroller present' : '⚠ Category scroller not found (may load async)';
+                });
+            }
+            
+            testGlobalFunctions() {
+                this.addTest('Global Functions', () => {
+                    const functions = [
+                        'openMobileMenu', 'closeMobileMenu', 'toggleUserMenu', 
+                        'logout', 'performSearch', 'handleCategoryClick',
+                        'openCategories', 'showTokenRewards', 'showToast'
+                    ];
+                    
+                    const missing = functions.filter(fn => typeof window[fn] !== 'function');
+                    if (missing.length > 0) {
+                        throw new Error(`Missing functions: ${missing.join(', ')}`);
+                    }
+                    
+                    return '✓ All global functions available';
+                });
+            }
+            
+            testEventListeners() {
+                this.addTest('Event Listeners', () => {
+                    // Test that unified header instance exists
+                    if (!window.unifiedHeader) {
+                        throw new Error('Unified header instance not found');
+                    }
+                    
+                    // Test that it's properly initialized
+                    if (!window.unifiedHeader.initialized) {
+                        throw new Error('Unified header not properly initialized');
+                    }
+                    
+                    return '✓ Event listeners properly set up';
+                });
+            }
+            
+            addTest(name, testFn) {
+                try {
+                    const result = testFn();
+                    this.results.push({ name, status: 'pass', message: result });
+                } catch (error) {
+                    this.results.push({ name, status: 'fail', message: error.message });
+                }
+            }
+            
+            displayResults() {
+                const container = document.getElementById('test-results');
+                const passCount = this.results.filter(r => r.status === 'pass').length;
+                const failCount = this.results.filter(r => r.status === 'fail').length;
+                
+                let html = `
+                    <div class="test-result test-info">
+                        <strong>Test Summary:</strong> ${passCount} passed, ${failCount} failed
+                    </div>
+                `;
+                
+                this.results.forEach(result => {
+                    const className = result.status === 'pass' ? 'test-pass' : 'test-fail';
+                    const icon = result.status === 'pass' ? '✓' : '✗';
+                    html += `
+                        <div class="test-result ${className}">
+                            <strong>${icon} ${result.name}:</strong> ${result.message}
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            }
+            
+            displayDebugInfo() {
+                this.debugInfo = {
+                    userAgent: navigator.userAgent,
+                    viewport: `${window.innerWidth}x${window.innerHeight}`,
+                    url: window.location.href,
+                    unifiedHeaderInstance: !!window.unifiedHeader,
+                    headerInitialized: window.unifiedHeader?.initialized || false,
+                    apiBase: window.API_BASE || 'Not set',
+                    timestamp: new Date().toISOString()
+                };
+                
+                const container = document.getElementById('debug-info');
+                container.innerHTML = JSON.stringify(this.debugInfo, null, 2);
+            }
+        }
+        
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const tester = new HeaderTester();
+                tester.runAllTests();
+            }, 1000); // Wait for header to initialize
+        });
+    </script>
+</body>
+</html>
