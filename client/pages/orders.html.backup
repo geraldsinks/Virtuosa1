@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Virtuosa - My Orders</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Performance Resource Hints -->
+    <link rel="preconnect" href="https://api.virtuosazm.com">
+    <link rel="preconnect" href="https://res.cloudinary.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-button-gold {
+            background-color: #C19A6B;
+        }
+
+        .hover-bg-button-gold:hover {
+            background-color: #A98B68;
+        }
+
+        .bg-dark-navy {
+            background-color: #060A18;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+    
+    <!-- Desktop Header from index.html -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Mobile Header Structure (320px-767px) - Hidden at tablet+ -->
+        <div class="v-container mobile-header-row-1 md:hidden">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-2 mobile-header-actions">
+                    <!-- Cart Icon with Badge -->
+                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                    
+                    <!-- Combined Notifications (includes messages) -->
+                    <a href="notifications.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <i class="fas fa-bell"></i>
+                        <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Search-First Experience (Mobile only) -->
+        <div class="v-container mobile-header-row-2 pb-3 md:hidden">
+            <div class="relative mobile-search-container">
+                <input id="mobile-search-input" type="text" 
+                    placeholder="Search campus marketplace..." 
+                    class="w-full pl-4 pr-12 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400 mobile-search-input"
+                    autocomplete="off">
+                <button id="mobile-search-button" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors mobile-search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <!-- Mobile Search Suggestions -->
+                <div id="mobile-search-suggestions" class="absolute mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
+                    <!-- Suggestions injected via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Header (Hidden on Mobile) -->
+        <div class="v-container v-header-row desktop-header hidden md:flex">
+            <div class="v-header-logo">
+                <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+            <div class="v-header-search">
+                <div class="relative">
+                    <input id="home-search-input" type="text"
+                        placeholder="Search campus marketplace (e.g. &quot;HP laptop&quot;, &quot;Men's hoodie&quot;)..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400"
+                        autocomplete="off">
+                    <button id="home-search-button"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <!-- Autocomplete suggestions -->
+                    <div id="home-search-suggestions"
+                        class="absolute mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
+                        <!-- Suggestions injected via JS -->
+                    </div>
+                </div>
+            </div>
+            <div id="user-info-container" class="v-header-actions">
+                <a href="login.html" id="login-link"
+                    class="text-white hover:text-gold transition-colors font-medium hidden md:flex flex-col items-start leading-tight group">
+                    <span class="text-[10px] text-gray-400 font-normal">Welcome</span>
+                    <div class="flex items-center -mt-0.5">
+                        <span class="text-sm font-semibold">Sign In</span>
+                        <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60 group-hover:rotate-180 transition-transform"></i>
+                    </div>
+                </a>
+                <div id="user-menu" class="relative hidden">
+                    <button onclick="toggleUserMenu()"
+                        class="text-white hover:text-gold transition-colors font-medium flex flex-col items-start leading-tight">
+                        <span id="user-greeting" class="text-[10px] text-gray-400 font-normal"></span>
+                        <div class="flex items-center -mt-0.5">
+                            <span class="text-sm font-semibold">My Account</span>
+                            <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60"></i>
+                        </div>
+                    </button>
+                    <div id="user-dropdown"
+                        class="absolute right-0 top-full mt-2 w-56 bg-navy rounded-xl shadow-2xl z-[60] py-4 text-white hidden border border-gray-800">
+                        <div class="px-4 pb-4 border-b border-gray-800 mb-2">
+                            <a href="profile.html" class="bg-button-gold text-white text-center py-2 px-4 rounded-lg text-sm block font-semibold hover:bg-gold transition-colors">My Profile</a>
+                        </div>
+                        <div class="px-2">
+                            <a href="buyer-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-th-large mr-3 text-gray-400"></i>Dashboard
+                            </a>
+                            <a href="orders.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors bg-gray-800">
+                                <i class="fas fa-shopping-bag mr-3 text-gray-400"></i>My Orders
+                            </a>
+                            <div id="seller-links" class="hidden">
+                                <div class="border-t border-gray-800 my-1"></div>
+                                <a href="seller-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-green-400">
+                                    <i class="fas fa-store mr-3"></i>Seller Panel
+                                </a>
+                            </div>
+                            <div id="admin-link" class="hidden">
+                                <div class="border-t border-gray-800 my-1"></div>
+                                <a href="admin-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-red-400">
+                                    <i class="fas fa-cog mr-3"></i>Admin Panel
+                                </a>
+                            </div>
+                            <div class="border-t border-gray-800 my-2"></div>
+                            <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gray-300">
+                                <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="messages.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                    <i class="fas fa-envelope text-lg"></i>
+                    <span class="badge message-badge-count hidden">0</span>
+                    <span class="text-[9px] mt-0.5 font-medium">Messages</span>
+                </a>
+
+                <a href="notifications.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                    <i class="fas fa-bell text-lg"></i>
+                    <span id="notification-badge-count" class="badge hidden">0</span>
+                    <span class="text-[9px] mt-0.5 font-medium">Alerts</span>
+                </a>
+
+                <a href="cart.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span class="badge cart-badge-count">0</span>
+                    <span class="text-[9px] mt-0.5 font-medium">Cart</span>
+                </a>
+            </div>
+        </header>
+
+    <!-- Navigation Bar (Desktop Only) -->
+    <nav class="desktop-only bg-dark-navy text-white shadow-sm py-1.5 px-6 md:px-12 z-40 border-t border-gray-800">
+        <div class="container mx-auto nav-row-2-container">
+            <!-- Desktop "Explore" Menu Trigger -->
+            <button id="desktop-explore-menu" onclick="window.openMobileMenu()" class="flex items-center text-white hover:text-gold px-3 py-1 rounded-full border border-gray-700 hover:border-gold transition-all mr-6 group shrink-0">
+                <i class="fas fa-bars mr-2 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-[10px] uppercase tracking-wider">Explore</span>
+            </button>
+
+            <!-- Category Menu -->
+            <div class="flex items-center space-x-6 overflow-x-auto hide-scrollbar py-1">
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="nav-category-item">Hot Deals</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="nav-category-item">Best Sellers</a>
+                <a href="seller.html" class="nav-category-item text-gold">Sell Items</a>
+                <div class="h-4 w-[1px] bg-gray-700 mx-2 shrink-0"></div>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="nav-category-item">Electronics</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="nav-category-item">Computers & Software</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="nav-category-item">Services</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="nav-category-item">Watches & Jewellery</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="nav-category-item">Men's Clothing</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="nav-category-item">Women's Clothing</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="nav-category-item">Shoes</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="nav-category-item">Accessories</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="nav-category-item">Personal Care & Beauty</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="nav-category-item">Food & Beverages</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="nav-category-item">Sports & Outdoors</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="nav-category-item">Home & Living</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Mobile Navigation Menu Overlay -->
+
+    <!-- Mobile Navigation Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+    <div class="mobile-menu-content">
+        <div class="mobile-menu-header">
+            <div class="text-xl font-bold text-gold">Menu</div>
+            <button id="mobile-menu-close" class="mobile-menu-close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Account</div>
+            <a href="login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
+                <i class="fas fa-sign-in-alt"></i>
+                <span id="mobile-menu-sign-text">Sign In</span>
+            </a>
+            <a href="profile.html" class="mobile-menu-link">
+                <i class="fas fa-user"></i>
+                <span>My Profile</span>
+            </a>
+            <a href="buyer-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="orders.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-bag"></i>
+                <span>My Orders</span>
+            </a>
+            <a href="transactions.html" class="mobile-menu-link">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="reviews.html" class="mobile-menu-link">
+                <i class="fas fa-star"></i>
+                <span>My Reviews</span>
+            </a>
+        </div>
+
+        <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Seller Tools</div>
+            <a href="seller-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Seller Dashboard</span>
+            </a>
+            <a href="create-product.html" class="mobile-menu-link">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Product</span>
+            </a>
+        </div>
+
+        <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Admin Panel</div>
+            <a href="admin-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-cog"></i>
+                <span>Admin Dashboard</span>
+            </a>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Shopping</div>
+            <a href="cart.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Shopping Cart</span>
+            </a>
+            <a href="products.html?category=Hot%20Deals" class="mobile-menu-link">
+                <i class="fas fa-fire"></i>
+                <span>Hot Deals</span>
+            </a>
+            <a href="products.html?category=Best%20Sellers" class="mobile-menu-link">
+                <i class="fas fa-crown"></i>
+                <span>Best Sellers</span>
+            </a>
+            <a href="seller.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Become a Seller</span>
+            </a>
+        </div>
+    </div>
+
+
+    <main class="flex-grow py-8">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold text-navy mb-6">My Orders</h1>
+            
+            <!-- Token Welcome Section -->
+            <div id="token-welcome-section" class="bg-gradient-to-r from-gold/20 via-yellow/15 to-gold/20 border-2 border-gold/30 rounded-xl p-6 mb-6 shadow-lg">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="flex items-center mb-4 md:mb-0">
+                        <div class="bg-white rounded-full p-3 mr-4 shadow-md">
+                            <i class="fas fa-coins text-gold text-2xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-navy mb-1">Welcome to Your Token Rewards!</h2>
+                            <p class="text-gray-700 text-sm">Earn tokens with every action and unlock exclusive benefits</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="bg-white/80 backdrop-blur rounded-lg px-4 py-2 text-center">
+                            <div class="text-2xl font-bold text-gold" id="token-balance-display">0</div>
+                            <div class="text-xs text-gray-600">Your Balance</div>
+                        </div>
+                        <div class="bg-white/80 backdrop-blur rounded-lg px-4 py-2 text-center">
+                            <div class="text-lg font-semibold text-green-600" id="tokens-earned-display">+5</div>
+                            <div class="text-xs text-gray-600">Per Delivery</div>
+                        </div>
+                        <button onclick="showTokenRewards()" class="bg-gold text-navy px-4 py-2 rounded-lg font-semibold hover:bg-yellow-500 transition-colors shadow-md">
+                            <i class="fas fa-gift mr-2"></i>View Rewards
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Token Benefits -->
+                <div class="mt-4 pt-4 border-t border-gold/30">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                        <div class="bg-white/60 backdrop-blur rounded-lg p-3">
+                            <i class="fas fa-percentage text-green-600 text-xl mb-1"></i>
+                            <div class="text-xs font-semibold text-gray-700">10% Discount</div>
+                            <div class="text-xs text-gray-500">25 Tokens</div>
+                        </div>
+                        <div class="bg-white/60 backdrop-blur rounded-lg p-3">
+                            <i class="fas fa-bolt text-blue-600 text-xl mb-1"></i>
+                            <div class="text-xs font-semibold text-gray-700">Fast Delivery</div>
+                            <div class="text-xs text-gray-500">50 Tokens</div>
+                        </div>
+                        <div class="bg-white/60 backdrop-blur rounded-lg p-3">
+                            <i class="fas fa-crown text-purple-600 text-xl mb-1"></i>
+                            <div class="text-xs font-semibold text-gray-700">Premium Badge</div>
+                            <div class="text-xs text-gray-500">100 Tokens</div>
+                        </div>
+                        <div class="bg-white/60 backdrop-blur rounded-lg p-3">
+                            <i class="fas fa-star text-gold text-xl mb-1"></i>
+                            <div class="text-xs font-semibold text-gray-700">VIP Access</div>
+                            <div class="text-xs text-gray-500">200 Tokens</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Status Filter -->
+            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="loadOrders(1, '')" class="filter-btn px-4 py-2 rounded-lg bg-navy text-white">All Orders</button>
+                    <button onclick="loadOrders(1, 'pending_seller_confirmation')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Pending Confirmation</button>
+                    <button onclick="loadOrders(1, 'confirmed_by_seller')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Confirmed</button>
+                    <button onclick="loadOrders(1, 'out_for_delivery')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Out for Delivery</button>
+                    <button onclick="loadOrders(1, 'delivered_pending_confirmation')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Delivered (Pending)</button>
+                    <button onclick="loadOrders(1, 'Completed')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Completed</button>
+                    <button onclick="loadOrders(1, 'declined')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">Declined</button>
+                </div>
+            </div>
+
+            <!-- Orders Container -->
+            <div id="orders-container">
+                <!-- Token Incentive Banner -->
+                <div class="bg-gradient-to-r from-gold/10 to-yellow/10 border border-gold/20 rounded-lg p-4 mb-6">
+                    <div class="text-center">
+                        <div class="flex items-center justify-center mb-3">
+                            <i class="fas fa-coins text-gold text-2xl mr-3"></i>
+                            <h3 class="text-xl font-bold text-navy">Earn Tokens with Every Delivery!</h3>
+                        </div>
+                        <p class="text-gray-700 mb-3">
+                            <strong>Buyers:</strong> Confirm deliveries to earn tokens for exclusive discounts<br>
+                            <strong>Sellers:</strong> Complete deliveries to earn tokens for premium product placement
+                        </p>
+                        <div class="flex justify-center space-x-4 text-sm">
+                            <div class="flex items-center">
+                                <i class="fas fa-gift text-green-600 mr-1"></i>
+                                <span class="text-gray-600">Redeem tokens for special offers</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-star text-blue-600 mr-1"></i>
+                                <span class="text-gray-600">Unlock exclusive marketplace features</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orders will be loaded here -->
+                <div class="text-center py-12">
+                    <i class="fas fa-spinner fa-spin text-4xl text-gold mb-4"></i>
+                    <p class="text-gray-600">Loading your orders...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div id="pagination-container" class="mt-8">
+                <!-- Pagination will be loaded here -->
+            </div>
+        </div>
+    </main>
+    <footer class="bg-navy text-gray-400 p-4 text-center shadow-inner mt-auto">
+        &copy; 2025 Virtuosa. All rights reserved.
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const API_BASE = 'https://api.virtuosazm.com/api';
+            const loginLink = document.getElementById('login-link');
+            const userGreeting = document.getElementById('user-greeting');
+            
+            let orders = [];
+            let currentPage = 1;
+            let currentFilter = ''; // Track current filter
+            const ordersPerPage = 10;
+
+            // Load orders from backend
+            async function loadOrders(page = 1, status = '') {
+                const token = localStorage.getItem('token');
+                
+                // Update current state
+                currentPage = page;
+                currentFilter = status;
+                
+                if (!token) {
+                    window.location.href = '/pages/login.html';
+                    return;
+                }
+
+                try {
+                    const queryParams = new URLSearchParams({
+                        page: page.toString(),
+                        limit: ordersPerPage.toString(),
+                        ...(status && { status })
+                    });
+
+                    const response = await fetch(`${API_BASE}/orders?${queryParams}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        orders = data.orders || [];
+                        // Store user role for rendering
+                        window.currentUserRole = data.userRole || 'buyer';
+                        renderOrders();
+                        renderPagination(data.pagination);
+                        // Update filter button states
+                        updateFilterButtons(status);
+                    } else {
+                        console.error('Failed to load orders:', await response.json());
+                        orders = [];
+                        renderOrders();
+                    }
+                } catch (error) {
+                    console.error('Error loading orders:', error);
+                    orders = [];
+                    renderOrders();
+                }
+            }
+
+            // Update filter button states
+            function updateFilterButtons(activeStatus = '') {
+                const filterButtons = document.querySelectorAll('.filter-btn');
+                
+                filterButtons.forEach(button => {
+                    // Remove active styling from all buttons
+                    button.classList.remove('bg-navy', 'text-white');
+                    button.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                    
+                    // Add active styling to the current filter button
+                    const onclickAttr = button.getAttribute('onclick');
+                    if (onclickAttr) {
+                        // Extract the status parameter from onclick="loadOrders(1, 'status')"
+                        const match = onclickAttr.match(/loadOrders\(1,\s*['"]([^'"]*)['"]\)/);
+                        if (match) {
+                            const buttonStatus = match[1];
+                            // Handle empty string for "All Orders" - both should be empty
+                            if (buttonStatus === activeStatus) {
+                                button.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                                button.classList.add('bg-navy', 'text-white');
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Render orders
+            function renderOrders() {
+                const ordersContainer = document.getElementById('orders-container');
+                
+                if (!orders || orders.length === 0) {
+                    ordersContainer.innerHTML = `
+                        <div class="text-center py-12">
+                            <i class="fas fa-box text-6xl text-gray-300 mb-4"></i>
+                            <h3 class="text-xl font-semibold text-gray-600 mb-2">No orders found</h3>
+                            <p class="text-gray-500 mb-6">${window.currentUserRole === 'seller' ? "You haven't received any orders yet." : "You haven't placed any orders yet."}</p>
+                            <a href="/pages/products.html" class="inline-flex items-center bg-button-gold text-white px-6 py-3 rounded-full hover-bg-button-gold transition-colors">
+                                <i class="fas fa-shopping-bag mr-2"></i>
+                                ${window.currentUserRole === 'seller' ? 'View Your Products' : 'Start Shopping'}
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                orders.forEach(order => {
+                    const statusColor = getStatusColor(order.status);
+                    const statusIcon = getStatusIcon(order.status);
+                    const orderDate = new Date(order.createdAt).toLocaleDateString();
+                    const productImage = order.product?.images?.[0] || 'https://placehold.co/100x100';
+                    
+                    // Different display for sellers vs buyers
+                    const isSeller = window.currentUserRole === 'seller';
+                    const otherParty = isSeller ? order.buyer : order.seller;
+                    const otherPartyLabel = isSeller ? 'Buyer' : 'Seller';
+                    
+                    html += `
+                        <div class="bg-white rounded-lg shadow-md p-6 mb-4 hover:shadow-lg transition-shadow">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                                <div class="flex items-center space-x-3 mb-2 md:mb-0">
+                                    <img src="${productImage}" alt="${order.product?.name}" class="w-16 h-16 object-cover rounded-lg" loading="lazy">
+                                    <div>
+                                        <h3 class="font-semibold text-navy text-lg">${order.product?.name || 'Unknown Product'}</h3>
+                                        <p class="text-gray-600 text-sm">Order #${order._id.slice(-8)}</p>
+                                        <p class="text-gray-500 text-xs">${orderDate}</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusColor}">
+                                        <i class="${statusIcon} mr-1"></i>
+                                        ${order.status}
+                                    </span>
+                                    <p class="font-bold text-lg text-gold mt-2">ZMW ${order.totalAmount?.toFixed(2) || '0.00'}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-t pt-4">
+                                <div class="text-sm text-gray-600 mb-2 sm:mb-0">
+                                    <p><i class="fas fa-user mr-1"></i> ${otherPartyLabel}: ${otherParty?.fullName || 'Unknown'}</p>
+                                    <p><i class="fas fa-box mr-1"></i> Quantity: ${order.quantity || 1}</p>
+                                    ${order.trackingNumber ? `<p><i class="fas fa-truck mr-1"></i> Tracking: ${order.trackingNumber}</p>` : ''}
+                                    <p><i class="fas fa-money-bill-wave mr-1"></i> Payment: ${order.paymentMethod === 'cash_on_delivery' ? 'Cash on Delivery' : 'Other'}</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="viewOrderDetails('${order._id}')" 
+                                        class="px-4 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors text-sm">
+                                        <i class="fas fa-eye mr-1"></i> View Details
+                                    </button>
+                                    ${otherParty?._id ? `
+                                        <button onclick="message${otherPartyLabel}('${otherParty._id}', '${order._id}')" 
+                                            class="px-4 py-2 bg-gold text-white rounded-lg hover:bg-gold transition-colors text-sm">
+                                            <i class="fas fa-message mr-1"></i> Message ${otherPartyLabel}
+                                        </button>
+                                    ` : ''}
+                                    ${!isSeller && order.status === 'delivered_pending_confirmation' ? `
+                                        <button onclick="confirmDelivery('${order._id}')" 
+                                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+                                            <i class="fas fa-check mr-1"></i> Confirm Delivery
+                                        </button>
+                                    ` : ''}
+                                    ${isSeller && order.status === 'pending_seller_confirmation' ? `
+                                        <button onclick="confirmOrder('${order._id}')" 
+                                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+                                            <i class="fas fa-check mr-1"></i> Confirm Order
+                                        </button>
+                                        <button onclick="declineOrder('${order._id}')" 
+                                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm">
+                                            <i class="fas fa-times mr-1"></i> Decline Order
+                                        </button>
+                                    ` : ''}
+                                    ${isSeller && order.status === 'confirmed_by_seller' ? `
+                                        <button onclick="markAsShipped('${order._id}')" 
+                                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                            <i class="fas fa-truck mr-1"></i> Mark as Shipped
+                                        </button>
+                                    ` : ''}
+                                    ${isSeller && order.status === 'out_for_delivery' ? `
+                                        <button onclick="markAsDelivered('${order._id}')" 
+                                            class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                                            <i class="fas fa-box mr-1"></i> Mark as Delivered
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                ordersContainer.innerHTML = html;
+            }
+
+            // Get status color
+            function getStatusColor(status) {
+                switch (status) {
+                    case 'pending_seller_confirmation': return 'bg-yellow-100 text-yellow-800';
+                    case 'confirmed_by_seller': return 'bg-blue-100 text-blue-800';
+                    case 'out_for_delivery': return 'bg-purple-100 text-purple-800';
+                    case 'delivered_pending_confirmation': return 'bg-orange-100 text-orange-800';
+                    case 'completed': return 'bg-green-100 text-green-800';
+                    case 'Completed': return 'bg-green-100 text-green-800';
+                    case 'declined': return 'bg-red-100 text-red-800';
+                    default: return 'bg-gray-100 text-gray-800';
+                }
+            }
+
+            // Get status icon
+            function getStatusIcon(status) {
+                switch (status) {
+                    case 'pending_seller_confirmation': return 'fas fa-clock';
+                    case 'confirmed_by_seller': return 'fas fa-check-circle';
+                    case 'out_for_delivery': return 'fas fa-truck';
+                    case 'delivered_pending_confirmation': return 'fas fa-box';
+                    case 'completed': return 'fas fa-check-double';
+                    case 'Completed': return 'fas fa-check-double';
+                    case 'declined': return 'fas fa-times-circle';
+                    default: return 'fas fa-question-circle';
+                }
+            }
+
+            // Render pagination
+            function renderPagination(pagination) {
+                const paginationContainer = document.getElementById('pagination-container');
+                
+                if (!pagination || pagination.totalPages <= 1) {
+                    paginationContainer.innerHTML = '';
+                    return;
+                }
+
+                let html = '<div class="flex justify-center items-center space-x-2">';
+                
+                // Previous button
+                if (pagination.currentPage > 1) {
+                    html += `<button onclick="loadOrders(${pagination.currentPage - 1}, '${currentFilter}')" class="px-3 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>`;
+                }
+                
+                // Page numbers
+                for (let i = 1; i <= pagination.totalPages; i++) {
+                    const isActive = i === pagination.currentPage;
+                    html += `<button onclick="loadOrders(${i}, '${currentFilter}')" class="px-4 py-2 rounded-lg transition-colors ${
+                        isActive ? 'bg-gold text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }">${i}</button>`;
+                }
+                
+                // Next button
+                if (pagination.currentPage < pagination.totalPages) {
+                    html += `<button onclick="loadOrders(${pagination.currentPage + 1}, '${currentFilter}')" class="px-3 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>`;
+                }
+                
+                html += '</div>';
+                paginationContainer.innerHTML = html;
+            }
+
+            // View order details
+            window.viewOrderDetails = async (orderId) => {
+                // You can implement a modal or redirect to order details page
+                window.location.href = `/pages/order-details.html?id=${orderId}`;
+            };
+
+            // Message seller
+            window.messageSeller = (sellerId, orderId) => {
+                // Redirect to messages page with pre-filled conversation
+                window.location.href = `messages.html?seller=${sellerId}&order=${orderId}`;
+            };
+
+            // Message buyer (for sellers)
+            window.messageBuyer = (buyerId, orderId) => {
+                // Redirect to messages page with pre-filled conversation
+                window.location.href = `messages.html?buyer=${buyerId}&order=${orderId}`;
+            };
+
+            // Confirm order (for sellers)
+            window.confirmOrder = async (orderId) => {
+                const token = localStorage.getItem('token');
+                
+                const confirmed = confirm('Are you sure you want to confirm this order? This will notify the buyer that you\'re preparing their items.');
+                
+                if (!confirmed) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/confirm`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        showToast('Order confirmed successfully!', 'success');
+                        await loadOrders(1, ''); // Load all orders after confirmation
+                    } else {
+                        const error = await response.json();
+                        showToast(error.message || 'Failed to confirm order', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error confirming order:', error);
+                    showToast('Error confirming order', 'error');
+                }
+            };
+
+            // Decline order (for sellers)
+            window.declineOrder = async (orderId) => {
+                const token = localStorage.getItem('token');
+                
+                const reason = prompt('Please provide a reason for declining this order (optional):');
+                
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/decline`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            reason: reason || 'Order declined by seller'
+                        })
+                    });
+
+                    if (response.ok) {
+                        showToast('Order declined successfully', 'warning');
+                        await loadOrders(1, ''); // Load all orders after decline
+                    } else {
+                        const error = await response.json();
+                        showToast(error.message || 'Failed to decline order', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error declining order:', error);
+                    showToast('Error declining order', 'error');
+                }
+            };
+
+            // Mark as shipped (for sellers)
+            window.markAsShipped = async (orderId) => {
+                const token = localStorage.getItem('token');
+                
+                const confirmed = confirm('Are you sure you want to mark this order as shipped?');
+                
+                if (!confirmed) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            status: 'out_for_delivery'
+                        })
+                    });
+
+                    if (response.ok) {
+                        showToast('Order marked as shipped!', 'success');
+                        await loadOrders(1, ''); // Load all orders after shipping
+                    } else {
+                        const error = await response.json();
+                        showToast(error.message || 'Failed to update order status', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error marking as shipped:', error);
+                    showToast('Error updating order status', 'error');
+                }
+            };
+
+            // Mark as delivered (for sellers)
+            window.markAsDelivered = async (orderId) => {
+                const token = localStorage.getItem('token');
+                
+                const confirmed = confirm('Are you sure you want to mark this order as delivered? The buyer will then need to confirm receipt.');
+                
+                if (!confirmed) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            status: 'delivered_pending_confirmation'
+                        })
+                    });
+
+                    if (response.ok) {
+                        showToast('Order marked as delivered! Waiting for buyer confirmation.', 'success');
+                        await loadOrders(1, ''); // Load all orders after marking as delivered
+                    } else {
+                        const error = await response.json();
+                        showToast(error.message || 'Failed to update order status', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error marking as delivered:', error);
+                    showToast('Error updating order status', 'error');
+                }
+            };
+
+            // Confirm delivery
+            window.confirmDelivery = async (orderId) => {
+                const token = localStorage.getItem('token');
+                
+                // Show enhanced confirmation dialog with token incentive
+                const confirmed = confirm(`
+🎉 DELIVERY CONFIRMATION & TOKEN REWARD! 🎉
+
+Are you sure you have received this order?
+
+✅ BENEFITS FOR CONFIRMING:
+• Earn 5 tokens for this delivery confirmation
+• Move closer to next reward tier (25 tokens = 10% discount)
+• Help build trusted marketplace community
+
+⚠️ IMPORTANT:
+This will complete the transaction and release payment to the seller.
+Only confirm if you have physically received the items.
+
+Confirm Delivery & Earn Tokens?
+                `);
+                
+                if (!confirmed) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ 
+                            status: 'Completed',
+                            deliveryNotes: 'Delivery confirmed by buyer - transaction completed + 5 tokens earned'
+                        })
+                    });
+
+                    if (response.ok) {
+                        // Show success message with token reward
+                        showToast('🎉 Delivery confirmed! You earned 5 tokens! Check your profile for rewards.', 'success');
+                        
+                        // Show token reward animation
+                        showTokenRewardAnimation(5);
+                        
+                        // Show review modal after a short delay
+                        setTimeout(() => {
+                            showReviewModal(orderId);
+                        }, 2000);
+                        
+                        await loadOrders(1); // Reload orders
+                        await loadTokenBalance(); // Refresh token balance
+                    } else {
+                        const error = await response.json();
+                        showToast(error.message || 'Failed to confirm delivery', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error confirming delivery:', error);
+                    showToast('Failed to confirm delivery', 'error');
+                }
+            };
+
+            // Show token reward animation
+            function showTokenRewardAnimation(tokens) {
+                const rewardHtml = `
+                    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="token-reward">
+                        <div class="bg-white rounded-lg p-8 max-w-sm mx-4 animate-slide-in">
+                            <div class="text-center">
+                                <div class="text-6xl mb-4">🪙</div>
+                                <h2 class="text-2xl font-bold text-gold mb-2">+${tokens} Tokens Earned!</h2>
+                                <p class="text-gray-600">Keep confirming deliveries to unlock amazing rewards!</p>
+                                <button onclick="this.parentElement.parentElement.remove()" 
+                                        class="mt-4 bg-gold text-white font-semibold py-2 px-6 rounded-full hover:bg-gold transition-colors">
+                                    Awesome!
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', rewardHtml);
+                
+                // Auto-remove after 4 seconds
+                setTimeout(() => {
+                    const rewardElement = document.getElementById('token-reward');
+                    if (rewardElement) {
+                        rewardElement.remove();
+                    }
+                }, 4000);
+            }
+
+            // Show review modal
+            window.showReviewModal = (orderId) => {
+                // Find the order from recent transactions
+                const order = orders.find(t => t._id === orderId);
+                
+                if (!order) {
+                    console.error('Order not found for review:', orderId);
+                    showToast('Order not found for review', 'error');
+                    return;
+                }
+
+                const modalHtml = `
+                    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="review-modal">
+                        <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto animate-slide-in">
+                            <div class="p-6">
+                                <!-- Header -->
+                                <div class="text-center mb-6">
+                                    <div class="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-4">
+                                        <i class="fas fa-check text-green-600 text-xl"></i>
+                                    </div>
+                                    <h2 class="text-2xl font-bold text-navy mb-2">How was your experience?</h2>
+                                    <p class="text-gray-600">Rate your delivered items and share your feedback</p>
+                                </div>
+
+                                <!-- Product Info -->
+                                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                    <div class="flex items-center space-x-4 mb-4">
+                                        <img src="${order.product?.images?.[0] || 'https://placehold.co/80x80'}" 
+                                             alt="${order.product?.name || 'Product'}" 
+                                             class="w-20 h-20 object-cover rounded-lg">
+                                        <div>
+                                            <h3 class="font-semibold text-navy text-lg">${order.product?.name || 'Product'}</h3>
+                                            <p class="text-sm text-gray-600">Order #${order._id?.slice(-8) || 'N/A'}</p>
+                                            <p class="text-sm text-gray-500">Seller: ${order.seller?.fullName || 'N/A'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Star Rating -->
+                                <div class="mb-6">
+                                    <h3 class="text-lg font-semibold text-navy mb-4 text-center">Rate Your Experience</h3>
+                                    <div class="flex justify-center space-x-2 mb-4">
+                                        <button onclick="setRating(1)" class="rating-star text-3xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="1">
+                                            <i class="fas fa-star"></i>
+                                        </button>
+                                        <button onclick="setRating(2)" class="rating-star text-3xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="2">
+                                            <i class="fas fa-star"></i>
+                                        </button>
+                                        <button onclick="setRating(3)" class="rating-star text-3xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="3">
+                                            <i class="fas fa-star"></i>
+                                        </button>
+                                        <button onclick="setRating(4)" class="rating-star text-3xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="4">
+                                            <i class="fas fa-star"></i>
+                                        </button>
+                                        <button onclick="setRating(5)" class="rating-star text-3xl text-gray-300 hover:text-yellow-400 transition-colors" data-rating="5">
+                                            <i class="fas fa-star"></i>
+                                        </button>
+                                    </div>
+                                    <div class="flex justify-between text-sm text-gray-600">
+                                        <span class="text-left">Poor</span>
+                                        <span class="text-center">Excellent</span>
+                                    </div>
+                                </div>
+
+                                <!-- Written Review -->
+                                <div class="mb-6">
+                                    <label class="block text-lg font-semibold text-navy mb-2">Share your experience (optional)</label>
+                                    <textarea id="review-text" 
+                                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:outline-none resize-none" 
+                                              rows="4" 
+                                              placeholder="What did you like about the product? How was the delivery? Any feedback for the seller?"></textarea>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="flex space-x-4">
+                                    <button onclick="closeReviewModal()" 
+                                            class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold">
+                                        Maybe Later
+                                    </button>
+                                    <button onclick="submitReview(${orderId}, '${order.product?._id || ''}')" 
+                                            class="flex-1 px-6 py-3 bg-gold text-white rounded-lg hover:bg-yellow-400 transition-colors font-semibold">
+                                        Submit Review
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                
+                // Add event listeners
+                setTimeout(() => {
+                    document.getElementById('review-modal')?.addEventListener('click', (e) => {
+                        if (e.target.id === 'review-modal') {
+                            closeReviewModal();
+                        }
+                    });
+                    
+                    // Ensure star rating buttons are clickable
+                    document.querySelectorAll('.rating-star').forEach(star => {
+                        star.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const rating = parseInt(star.dataset.rating);
+                            setRating(rating);
+                        });
+                    });
+                    
+                    // Ensure submit button is clickable
+                    const submitBtn = document.querySelector('button[onclick*="submitReview"]');
+                    if (submitBtn) {
+                        submitBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const onclickAttr = submitBtn.getAttribute('onclick');
+                            if (onclickAttr) {
+                                eval(onclickAttr);
+                            }
+                        });
+                    }
+                }, 100);
+            }
+
+            // Close review modal
+            window.closeReviewModal = () => {
+                const modal = document.getElementById('review-modal');
+                if (modal) {
+                    modal.remove();
+                }
+            };
+
+            // Set rating
+            window.setRating = (rating) => {
+                // Remove all active states
+                document.querySelectorAll('.rating-star').forEach(star => {
+                    star.classList.remove('text-yellow-400', 'text-yellow-500');
+                    star.classList.add('text-gray-300');
+                });
+
+                // Add active state to selected and lower stars
+                document.querySelectorAll('.rating-star').forEach((star, index) => {
+                    if (index < rating) {
+                        star.classList.remove('text-gray-300');
+                        star.classList.add('text-yellow-400');
+                    }
+                });
+            };
+
+            // Submit review
+            window.submitReview = async (orderId, productId) => {
+                const rating = document.querySelector('.rating-star.text-yellow-400, .rating-star.text-yellow-500')?.dataset.rating || 0;
+                const reviewText = document.getElementById('review-text')?.value.trim() || '';
+
+                if (!rating) {
+                    showToast('Please select a star rating', 'error');
+                    return;
+                }
+
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch(`${API_BASE}/reviews`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            orderId: orderId,
+                            productId: productId,
+                            rating: parseInt(rating),
+                            comment: reviewText
+                        })
+                    });
+
+                    if (response.ok) {
+                        showToast('📝 Review submitted successfully! Thank you for your feedback.', 'success');
+                        closeReviewModal();
+                    } else {
+                        const error = await response.json();
+                        showToast(error.message || 'Failed to submit review', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error submitting review:', error);
+                    showToast('Failed to submit review', 'error');
+                }
+            };
+            function showToast(message, type = 'success') {
+                let container = document.getElementById('toast-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'toast-container';
+                    document.body.appendChild(container);
+                }
+
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `
+                    <i class="fas fa-check-circle toast-icon"></i>
+                    <span class="toast-message">${message}</span>
+                `;
+
+                container.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 400);
+                }, 3000);
+            }
+
+            function updateUserUI() {
+                const userFullName = localStorage.getItem('userFullName');
+                if (userFullName) {
+                    if (loginLink) loginLink.classList.add('hidden');
+                    if (userGreeting) {
+                        userGreeting.textContent = `Hello, ${userFullName}`;
+                        userGreeting.classList.add('hidden', 'md:inline');
+                    }
+                } else {
+                    if (loginLink) loginLink.classList.remove('hidden');
+                    if (userGreeting) {
+                        userGreeting.classList.add('hidden');
+                        if(userGreeting.classList.contains('md:inline')) userGreeting.classList.remove('md:inline');
+                    }
+                    window.location.href = '/pages/login.html';
+                }
+            }
+
+            updateUserUI();
+            await loadOrders(1); // Load first page of orders
+            updateFilterButtons(''); // Set initial filter button state
+            await loadTokenBalance(); // Load user's token balance
+        });
+
+        // Load user's token balance
+        async function loadTokenBalance() {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/user/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    const tokenBalanceElement = document.getElementById('token-balance-display');
+                    if (tokenBalanceElement) {
+                        tokenBalanceElement.textContent = user.tokenBalance || 0;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading token balance:', error);
+            }
+        }
+
+        // Show token rewards modal
+        window.showTokenRewards = () => {
+            const modalHtml = `
+                <div id="token-rewards-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white rounded-lg p-8 max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+                        <div class="text-center mb-6">
+                            <div class="bg-gold/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-coins text-gold text-2xl"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-navy mb-2">Token Rewards Program</h2>
+                            <p class="text-gray-600">Earn tokens and unlock exclusive marketplace benefits</p>
+                        </div>
+
+                        <div class="mb-6">
+                            <h3 class="font-semibold text-navy mb-3">How to Earn Tokens:</h3>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                                        <span class="text-sm">Confirm Delivery</span>
+                                    </div>
+                                    <span class="bg-green-600 text-white px-2 py-1 rounded text-sm font-semibold">+5</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-star text-blue-600 mr-3"></i>
+                                        <span class="text-sm">Write Product Review</span>
+                                    </div>
+                                    <span class="bg-blue-600 text-white px-2 py-1 rounded text-sm font-semibold">+3</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-camera text-purple-600 mr-3"></i>
+                                        <span class="text-sm">Upload Product Photo</span>
+                                    </div>
+                                    <span class="bg-purple-600 text-white px-2 py-1 rounded text-sm font-semibold">+2</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gold/50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar-check text-gold mr-3"></i>
+                                        <span class="text-sm">Daily Login Streak</span>
+                                    </div>
+                                    <span class="bg-gold text-navy px-2 py-1 rounded text-sm font-semibold">+1</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <h3 class="font-semibold text-navy mb-3">Redeem Your Tokens:</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h4 class="font-semibold text-sm">10% Discount</h4>
+                                            <p class="text-xs text-gray-500">Valid for any purchase</p>
+                                        </div>
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold">25 Tokens</span>
+                                    </div>
+                                </div>
+                                <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h4 class="font-semibold text-sm">Fast Delivery</h4>
+                                            <p class="text-xs text-gray-500">Priority shipping</p>
+                                        </div>
+                                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold">50 Tokens</span>
+                                    </div>
+                                </div>
+                                <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h4 class="font-semibold text-sm">Premium Badge</h4>
+                                            <p class="text-xs text-gray-500">Show on your profile</p>
+                                        </div>
+                                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-semibold">100 Tokens</span>
+                                    </div>
+                                </div>
+                                <div class="border border-gray-200 rounded-lg p-3 hover:border-gold transition-colors cursor-pointer">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h4 class="font-semibold text-sm">VIP Access</h4>
+                                            <p class="text-xs text-gray-500">Exclusive features</p>
+                                        </div>
+                                        <span class="bg-gold/20 text-gold px-2 py-1 rounded text-xs font-semibold">200 Tokens</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                                    class="bg-navy text-white font-semibold py-2 px-6 rounded-full hover:bg-gray-800 transition-colors">
+                                Got it!
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        };
+    </script>
+    <script src="../js/config.js"></script>
+    <script src="../js/header.js"></script>
+    <script src="../js/mobile-header.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/orders.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

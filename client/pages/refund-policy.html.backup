@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Refund Policy</title>
+    <meta name="description" content="Virtuosa refund policy — fair and transparent protection for your purchases. Learn eligibility, timelines, and how to request a refund.">
+    <link rel="canonical" href="https://virtuosazm.com/refund-policy">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon-48x48.svg" sizes="48x48">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .refund-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .policy-section {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            background: white;
+        }
+
+        .policy-section:hover {
+            border-color: #FFD700;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .time-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .time-30days {
+            background: linear-gradient(90deg, #10b981, #059669);
+            color: white;
+        }
+
+        .time-14days {
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .time-7days {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .time-3days {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .condition-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .condition-list li {
+            padding: 0.75rem 0;
+            display: flex;
+            align-items: flex-start;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .condition-list li:last-child {
+            border-bottom: none;
+        }
+
+        .condition-list li::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .exclusion-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .exclusion-list li {
+            padding: 0.75rem 0;
+            display: flex;
+            align-items: flex-start;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .exclusion-list li:last-child {
+            border-bottom: none;
+        }
+
+        .exclusion-list li::before {
+            content: '✗';
+            color: #ef4444;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .process-step {
+            position: relative;
+            padding-left: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .process-step::before {
+            content: attr(data-step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 2rem;
+            height: 2rem;
+            background: linear-gradient(90deg, #FFD700, #C19A6B);
+            color: #0A1128;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+
+        .info-box {
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-box-blue {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid #3b82f6;
+        }
+
+        .info-box-green {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border: 2px solid #22c55e;
+        }
+
+        .info-box-yellow {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+        }
+
+        .info-box-red {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid #ef4444;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #FFD700, #C19A6B);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: #FFD700;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #FFD700;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="/index.html" class="hover:text-gold transition-colors">Home</a>
+                    <a href="/pages/products.html" class="hover:text-gold transition-colors">Products</a>
+                    <a href="/pages/seller.html" class="hover:text-gold transition-colors">Sell</a>
+                    <a href="/pages/login.html" class="hover:text-gold transition-colors">Sign In</a>
+                </nav>
+                <button class="md:hidden" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Page Header -->
+            <div class="text-center mb-10">
+                <h1 class="text-4xl md:text-5xl font-bold text-navy mb-4">Refund Policy</h1>
+                <p class="text-gray-600 text-lg">Fair and transparent refund policies to protect your purchases</p>
+            </div>
+
+            <!-- Policy Overview -->
+            <div class="mb-12">
+                <div class="refund-container rounded-xl p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+                        <div>
+                            <div class="time-badge time-30days mb-3">30 Days</div>
+                            <div class="text-gray-600">Most Items</div>
+                        </div>
+                        <div>
+                            <div class="time-badge time-14days mb-3">14 Days</div>
+                            <div class="text-gray-600">Electronics</div>
+                        </div>
+                        <div>
+                            <div class="time-badge time-7days mb-3">7 Days</div>
+                            <div class="text-gray-600">Digital Items</div>
+                        </div>
+                        <div>
+                            <div class="time-badge time-3days mb-3">3 Days</div>
+                            <div class="text-gray-600">Perishables</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Refund Eligibility -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Refund Eligibility</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Eligible for Refund -->
+                    <div class="policy-section rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-navy mb-4 flex items-center">
+                            <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                            Eligible for Refund
+                        </h3>
+                        <ul class="condition-list text-gray-700">
+                            <li>Item not as described in listing</li>
+                            <li>Item arrives damaged or defective</li>
+                            <li>Wrong item delivered</li>
+                            <li>Item doesn't match photos provided</li>
+                            <li>Seller fails to ship within agreed timeframe</li>
+                            <li>Counterfeit or inauthentic items</li>
+                            <li>Digital items that don't work as described</li>
+                            <li>Items recalled by manufacturer</li>
+                        </ul>
+                    </div>
+
+                    <!-- Not Eligible for Refund -->
+                    <div class="policy-section rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-navy mb-4 flex items-center">
+                            <i class="fas fa-times-circle text-red-600 mr-3"></i>
+                            Not Eligible for Refund
+                        </h3>
+                        <ul class="exclusion-list text-gray-700">
+                            <li>Buyer's remorse or changed mind</li>
+                            <li>Damage caused by buyer after receipt</li>
+                            <li>Items returned after refund period</li>
+                            <li>Custom or personalized items</li>
+                            <li>Perishable goods (unless defective)</li>
+                            <li>Digital downloads that have been accessed</li>
+                            <li>Items marked "Final Sale" in listing</li>
+                            <li>Return shipping costs (unless seller error)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Refund Process -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">How to Request a Refund</h2>
+                <div class="refund-container rounded-xl p-8">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">1. Contact the Seller</h3>
+                            <p class="text-gray-600">First, reach out to the seller through our messaging system to explain the issue and attempt to resolve it directly.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">2. Document the Issue</h3>
+                            <p class="text-gray-600">Take clear photos or videos showing the problem with the item. Keep all communication records.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">3. File a Refund Request</h3>
+                            <p class="text-gray-600">If the seller doesn't resolve the issue, file a formal refund request through your order history within the eligible timeframe.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">4. Wait for Seller Response</h3>
+                            <p class="text-gray-600">The seller has 48 hours to respond to your refund request with their position or proposed solution.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">5. Virtuosa Mediation</h3>
+                            <p class="text-gray-600">If no agreement is reached, our support team will mediate and make a final decision based on evidence provided.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h3 class="text-xl font-bold text-navy mb-2">6. Refund Processing</h3>
+                            <p class="text-gray-600">Once approved, refunds are processed within 3-5 business days to your original payment method.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category-Specific Policies -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Category-Specific Policies</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Electronics -->
+                    <div class="policy-section rounded-xl p-6">
+                        <h3 class="text-lg font-bold text-navy mb-3 flex items-center">
+                            <i class="fas fa-laptop text-blue-600 mr-2"></i>
+                            Electronics
+                        </h3>
+                        <div class="time-badge time-14days mb-3">14 Days</div>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Must be in original packaging</li>
+                            <li>• All accessories included</li>
+                            <li>• No physical or liquid damage</li>
+                            <li>• Software not installed/activated</li>
+                        </ul>
+                    </div>
+
+                    <!-- Textbooks -->
+                    <div class="policy-section rounded-xl p-6">
+                        <h3 class="text-lg font-bold text-navy mb-3 flex items-center">
+                            <i class="fas fa-book text-green-600 mr-2"></i>
+                            Textbooks
+                        </h3>
+                        <div class="time-badge time-30days mb-3">30 Days</div>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Minimal highlighting/notes allowed</li>
+                            <li>• Cover and binding intact</li>
+                            <li>• No missing pages</li>
+                            <li>• Access codes unused (if included)</li>
+                        </ul>
+                    </div>
+
+                    <!-- Clothing -->
+                    <div class="policy-section rounded-xl p-6">
+                        <h3 class="text-lg font-bold text-navy mb-3 flex items-center">
+                            <i class="fas fa-tshirt text-purple-600 mr-2"></i>
+                            Clothing
+                        </h3>
+                        <div class="time-badge time-30days mb-3">30 Days</div>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Tags still attached (if new)</li>
+                            <li>• Unworn and unwashed</li>
+                            <li>• No stains or damage</li>
+                            <li>• Original packaging preferred</li>
+                        </ul>
+                    </div>
+
+                    <!-- Furniture -->
+                    <div class="policy-section rounded-xl p-6">
+                        <h3 class="text-lg font-bold text-navy mb-3 flex items-center">
+                            <i class="fas fa-couch text-brown-600 mr-2"></i>
+                            Furniture
+                        </h3>
+                        <div class="time-badge time-7days mb-3">7 Days</div>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Structural damage only</li>
+                            <li>• Must match listing description</li>
+                            <li>• Buyer responsible for return shipping</li>
+                            <li>• Assembly issues not covered</li>
+                        </ul>
+                    </div>
+
+                    <!-- Services -->
+                    <div class="policy-section rounded-xl p-6">
+                        <h3 class="text-lg font-bold text-navy mb-3 flex items-center">
+                            <i class="fas fa-concierge-bell text-orange-600 mr-2"></i>
+                            Services
+                        </h3>
+                        <div class="time-badge time-7days mb-3">7 Days</div>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Service not delivered as promised</li>
+                            <li>• Poor quality work</li>
+                            <li>• Must provide evidence</li>
+                            <li>• Partial refunds possible</li>
+                        </ul>
+                    </div>
+
+                    <!-- Digital Items -->
+                    <div class="policy-section rounded-xl p-6">
+                        <h3 class="text-lg font-bold text-navy mb-3 flex items-center">
+                            <i class="fas fa-download text-red-600 mr-2"></i>
+                            Digital Items
+                        </h3>
+                        <div class="time-badge time-3days mb-3">3 Days</div>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Non-functional or corrupted files</li>
+                            <li>• Not as described</li>
+                            <li>• License/key doesn't work</li>
+                            <li>• No refunds after access</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Important Information -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-navy mb-6 text-center">Important Information</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Return Shipping -->
+                    <div class="info-box info-box-blue">
+                        <h3 class="text-lg font-bold text-blue-800 mb-3 flex items-center">
+                            <i class="fas fa-truck mr-2"></i>
+                            Return Shipping
+                        </h3>
+                        <ul class="text-blue-700 text-sm space-y-1">
+                            <li>• Buyer pays return shipping unless seller error</li>
+                            <li>• Use tracked shipping for all returns</li>
+                            <li>• Keep shipping receipts as proof</li>
+                            <li>• Insure high-value items during return</li>
+                        </ul>
+                    </div>
+
+                    <!-- Refund Timeline -->
+                    <div class="info-box info-box-green">
+                        <h3 class="text-lg font-bold text-green-800 mb-3 flex items-center">
+                            <i class="fas fa-clock mr-2"></i>
+                            Refund Timeline
+                        </h3>
+                        <ul class="text-green-700 text-sm space-y-1">
+                            <li>• Seller response: 48 hours</li>
+                            <li>• Virtuosa review: 3-5 business days</li>
+                            <li>• Refund processing: 3-5 business days</li>
+                            <li>• Total time: Up to 14 days from approval</li>
+                        </ul>
+                    </div>
+
+                    <!-- Evidence Requirements -->
+                    <div class="info-box info-box-yellow">
+                        <h3 class="text-lg font-bold text-yellow-800 mb-3 flex items-center">
+                            <i class="fas fa-camera mr-2"></i>
+                            Evidence Requirements
+                        </h3>
+                        <ul class="text-yellow-700 text-sm space-y-1">
+                            <li>• Clear photos of item condition</li>
+                            <li>• Photos of any damage or defects</li>
+                            <li>• Screenshots of conversations</li>
+                            <li>• Original listing photos for comparison</li>
+                        </ul>
+                    </div>
+
+                    <!-- Dispute Resolution -->
+                    <div class="info-box info-box-red">
+                        <h3 class="text-lg font-bold text-red-800 mb-3 flex items-center">
+                            <i class="fas fa-gavel mr-2"></i>
+                            Dispute Resolution
+                        </h3>
+                        <ul class="text-red-700 text-sm space-y-1">
+                            <li>• All decisions are final and binding</li>
+                            <li>• Evidence must be clear and convincing</li>
+                            <li>• Partial refunds may be offered</li>
+                            <li>• Repeated disputes may affect account status</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Support -->
+            <div class="text-center bg-gold rounded-xl p-8">
+                <h2 class="text-2xl font-bold text-navy mb-4">Need Help with a Refund?</h2>
+                <p class="text-navy mb-6">Our support team is here to help you through the refund process</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/pages/contact-support.html" class="bg-navy text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-envelope mr-2"></i>Request Refund
+                    </a>
+                    <a href="/pages/live-chat.html" class="bg-white text-navy border-2 border-navy px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-comments mr-2"></i>Live Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-auto">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">About Us</h3>
+                <p class="text-sm">Virtuosa is a student trading platform connecting buyers and sellers for books, electronics, and more. Join our community to trade smarter!</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Become a Seller</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/seller.html" class="hover:text-gold transition-colors">Start Selling</a></li>
+                    <li><a href="/pages/seller-guide.html" class="hover:text-gold transition-colors">Seller Guide</a></li>
+                    <li><a href="/pages/seller-benefits.html" class="hover:text-gold transition-colors">Seller Benefits</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Payments</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/payment-options.html" class="hover:text-gold transition-colors">Payment Options</a></li>
+                    <li><a href="/pages/secure-transactions.html" class="hover:text-gold transition-colors">Secure Transactions</a></li>
+                    <li><a href="/pages/refund-policy.html" class="hover:text-gold transition-colors">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Help and Contact</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/faq.html" class="hover:text-gold transition-colors">FAQ</a></li>
+                    <li><a href="/pages/contact-support.html" class="hover:text-gold transition-colors">Contact Support</a></li>
+                    <li><a href="/pages/live-chat.html" class="hover:text-gold transition-colors">Live Chat</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Follow Us</h3>
+                <div class="flex space-x-4">
+                    <a href="https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://x.com" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-x-twitter fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 text-center text-sm">
+            &copy; 2026 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="/js/config.js"></script>
+    <script>
+        function toggleMobileMenu() {
+            // Mobile menu toggle functionality
+            console.log('Mobile menu toggle');
+        }
+    </script>
+    
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

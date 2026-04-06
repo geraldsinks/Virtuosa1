@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Campus Delivery Arrangement</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            --gold-gradient: linear-gradient(135deg, #D4AF37 0%, #F4E4C1 50%, #D4AF37 100%);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0A1128 0%, #1a2347 50%, #0A1128 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .serif-heading {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(212, 175, 55, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .gold-accent {
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gold-button {
+            background: var(--gold-gradient);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gold-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .gold-button:hover::before {
+            left: 100%;
+        }
+
+        .gold-button:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3);
+        }
+
+        .editorial-text {
+            letter-spacing: 0.02em;
+            line-height: 1.6;
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            opacity: 0;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Preserve existing header styles */
+        .bg-navy {
+            background-color: #0A1128 !important;
+        }
+
+        .text-gold {
+            color: #D4AF37 !important;
+        }
+
+        .hover\:text-gold:hover {
+            color: #D4AF37 !important;
+        }
+
+        .bg-gold {
+            background-color: #D4AF37 !important;
+        }
+
+        .hover\:bg-gold:hover {
+            background-color: #D4AF37 !important;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(212, 175, 55, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(212, 175, 55, 0.7);
+        }
+
+        /* Mobile Responsive Styles for Cash on Delivery */
+        @media (max-width: 767px) {
+            /* Main container adjustments */
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            /* Editorial header adjustments */
+            .serif-heading.text-5xl {
+                font-size: 2.5rem;
+                line-height: 1.2;
+            }
+
+            .editorial-text.text-lg {
+                font-size: 1rem;
+            }
+
+            /* Progress indicator mobile layout */
+            .glass-panel .flex.items-center.justify-between.mb-3 {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .glass-panel .flex.items-center.space-x-2 {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: stretch;
+            }
+
+            .glass-panel .flex.items-center.space-x-2 > div {
+                width: 100%;
+            }
+
+            /* Trust indicators mobile layout */
+            .glass-panel .flex.flex-wrap {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .glass-panel .flex.flex-wrap .flex {
+                justify-content: center;
+                padding: 1rem;
+                border-radius: 12px;
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            /* Grid layout adjustments */
+            .grid.grid-cols-1.lg\:grid-cols-3 {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            /* Glass panel adjustments */
+            .glass-panel {
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            /* Form field improvements */
+            .grid.grid-cols-1.md\:grid-cols-2 {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            input[type="text"], 
+            input[type="tel"], 
+            textarea {
+                font-size: 16px; /* Prevents zoom on iOS */
+                padding: 1rem;
+                min-height: 48px;
+                border-radius: 12px;
+            }
+
+            textarea {
+                min-height: 100px;
+                resize: vertical;
+            }
+
+            /* Labels for better mobile UX */
+            label {
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+                font-weight: 500;
+            }
+
+            /* Button improvements */
+            .gold-button {
+                padding: 1rem;
+                font-size: 1rem;
+                min-height: 48px;
+                border-radius: 12px;
+            }
+
+            /* Investment summary mobile fixes */
+            .lg\:col-span-1.mt-8 {
+                margin-top: 1rem;
+            }
+
+            .lg\:col-span-1 .glass-panel {
+                position: static;
+            }
+
+            /* Progress indicators in summary */
+            .flex.items-center.space-x-2.mb-4 {
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: stretch;
+            }
+
+            .flex.items-center.space-x-2.mb-4 > div {
+                width: 100%;
+            }
+
+            /* Text adjustments for mobile */
+            .text-2xl {
+                font-size: 1.5rem;
+            }
+
+            .text-lg {
+                font-size: 1.125rem;
+            }
+
+            /* Order items section */
+            #order-items {
+                min-height: 200px;
+            }
+
+            /* Floating badge adjustments */
+            .floating-badge {
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+
+        /* Small mobile devices (320px-479px) */
+        @media (max-width: 479px) {
+            .serif-heading.text-5xl {
+                font-size: 2rem;
+            }
+
+            .glass-panel {
+                padding: 1rem;
+            }
+
+            input[type="text"], 
+            input[type="tel"], 
+            textarea {
+                padding: 0.875rem;
+                font-size: 14px;
+            }
+
+            .gold-button {
+                padding: 0.875rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Medium mobile devices (480px-767px) */
+        @media (min-width: 480px) and (max-width: 767px) {
+            .grid.grid-cols-1.md\:grid-cols-2 {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+
+            .md\:col-span-2 {
+                grid-column: span 2;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-navy text-white antialiased">
+    <!-- Standard Navigation -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Row 1: Utilities and Branding -->
+        <div class="v-container mobile-header-row-1">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-2 mobile-header-actions">
+                    <!-- Cart Icon with Badge -->
+                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                    </a>
+                    
+                    <!-- Combined Notifications (includes messages) -->
+                    <a href="notifications.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <i class="fas fa-bell"></i>
+                        <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="v-container v-header-row desktop-header">
+            <div class="v-header-row-upper">
+                <div class="v-header-logo">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                </div>
+                <div class="v-header-search">
+                    <div class="relative">
+                        <input id="home-search-input" type="text"
+                            placeholder="Search campus marketplace..."
+                            class="w-full text-sm focus:outline-none focus:ring-1 focus:ring-gold"
+                            autocomplete="off">
+                        <button id="home-search-button" class="flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div id="home-search-suggestions"
+                            class="absolute top-full left-0 mt-1 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-h-96 overflow-y-auto hidden z-[60]">
+                        </div>
+                    </div>
+                </div>
+                <div id="user-info-container" class="v-header-actions">
+                    <a href="login.html" id="login-link"
+                        class="text-white hover:text-gold transition-colors font-medium hidden md:flex flex-col items-start leading-tight group">
+                        <span class="text-[10px] text-gray-400 font-normal">Welcome</span>
+                        <div class="flex items-center -mt-0.5">
+                            <span class="text-sm font-semibold">Sign In</span>
+                            <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60 group-hover:rotate-180 transition-transform"></i>
+                        </div>
+                    </a>
+                    <div id="user-menu" class="relative hidden">
+                        <button onclick="toggleUserMenu()"
+                            class="text-white hover:text-gold transition-colors font-medium flex flex-col items-start leading-tight">
+                            <span id="user-greeting" class="text-[10px] text-gray-400 font-normal"></span>
+                            <div class="flex items-center -mt-0.5">
+                                <span class="text-sm font-semibold">My Account</span>
+                                <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60"></i>
+                            </div>
+                        </button>
+                        <div id="user-dropdown"
+                            class="absolute right-0 top-full mt-2 w-56 bg-navy rounded-xl shadow-2xl z-[60] py-4 text-white hidden border border-gray-800">
+                            <div class="px-4 pb-4 border-b border-gray-800 mb-2">
+                                <a href="profile.html" class="bg-button-gold text-white text-center py-2 px-4 rounded-lg text-sm block font-semibold hover:bg-gold transition-colors">My Profile</a>
+                            </div>
+                            <div class="px-2">
+                                <a href="buyer-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-th-large mr-3 text-gray-400"></i>Dashboard
+                                </a>
+                                <a href="orders.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-shopping-bag mr-3 text-gray-400"></i>My Orders
+                                </a>
+                                <div id="seller-links" class="hidden">
+                                    <div class="border-t border-gray-800 my-1"></div>
+                                    <a href="seller-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-green-400">
+                                        <i class="fas fa-store mr-3"></i>Seller Panel
+                                    </a>
+                                </div>
+                                <div id="admin-link" class="hidden">
+                                    <div class="border-t border-gray-800 my-1"></div>
+                                    <a href="admin-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-red-400">
+                                        <i class="fas fa-cog mr-3"></i>Admin Panel
+                                    </a>
+                                </div>
+                                <div class="border-t border-gray-800 my-2"></div>
+                                <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gray-300">
+                                    <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="messages.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <i class="fas fa-envelope text-lg"></i>
+                        <span class="badge message-badge-count hidden">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Messages</span>
+                    </a>
+
+                    <a href="notifications.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span id="notification-badge-count" class="badge hidden">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Alerts</span>
+                    </a>
+
+                    <a href="cart.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="badge cart-badge-count">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Cart</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+    <div class="mobile-menu-content">
+        <div class="mobile-menu-header">
+            <div class="text-xl font-bold text-gold">Menu</div>
+            <button id="mobile-menu-close" class="mobile-menu-close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <main class="flex-grow py-8 main-content">
+        <div class="container mx-auto px-4 max-w-7xl">
+            <!-- Editorial Header -->
+            <div class="text-center mb-12">
+                <h1 class="serif-heading text-5xl md:text-6xl font-light mb-4 gold-accent">
+                    Campus Delivery Arrangement
+                </h1>
+                <p class="text-gray-300 text-lg editorial-text max-w-2xl mx-auto">
+                    Complete your delivery details for a seamless campus experience. 
+                    Your selections will be carefully prepared and personally delivered.
+                </p>
+            </div>
+
+            <!-- Progress Indicator -->
+            <div class="glass-panel p-4 mb-8">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-white font-medium">Arrangement Progress</span>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-1 bg-gold bg-opacity-20 rounded-full"></div>
+                        <div class="flex-1 h-1 bg-gray-600 rounded-full overflow-hidden">
+                            <div class="h-full bg-gold bg-opacity-40 transition-all duration-500" style="width: 25%"></div>
+                        </div>
+                        <div class="w-8 h-1 bg-gray-600 rounded-full overflow-hidden">
+                            <div class="h-full bg-gold bg-opacity-40 transition-all duration-500" style="width: 50%"></div>
+                        </div>
+                        <div class="w-8 h-1 bg-gray-600 rounded-full overflow-hidden">
+                            <div class="h-full bg-gold bg-opacity-40 transition-all duration-500" style="width: 75%"></div>
+                        </div>
+                        <div class="w-8 h-1 bg-gold bg-opacity-40 transition-all duration-500" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-400 editorial-text mt-2">
+                        Step 1: Details → Step 2: Confirmation → Step 3: Campus Arrival
+                    </div>
+                </div>
+
+            <!-- Trust Indicators -->
+            <div class="glass-panel p-6 mb-8">
+                <div class="flex flex-wrap justify-center items-center gap-8 text-sm">
+                    <div class="flex items-center text-gray-200">
+                        <i class="fas fa-handshake text-green-400 mr-3 text-lg"></i>
+                        <span>Pay Upon Arrival</span>
+                    </div>
+                    <div class="flex items-center text-gray-200">
+                        <i class="fas fa-shield-alt text-blue-400 mr-3 text-lg"></i>
+                        <span>Secure Transactions</span>
+                    </div>
+                    <div class="flex items-center text-gray-200">
+                        <i class="fas fa-map-marker-alt text-purple-400 mr-3 text-lg"></i>
+                        <span>Campus Delivery</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
+                <div class="xl:col-span-2">
+                    <div class="glass-panel p-4 md:p-8">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+                            <h2 class="serif-heading text-xl md:text-2xl font-light text-white">Your Selections</h2>
+                            <div class="floating-badge bg-gold text-navy px-3 py-1 rounded-full text-sm font-semibold">
+                                <span id="item-count">0</span> items
+                            </div>
+                        </div>
+                        
+                        <div id="order-items" class="space-y-4">
+                            <!-- Items will be populated here -->
+                            <div class="text-center py-12 text-gray-400 editorial-text">
+                                <i class="fas fa-shopping-bag text-4xl mb-4 opacity-50"></i>
+                                <p class="text-lg mb-2">Loading your selections...</p>
+                                <div class="skeleton h-32 w-full rounded-lg mb-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Details -->
+                <div class="xl:col-span-1">
+                    <div class="glass-panel p-4 md:p-8">
+                        <h2 class="serif-heading text-xl md:text-2xl font-light text-white mb-6">Delivery Details</h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Personal Information -->
+                            <div class="border-t border-gray-600 pt-6">
+                                <h3 class="text-white font-light text-lg mb-4">Personal Information</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                                        <input type="text" id="delivery-name" class="w-full px-4 py-3 border border-gray-600 rounded-lg bg-white bg-opacity-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
+                                        <input type="tel" id="delivery-phone" class="w-full px-4 py-3 border border-gray-600 rounded-lg bg-white bg-opacity-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent">
+                                    </div>
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Delivery Address</label>
+                                    <textarea id="delivery-address" rows="2" class="w-full px-4 py-2 border border-gray-600 rounded-lg bg-white bg-opacity-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent text-sm"></textarea>
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Delivery Instructions</label>
+                                    <input type="text" id="delivery-instructions" placeholder="e.g., Leave at campus gate, call before delivery" class="w-full px-4 py-2 border border-gray-600 rounded-lg bg-white bg-opacity-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                <!-- Investment Summary -->
+                <div class="xl:col-span-1 mt-6 lg:mt-8">
+                    <div class="glass-panel p-4 md:p-8">
+                        <h2 class="serif-heading text-xl md:text-2xl font-light text-white mb-6">Investment Summary</h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Value Breakdown -->
+                            <div class="border-t border-gray-600 pt-6">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+                                    <span class="text-gray-300 text-sm">Your Tech Setup</span>
+                                    <!-- Progress Indicator -->
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-8 h-1 bg-gold bg-opacity-20 rounded-full"></div>
+                                        <div class="flex-1 h-1 bg-gray-600 rounded-full overflow-hidden">
+                                            <div class="h-full bg-gold bg-opacity-40 transition-all duration-500" style="width: 66%"></div>
+                                        </div>
+                                        <div class="w-8 h-1 bg-gray-600 rounded-full overflow-hidden">
+                                            <div class="h-full bg-gold bg-opacity-40 transition-all duration-500" style="width: 33%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center mb-3">
+                                    <span class="text-gray-300 text-sm">Total Investment:</span>
+                                    <span class="text-white font-semibold text-lg" id="subtotal">ZMW 0.00</span>
+                                </div>
+                                
+                                <div class="text-xs text-gray-400 editorial-text">
+                                    Including all service fees and campus delivery protection
+                                </div>
+                            </div>
+
+                            <!-- Final Value -->
+                            <div class="border-t border-gray-600 pt-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-white font-light text-lg">Final Value:</span>
+                                    <span class="gold-accent text-xl font-semibold" id="total">ZMW 0.00</span>
+                                </div>
+                            </div>
+
+                            <!-- Action Button -->
+                            <div class="space-y-3 pt-6 border-t border-gray-600">
+                                <button id="place-order-btn" onclick="placeCashOnDeliveryOrder()" 
+                                    class="w-full gold-button text-white font-semibold py-4 px-6 rounded-full">
+                                    Complete Delivery Arrangement
+                                </button>
+                            </div>
+
+                            <!-- Assurance Message -->
+                            <div class="text-center text-xs text-gray-400 editorial-text pt-4">
+                                <i class="fas fa-shield-alt text-green-400 mr-1"></i>
+                                Your delivery arrangement is secured with end-to-end encryption
+                            </div>
+
+                            <!-- Continue Exploring -->
+                            <a href="cart.html"
+                                class="block text-center text-gray-400 text-sm hover:text-gold transition-colors editorial-text">
+                                Return to Selections
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-navy text-gray-400 p-4 text-center shadow-inner mt-auto">
+        &copy; 2025 Virtuosa. All rights reserved.
+    </footer>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/header.js"></script>
+    <script src="../js/mobile-header.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/cash-on-delivery.js"></script>
+    
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

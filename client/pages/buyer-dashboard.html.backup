@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Buyer Dashboard - Virtuosa</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/chart-optimizer.js"></script>
+    <script src="../js/buyer-dashboard.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .activity-item {
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background-color: #f8fafc;
+            border-left-color: #FFD700;
+            padding-left: 1.5rem;
+        }
+
+        .quick-action-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .quick-action-card:hover {
+            border-color: #FFD700;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 antialiased">
+    <!-- Standard Navigation -->
+    
+    <!-- Mobile Header Structure (320px-480px) -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Row 1: Utilities and Branding -->
+        <div class="v-container mobile-header-row-1">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-2 mobile-header-actions">
+                    <!-- Cart Icon with Badge -->
+                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                    </a>
+                    
+                    <!-- Combined Notifications (includes messages) -->
+                    <a href="notifications.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <i class="fas fa-bell"></i>
+                        <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="v-container v-header-row desktop-header">
+            <div class="v-header-row-upper">
+                <div class="v-header-logo">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                </div>
+                <div class="v-header-search">
+                    <div class="relative">
+                        <input id="home-search-input" type="text"
+                            placeholder="Search campus marketplace..."
+                            class="w-full text-sm focus:outline-none focus:ring-1 focus:ring-gold"
+                            autocomplete="off">
+                        <button id="home-search-button" class="flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div id="home-search-suggestions"
+                            class="absolute top-full left-0 mt-1 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-h-96 overflow-y-auto hidden z-[60]">
+                        </div>
+                    </div>
+                </div>
+                <div id="user-info-container" class="v-header-actions">
+                    <a href="login.html" id="login-link"
+                        class="text-white hover:text-gold transition-colors font-medium hidden md:flex flex-col items-start leading-tight group">
+                        <span class="text-[10px] text-gray-400 font-normal">Welcome</span>
+                        <div class="flex items-center -mt-0.5">
+                            <span class="text-sm font-semibold">Sign In</span>
+                            <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60 group-hover:rotate-180 transition-transform"></i>
+                        </div>
+                    </a>
+                    <div id="user-menu" class="relative hidden">
+                        <button onclick="toggleUserMenu()"
+                            class="text-white hover:text-gold transition-colors font-medium flex flex-col items-start leading-tight">
+                            <span id="user-greeting" class="text-[10px] text-gray-400 font-normal"></span>
+                            <div class="flex items-center -mt-0.5">
+                                <span class="text-sm font-semibold">My Account</span>
+                                <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60"></i>
+                            </div>
+                        </button>
+                        <div id="user-dropdown"
+                            class="absolute right-0 top-full mt-2 w-56 bg-navy rounded-xl shadow-2xl z-[60] py-4 text-white hidden border border-gray-800">
+                            <div class="px-4 pb-4 border-b border-gray-800 mb-2">
+                                <a href="profile.html" class="bg-button-gold text-white text-center py-2 px-4 rounded-lg text-sm block font-semibold hover:bg-gold transition-colors">My Profile</a>
+                            </div>
+                            <div class="px-2">
+                                <a href="buyer-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-th-large mr-3 text-gray-400"></i>Dashboard
+                                </a>
+                                <a href="orders.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-shopping-bag mr-3 text-gray-400"></i>My Orders
+                                </a>
+                                <div id="seller-links" class="hidden">
+                                    <div class="border-t border-gray-800 my-1"></div>
+                                    <a href="seller-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-green-400">
+                                        <i class="fas fa-store mr-3"></i>Seller Panel
+                                    </a>
+                                </div>
+                                <div id="admin-link" class="hidden">
+                                    <div class="border-t border-gray-800 my-1"></div>
+                                    <a href="admin-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-red-400">
+                                        <i class="fas fa-cog mr-3"></i>Admin Panel
+                                    </a>
+                                </div>
+                                <div class="border-t border-gray-800 my-2"></div>
+                                <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gray-300">
+                                    <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="messages.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <i class="fas fa-envelope text-lg"></i>
+                        <span class="badge message-badge-count hidden">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Messages</span>
+                    </a>
+
+                    <a href="notifications.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span id="notification-badge-count" class="badge hidden">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Alerts</span>
+                    </a>
+
+                    <a href="cart.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="badge cart-badge-count">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Cart</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <nav class="desktop-only bg-dark-navy text-white shadow-sm py-1.5 px-6 md:px-12 z-40 border-t border-gray-800">
+            <div class="container mx-auto nav-row-2-container">
+                <!-- Desktop "Explore" Menu Trigger -->
+                <button id="desktop-explore-menu" onclick="window.openMobileMenu()" class="flex items-center text-white hover:text-gold px-3 py-1 rounded-full border border-gray-700 hover:border-gold transition-all mr-6 group shrink-0">
+                    <i class="fas fa-bars mr-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-bold text-[10px] uppercase tracking-wider">Explore</span>
+                </button>
+
+                <!-- Category Menu -->
+                <div class="flex items-center space-x-6 overflow-x-auto hide-scrollbar py-1">
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="nav-category-item">Hot Deals</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="nav-category-item">Best Sellers</a>
+                    <a href="seller.html" class="nav-category-item text-gold">Sell Items</a>
+                    <div class="h-4 w-[1px] bg-gray-700 mx-2 shrink-0"></div>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="nav-category-item">Electronics</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="nav-category-item">Computers & Software</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="nav-category-item">Services</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="nav-category-item">Watches & Jewellery</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="nav-category-item">Men's Clothing</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="nav-category-item">Women's Clothing</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="nav-category-item">Shoes</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="nav-category-item">Accessories</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="nav-category-item">Personal Care & Beauty</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="nav-category-item">Food & Beverages</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="nav-category-item">Sports & Outdoors</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="nav-category-item">Home & Living</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Mobile Navigation Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+    <div class="mobile-menu-content">
+        <div class="mobile-menu-header">
+            <div class="text-xl font-bold text-gold">Menu</div>
+            <button id="mobile-menu-close" class="mobile-menu-close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Account</div>
+            <a href="login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
+                <i class="fas fa-sign-in-alt"></i>
+                <span id="mobile-menu-sign-text">Sign In</span>
+            </a>
+            <a href="profile.html" class="mobile-menu-link">
+                <i class="fas fa-user"></i>
+                <span>My Profile</span>
+            </a>
+            <a href="buyer-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="orders.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-bag"></i>
+                <span>My Orders</span>
+            </a>
+            <a href="transactions.html" class="mobile-menu-link">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="reviews.html" class="mobile-menu-link">
+                <i class="fas fa-star"></i>
+                <span>My Reviews</span>
+            </a>
+        </div>
+
+        <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Seller Tools</div>
+            <a href="seller-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Seller Dashboard</span>
+            </a>
+            <a href="create-product.html" class="mobile-menu-link">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Product</span>
+            </a>
+            <a href="seller-analytics.html" class="mobile-menu-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="seller-orders.html" class="mobile-menu-link">
+                <i class="fas fa-box"></i>
+                <span>Orders</span>
+            </a>
+        </div>
+
+        <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Admin Panel</div>
+            <a href="admin-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-cog"></i>
+                <span>Admin Dashboard</span>
+            </a>
+            <a href="admin-seller-applications.html" class="mobile-menu-link">
+                <i class="fas fa-user-check"></i>
+                <span>Seller Applications</span>
+            </a>
+            <a href="admin-mass-messaging.html" class="mobile-menu-link">
+                <i class="fas fa-bullhorn"></i>
+                <span>Mass Messaging</span>
+            </a>
+            <a href="admin-retention.html" class="mobile-menu-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Retention</span>
+            </a>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Shopping</div>
+            <a href="/index.html" class="mobile-menu-link">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/pages/products.html" class="mobile-menu-link">
+                <i class="fas fa-th-large"></i>
+                <span>All Products</span>
+            </a>
+            <a href="javascript:void(0)" onclick="window.openCategories()" class="mobile-menu-link">
+                <i class="fas fa-list"></i>
+                <span>Categories</span>
+            </a>
+            <a href="/pages/products.html?category=Hot%20Deals" class="mobile-menu-link">
+                <i class="fas fa-tag"></i>
+                <span>Hot Deals</span>
+            </a>
+            <a id="mobile-seller-link" href="seller.html" class="mobile-menu-link">
+                <i id="mobile-seller-icon" class="fas fa-store"></i>
+                <span id="mobile-seller-text">Become a Seller</span>
+            </a>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Support</div>
+            <a href="/pages/faq.html" class="mobile-menu-link">
+                <i class="fas fa-question-circle"></i>
+                <span>Help Center</span>
+            </a>
+            <a href="/pages/contact-support.html" class="mobile-menu-link">
+                <i class="fas fa-envelope"></i>
+                <span>Contact Us</span>
+            </a>
+        </div>
+
+    </div>
+
+    <main class="flex-grow">
+        <!-- Welcome Section -->
+        <div class="bg-navy text-white py-12">
+            <div class="container mx-auto px-4">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">Welcome back, <span id="buyer-name">Buyer</span>!</h1>
+                    <p class="text-gray-300">Here's what's happening with your account today</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="container mx-auto px-4 py-8">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="stat-card bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm">Active Orders</p>
+                            <p class="text-3xl font-bold" id="active-orders">0</p>
+                        </div>
+                        <div class="bg-white/20 p-3 rounded-lg">
+                            <i data-lucide="package" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm">Completed Orders</p>
+                            <p class="text-3xl font-bold" id="completed-orders">0</p>
+                        </div>
+                        <div class="bg-white/20 p-3 rounded-lg">
+                            <i data-lucide="check-circle" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm">Total Spent</p>
+                            <p class="text-3xl font-bold" id="total-spent">ZMW 0</p>
+                        </div>
+                        <div class="bg-white/20 p-3 rounded-lg">
+                            <i data-lucide="credit-card" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Token Balance Card -->
+            <div class="mb-8">
+                <div class="bg-gradient-to-r from-gold/20 to-yellow-15 border-2 border-gold/30 rounded-xl p-6 shadow-lg">
+                    <div class="flex flex-col md:flex-row items-center justify-between">
+                        <div class="flex items-center mb-4 md:mb-0">
+                            <div class="bg-white rounded-full p-3 mr-4 shadow-md">
+                                <i class="fas fa-coins text-gold text-2xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-navy mb-1">Your Token Rewards</h2>
+                                <p class="text-gray-700 text-sm">Earn tokens with every purchase and unlock exclusive benefits</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <div class="bg-white/80 backdrop-blur rounded-lg px-4 py-2 text-center">
+                                <div class="text-2xl font-bold text-gold" id="buyer-token-balance">0</div>
+                                <div class="text-xs text-gray-600">Your Balance</div>
+                            </div>
+                            <div class="bg-white/80 backdrop-blur rounded-lg px-4 py-2 text-center">
+                                <div class="text-lg font-semibold text-green-600">+5</div>
+                                <div class="text-xs text-gray-600">Per Delivery</div>
+                            </div>
+                            <button onclick="showTokenRewards()" class="bg-gold text-navy px-4 py-2 rounded-lg font-semibold hover:bg-yellow-500 transition-colors shadow-md">
+                                <i class="fas fa-gift mr-2"></i>View Rewards
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Token Benefits -->
+                    <div class="mt-4 pt-4 border-t border-gold/30">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                            <div class="bg-white/60 backdrop-blur rounded-lg p-3">
+                                <i class="fas fa-percentage text-green-600 text-xl mb-1"></i>
+                                <div class="text-xs font-semibold text-gray-700">10% Discount</div>
+                                <div class="text-xs text-gray-500">25 Tokens</div>
+                            </div>
+                            <div class="bg-white/60 backdrop-blur rounded-lg p-3">
+                                <i class="fas fa-bolt text-blue-600 text-xl mb-1"></i>
+                                <div class="text-xs font-semibold text-gray-700">Fast Delivery</div>
+                                <div class="text-xs text-gray-500">50 Tokens</div>
+                            </div>
+                            <div class="bg-white/60 backdrop-blur rounded-lg p-3">
+                                <i class="fas fa-crown text-purple-600 text-xl mb-1"></i>
+                                <div class="text-xs font-semibold text-gray-700">Premium Badge</div>
+                                <div class="text-xs text-gray-500">100 Tokens</div>
+                            </div>
+                            <div class="bg-white/60 backdrop-blur rounded-lg p-3">
+                                <i class="fas fa-star text-gold text-xl mb-1"></i>
+                                <div class="text-xs font-semibold text-gray-700">VIP Access</div>
+                                <div class="text-xs text-gray-500">200 Tokens</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-navy mb-6">Quick Actions</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <a href="/pages/products.html" class="quick-action-card bg-white rounded-xl p-6 shadow-lg hover:shadow-xl">
+                        <div class="text-center">
+                            <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i data-lucide="search" class="w-6 h-6 text-blue-600"></i>
+                            </div>
+                            <h3 class="font-semibold text-navy mb-2">Browse Products</h3>
+                            <p class="text-sm text-gray-600">Discover new items</p>
+                        </div>
+                    </a>
+
+                    <a href="/pages/cart.html" class="quick-action-card bg-white rounded-xl p-6 shadow-lg hover:shadow-xl">
+                        <div class="text-center">
+                            <div class="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i data-lucide="shopping-cart" class="w-6 h-6 text-green-600"></i>
+                            </div>
+                            <h3 class="font-semibold text-navy mb-2">View Cart</h3>
+                            <p class="text-sm text-gray-600">Checkout your items</p>
+                        </div>
+                    </a>
+
+                    <a href="/pages/orders.html" class="quick-action-card bg-white rounded-xl p-6 shadow-lg hover:shadow-xl">
+                        <div class="text-center">
+                            <div class="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i data-lucide="package" class="w-6 h-6 text-purple-600"></i>
+                            </div>
+                            <h3 class="font-semibold text-navy mb-2">Track Orders</h3>
+                            <p class="text-sm text-gray-600">View order status</p>
+                        </div>
+                    </a>
+
+                    <a id="seller-action-card" href="/pages/seller.html" class="quick-action-card bg-white rounded-xl p-6 shadow-lg hover:shadow-xl">
+                        <div class="text-center">
+                            <div id="seller-action-icon" class="bg-gold/20 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i data-lucide="plus-circle" class="w-6 h-6 text-gold"></i>
+                            </div>
+                            <h3 id="seller-action-title" class="font-semibold text-navy mb-2">Become a Seller</h3>
+                            <p id="seller-action-description" class="text-sm text-gray-600">Start selling</p>
+                        </div>
+                    </a>
+
+                    <a id="admin-action-card" href="/pages/admin-dashboard.html" class="quick-action-card bg-white rounded-xl p-6 shadow-lg hover:shadow-xl" style="display: none;">
+                        <div class="text-center">
+                            <div id="admin-action-icon" class="bg-red-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i data-lucide="shield" class="w-6 h-6 text-red-600"></i>
+                            </div>
+                            <h3 id="admin-action-title" class="font-semibold text-navy mb-2">Admin Panel</h3>
+                            <p id="admin-action-description" class="text-sm text-gray-600">System administration</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Activity & Recommendations -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Recent Orders -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-bold text-navy">Recent Orders</h2>
+                            <a href="/pages/transactions.html" class="text-gold hover:underline text-sm font-medium">View All</a>
+                        </div>
+                        <div id="recent-orders" class="space-y-4">
+                            <!-- Loading state -->
+                            <div class="flex items-center justify-center py-8">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gold"></div>
+                                <span class="ml-3 text-gray-500">Loading recent orders...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Recommendations -->
+                <div class="lg:col-span-1 mt-8 lg:mt-0">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h2 class="text-xl font-bold text-navy mb-6">Recommended for You</h2>
+                        <div id="recommendations" class="space-y-4">
+                            <!-- Loading state -->
+                            <div class="flex items-center justify-center py-8">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gold"></div>
+                                <span class="ml-3 text-gray-500">Loading recommendations...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spending Chart -->
+            <div class="mt-8 bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-navy mb-6">Spending Overview</h2>
+                <div class="h-64">
+                    <canvas id="spending-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-navy text-gray-400 py-12 mt-20">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-white text-2xl font-bold text-gold mb-4">Virtuosa</p>
+            <p class="text-sm">&copy; 2025 Virtuosa Campus Marketplace. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/roleManager.js"></script>
+    <script src="../js/header.js"></script>
+    <script src="../js/buyer-dashboard.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/mobile-header.js"></script>
+    <script src="/js/mobile-menu.js"></script>
+    
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

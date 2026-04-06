@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Log In</title>
+    <meta name="description" content="Log in to your Virtuosa account. Access Zambia's student marketplace to buy, sell, and trade on campus.">
+    <link rel="canonical" href="https://virtuosazm.com/login">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon-48x48.svg" sizes="48x48">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #0A1128 0%, #060A18 100%);
+        }
+
+        .auth-container {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.12),
+                0 16px 32px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            max-width: 28rem;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FFD700, #C19A6B, #FFD700);
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .auth-button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #FFD700 0%, #C19A6B 50%, #FFD700 100%);
+            background-size: 200% 200%;
+            position: relative;
+            overflow: hidden;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 8px 32px rgba(255, 215, 0, 0.2);
+        }
+
+        .auth-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .auth-button:hover {
+            background-position: 100% 0;
+            box-shadow: 
+                0 12px 40px rgba(255, 215, 0, 0.4),
+                0 4px 20px rgba(255, 215, 0, 0.2);
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .auth-button:hover::before {
+            left: 100%;
+        }
+
+        .auth-button:active {
+            transform: translateY(-1px) scale(0.98);
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .auth-input {
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            padding: 1rem 1.25rem;
+            position: relative;
+        }
+
+        .auth-input::placeholder {
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 
+                0 0 0 4px rgba(255, 215, 0, 0.15),
+                0 4px 20px rgba(255, 215, 0, 0.1);
+            background: white;
+            transform: translateY(-1px);
+        }
+
+        .auth-input:hover {
+            border-color: #d1d5db;
+            background: white;
+        }
+
+        .form-label {
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label::before {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background: linear-gradient(135deg, #FFD700, #C19A6B);
+            border-radius: 50%;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #9ca3af;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .password-toggle:hover {
+            color: #FFD700;
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .divider {
+            position: relative;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .divider span {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0 1rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+            position: relative;
+        }
+
+        .social-button {
+            transition: all 0.3s;
+            border: 2px solid #e5e7eb;
+            background: white;
+        }
+
+        .social-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .auth-container {
+                margin: 1rem;
+                padding: 2rem;
+                border-radius: 1.25rem;
+            }
+        }
+
+        /* Hide desktop header on mobile */
+        @media (max-width: 767px) {
+            .desktop-header {
+                display: none !important;
+            }
+            .desktop-only {
+                display: none !important;
+            }
+        }
+
+        /* Hide mobile header on desktop */
+        @media (min-width: 768px) {
+            .mobile-header-row-1 {
+                display: none !important;
+            }
+            .mobile-header-row-2 {
+                display: none !important;
+            }
+        }
+
+        /* Virtuosa Icon Styles */
+        .virtuosa-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #0A1128 0%, #060A18 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 10px 25px rgba(10, 17, 40, 0.3),
+                0 6px 10px rgba(10, 17, 40, 0.2),
+                inset 0 1px 0 rgba(255, 215, 0, 0.2);
+            position: relative;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .virtuosa-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 15px 35px rgba(10, 17, 40, 0.4),
+                0 8px 15px rgba(10, 17, 40, 0.3),
+                inset 0 1px 0 rgba(255, 215, 0, 0.3);
+        }
+
+        .virtuosa-icon::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #FFD700, #C19A6B, #FFD700);
+            border-radius: 22px;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .virtuosa-text {
+            font-size: 16px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFD700, #C19A6B);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
+            letter-spacing: -0.5px;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .auth-container {
+                margin: 0.5rem;
+                padding: 1.5rem;
+                border-radius: 1rem;
+            }
+            
+            .virtuosa-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 15px;
+            }
+            
+            .virtuosa-text {
+                font-size: 12px;
+                letter-spacing: -0.3px;
+            }
+            
+            h1 {
+                font-size: 1.5rem !important;
+            }
+            
+            p {
+                font-size: 0.875rem !important;
+            }
+            
+            .auth-input {
+                padding: 0.875rem 1rem !important;
+                font-size: 0.875rem !important;
+                border-radius: 0.625rem;
+            }
+            
+            .auth-button {
+                padding: 0.875rem 1rem !important;
+                font-size: 0.8rem !important;
+                letter-spacing: 0.25px;
+            }
+            
+            .form-label {
+                font-size: 0.75rem !important;
+                letter-spacing: 0.25px;
+            }
+
+            .password-toggle {
+                right: 12px;
+                padding: 0.375rem;
+            }
+        }
+
+        /* Extra small mobile (320px) */
+        @media (max-width: 320px) {
+            .auth-container {
+                margin: 0.25rem;
+                padding: 1rem;
+                border-radius: 0.75rem;
+            }
+            
+            .virtuosa-icon {
+                width: 50px;
+                height: 50px;
+                border-radius: 12px;
+            }
+            
+            .virtuosa-text {
+                font-size: 10px;
+                letter-spacing: -0.2px;
+            }
+            
+            h1 {
+                font-size: 1.25rem !important;
+                line-height: 1.3;
+            }
+            
+            p {
+                font-size: 0.75rem !important;
+                line-height: 1.4;
+            }
+            
+            .auth-input {
+                padding: 0.75rem 0.875rem !important;
+                font-size: 0.8rem !important;
+                border-radius: 0.5rem;
+            }
+            
+            .auth-button {
+                padding: 0.75rem 0.875rem !important;
+                font-size: 0.75rem !important;
+                letter-spacing: 0.1px;
+            }
+            
+            .form-label {
+                font-size: 0.7rem !important;
+                letter-spacing: 0.1px;
+                margin-bottom: 0.5rem;
+            }
+
+            .password-toggle {
+                right: 8px;
+                padding: 0.25rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-navy antialiased min-h-screen">
+    <!-- Mobile Header for Auth Pages -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Mobile Header Structure (320px-767px) -->
+        <div class="v-container mobile-header-row-1">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-2 mobile-header-actions">
+                    <!-- Cart Icon with Badge -->
+                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                    </a>
+                    
+                    <!-- Combined Notifications (includes messages) -->
+                    <a href="notifications.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <i class="fas fa-bell"></i>
+                        <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Header (Hidden on Mobile) -->
+        <div class="v-container v-header-row desktop-header">
+            <div class="v-header-row-upper">
+                <div class="v-header-logo">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                </div>
+                <div class="v-header-search">
+                    <div class="relative">
+                        <input id="home-search-input" type="text"
+                            placeholder="Search campus marketplace..."
+                            class="w-full text-sm focus:outline-none focus:ring-1 focus:ring-gold"
+                            autocomplete="off">
+                        <button id="home-search-button" class="flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <!-- Autocomplete suggestions -->
+                        <div id="home-search-suggestions"
+                            class="absolute top-full left-0 mt-1 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-h-96 overflow-y-auto hidden z-[60]">
+                            <!-- Suggestions injected via JS -->
+                        </div>
+                    </div>
+                </div>
+                <div id="user-info-container" class="v-header-actions">
+                    <!-- Login / Account Section -->
+                    <a href="login.html" id="login-link"
+                        class="text-white hover:text-gold transition-colors font-medium hidden md:flex flex-col items-start leading-tight group">
+                        <span class="text-[10px] text-gray-400 font-normal">Welcome</span>
+                        <div class="flex items-center -mt-0.5">
+                            <span class="text-sm font-semibold">Sign In</span>
+                            <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60 group-hover:rotate-180 transition-transform"></i>
+                        </div>
+                    </a>
+                    <div id="user-menu" class="relative hidden">
+                        <button onclick="toggleUserMenu()"
+                            class="text-white hover:text-gold transition-colors font-medium flex flex-col items-start leading-tight">
+                            <span id="user-greeting" class="text-[10px] text-gray-400 font-normal"></span>
+                            <div class="flex items-center -mt-0.5">
+                                <span class="text-sm font-semibold">My Account</span>
+                                <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60"></i>
+                            </div>
+                        </button>
+                        <div id="user-dropdown"
+                            class="absolute right-0 top-full mt-2 w-56 bg-navy rounded-xl shadow-2xl z-[60] py-4 text-white hidden border border-gray-800">
+                            <div class="px-4 pb-4 border-b border-gray-800 mb-2">
+                                <a href="profile.html" class="bg-button-gold text-white text-center py-2 px-4 rounded-lg text-sm block font-semibold hover:bg-gold transition-colors">My Profile</a>
+                            </div>
+                            <div class="px-2">
+                                <a href="buyer-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-th-large mr-3 text-gray-400"></i>Dashboard
+                                </a>
+                                <a href="orders.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-shopping-bag mr-3 text-gray-400"></i>My Orders
+                                </a>
+                                <div id="seller-links" class="hidden">
+                                    <div class="border-t border-gray-800 my-1"></div>
+                                    <a href="seller-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-green-400">
+                                        <i class="fas fa-store mr-3"></i>Seller Panel
+                                    </a>
+                                </div>
+                                <div id="admin-link" class="hidden">
+                                    <div class="border-t border-gray-800 my-1"></div>
+                                    <a href="admin-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-red-400">
+                                        <i class="fas fa-cog mr-3"></i>Admin Panel
+                                    </a>
+                                </div>
+                                <div class="border-t border-gray-800 my-2"></div>
+                                <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gray-300">
+                                    <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Icons (Matching mobile style) -->
+                    <a href="messages.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <i class="fas fa-envelope text-lg"></i>
+                        <span class="badge message-badge-count hidden">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Messages</span>
+                    </a>
+
+                    <a href="notifications.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span id="notification-badge-count" class="badge hidden">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Alerts</span>
+                    </a>
+
+                    <a href="cart.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="badge cart-badge-count">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Cart</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <nav class="desktop-only bg-dark-navy text-white shadow-sm py-1.5 px-6 md:px-12 z-40 border-t border-gray-800">
+            <div class="container mx-auto nav-row-2-container">
+                <!-- Desktop "Explore" Menu Trigger -->
+                <button id="desktop-explore-menu" onclick="window.openMobileMenu()" class="flex items-center text-white hover:text-gold px-3 py-1 rounded-full border border-gray-700 hover:border-gold transition-all mr-6 group shrink-0">
+                    <i class="fas fa-bars mr-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-bold text-[10px] uppercase tracking-wider">Explore</span>
+                </button>
+
+                <!-- Category Menu -->
+                <div class="flex items-center space-x-6 overflow-x-auto hide-scrollbar py-1">
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="nav-category-item">Hot Deals</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="nav-category-item">Best Sellers</a>
+                    <a href="seller.html" class="nav-category-item text-gold">Sell Items</a>
+                    <div class="h-4 w-[1px] bg-gray-700 mx-2 shrink-0"></div>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="nav-category-item">Electronics</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="nav-category-item">Computers & Software</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="nav-category-item">Services</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="nav-category-item">Watches & Jewellery</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="nav-category-item">Men's Clothing</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="nav-category-item">Women's Clothing</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="nav-category-item">Shoes</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="nav-category-item">Accessories</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="nav-category-item">Personal Care & Beauty</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="nav-category-item">Food & Beverages</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="nav-category-item">Sports & Outdoors</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="nav-category-item">Home & Living</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Mobile Navigation Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+    <div id="mobile-menu-content" class="mobile-menu-content">
+        <div class="mobile-menu-header">
+            <div class="text-xl font-bold text-gold">Menu</div>
+            <button id="mobile-menu-close" class="mobile-menu-close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Account Section -->
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Account</div>
+            <a href="login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
+                <i class="fas fa-sign-in-alt"></i>
+                <span id="mobile-menu-sign-text">Sign In</span>
+            </a>
+            <a href="profile.html" class="mobile-menu-link">
+                <i class="fas fa-user"></i>
+                <span>My Profile</span>
+            </a>
+            <a href="buyer-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="orders.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-bag"></i>
+                <span>My Orders</span>
+            </a>
+            <a href="transactions.html" class="mobile-menu-link">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="reviews.html" class="mobile-menu-link">
+                <i class="fas fa-star"></i>
+                <span>My Reviews</span>
+            </a>
+        </div>
+
+        <!-- Seller Section (shown only to sellers) -->
+        <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Seller Tools</div>
+            <a href="seller-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Seller Dashboard</span>
+            </a>
+            <a href="create-product.html" class="mobile-menu-link">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Product</span>
+            </a>
+            <a href="seller-analytics.html" class="mobile-menu-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="seller-orders.html" class="mobile-menu-link">
+                <i class="fas fa-box"></i>
+                <span>Orders</span>
+            </a>
+        </div>
+
+        <!-- Admin Section (shown only to admins) -->
+        <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Admin Panel</div>
+            <a href="admin-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-cog"></i>
+                <span>Admin Dashboard</span>
+            </a>
+            <a href="admin-seller-applications.html" class="mobile-menu-link">
+                <i class="fas fa-user-check"></i>
+                <span>Seller Applications</span>
+            </a>
+            <a href="admin-mass-messaging.html" class="mobile-menu-link">
+                <i class="fas fa-bullhorn"></i>
+                <span>Mass Messaging</span>
+            </a>
+            <a href="admin-retention.html" class="mobile-menu-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Retention</span>
+            </a>
+        </div>
+
+        <!-- Shopping Section -->
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Shopping</div>
+            <a href="cart.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Shopping Cart</span>
+            </a>
+            <a href="products.html?category=Hot%20Deals" class="mobile-menu-link">
+                <i class="fas fa-fire"></i>
+                <span>Hot Deals</span>
+            </a>
+            <a href="products.html?category=Best%20Sellers" class="mobile-menu-link">
+                <i class="fas fa-crown"></i>
+                <span>Best Sellers</span>
+            </a>
+            <a href="seller.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Become a Seller</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center p-4 py-8">
+        <div class="w-full max-w-md">
+            <!-- Logo Section -->
+            <div class="text-center mb-8">
+                <div class="virtuosa-icon mx-auto mb-4">
+                    <span class="virtuosa-text">VIRTUOSA</span>
+                </div>
+                <h1 class="text-3xl font-bold text-white mb-2">Welcome Back</h1>
+                <p class="text-gray-300">Sign in to your Virtuosa account</p>
+            </div>
+
+            <!-- Login Form Container -->
+            <div id="auth-container">
+                <!-- Login form will be rendered here by JavaScript -->
+            </div>
+
+            <!-- Footer Links -->
+            <div class="text-center mt-6">
+                <p class="text-gray-300 text-sm">
+                    Need help? 
+                    <a href="contact-support.html" class="text-gold hover:text-yellow-400 font-semibold transition-colors">Contact Support</a>
+                </p>
+            </div>
+        </div>
+    </main>
+    <footer class="bg-dark-navy text-gray-400 p-4 text-center shadow-inner mt-auto w-full">
+        <div class="container mx-auto">
+            &copy; 2026 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+    <script src="../js/config.js"></script>
+    <script src="../js/header.js"></script>
+    <script src="../js/mobile-header.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        // Handle URL parameters for verification status
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const verified = urlParams.get('verified');
+            const verification = urlParams.get('verification');
+            
+            if (verified === 'email') {
+                showMessage('Email verified successfully! You can now log in.');
+            } else if (verified === 'true') {
+                showMessage('Account verified successfully! You can now log in.');
+            } else if (verification === 'error') {
+                showMessage('Verification link is invalid or expired. Please try again.', true);
+            }
+        });
+    </script>
+    
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

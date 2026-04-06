@@ -186,169 +186,19 @@
             height: 420px;
         }
     </style>
+
+    <!-- Unified Header System -->
+    <script src="/js/config.js"></script>
+    <script src="/js/token-manager.js"></script>
+    <script src="/js/auth-manager.js"></script>
+    <script src="/js/cache-manager.js" defer></script>
+    <script src="/js/unified-header.js" defer></script>
+    <script src="/js/production-router.js" defer></script>
 </head>
 
 <body class="bg-gray-100 antialiased flex flex-col min-h-screen">
     <!-- Desktop Header from product-detail.html -->
-    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
-        <!-- Mobile Header Structure (320px-767px) - Hidden at tablet+ -->
-        <div class="v-container mobile-header-row-1 md:hidden">
-            <div class="flex items-center justify-between py-3">
-                <!-- Hamburger Menu (Left) -->
-                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-
-                <!-- Brand Name (Center) -->
-                <div class="flex-1 text-center">
-                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
-                </div>
-
-                <!-- Customer Utilities (Right) -->
-                <div class="flex items-center space-x-2 mobile-header-actions">
-                    <!-- Cart Icon with Badge -->
-                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
-                    </a>
-                    
-                    <!-- Combined Notifications (includes messages) -->
-                    <a href="notifications.html" class="relative v-touch text-white hover:text-gold transition-colors">
-                        <i class="fas fa-bell"></i>
-                        <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Row 2: Search-First Experience (Mobile only) -->
-        <div class="v-container mobile-header-row-2 pb-3 md:hidden">
-            <div class="relative mobile-search-container">
-                <input id="mobile-search-input" type="text" 
-                    placeholder="Search campus marketplace..." 
-                    class="w-full pl-4 pr-12 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400 mobile-search-input"
-                    autocomplete="off">
-                <button id="mobile-search-button" 
-                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors mobile-search-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-                <!-- Mobile Search Suggestions -->
-                <div id="mobile-search-suggestions" class="absolute top-full left-0 right-0 mt-1 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
-                    <!-- Mobile search suggestions will be inserted here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Desktop Header (768px+) - Hidden on mobile -->
-        <div class="v-container v-header-row desktop-header hidden md:flex">
-            <div class="v-header-logo">
-                <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
-            </div>
-            <div class="v-header-search">
-                <div class="relative">
-                    <select id="desktop-search-category" class="absolute left-3 top-1/2 transform -translate-y-1/2 bg-transparent text-gray-300 text-sm focus:outline-none appearance-none">
-                        <option value="all">All</option>
-                        <option value="electronics">Electronics</option>
-                        <option value="clothing">Clothing</option>
-                        <option value="books">Books</option>
-                        <option value="food">Food & Beverages</option>
-                    </select>
-                    <input id="desktop-search-input" type="text" 
-                        placeholder="Search campus marketplace (e.g. &quot;HP laptop&quot;, &quot;Men's hoodie&quot;)..." 
-                        class="w-full pl-24 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-white placeholder-gray-400">
-                    <button id="desktop-search-button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
-            <!-- Desktop Search Suggestions - moved to v-header-search level -->
-            <div id="home-search-suggestions" class="absolute top-full left-0 right-0 mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
-                <!-- Desktop search suggestions will be inserted here -->
-            </div>
-            <div id="user-info-container" class="v-header-actions">
-                <a href="login.html" id="login-link"
-                    class="text-white hover:text-gold transition-colors font-medium hidden md:flex flex-col items-start leading-tight group">
-                    <span class="text-[10px] text-gray-400 font-normal">Welcome</span>
-                    <div class="flex items-center -mt-0.5">
-                        <span class="text-sm font-semibold">Sign In</span>
-                        <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60 group-hover:rotate-180 transition-transform"></i>
-                    </div>
-                </a>
-                <div id="user-menu" class="relative hidden">
-                    <button onclick="toggleUserMenu()"
-                        class="text-white hover:text-gold transition-colors font-medium flex flex-col items-start leading-tight">
-                        <span id="user-greeting" class="text-[10px] text-gray-400 font-normal"></span>
-                        <div class="flex items-center -mt-0.5">
-                            <span class="text-sm font-semibold">My Account</span>
-                            <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60"></i>
-                        </div>
-                    </button>
-                    <div id="user-dropdown"
-                        class="absolute right-0 top-full mt-2 w-56 bg-navy rounded-xl shadow-2xl z-[60] py-4 text-white hidden border border-gray-800">
-                        <div class="px-4 pb-4 border-b border-gray-800 mb-2">
-                            <a href="profile.html" class="bg-button-gold text-white text-center py-2 px-4 rounded-lg text-sm block font-semibold hover:bg-gold transition-colors">My Profile</a>
-                        </div>
-                        <div class="px-2">
-                            <a href="buyer-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
-                                <i class="fas fa-th-large mr-3 text-gray-400"></i>Dashboard
-                            </a>
-                            <a href="orders.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
-                                <i class="fas fa-shopping-bag mr-3 text-gray-400"></i>My Orders
-                            </a>
-                            <a href="transactions.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
-                                <i class="fas fa-exchange-alt mr-3 text-gray-400"></i>My Transactions
-                            </a>
-                            <a href="reviews.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
-                                <i class="fas fa-star mr-3 text-gray-400"></i>My Reviews
-                            </a>
-                            <div id="seller-links" class="hidden">
-                                <div class="border-t border-gray-800 my-1"></div>
-                                <a href="seller-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-green-400">
-                                    <i class="fas fa-store mr-3"></i>Seller Panel
-                                </a>
-                            </div>
-                            <div id="admin-link" class="hidden">
-                                <div class="border-t border-gray-800 my-1"></div>
-                                <a href="admin-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-red-400">
-                                    <i class="fas fa-cog mr-3"></i>Admin Panel
-                                </a>
-                            </div>
-                            <div class="border-t border-gray-800 my-2"></div>
-                            <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gray-300">
-                                <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <a href="messages.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
-                    <i class="fas fa-envelope text-lg"></i>
-                    <span class="badge message-badge-count hidden">0</span>
-                    <span class="text-[9px] mt-0.5 font-medium">Messages</span>
-                </a>
-
-                <a href="notifications.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
-                    <i class="fas fa-bell text-lg"></i>
-                    <span id="notification-badge-count" class="badge hidden">0</span>
-                    <span class="text-[9px] mt-0.5 font-medium">Alerts</span>
-                </a>
-
-                <a href="cart.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <span class="badge cart-badge-count">0</span>
-                    <span class="text-[9px] mt-0.5 font-medium">Cart</span>
-                </a>
-            </div>
-        </div>
-    </header>
+    
 
     <!-- Cart Banner Notification -->
     <div id="cart-banner" class="hidden">
@@ -387,7 +237,6 @@
     </nav>
 
     <!-- Mobile Navigation Menu Overlay -->
-    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
     <div class="mobile-menu-content">
         <div class="mobile-menu-header">
             <div class="text-xl font-bold text-gold">Menu</div>

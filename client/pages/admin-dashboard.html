@@ -10,6 +10,14 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
+
+    <!-- Unified Header System -->
+    <script src="/js/config.js"></script>
+    <script src="/js/token-manager.js"></script>
+    <script src="/js/auth-manager.js"></script>
+    <script src="/js/cache-manager.js" defer></script>
+    <script src="/js/unified-header.js" defer></script>
+    <script src="/js/production-router.js" defer></script>
 </head>
     <style>
         body {
@@ -30,176 +38,9 @@
     <!-- Standard Navigation -->
     
     <!-- Mobile Header Structure (320px-480px) -->
-    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
-        <!-- Row 1: Utilities and Branding -->
-        <div class="v-container mobile-header-row-1">
-            <div class="flex items-center justify-between py-3">
-                <!-- Hamburger Menu (Left) -->
-                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-
-                <!-- Brand Name (Center) -->
-                <div class="flex-1 text-center">
-                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
-                </div>
-
-                <!-- Customer Utilities (Right) -->
-                <div class="flex items-center space-x-2 mobile-header-actions">
-                    <!-- Cart Icon with Badge -->
-                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
-                    </a>
-                    
-                    <!-- Combined Notifications (includes messages) -->
-                    <a href="notifications.html" class="relative v-touch text-white hover:text-gold transition-colors">
-                        <i class="fas fa-bell"></i>
-                        <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="v-container v-header-row desktop-header">
-            <div class="v-header-row-upper">
-                <div class="v-header-logo">
-                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
-                </div>
-                <div class="v-header-search">
-                    <div class="relative">
-                        <input id="home-search-input" type="text"
-                            placeholder="Search campus marketplace..."
-                            class="w-full text-sm focus:outline-none focus:ring-1 focus:ring-gold"
-                            autocomplete="off">
-                        <button id="home-search-button" class="flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                        <div id="home-search-suggestions"
-                            class="absolute top-full left-0 mt-1 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-h-96 overflow-y-auto hidden z-[60]">
-                        </div>
-                    </div>
-                </div>
-                <div id="user-info-container" class="v-header-actions">
-                    <a href="login.html" id="login-link"
-                        class="text-white hover:text-gold transition-colors font-medium hidden md:flex flex-col items-start leading-tight group">
-                        <span class="text-[10px] text-gray-400 font-normal">Welcome</span>
-                        <div class="flex items-center -mt-0.5">
-                            <span class="text-sm font-semibold">Sign In</span>
-                            <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60 group-hover:rotate-180 transition-transform"></i>
-                        </div>
-                    </a>
-                    <div id="user-menu" class="relative hidden">
-                        <button onclick="toggleUserMenu()"
-                            class="text-white hover:text-gold transition-colors font-medium flex flex-col items-start leading-tight">
-                            <span id="user-greeting" class="text-[10px] text-gray-400 font-normal"></span>
-                            <div class="flex items-center -mt-0.5">
-                                <span class="text-sm font-semibold">My Account</span>
-                                <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60"></i>
-                            </div>
-                        </button>
-                        <div id="user-dropdown"
-                            class="absolute right-0 top-full mt-2 w-56 bg-navy rounded-xl shadow-2xl z-[60] py-4 text-white hidden border border-gray-800">
-                            <div class="px-4 pb-4 border-b border-gray-800 mb-2">
-                                <a href="profile.html" class="bg-button-gold text-white text-center py-2 px-4 rounded-lg text-sm block font-semibold hover:bg-gold transition-colors">My Profile</a>
-                            </div>
-                            <div class="px-2">
-                                <a href="buyer-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
-                                    <i class="fas fa-th-large mr-3 text-gray-400"></i>Dashboard
-                                </a>
-                                <a href="orders.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
-                                    <i class="fas fa-shopping-bag mr-3 text-gray-400"></i>My Orders
-                                </a>
-                                <div id="seller-links" class="hidden">
-                                    <div class="border-t border-gray-800 my-1"></div>
-                                    <a href="seller-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-green-400">
-                                        <i class="fas fa-store mr-3"></i>Seller Panel
-                                    </a>
-                                </div>
-                                <div id="admin-link" class="hidden">
-                                    <div class="border-t border-gray-800 my-1"></div>
-                                    <a href="admin-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-red-400">
-                                        <i class="fas fa-cog mr-3"></i>Admin Panel
-                                    </a>
-                                    <a href="strategic-analytics.html" class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-[#0A1128]/5 hover:text-[#0A1128] rounded-xl transition-all">
-                    <i class="fas fa-chart-line w-5"></i>
-                    <span>Financial Analytics</span>
-                </a>
-                <a href="admin-cookie-data.html" class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-[#0A1128]/5 hover:text-[#0A1128] rounded-xl transition-all">
-                    <i class="fas fa-cookie-bite w-5"></i>
-                    <span>Cookie Analytics</span>
-                </a>
-                                </div>
-                                <div class="border-t border-gray-800 my-2"></div>
-                                <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gray-300">
-                                    <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <a href="messages.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
-                        <i class="fas fa-envelope text-lg"></i>
-                        <span class="badge message-badge-count hidden">0</span>
-                        <span class="text-[9px] mt-0.5 font-medium">Messages</span>
-                    </a>
-
-                    <a href="notifications.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
-                        <i class="fas fa-bell text-lg"></i>
-                        <span id="notification-badge-count" class="badge hidden">0</span>
-                        <span class="text-[9px] mt-0.5 font-medium">Alerts</span>
-                    </a>
-
-                    <a href="cart.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        <span class="badge cart-badge-count">0</span>
-                        <span class="text-[9px] mt-0.5 font-medium">Cart</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <nav class="desktop-only bg-dark-navy text-white shadow-sm py-1.5 px-6 md:px-12 z-40 border-t border-gray-800">
-            <div class="container mx-auto nav-row-2-container">
-                <!-- Desktop "Explore" Menu Trigger -->
-                <button id="desktop-explore-menu" onclick="window.openMobileMenu()" class="flex items-center text-white hover:text-gold px-3 py-1 rounded-full border border-gray-700 hover:border-gold transition-all mr-6 group shrink-0">
-                    <i class="fas fa-bars mr-2 group-hover:scale-110 transition-transform"></i>
-                    <span class="font-bold text-[10px] uppercase tracking-wider">Explore</span>
-                </button>
-
-                <!-- Category Menu -->
-                <div class="flex items-center space-x-6 overflow-x-auto hide-scrollbar py-1">
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="nav-category-item">Hot Deals</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="nav-category-item">Best Sellers</a>
-                    <a href="seller.html" class="nav-category-item text-gold">Sell Items</a>
-                    <div class="h-4 w-[1px] bg-gray-700 mx-2 shrink-0"></div>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="nav-category-item">Electronics</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="nav-category-item">Computers & Software</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="nav-category-item">Services</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="nav-category-item">Watches & Jewellery</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="nav-category-item">Men's Clothing</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="nav-category-item">Women's Clothing</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="nav-category-item">Shoes</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="nav-category-item">Accessories</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="nav-category-item">Personal Care & Beauty</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="nav-category-item">Food & Beverages</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="nav-category-item">Sports & Outdoors</a>
-                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="nav-category-item">Home & Living</a>
-                </div>
-            </div>
-        </nav>
-    </header>
+    
 
     <!-- Mobile Navigation Menu Overlay -->
-    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
     <div class="mobile-menu-content">
         <div class="mobile-menu-header">
             <div class="text-xl font-bold text-gold">Menu</div>

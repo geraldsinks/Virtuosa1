@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Become a Seller</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-gold {
+            background-color: #FFD700;
+        }
+
+        .bg-button-gold {
+            background-color: #C19A6B;
+        }
+
+        .hover-bg-button-gold:hover {
+            background-color: #A98B68;
+        }
+
+        .bg-dark-navy {
+            background-color: #060A18;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+    
+    <!-- Mobile Header Structure (320px-480px) -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Row 1: Utilities and Branding -->
+        <div class="v-container mobile-header-row-1">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-3 mobile-header-actions">
+                    <!-- Cart Icon with Badge -->
+                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Search Bar -->
+        <div class="v-container mobile-header-row-2 pb-3">
+            <div class="relative mobile-search-container">
+                <input id="mobile-search-input" type="text" 
+                    placeholder="Search campus marketplace..." 
+                    class="w-full pl-4 pr-12 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400 mobile-search-input"
+                    autocomplete="off">
+                <button id="mobile-search-button" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors mobile-search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Desktop Header (Hidden on Mobile) -->
+        <div class="v-container v-header-row desktop-header">
+            <div class="v-header-logo">
+                <a href="../index.html" class="text-xl md:text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+
+            <div class="v-header-search">
+                <div class="relative">
+                    <input id="home-search-input" type="text"
+                        placeholder="Search campus marketplace..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400"
+                        autocomplete="off">
+                    <button id="home-search-button"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="user-info-container" class="v-header-actions">
+                <a href="login.html" id="login-link" class="text-white hover:text-gold transition-colors font-medium text-sm md:text-base hidden md:block">Log In</a>
+                <div id="user-menu" class="relative hidden">
+                    <button onclick="toggleUserMenu()" class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
+                        <span id="user-greeting" class="hidden md:inline"></span>
+                        <i class="fas fa-user-circle text-lg md:text-base"></i>
+                        <i class="fas fa-chevron-down text-xs hidden md:inline"></i>
+                    </button>
+                    <div id="user-dropdown" class="absolute right-0 top-10 w-48 bg-navy rounded-lg shadow-xl z-50 py-2 hidden">
+                        <a href="profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-user mr-2"></i>My Profile</a>
+                        <a href="buyer-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-tachometer-alt mr-2"></i>Dashboard</a>
+                        <a href="notifications.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-bell mr-2"></i>Notifications</a>
+                        <a href="transactions.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-exchange-alt mr-2"></i>My Transactions</a>
+                        <a href="reviews.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-star mr-2"></i>My Reviews</a>
+                        <div id="seller-links" class="hidden">
+                            <a href="seller-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-store mr-2"></i>Seller Panel</a>
+                            <a href="create-product.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-plus mr-2"></i>Create Listing</a>
+                        </div>
+                        <div id="admin-link" class="hidden">
+                            <a href="admin-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-cog mr-2"></i>Admin Panel</a>
+                        </div>
+                        <div class="border-t border-gray-700 my-1"></div>
+                        <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i>Log Out</button>
+                    </div>
+                </div>
+                <a href="cart.html" class="relative text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+    <div class="mobile-menu-content">
+        <div class="mobile-menu-header">
+            <div class="text-xl font-bold text-gold">Menu</div>
+            <button id="mobile-menu-close" class="mobile-menu-close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Account</div>
+            <a href="login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
+                <i class="fas fa-sign-in-alt"></i>
+                <span id="mobile-menu-sign-text">Sign In</span>
+            </a>
+            <a href="profile.html" class="mobile-menu-link">
+                <i class="fas fa-user"></i>
+                <span>My Profile</span>
+            </a>
+            <a href="buyer-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="orders.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-bag"></i>
+                <span>My Orders</span>
+            </a>
+            <a href="transactions.html" class="mobile-menu-link">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="reviews.html" class="mobile-menu-link">
+                <i class="fas fa-star"></i>
+                <span>My Reviews</span>
+            </a>
+        </div>
+
+        <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Seller Tools</div>
+            <a href="seller-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Seller Dashboard</span>
+            </a>
+            <a href="create-product.html" class="mobile-menu-link">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Product</span>
+            </a>
+            <a href="seller-analytics.html" class="mobile-menu-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="seller-orders.html" class="mobile-menu-link">
+                <i class="fas fa-box"></i>
+                <span>Orders</span>
+            </a>
+        </div>
+
+        <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Admin Panel</div>
+            <a href="admin-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-cog"></i>
+                <span>Admin Dashboard</span>
+            </a>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Shopping</div>
+            <a href="cart.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Shopping Cart</span>
+            </a>
+            <a href="products.html?category=Hot%20Deals" class="mobile-menu-link">
+                <i class="fas fa-fire"></i>
+                <span>Hot Deals</span>
+            </a>
+            <a href="products.html?category=Best%20Sellers" class="mobile-menu-link">
+                <i class="fas fa-crown"></i>
+                <span>Best Sellers</span>
+            </a>
+            <a href="seller.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Become a Seller</span>
+            </a>
+        </div>
+    </div>
+
+
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Coming Soon Card -->
+            <div class="bg-white rounded-lg shadow-lg p-12 text-center">
+                <div class="mb-6">
+                    <i data-lucide="clock" class="w-16 h-16 text-gold mx-auto mb-4"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-navy mb-4">Coming Soon</h1>
+                <p class="text-xl text-gray-600 mb-8">Seller verification will be available soon. We're working hard to bring you the best selling experience.</p>
+                <div class="bg-gray-50 rounded-lg p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-navy mb-3">What to Expect:</h3>
+                    <div class="grid md:grid-cols-3 gap-4 text-left">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-6 h-6 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <svg class="w-3 h-3 text-navy" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Student Verification</h4>
+                                <p class="text-sm text-gray-600">Verify your student status securely</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-6 h-6 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <svg class="w-3 h-3 text-navy" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Seller Features</h4>
+                                <p class="text-sm text-gray-600">Access powerful selling tools</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-6 h-6 bg-gold rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <svg class="w-3 h-3 text-navy" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Secure Payments</h4>
+                                <p class="text-sm text-gray-600">Protected transactions for everyone</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="index.html" class="bg-gold text-navy px-8 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors inline-flex items-center justify-center">
+                        <i data-lucide="home" class="w-4 h-4 mr-2"></i>
+                        Back to Home
+                    </a>
+                    <a href="buyer-dashboard.html" class="bg-navy text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors inline-flex items-center justify-center">
+                        <i data-lucide="user" class="w-4 h-4 mr-2"></i>
+                        My Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-auto">
+        <div class="container mx-auto text-center">
+            &copy; 2025 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/header.js"></script>
+    <script src="../js/mobile-header.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/seller-verification.js"></script>
+    
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

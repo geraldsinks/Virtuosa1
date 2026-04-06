@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Seller Orders</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-button-gold {
+            background-color: #C19A6B;
+        }
+
+        .hover-bg-button-gold:hover {
+            background-color: #A98B68;
+        }
+
+        .order-card {
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .status-processing { background-color: #dbeafe; color: #1e40af; }
+        .status-shipped { background-color: #e9d5ff; color: #6b21a8; }
+        .status-delivered { background-color: #d1fae5; color: #065f46; }
+        .status-cancelled { background-color: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased">
+    
+    <!-- Mobile Header Structure (320px-480px) -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Row 1: Utilities and Branding -->
+        <div class="v-container mobile-header-row-1">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-3 mobile-header-actions">
+                    <!-- Cart Icon with Badge -->
+                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4(5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Search Bar -->
+        <div class="v-container mobile-header-row-2 pb-3">
+            <div class="relative mobile-search-container">
+                <input id="mobile-search-input" type="text" 
+                    placeholder="Search campus marketplace..." 
+                    class="w-full pl-4 pr-12 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400 mobile-search-input"
+                    autocomplete="off">
+                <button id="mobile-search-button" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors mobile-search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Desktop Header (Hidden on Mobile) -->
+        <div class="v-container v-header-row desktop-header">
+            <div class="v-header-logo">
+                <a href="../index.html" class="text-xl md:text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+
+            <div class="v-header-search">
+                <div class="relative">
+                    <input id="home-search-input" type="text"
+                        placeholder="Search campus marketplace..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400"
+                        autocomplete="off">
+                    <button id="home-search-button"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="user-info-container" class="v-header-actions">
+                <a href="login.html" id="login-link" class="text-white hover:text-gold transition-colors font-medium text-sm md:text-base hidden md:block">Log In</a>
+                <div id="user-menu" class="relative hidden">
+                    <button onclick="toggleUserMenu()" class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
+                        <span id="user-greeting" class="hidden md:inline"></span>
+                        <i class="fas fa-user-circle text-lg md:text-base"></i>
+                        <i class="fas fa-chevron-down text-xs hidden md:inline"></i>
+                    </button>
+                    <div id="user-dropdown" class="absolute right-0 top-10 w-48 bg-navy rounded-lg shadow-xl z-50 py-2 hidden">
+                        <a href="profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-user mr-2"></i>My Profile</a>
+                        <a href="buyer-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-tachometer-alt mr-2"></i>Dashboard</a>
+                        <a href="notifications.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-bell mr-2"></i>Notifications</a>
+                        <a href="transactions.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-exchange-alt mr-2"></i>My Transactions</a>
+                        <a href="reviews.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-star mr-2"></i>My Reviews</a>
+                        <div id="seller-links" class="hidden">
+                            <a href="seller-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-store mr-2"></i>Seller Panel</a>
+                            <a href="create-product.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-plus mr-2"></i>Create Listing</a>
+                        </div>
+                        <div id="admin-link" class="hidden">
+                            <a href="admin-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-cog mr-2"></i>Admin Panel</a>
+                        </div>
+                        <div class="border-t border-gray-700 my-1"></div>
+                        <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i>Log Out</button>
+                    </div>
+                </div>
+                <a href="cart.html" class="relative text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4(5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+    <div class="mobile-menu-content">
+        <div class="mobile-menu-header">
+            <div class="text-xl font-bold text-gold">Menu</div>
+            <button id="mobile-menu-close" class="mobile-menu-close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Account</div>
+            <a href="login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
+                <i class="fas fa-sign-in-alt"></i>
+                <span id="mobile-menu-sign-text">Sign In</span>
+            </a>
+            <a href="profile.html" class="mobile-menu-link">
+                <i class="fas fa-user"></i>
+                <span>My Profile</span>
+            </a>
+            <a href="buyer-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="orders.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-bag"></i>
+                <span>My Orders</span>
+            </a>
+            <a href="transactions.html" class="mobile-menu-link">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="reviews.html" class="mobile-menu-link">
+                <i class="fas fa-star"></i>
+                <span>My Reviews</span>
+            </a>
+        </div>
+
+        <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Seller Tools</div>
+            <a href="seller-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Seller Dashboard</span>
+            </a>
+            <a href="create-product.html" class="mobile-menu-link">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Product</span>
+            </a>
+            <a href="seller-analytics.html" class="mobile-menu-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="seller-orders.html" class="mobile-menu-link">
+                <i class="fas fa-box"></i>
+                <span>Orders</span>
+            </a>
+        </div>
+
+        <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Admin Panel</div>
+            <a href="admin-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-cog"></i>
+                <span>Admin Dashboard</span>
+            </a>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Shopping</div>
+            <a href="cart.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Shopping Cart</span>
+            </a>
+            <a href="products.html?category=Hot%20Deals" class="mobile-menu-link">
+                <i class="fas fa-fire"></i>
+                <span>Hot Deals</span>
+            </a>
+            <a href="products.html?category=Best%20Sellers" class="mobile-menu-link">
+                <i class="fas fa-crown"></i>
+                <span>Best Sellers</span>
+            </a>
+            <a href="seller.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Become a Seller</span>
+            </a>
+        </div>
+    </div>
+
+    <main class="flex-grow py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-3xl font-bold text-navy">My Orders</h1>
+                <div class="flex items-center space-x-4">
+                    <!-- Status Filter -->
+                    <select id="status-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold">
+                        <option value="">All Orders</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                    
+                    <!-- Refresh Button -->
+                    <button id="refresh-orders" class="px-4 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Orders Container -->
+            <div id="orders-container">
+                <!-- Orders will be loaded here -->
+                <div class="text-center py-12">
+                    <i class="fas fa-spinner fa-spin text-4xl text-gold mb-4"></i>
+                    <p class="text-gray-600">Loading your orders...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div id="pagination-container" class="mt-8">
+                <!-- Pagination will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-navy text-gray-400 p-4 text-center shadow-inner mt-auto">
+        &copy; 2025 Virtuosa. All rights reserved.
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const API_BASE = 'https://api.virtuosazm.com/api';
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                window.location.href = '/pages/login.html';
+                return;
+            }
+
+            // Check seller access
+            try {
+                const response = await fetch(`${API_BASE}/user/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Not authorized');
+                }
+
+                const user = await response.json();
+                if (!user.isSeller) {
+                    alert('Access denied. Seller privileges required.');
+                    window.location.href = 'buyer-dashboard.html';
+                    return;
+                }
+
+                // Update user greeting
+                document.getElementById('user-greeting').textContent = `Hello, ${user.fullName}`;
+            } catch (error) {
+                console.error('Seller check failed:', error);
+                window.location.href = '/pages/login.html';
+                return;
+            }
+
+            let currentPage = 1;
+            const ordersPerPage = 10;
+            let currentFilter = '';
+
+            // Load orders
+            await loadOrders();
+
+            // Event listeners
+            document.getElementById('status-filter').addEventListener('change', (e) => {
+                currentFilter = e.target.value;
+                currentPage = 1;
+                loadOrders();
+            });
+
+            document.getElementById('refresh-orders').addEventListener('click', () => {
+                loadOrders();
+            });
+
+            // Load orders function
+            async function loadOrders() {
+                try {
+                    const queryParams = new URLSearchParams({
+                        page: currentPage.toString(),
+                        limit: ordersPerPage.toString(),
+                        ...(currentFilter && { status: currentFilter })
+                    });
+
+                    const response = await fetch(`${API_BASE}/orders?${queryParams}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        renderOrders(data.orders || []);
+                        renderPagination(data.pagination);
+                    } else {
+                        console.error('Failed to load orders:', await response.json());
+                        renderOrders([]);
+                    }
+                } catch (error) {
+                    console.error('Error loading orders:', error);
+                    renderOrders([]);
+                }
+            }
+
+            // Render orders
+            function renderOrders(orders) {
+                const container = document.getElementById('orders-container');
+                
+                if (!orders || orders.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12">
+                            <i class="fas fa-box text-6xl text-gray-300 mb-4"></i>
+                            <h3 class="text-xl font-semibold text-gray-600 mb-2">No orders found</h3>
+                            <p class="text-gray-500 mb-6">You don't have any orders yet.</p>
+                            <a href="seller-dashboard.html" class="inline-flex items-center bg-button-gold text-white px-6 py-3 rounded-full hover-bg-button-gold transition-colors">
+                                <i class="fas fa-tachometer-alt mr-2"></i>
+                                Back to Dashboard
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                orders.forEach(order => {
+                    const statusColor = getStatusColor(order.status);
+                    const statusIcon = getStatusIcon(order.status);
+                    const orderDate = new Date(order.createdAt).toLocaleDateString();
+                    const productImage = fixServerUrl(order.product?.images?.[0]) || 'https://placehold.co/100x100';
+                    
+                    html += `
+                        <div class="order-card bg-white rounded-lg shadow-md p-6 mb-4">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                                <div class="flex items-center space-x-3 mb-2 md:mb-0">
+                                    <img src="${productImage}" alt="${order.product?.name}" class="w-16 h-16 object-cover rounded-lg" loading="lazy">
+                                    <div>
+                                        <h3 class="font-semibold text-navy text-lg">${order.product?.name || 'Unknown Product'}</h3>
+                                        <p class="text-gray-600 text-sm">Order #${order._id.slice(-8)}</p>
+                                        <p class="text-gray-500 text-xs">${orderDate}</p>
+                                        <p class="text-gray-600 text-sm">Buyer: ${order.buyer?.fullName || 'Unknown'}</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <span class="status-badge ${statusColor}">
+                                        <i class="${statusIcon} mr-1"></i>
+                                        ${order.status}
+                                    </span>
+                                    <p class="font-bold text-lg text-gold mt-2">ZMW ${order.totalAmount?.toFixed(2) || '0.00'}</p>
+                                    <p class="text-sm text-gray-600">Qty: ${order.quantity}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-t pt-4">
+                                <div class="text-sm text-gray-600 mb-2 sm:mb-0">
+                                    ${order.trackingNumber ? `<p><i class="fas fa-truck mr-1"></i> Tracking: ${order.trackingNumber}</p>` : ''}
+                                    ${order.deliveryMethod ? `<p><i class="fas fa-shipping-alt mr-1"></i> Delivery: ${order.deliveryMethod}</p>` : ''}
+                                    ${order.buyer?.email ? `<p><i class="fas fa-envelope mr-1"></i> ${order.buyer.email}</p>` : ''}
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="viewOrderDetails('${order._id}')" 
+                                        class="px-4 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors text-sm">
+                                        <i class="fas fa-eye mr-1"></i> View Details
+                                    </button>
+                                    <button onclick="messageBuyer('${order.buyer?._id}', '${order.product?.name}')" 
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                        <i class="fas fa-message mr-1"></i> Message
+                                    </button>
+                                    ${getActionButtons(order)}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            }
+
+            // Get action buttons based on order status
+            function getActionButtons(order) {
+                switch (order.status) {
+                    case 'pending_seller_confirmation':
+                        return `
+                            <button onclick="confirmOrder('${order._id}')" 
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+                                <i class="fas fa-check mr-1"></i> Confirm Order
+                            </button>
+                            <button onclick="declineOrder('${order._id}')" 
+                                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm">
+                                <i class="fas fa-times mr-1"></i> Decline Order
+                            </button>
+                        `;
+                    case 'confirmed_by_seller':
+                        return `
+                            <button onclick="markAsShipped('${order._id}')" 
+                                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                                <i class="fas fa-truck mr-1"></i> Mark as Shipped
+                            </button>
+                        `;
+                    case 'out_for_delivery':
+                        return `
+                            <span class="text-sm text-blue-600 font-medium">Order out for delivery</span>
+                        `;
+                    case 'delivered_pending_confirmation':
+                        return `
+                            <span class="text-sm text-orange-600 font-medium">Waiting for buyer confirmation</span>
+                        `;
+                    case 'completed':
+                        return `
+                            <span class="text-sm text-green-600 font-medium">Order completed</span>
+                        `;
+                    case 'declined':
+                        return `
+                            <span class="text-sm text-red-600 font-medium">Order declined</span>
+                        `;
+                    default:
+                        return '';
+                }
+            }
+
+            // Update order status
+            window.updateOrderStatus = async (orderId, newStatus) => {
+                if (!confirm(`Are you sure you want to ${newStatus.toLowerCase()} this order?`)) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+
+                    if (response.ok) {
+                        showToast(`Order ${newStatus.toLowerCase()} successfully!`, 'success');
+                        await loadOrders(); // Reload orders
+                    } else {
+                        const error = await response.json();
+                        showToast(error.message || 'Failed to update order', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error updating order:', error);
+                    showToast('Failed to update order', 'error');
+                }
+            };
+
+            // Show shipping form
+            window.showShippingForm = (orderId) => {
+                const trackingNumber = prompt('Enter tracking number (optional):');
+                if (trackingNumber === null) return; // User cancelled
+
+                updateOrderStatus(orderId, 'Shipped');
+            };
+
+            // View order details
+            window.viewOrderDetails = (orderId) => {
+                window.location.href = `order-details.html?id=${orderId}`;
+            };
+
+            // Message buyer
+            window.messageBuyer = (buyerId, productName) => {
+                window.location.href = `messages.html?recipientId=${buyerId}&product=${encodeURIComponent(productName)}`;
+            };
+
+            // Render pagination
+            function renderPagination(pagination) {
+                const container = document.getElementById('pagination-container');
+                
+                if (!pagination || pagination.totalPages <= 1) {
+                    container.innerHTML = '';
+                    return;
+                }
+
+                let html = '<div class="flex justify-center items-center space-x-2">';
+                
+                // Previous button
+                if (pagination.currentPage > 1) {
+                    html += `<button onclick="loadPage(${pagination.currentPage - 1})" class="px-3 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>`;
+                }
+                
+                // Page numbers
+                for (let i = 1; i <= pagination.totalPages; i++) {
+                    const isActive = i === pagination.currentPage;
+                    html += `<button onclick="loadPage(${i})" class="px-4 py-2 rounded-lg transition-colors ${
+                        isActive ? 'bg-gold text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }">${i}</button>`;
+                }
+                
+                // Next button
+                if (pagination.currentPage < pagination.totalPages) {
+                    html += `<button onclick="loadPage(${pagination.currentPage + 1})" class="px-3 py-2 bg-navy text-white rounded-lg hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>`;
+                }
+                
+                html += '</div>';
+                container.innerHTML = html;
+            }
+
+            // Load specific page
+            window.loadPage = async (page) => {
+                currentPage = page;
+                await loadOrders();
+            };
+
+            // Helper functions
+            function getStatusColor(status) {
+                switch (status) {
+                    case 'pending_seller_confirmation': return 'bg-yellow-100 text-yellow-800';
+                    case 'confirmed_by_seller': return 'bg-blue-100 text-blue-800';
+                    case 'out_for_delivery': return 'bg-purple-100 text-purple-800';
+                    case 'delivered_pending_confirmation': return 'bg-orange-100 text-orange-800';
+                    case 'completed': return 'bg-green-100 text-green-800';
+                    case 'declined': return 'bg-red-100 text-red-800';
+                    default: return 'bg-gray-100 text-gray-800';
+                }
+            }
+
+            function getStatusIcon(status) {
+                switch (status) {
+                    case 'pending_seller_confirmation': return 'fas fa-clock';
+                    case 'confirmed_by_seller': return 'fas fa-check-circle';
+                    case 'out_for_delivery': return 'fas fa-truck';
+                    case 'delivered_pending_confirmation': return 'fas fa-box';
+                    case 'completed': return 'fas fa-check-double';
+                    case 'declined': return 'fas fa-times-circle';
+                    default: return 'fas fa-question-circle';
+                }
+            }
+
+            // Fix server URL
+            function fixServerUrl(url) {
+                if (!url) return 'https://placehold.co/100x100';
+                if (url.startsWith('http')) return url;
+                if (url.startsWith('/')) return `${API_BASE}${url}`;
+                return `${API_BASE}/${url}`;
+            }
+
+            // Confirm order
+            window.confirmOrder = async (orderId) => {
+                if (!confirm('Are you sure you want to confirm this order?')) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/confirm`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        alert('Order confirmed successfully!');
+                        await loadOrders();
+                    } else {
+                        const error = await response.json();
+                        alert(error.message || 'Failed to confirm order');
+                    }
+                } catch (error) {
+                    console.error('Error confirming order:', error);
+                    alert('Error confirming order');
+                }
+            };
+
+            // Decline order
+            window.declineOrder = async (orderId) => {
+                const reason = prompt('Please provide a reason for declining this order:');
+                if (reason === null) return; // User cancelled
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/decline`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ reason: reason || 'Order declined' })
+                    });
+
+                    if (response.ok) {
+                        alert('Order declined successfully');
+                        await loadOrders();
+                    } else {
+                        const error = await response.json();
+                        alert(error.message || 'Failed to decline order');
+                    }
+                } catch (error) {
+                    console.error('Error declining order:', error);
+                    alert('Error declining order');
+                }
+            };
+
+            // Mark as shipped
+            window.markAsShipped = async (orderId) => {
+                if (!confirm('Are you sure you want to mark this order as shipped?')) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            status: 'out_for_delivery'
+                        })
+                    });
+
+                    if (response.ok) {
+                        alert('Order marked as shipped!');
+                        await loadOrders();
+                    } else {
+                        const error = await response.json();
+                        alert(error.message || 'Failed to update order status');
+                    }
+                } catch (error) {
+                    console.error('Error marking as shipped:', error);
+                    alert('Error updating order status');
+                }
+            };
+
+            // View order details
+            window.viewOrderDetails = (orderId) => {
+                window.location.href = `order-details.html?id=${orderId}`;
+            };
+
+            // Message buyer
+            window.messageBuyer = (buyerId, productName) => {
+                window.location.href = `messages.html?buyer=${buyerId}&product=${productName}`;
+            };
+
+            // Toast notification
+            function showToast(message, type = 'success') {
+                let container = document.getElementById('toast-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'toast-container';
+                    document.body.appendChild(container);
+                }
+
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `
+                    <i class="fas fa-check-circle toast-icon"></i>
+                    <span class="toast-message">${message}</span>
+                `;
+
+                container.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 400);
+                }, 3000);
+            }
+        });
+    </script>
+    <script src="../js/config.js"></script>
+    <script>
+        // Helper function to fix URLs to point to server
+        function fixServerUrl(url) {
+            if (!url) return url;
+            return url.startsWith('/') ? `${API_BASE}${url}` : url;
+        }
+    </script>
+    <script src="../js/header.js"></script>
+    <script src="../js/mobile-header.js"></script>
+    <script src="../js/cart.js"></script>
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

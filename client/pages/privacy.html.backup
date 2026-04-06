@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Privacy Policy</title>
+    <meta name="description" content="Read the Virtuosa Privacy Policy. Learn how we collect, use, and protect your personal data on Zambia's student trading platform.">
+    <link rel="canonical" href="https://virtuosazm.com/privacy">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon-48x48.svg" sizes="48x48">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .terms-content {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+        .terms-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .terms-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .terms-content::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        .terms-content::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased">
+    
+    <!-- Header -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="../index.html" class="hover:text-gold transition-colors">Home</a>
+                    <a href="products.html" class="hover:text-gold transition-colors">Products</a>
+                    <a href="login.html" class="hover:text-gold transition-colors">Login</a>
+                    <a href="signup.html" class="hover:text-gold transition-colors">Sign Up</a>
+                </nav>
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-toggle" class="md:hidden text-white hover:text-gold">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-dark-navy border-t border-gray-700">
+            <div class="container mx-auto px-4 py-3 space-y-2">
+                <a href="../index.html" class="block py-2 text-white hover:text-gold transition-colors">Home</a>
+                <a href="products.html" class="block py-2 text-white hover:text-gold transition-colors">Products</a>
+                <a href="login.html" class="block py-2 text-white hover:text-gold transition-colors">Login</a>
+                <a href="signup.html" class="block py-2 text-white hover:text-gold transition-colors">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h1 class="text-3xl md:text-4xl font-bold text-navy mb-6 text-center">Privacy Policy</h1>
+                
+                <div class="terms-content space-y-6">
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">1. Introduction</h2>
+                        <p class="text-gray-700 leading-relaxed">
+                            Welcome to Virtuosa. We are committed to protecting your personal information and your right to privacy. 
+                            If you have any questions or concerns about our policy, or our practices with regards to your personal 
+                            information, please contact us at virtuosa@gmail.com.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">2. Information We Collect</h2>
+                        <div class="space-y-3 text-gray-700 leading-relaxed">
+                            <p>
+                                <strong>2.1 Personal Information:</strong> We collect personal information that you voluntarily provide to us when 
+                                registering at Virtuosa, expressing an interest in obtaining information about us or our products and services.
+                            </p>
+                            <p>
+                                <strong>2.2 Usage Data:</strong> We may also collect information that your browser sends whenever you visit our 
+                                Service or when you access the Service by or through a mobile device.
+                            </p>
+                            <p>
+                                <strong>2.3 Cookies & Tracking Technologies:</strong> We use cookies and similar tracking technologies to track the activity on our 
+                                Service. Your consent is explicitly requested regarding non-essential cookies. The categories include:
+                            </p>
+                            <ul class="list-disc list-inside space-y-1 ml-4 text-sm mt-2">
+                                <li><strong>Essential Cookies (Strictly Necessary):</strong> Required to keep you logged in, securely route your traffic, and save your consent preferences. These cannot be disabled.</li>
+                                <li><strong>Performance & Analytics Cookies:</strong> Used to track page views and time-on-page to help us improve the platform experience. You can opt-out of these at any time via the Cookie Preferences menu.</li>
+                                <li><strong>Marketing & Advertising Cookies:</strong> Used to track clicks on specific products or categories so we can display relevant recommendations or advertisements. You can opt-out of these at any time.</li>
+                            </ul>
+                            <p class="text-sm mt-2 italic">You can manage your cookie preferences at any time by clicking the "Manage Preferences" button on our cookie banner.</p>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">3. How We Use Your Information</h2>
+                        <div class="space-y-3 text-gray-700 leading-relaxed">
+                            <p>We use the information we collect or receive:</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>To facilitate account creation and logon process</li>
+                                <li>To send administrative information to you</li>
+                                <li>To fulfill and manage your orders</li>
+                                <li>To post testimonials</li>
+                                <li>To protect our Services</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">4. Information Sharing</h2>
+                        <p class="text-gray-700 leading-relaxed">
+                            We only share information with your consent, to comply with laws, to provide you with services, 
+                            to protect your rights, or to fulfill business obligations. We do not sell your personal data.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">5. Data Security</h2>
+                        <p class="text-gray-700 leading-relaxed">
+                            We use administrative, technical, and physical security measures to help protect your personal information. 
+                            While we have taken reasonable steps to secure the personal information you provide to us, please be aware 
+                            that despite our efforts, no security measures are perfect or impenetrable.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">6. Your Rights</h2>
+                        <p class="text-gray-700 leading-relaxed">
+                            Depending on where you reside, you may have the right to request access to the personal data we collect from you, 
+                            change that information, or delete it in some circumstances. You can update your account settings at any time or 
+                            contact us for assistance.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">7. Updates to This Policy</h2>
+                        <p class="text-gray-700 leading-relaxed">
+                            We may update this privacy policy from time to time. The updated version will be indicated by an updated 
+                            "Revised" date and the updated version will be effective as soon as it is accessible. We encourage you to 
+                            review this privacy policy frequently to be informed of how we are protecting your information.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">8. Contact Us</h2>
+                        <p class="text-gray-700 leading-relaxed">
+                            If you have questions or comments about this policy, you may contact us at:
+                            <br><br>
+                            <strong>Email:</strong> virtuosa@gmail.com
+                            <br>
+                            <strong>Platform:</strong> Virtuosa Campus Marketplace
+                        </p>
+                    </section>
+
+                    <section class="border-t pt-6">
+                        <p class="text-sm text-gray-600 text-center">
+                            <strong>Last Updated:</strong> March 2026<br>
+                            By using Virtuosa, you acknowledge that you have read and understood our Privacy Policy.
+                        </p>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-auto">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 text-left">
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">About Us</h3>
+                <p class="text-sm">Virtuosa is a student trading platform connecting buyers and sellers for books,
+                    electronics, and more. Join our community to trade smarter!</p>
+                <a href="/about" class="text-sm hover:text-gold transition-colors mt-2 inline-block">Learn more &rarr;</a>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Become a Seller</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/seller" class="hover:text-gold transition-colors">Start Selling</a></li>
+                    <li><a href="/seller-guide" class="hover:text-gold transition-colors">Seller Guide</a></li>
+                    <li><a href="/seller-benefits" class="hover:text-gold transition-colors">Seller Benefits</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Payments</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/payment-options" class="hover:text-gold transition-colors">Payment Options</a></li>
+                    <li><a href="/secure-transactions" class="hover:text-gold transition-colors">Secure Transactions</a></li>
+                    <li><a href="/refund-policy" class="hover:text-gold transition-colors">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Help and Contact</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/faq" class="hover:text-gold transition-colors">FAQ</a></li>
+                    <li><a href="/contact" class="hover:text-gold transition-colors">Contact Support</a></li>
+                    <li><a href="/live-chat" class="hover:text-gold transition-colors">Live Chat</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Follow Us</h3>
+                <div class="flex space-x-4">
+                    <a href="https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr" target="_blank"
+                        class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://x.com" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-x-twitter fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr" target="_blank"
+                        class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 text-center text-sm">
+            <div class="mb-2">
+                <a href="/terms" class="hover:text-gold transition-colors">Terms</a>
+                <span class="mx-2">|</span>
+                <a href="/privacy" class="hover:text-gold transition-colors">Privacy Policy</a>
+                <span class="mx-2">|</span>
+                <a href="/refund-policy" class="hover:text-gold transition-colors">Refund Policy</a>
+            </div>
+            &copy; 2026 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-toggle').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+    
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

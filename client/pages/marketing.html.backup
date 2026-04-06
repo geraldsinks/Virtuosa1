@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Marketing Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-button-gold {
+            background: linear-gradient(135deg, #C19A6B, #d6ae7e);
+            box-shadow: 0 4px 15px -3px rgba(193, 154, 107, 0.4);
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hover-bg-button-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -4px rgba(193, 154, 107, 0.5);
+            background: linear-gradient(135deg, #A98B68, #c4a17a);
+        }
+
+        .bg-dark-navy {
+            background-color: #060A18;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-button {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .tab-button:hover {
+            color: #C19A6B;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #C19A6B, #d6ae7e);
+            color: white !important;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(193, 154, 107, 0.3);
+            border-bottom: none !important;
+        }
+
+        .asset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .asset-item {
+            position: relative;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .asset-item:hover {
+            border-color: #C19A6B;
+            transform: scale(1.02);
+        }
+
+        .asset-item.selected {
+            border-color: #C19A6B;
+            box-shadow: 0 0 0 3px rgba(193, 154, 107, 0.2);
+        }
+
+        .preview-slider {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+    
+    <!-- Mobile Header Structure (320px-480px) -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Row 1: Utilities and Branding -->
+        <div class="v-container mobile-header-row-1">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-3 mobile-header-actions">
+                    <!-- Cart Icon with Badge -->
+                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Search Bar -->
+        <div class="v-container mobile-header-row-2 pb-3">
+            <div class="relative mobile-search-container">
+                <input id="mobile-search-input" type="text" 
+                    placeholder="Search campus marketplace..." 
+                    class="w-full pl-4 pr-12 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400 mobile-search-input"
+                    autocomplete="off">
+                <button id="mobile-search-button" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors mobile-search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Desktop Header (Hidden on Mobile) -->
+        <div class="v-container v-header-row desktop-header">
+            <div class="v-header-logo">
+                <a href="../index.html" class="text-xl md:text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+
+            <div class="v-header-search">
+                <div class="relative">
+                    <input id="home-search-input" type="text"
+                        placeholder="Search campus marketplace..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400"
+                        autocomplete="off">
+                    <button id="home-search-button"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="user-info-container" class="v-header-actions">
+                <a href="login.html" id="login-link" class="text-white hover:text-gold transition-colors font-medium text-sm md:text-base hidden md:block">Log In</a>
+                <div id="user-menu" class="relative hidden">
+                    <button onclick="toggleUserMenu()" class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
+                        <span id="user-greeting" class="hidden md:inline"></span>
+                        <i class="fas fa-user-circle text-lg md:text-base"></i>
+                        <i class="fas fa-chevron-down text-xs hidden md:inline"></i>
+                    </button>
+                    <div id="user-dropdown" class="absolute right-0 top-10 w-48 bg-navy rounded-lg shadow-xl z-50 py-2 hidden">
+                        <a href="profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-user mr-2"></i>My Profile</a>
+                        <a href="buyer-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-tachometer-alt mr-2"></i>Dashboard</a>
+                        <a href="notifications.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-bell mr-2"></i>Notifications</a>
+                        <a href="transactions.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-exchange-alt mr-2"></i>My Transactions</a>
+                        <a href="reviews.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-star mr-2"></i>My Reviews</a>
+                        <div id="seller-links" class="hidden">
+                            <a href="seller-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-store mr-2"></i>Seller Panel</a>
+                            <a href="create-product.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-plus mr-2"></i>Create Listing</a>
+                        </div>
+                        <div id="admin-link" class="hidden">
+                            <a href="admin-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-cog mr-2"></i>Admin Panel</a>
+                        </div>
+                        <div class="border-t border-gray-700 my-1"></div>
+                        <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i>Log Out</button>
+                    </div>
+                </div>
+                <a href="cart.html" class="relative text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Bar (Desktop Only) -->
+    <nav class="desktop-only bg-dark-navy text-white shadow-sm py-1.5 px-6 md:px-12 z-40 border-t border-gray-800">
+        <div class="container mx-auto nav-row-2-container">
+            <!-- Desktop "Explore" Menu Trigger -->
+            <button id="desktop-explore-menu" onclick="window.openMobileMenu()" class="flex items-center text-white hover:text-gold px-3 py-1 rounded-full border border-gray-700 hover:border-gold transition-all mr-6 group shrink-0">
+                <i class="fas fa-bars mr-2 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-[10px] uppercase tracking-wider">Explore</span>
+            </button>
+
+            <!-- Category Menu -->
+            <div class="flex items-center space-x-6 overflow-x-auto hide-scrollbar py-1">
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="nav-category-item">Hot Deals</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="nav-category-item">Best Sellers</a>
+                <a href="seller.html" class="nav-category-item text-gold">Sell Items</a>
+                <div class="h-4 w-[1px] bg-gray-700 mx-2 shrink-0"></div>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="nav-category-item">Electronics</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="nav-category-item">Computers & Software</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="nav-category-item">Services</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="nav-category-item">Watches & Jewellery</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="nav-category-item">Men's Clothing</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="nav-category-item">Women's Clothing</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="nav-category-item">Shoes</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="nav-category-item">Accessories</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="nav-category-item">Personal Care & Beauty</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="nav-category-item">Food & Beverages</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="nav-category-item">Sports & Outdoors</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="nav-category-item">Home & Living</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+    <div id="mobile-menu-content" class="mobile-menu-content">
+        <div class="mobile-menu-header">
+            <div class="text-xl font-bold text-gold">Menu</div>
+            <button id="mobile-menu-close" class="mobile-menu-close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Account</div>
+            <a href="login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
+                <i class="fas fa-sign-in-alt"></i>
+                <span id="mobile-menu-sign-text">Sign In</span>
+            </a>
+            <a href="profile.html" class="mobile-menu-link">
+                <i class="fas fa-user"></i>
+                <span>My Profile</span>
+            </a>
+            <a href="buyer-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="orders.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-bag"></i>
+                <span>My Orders</span>
+            </a>
+            <a href="transactions.html" class="mobile-menu-link">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="reviews.html" class="mobile-menu-link">
+                <i class="fas fa-star"></i>
+                <span>My Reviews</span>
+            </a>
+        </div>
+
+        <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Seller Tools</div>
+            <a href="seller-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Seller Dashboard</span>
+            </a>
+            <a href="create-product.html" class="mobile-menu-link">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Product</span>
+            </a>
+        </div>
+
+        <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Admin Panel</div>
+            <a href="admin-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-cog"></i>
+                <span>Admin Dashboard</span>
+            </a>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Shopping</div>
+            <a href="cart.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Shopping Cart</span>
+            </a>
+            <a href="products.html?category=Hot%20Deals" class="mobile-menu-link">
+                <i class="fas fa-fire"></i>
+                <span>Hot Deals</span>
+            </a>
+            <a href="products.html?category=Best%20Sellers" class="mobile-menu-link">
+                <i class="fas fa-crown"></i>
+                <span>Best Sellers</span>
+            </a>
+            <a href="seller.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Become a Seller</span>
+            </a>
+        </div>
+    </div>
+
+
+
+    <main class="flex-grow py-8">
+        <div class="container mx-auto px-4">
+            <!-- Tab Navigation -->
+            <div class="bg-white rounded-lg shadow-lg mb-6">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-4" aria-label="Tabs">
+                        <button onclick="switchTab('ad-sliders', this)"
+                            class="tab-button active py-4 px-1 border-b-2 font-medium text-sm border-transparent hover:text-gold hover:border-gold transition-colors">
+                            <i class="fas fa-images mr-2"></i>Ad Sliders
+                        </button>
+                        <button onclick="switchTab('category-cards', this)"
+                            class="tab-button py-4 px-1 border-b-2 font-medium text-sm border-transparent hover:text-gold hover:border-gold transition-colors">
+                            <i class="fas fa-th-large mr-2"></i>Category Cards
+                        </button>
+                        <button onclick="switchTab('promotions', this)"
+                            class="tab-button py-4 px-1 border-b-2 font-medium text-sm border-transparent hover:text-gold hover:border-gold transition-colors">
+                            <i class="fas fa-tags mr-2"></i>Promotions & Coupons
+                        </button>
+                        <button onclick="switchTab('banners', this)"
+                            class="tab-button py-4 px-1 border-b-2 font-medium text-sm border-transparent hover:text-gold hover:border-gold transition-colors">
+                            <i class="fas fa-flag mr-2"></i>Banners
+                        </button>
+                        <button onclick="switchTab('a-plus-content', this)"
+                            class="tab-button py-4 px-1 border-b-2 font-medium text-sm border-transparent hover:text-gold hover:border-gold transition-colors">
+                            <i class="fas fa-star mr-2"></i>A+ Content
+                        </button>
+                        <button onclick="switchTab('fallback-categories', this)"
+                            class="tab-button py-4 px-1 border-b-2 font-medium text-sm border-transparent hover:text-gold hover:border-gold transition-colors">
+                            <i class="fas fa-layer-group mr-2"></i>Fallback Categories
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Ad Sliders Tab -->
+            <div id="ad-sliders" class="tab-content active">
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-navy">Manage Ad Sliders</h2>
+                        <button onclick="addNewAdSlider()"
+                            class="bg-button-gold text-white px-4 py-2 rounded-lg hover-bg-button-gold transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Add New Ad
+                        </button>
+                    </div>
+
+                    <!-- Preview Section -->
+                    <div class="mb-8 border-t pt-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-navy">Desktop Preview</h3>
+                            <div class="flex space-x-2">
+                                <button onclick="setPreviewMode('desktop')" id="preview-desktop-btn"
+                                    class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm">
+                                    <i class="fas fa-desktop mr-1"></i>Desktop
+                                </button>
+                                <button onclick="setPreviewMode('mobile')" id="preview-mobile-btn"
+                                    class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm">
+                                    <i class="fas fa-mobile-alt mr-1"></i>Mobile
+                                </button>
+                            </div>
+                        </div>
+                        <div id="ad-slider-preview" class="preview-slider bg-gray-100 rounded-lg overflow-hidden">
+                            <!-- Preview will be rendered here -->
+                        </div>
+                    </div>
+
+                    <div id="ad-sliders-list" class="space-y-4">
+                        <!-- Ad sliders will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Cards Tab -->
+            <div id="category-cards" class="tab-content">
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-navy">Manage Category Cards</h2>
+                        <button onclick="addNewCategoryCard()"
+                            class="bg-button-gold text-white px-4 py-2 rounded-lg hover-bg-button-gold transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Add New Card
+                        </button>
+                    </div>
+
+                    <!-- Preview Section -->
+                    <div class="mb-8 border-t pt-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-navy">Desktop Preview</h3>
+                            <div class="flex space-x-2">
+                                <button onclick="setPreviewMode('desktop')" id="preview-desktop-btn-cards"
+                                    class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm">
+                                    <i class="fas fa-desktop mr-1"></i>Desktop
+                                </button>
+                                <button onclick="setPreviewMode('mobile')" id="preview-mobile-btn-cards"
+                                    class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm">
+                                    <i class="fas fa-mobile-alt mr-1"></i>Mobile
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Mode Toggle -->
+                        <div class="flex justify-center mb-6">
+                            <div class="bg-gray-100 p-1 rounded-lg flex">
+                                <button onclick="switchToFreeMode()" id="free-mode-btn"
+                                    class="px-4 py-2 rounded-md text-sm font-medium transition-colors ${currentCategoryPreviewMode === 'free' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'}">
+                                    <i class="fas fa-edit mr-1"></i>Free Mode
+                                </button>
+                                <button onclick="switchToPresetMode()" id="preset-mode-btn"
+                                    class="px-4 py-2 rounded-md text-sm font-medium transition-colors ${currentCategoryPreviewMode === 'preset' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'}">
+                                    <i class="fas fa-th-large mr-1"></i>Preset Mode
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Preset Style Selector (only in preset mode) -->
+                        <div id="preset-style-selector"
+                            class="flex justify-center mb-6 ${currentCategoryPreviewMode === 'preset' ? '' : 'hidden'}">
+                            <div class="bg-white border border-gray-300 rounded-lg p-3 shadow-sm">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Choose Preset Style:</label>
+                                <select onchange="setPresetStyle(this.value)"
+                                    class="w-48 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="amazon" ${currentPresetStyle==='amazon' ? 'selected' : '' }>🛒 Amazon
+                                        Style</option>
+                                    <option value="ebay" ${currentPresetStyle==='ebay' ? 'selected' : '' }>💰 eBay Style
+                                    </option>
+                                    <option value="rakuten" ${currentPresetStyle==='rakuten' ? 'selected' : '' }>🎁
+                                        Rakuten Style</option>
+                                        Rakuten Style<option value="modern-minimal" ${currentPresetStyle==='modern-minimal' ? 'selected' : '' }>✨ Modern Minimal</option>
+                                        Rakuten Style<option value="vibrant-mosaic" ${currentPresetStyle==='vibrant-mosaic' ? 'selected' : '' }>🎨 Vibrant Mosaic</option>
+                                        Rakuten Style<option value="editorial-gallery" ${currentPresetStyle==='editorial-gallery' ? 'selected' : '' }>📸 Editorial Gallery</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Publish/Deactivate Actions -->
+                        <div id="preset-actions"
+                            class="flex justify-center space-x-4 mb-6 ${currentCategoryPreviewMode === 'preset' ? '' : 'hidden'}">
+                            <button onclick="publishPreset()"
+                                class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors shadow-md">
+                                <i class="fas fa-paper-plane mr-2"></i>Publish Preset to Home
+                            </button>
+                            <button onclick="deactivatePreset()"
+                                class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-md">
+                                <i class="fas fa-power-off mr-2"></i>Deactivate All Presets
+                            </button>
+                        </div>
+
+                        <div id="category-cards-preview"
+                            class="bg-white border border-gray-300 rounded-lg overflow-hidden">
+                            <!-- Preview will be rendered here -->
+                        </div>
+                    </div>
+
+                    <div id="category-cards-list" class="space-y-4">
+                        <!-- Category cards will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Promotions & Coupons Tab -->
+            <div id="promotions" class="tab-content">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-navy">Promotions & Coupons</h2>
+                        <button onclick="addNewPromotion()"
+                            class="bg-button-gold text-white px-4 py-2 rounded-lg hover-bg-button-gold transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Add Promotion
+                        </button>
+                    </div>
+
+                    <div id="promotions-list" class="space-y-4">
+                        <!-- Promotions will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Banners Tab -->
+            <div id="banners" class="tab-content">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-navy">Manage Banners</h2>
+                        <button onclick="addNewBanner()"
+                            class="bg-button-gold text-white px-4 py-2 rounded-lg hover-bg-button-gold transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Add Banner
+                        </button>
+                    </div>
+
+                    <div id="banners-list" class="space-y-4">
+                        <!-- Banners will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- A+ Content Tab -->
+            <div id="a-plus-content" class="tab-content">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-navy">A+ Content Management</h2>
+                        <button onclick="addNewAPlusContent()"
+                            class="bg-button-gold text-white px-4 py-2 rounded-lg hover-bg-button-gold transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Add A+ Content
+                        </button>
+                    </div>
+
+                    <div id="a-plus-content-list" class="space-y-4">
+                        <!-- A+ content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fallback Categories Tab -->
+            <div id="fallback-categories" class="tab-content">
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-navy">Manage Fallback Categories</h2>
+                        <div class="flex space-x-4">
+                            <button onclick="loadFallbackCategories()"
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-sync mr-2"></i>Load Categories
+                            </button>
+                            <button onclick="saveFallbackCategories()"
+                                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                                <i class="fas fa-save mr-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h3 class="text-lg font-semibold text-blue-800 mb-2">About Fallback Categories</h3>
+                        <p class="text-blue-700 text-sm">
+                            These categories are shown on the homepage when no published category cards are available.
+                            You can customize the display name, title, description, image, and link for each category.
+                            The layout automatically alternates between square and rectangle cards for visual appeal.
+                        </p>
+                    </div>
+
+                    <div id="fallback-categories-list" class="space-y-6">
+                        <!-- Fallback categories will be loaded here -->
+                        <div class="text-center py-12 text-gray-500">
+                            <i class="fas fa-layer-group text-4xl mb-4"></i>
+                            <p>Click "Load Categories" to view and edit the fallback categories.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    <!-- Modal for editing items -->
+    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 id="modal-title" class="text-xl font-bold text-navy">Edit Item</h3>
+                        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div id="modal-content">
+                        <!-- Modal content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/header.js"></script>
+    <script src="../js/mobile-header.js"></script>
+    <script src="../js/marketing.js"></script>
+    
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

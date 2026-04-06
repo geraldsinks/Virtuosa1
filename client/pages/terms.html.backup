@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Terms and Conditions</title>
+    <meta name="description" content="Read the Virtuosa Terms and Conditions. Understand your rights and responsibilities as a buyer or seller on Zambia's student trading platform.">
+    <link rel="canonical" href="https://virtuosazm.com/terms">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon-48x48.svg" sizes="48x48">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .terms-content {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+        .terms-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .terms-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .terms-content::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        .terms-content::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased">
+    
+    <!-- Header -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="../index.html" class="hover:text-gold transition-colors">Home</a>
+                    <a href="products.html" class="hover:text-gold transition-colors">Products</a>
+                    <a href="login.html" class="hover:text-gold transition-colors">Login</a>
+                    <a href="signup.html" class="hover:text-gold transition-colors">Sign Up</a>
+                </nav>
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-toggle" class="md:hidden text-white hover:text-gold">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-dark-navy border-t border-gray-700">
+            <div class="container mx-auto px-4 py-3 space-y-2">
+                <a href="../index.html" class="block py-2 text-white hover:text-gold transition-colors">Home</a>
+                <a href="products.html" class="block py-2 text-white hover:text-gold transition-colors">Products</a>
+                <a href="login.html" class="block py-2 text-white hover:text-gold transition-colors">Login</a>
+                <a href="signup.html" class="block py-2 text-white hover:text-gold transition-colors">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h1 class="text-3xl md:text-4xl font-bold text-navy mb-6 text-center">Terms and Conditions</h1>
+                
+                <div class="terms-content space-y-6">
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">1. Acceptance of Terms</h2>
+                        <p class="text-gray-700 leading-relaxed">
+                            By accessing and using Virtuosa ("the Platform"), you accept and agree to be bound by these Terms and Conditions. 
+                            If you do not agree to these terms, please do not use our services.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">2. User Accounts</h2>
+                        <div class="space-y-3 text-gray-700 leading-relaxed">
+                            <p>
+                                <strong>2.1 Registration:</strong> You must provide accurate, complete, and current information when creating an account. 
+                                You must be a student or have a valid university affiliation to register.
+                            </p>
+                            <p>
+                                <strong>2.2 Account Security:</strong> You are responsible for maintaining the confidentiality of your account credentials 
+                                and for all activities that occur under your account.
+                            </p>
+                            <p>
+                                <strong>2.3 Student Verification:</strong> You must provide a valid student email address for verification purposes. 
+                                Academic status may be verified at any time.
+                            </p>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">3. Platform Usage</h2>
+                        <div class="space-y-3 text-gray-700 leading-relaxed">
+                            <p>
+                                <strong>3.1 Permitted Use:</strong> Virtuosa is a campus marketplace for buying, selling, and trading 
+                                goods and services within the academic community.
+                            </p>
+                            <p>
+                                <strong>3.2 Prohibited Items:</strong> You may not list or sell illegal items, weapons, alcohol, 
+                                drugs, stolen goods, or any items prohibited by university policies or local laws.
+                            </p>
+                            <p>
+                                <strong>3.3 Content Standards:</strong> All listings, communications, and content must be respectful, 
+                                non-discriminatory, and comply with community standards.
+                            </p>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">4. Buying and Selling</h2>
+                        <div class="space-y-3 text-gray-700 leading-relaxed">
+                            <p>
+                                <strong>4.1 Seller Responsibilities:</strong> Sellers must accurately describe items, provide clear images, 
+                                and fulfill orders in a timely manner.
+                            </p>
+                            <p>
+                                <strong>4.2 Buyer Responsibilities:</strong> Buyers must pay promptly and communicate respectfully 
+                                with sellers. Payment should be made as agreed upon with the seller.
+                            </p>
+                            <p>
+                                <strong>4.3 Transaction Safety:</strong> Virtuosa is not responsible for transactions between users. 
+                                Meet in safe, public locations on campus when possible.
+                            </p>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">5. Fees and Payments</h2>
+                        <div class="space-y-3 text-gray-700 leading-relaxed">
+                            <p>
+                                <strong>5.1 Platform Fees:</strong> Virtuosa may charge fees for certain services or premium features. 
+                                Such fees will be clearly disclosed before use.
+                            </p>
+                            <p>
+                                <strong>5.2 Payment Processing:</strong> Payment processing is handled through third-party providers. 
+                                Their terms and fees apply in addition to Virtuosa's terms.
+                            </p>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">6. Intellectual Property</h2>
+                        <p class="text-gray-700 leading-relaxed">
+                            Users retain ownership of content they post but grant Virtuosa a license to use, display, and distribute 
+                            such content for the purpose of operating the platform. You must not infringe on others' intellectual property rights.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">7. Privacy</h2>
+                        <p class="text-gray-700 leading-relaxed">
+                            Your privacy is important to us. Please review our Privacy Policy to understand how we collect, use, 
+                            and protect your personal information.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">8. Prohibited Activities</h2>
+                        <div class="space-y-3 text-gray-700 leading-relaxed">
+                            <p>You may not:</p>
+                            <ul class="list-disc list-inside space-y-2 ml-4">
+                                <li>Use the platform for fraudulent or illegal activities</li>
+                                <li>Spam, harass, or abuse other users</li>
+                                <li>Post false, misleading, or deceptive information</li>
+                                <li>Attempt to gain unauthorized access to the platform</li>
+                                <li>Interfere with or disrupt the platform's operation</li>
+                                <li>Violate any applicable laws or regulations</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">9. Account Suspension and Termination</h2>
+                        <div class="space-y-3 text-gray-700 leading-relaxed">
+                            <p>
+                                Virtuosa reserves the right to suspend or terminate accounts that violate these terms. 
+                                Termination may occur with or without notice and without liability.
+                            </p>
+                            <p>
+                                Suspended or terminated users may not create new accounts without explicit permission from Virtuosa.
+                            </p>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">10. Disclaimers and Limitation of Liability</h2>
+                        <div class="space-y-3 text-gray-700 leading-relaxed">
+                            <p>
+                                <strong>10.1 Platform Status:</strong> Virtuosa is provided "as is" without warranties of any kind. 
+                                We do not guarantee uninterrupted or error-free operation.
+                            </p>
+                            <p>
+                                <strong>10.2 Liability Limitation:</strong> Virtuosa is not liable for any direct, indirect, 
+                                incidental, or consequential damages arising from your use of the platform.
+                            </p>
+                            <p>
+                                <strong>10.3 Third-Party Content:</strong> We are not responsible for the accuracy, quality, 
+                                or legality of user-generated content or third-party links.
+                            </p>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">11. Indemnification</h2>
+                        <p class="text-gray-700 leading-relaxed">
+                            You agree to indemnify and hold Virtuosa harmless from any claims, damages, or expenses 
+                            arising from your violation of these terms or your use of the platform.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">12. Governing Law</h2>
+                        <p class="text-gray-700 leading-relaxed">
+                            These terms are governed by the laws of Zambia. Any disputes will be resolved through 
+                            good faith negotiation and, if necessary, through appropriate legal channels in Zambia.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">13. Changes to Terms</h2>
+                        <p class="text-gray-700 leading-relaxed">
+                            Virtuosa reserves the right to modify these terms at any time. Changes will be effective 
+                            immediately upon posting. Your continued use of the platform constitutes acceptance of any changes.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-semibold text-navy mb-3">14. Contact Information</h2>
+                        <p class="text-gray-700 leading-relaxed">
+                            If you have questions about these Terms and Conditions, please contact us at:
+                            <br><br>
+                            <strong>Email:</strong> virtuosa@gmail.com
+                            <br>
+                            <strong>Platform:</strong> Virtuosa Campus Marketplace
+                        </p>
+                    </section>
+
+                    <section class="border-t pt-6">
+                        <p class="text-sm text-gray-600 text-center">
+                            <strong>Last Updated:</strong> March 2025<br>
+                            By using Virtuosa, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.
+                        </p>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy text-gray-400 p-8 text-center">
+        <div class="container mx-auto">
+            <p>&copy; 2026 Virtuosa. All rights reserved.</p>
+            <div class="mt-4 space-x-4">
+                <a href="terms.html" class="hover:text-gold transition-colors">Terms and Conditions</a>
+                <a href="privacy.html" class="hover:text-gold transition-colors">Privacy Policy</a>
+                <a href="contact.html" class="hover:text-gold transition-colors">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-toggle').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+    
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

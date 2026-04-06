@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin Dashboard - Virtuosa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <!-- Standard Navigation -->
+    
+    <!-- Mobile Header Structure (320px-480px) -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Row 1: Utilities and Branding -->
+        <div class="v-container mobile-header-row-1">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-2 mobile-header-actions">
+                    <!-- Cart Icon with Badge -->
+                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                    </a>
+                    
+                    <!-- Combined Notifications (includes messages) -->
+                    <a href="notifications.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <i class="fas fa-bell"></i>
+                        <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="v-container v-header-row desktop-header">
+            <div class="v-header-row-upper">
+                <div class="v-header-logo">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                </div>
+                <div class="v-header-search">
+                    <div class="relative">
+                        <input id="home-search-input" type="text"
+                            placeholder="Search campus marketplace..."
+                            class="w-full text-sm focus:outline-none focus:ring-1 focus:ring-gold"
+                            autocomplete="off">
+                        <button id="home-search-button" class="flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div id="home-search-suggestions"
+                            class="absolute top-full left-0 mt-1 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-h-96 overflow-y-auto hidden z-[60]">
+                        </div>
+                    </div>
+                </div>
+                <div id="user-info-container" class="v-header-actions">
+                    <a href="login.html" id="login-link"
+                        class="text-white hover:text-gold transition-colors font-medium hidden md:flex flex-col items-start leading-tight group">
+                        <span class="text-[10px] text-gray-400 font-normal">Welcome</span>
+                        <div class="flex items-center -mt-0.5">
+                            <span class="text-sm font-semibold">Sign In</span>
+                            <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60 group-hover:rotate-180 transition-transform"></i>
+                        </div>
+                    </a>
+                    <div id="user-menu" class="relative hidden">
+                        <button onclick="toggleUserMenu()"
+                            class="text-white hover:text-gold transition-colors font-medium flex flex-col items-start leading-tight">
+                            <span id="user-greeting" class="text-[10px] text-gray-400 font-normal"></span>
+                            <div class="flex items-center -mt-0.5">
+                                <span class="text-sm font-semibold">My Account</span>
+                                <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60"></i>
+                            </div>
+                        </button>
+                        <div id="user-dropdown"
+                            class="absolute right-0 top-full mt-2 w-56 bg-navy rounded-xl shadow-2xl z-[60] py-4 text-white hidden border border-gray-800">
+                            <div class="px-4 pb-4 border-b border-gray-800 mb-2">
+                                <a href="profile.html" class="bg-button-gold text-white text-center py-2 px-4 rounded-lg text-sm block font-semibold hover:bg-gold transition-colors">My Profile</a>
+                            </div>
+                            <div class="px-2">
+                                <a href="buyer-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-th-large mr-3 text-gray-400"></i>Dashboard
+                                </a>
+                                <a href="orders.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-shopping-bag mr-3 text-gray-400"></i>My Orders
+                                </a>
+                                <div id="seller-links" class="hidden">
+                                    <div class="border-t border-gray-800 my-1"></div>
+                                    <a href="seller-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-green-400">
+                                        <i class="fas fa-store mr-3"></i>Seller Panel
+                                    </a>
+                                </div>
+                                <div id="admin-link" class="hidden">
+                                    <div class="border-t border-gray-800 my-1"></div>
+                                    <a href="admin-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-red-400">
+                                        <i class="fas fa-cog mr-3"></i>Admin Panel
+                                    </a>
+                                    <a href="strategic-analytics.html" class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-[#0A1128]/5 hover:text-[#0A1128] rounded-xl transition-all">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span>Financial Analytics</span>
+                </a>
+                <a href="admin-cookie-data.html" class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-[#0A1128]/5 hover:text-[#0A1128] rounded-xl transition-all">
+                    <i class="fas fa-cookie-bite w-5"></i>
+                    <span>Cookie Analytics</span>
+                </a>
+                                </div>
+                                <div class="border-t border-gray-800 my-2"></div>
+                                <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gray-300">
+                                    <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="messages.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <i class="fas fa-envelope text-lg"></i>
+                        <span class="badge message-badge-count hidden">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Messages</span>
+                    </a>
+
+                    <a href="notifications.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span id="notification-badge-count" class="badge hidden">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Alerts</span>
+                    </a>
+
+                    <a href="cart.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="badge cart-badge-count">0</span>
+                        <span class="text-[9px] mt-0.5 font-medium">Cart</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <nav class="desktop-only bg-dark-navy text-white shadow-sm py-1.5 px-6 md:px-12 z-40 border-t border-gray-800">
+            <div class="container mx-auto nav-row-2-container">
+                <!-- Desktop "Explore" Menu Trigger -->
+                <button id="desktop-explore-menu" onclick="window.openMobileMenu()" class="flex items-center text-white hover:text-gold px-3 py-1 rounded-full border border-gray-700 hover:border-gold transition-all mr-6 group shrink-0">
+                    <i class="fas fa-bars mr-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-bold text-[10px] uppercase tracking-wider">Explore</span>
+                </button>
+
+                <!-- Category Menu -->
+                <div class="flex items-center space-x-6 overflow-x-auto hide-scrollbar py-1">
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="nav-category-item">Hot Deals</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="nav-category-item">Best Sellers</a>
+                    <a href="seller.html" class="nav-category-item text-gold">Sell Items</a>
+                    <div class="h-4 w-[1px] bg-gray-700 mx-2 shrink-0"></div>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="nav-category-item">Electronics</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="nav-category-item">Computers & Software</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="nav-category-item">Services</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="nav-category-item">Watches & Jewellery</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="nav-category-item">Men's Clothing</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="nav-category-item">Women's Clothing</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="nav-category-item">Shoes</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="nav-category-item">Accessories</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="nav-category-item">Personal Care & Beauty</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="nav-category-item">Food & Beverages</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="nav-category-item">Sports & Outdoors</a>
+                    <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="nav-category-item">Home & Living</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Mobile Navigation Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+    <div class="mobile-menu-content">
+        <div class="mobile-menu-header">
+            <div class="text-xl font-bold text-gold">Menu</div>
+            <button id="mobile-menu-close" class="mobile-menu-close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Account</div>
+            <a href="login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
+                <i class="fas fa-sign-in-alt"></i>
+                <span id="mobile-menu-sign-text">Sign In</span>
+            </a>
+            <a href="profile.html" class="mobile-menu-link">
+                <i class="fas fa-user"></i>
+                <span>My Profile</span>
+            </a>
+            <a href="buyer-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="orders.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-bag"></i>
+                <span>My Orders</span>
+            </a>
+            <a href="transactions.html" class="mobile-menu-link">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="reviews.html" class="mobile-menu-link">
+                <i class="fas fa-star"></i>
+                <span>My Reviews</span>
+            </a>
+        </div>
+
+        <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Seller Tools</div>
+            <a href="seller-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Seller Dashboard</span>
+            </a>
+            <a href="create-product.html" class="mobile-menu-link">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Product</span>
+            </a>
+            <a href="seller-analytics.html" class="mobile-menu-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="seller-orders.html" class="mobile-menu-link">
+                <i class="fas fa-box"></i>
+                <span>Orders</span>
+            </a>
+        </div>
+
+        <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Admin Panel</div>
+            <a href="admin-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-cog"></i>
+                <span>Admin Dashboard</span>
+            </a>
+            <a href="strategic-analytics.html" class="mobile-menu-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Strategic Analytics</span>
+            </a>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Shopping</div>
+            <a href="cart.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Shopping Cart</span>
+            </a>
+            <a href="products.html?category=Hot%20Deals" class="mobile-menu-link">
+                <i class="fas fa-fire"></i>
+                <span>Hot Deals</span>
+            </a>
+            <a href="products.html?category=Best%20Sellers" class="mobile-menu-link">
+                <i class="fas fa-crown"></i>
+                <span>Best Sellers</span>
+            </a>
+            <a href="seller.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Become a Seller</span>
+            </a>
+        </div>
+    </div>
+
+
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p class="text-gray-600 mt-2">Monitor and manage the Virtuosa platform</p>
+        </div>
+
+        <!-- Admin Navigation Cards -->
+        <div id="admin-nav-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Navigation cards will be dynamically loaded based on user role -->
+        </div>
+
+        <!-- Period Selector -->
+        <div class="mb-6 flex items-center space-x-4">
+            <label class="text-gray-700 font-medium">Period:</label>
+            <select id="periodSelector" onchange="loadDashboardData()"
+                class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <option value="7">Last 7 days</option>
+                <option value="30" selected>Last 30 days</option>
+                <option value="90">Last 90 days</option>
+                <option value="365">Last year</option>
+            </select>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Users</p>
+                        <p id="totalUsers" class="text-2xl font-bold text-gray-900">-</p>
+                        <p id="verifiedStudents" class="text-sm text-green-600">-</p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Revenue</p>
+                        <p id="totalRevenue" class="text-2xl font-bold text-gray-900">-</p>
+                        <p id="revenueBreakdown" class="text-sm text-gray-600">-</p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-full">
+                        <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Transactions</p>
+                        <p id="totalTransactions" class="text-2xl font-bold text-gray-900">-</p>
+                        <p id="successRate" class="text-sm text-green-600">-</p>
+                    </div>
+                    <div class="bg-purple-100 p-3 rounded-full">
+                        <i class="fas fa-exchange-alt text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Active Disputes</p>
+                        <p id="totalDisputes" class="text-2xl font-bold text-gray-900">-</p>
+                        <p id="resolvedDisputes" class="text-sm text-blue-600">-</p>
+                    </div>
+                    <div class="bg-red-100 p-3 rounded-full">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: Secondary KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Avg. Order Value</p>
+                        <p id="avgTransactionValue" class="text-2xl font-bold text-gray-900">-</p>
+                        <p class="text-sm text-gray-500">per transaction</p>
+                    </div>
+                    <div class="bg-indigo-100 p-3 rounded-full">
+                        <i class="fas fa-chart-line text-indigo-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Active Products</p>
+                        <p id="activeProductsCount" class="text-2xl font-bold text-gray-900">-</p>
+                        <p class="text-sm text-gray-500">available for sale</p>
+                    </div>
+                    <div class="bg-yellow-100 p-3 rounded-full">
+                        <i class="fas fa-box text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">New Users (24h)</p>
+                        <p id="newUsers24hCount" class="text-2xl font-bold text-gray-900">-</p>
+                        <p class="text-sm text-blue-600">past 24 hours</p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-user-plus text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Pending Sellers</p>
+                        <p id="pendingAppsCount" class="text-2xl font-bold text-gray-900">-</p>
+                        <p class="text-sm text-orange-600">awaiting approval</p>
+                    </div>
+                    <div class="bg-orange-100 p-3 rounded-full">
+                        <i class="fas fa-user-clock text-orange-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Actions Section -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Admin Actions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <a href="admin-asset-library.html"
+                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                    <i data-lucide="images" class="text-blue-600 w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Asset Library</h4>
+                    <p class="text-sm text-gray-500">Manage marketing assets and banners</p>
+                </div>
+            </a>
+            <a href="admin-seller-applications.html"
+                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                    <i data-lucide="user-check" class="text-green-600 w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Seller Applications</h4>
+                    <p class="text-sm text-gray-500">Review and approve seller applications</p>
+                </div>
+            </a>
+            <a href="admin-mass-messaging.html"
+                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                    <i data-lucide="send" class="text-purple-600 w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Mass Messaging</h4>
+                    <p class="text-sm text-gray-500">Send announcements to users</p>
+                </div>
+            </a>
+            <a href="admin-retention.html"
+                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-4">
+                    <i data-lucide="archive" class="text-orange-600 w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Message Retention</h4>
+                    <p class="text-sm text-gray-500">Manage message data and policies</p>
+                </div>
+            </a>
+            <a href="admin-maintenance.html"
+                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
+                    <i data-lucide="tools" class="text-yellow-600 w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Maintenance</h4>
+                    <p class="text-sm text-gray-500">Manage system maintenance</p>
+                </div>
+            </a>
+            <a href="admin-transactions.html"
+                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mr-4">
+                    <i data-lucide="exchange-alt" class="text-indigo-600 w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Transactions</h4>
+                    <p class="text-sm text-gray-500">Manage transactions and escrow</p>
+                </div>
+            </a>
+            <a href="admin-disputes.html"
+                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                    <i data-lucide="gavel" class="text-red-600 w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Manage Disputes</h4>
+                    <p class="text-sm text-gray-500">Handle user disputes</p>
+                </div>
+            </a>
+            <a href="admin-users.html"
+                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                    <i data-lucide="users" class="text-blue-600 w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">User Analytics</h4>
+                    <p class="text-sm text-gray-500">View detailed user insights and analytics</p>
+                </div>
+            </a>
+            <a href="strategic-analytics.html"
+                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
+                    <i data-lucide="chart-line" class="text-yellow-600 w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Strategic Analytics</h4>
+                    <p class="text-sm text-gray-500">View strategic insights</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Dangerous Actions Section -->
+    <div class="bg-red-50 border border-red-200 rounded-lg shadow p-6 mb-8">
+        <h3 class="text-lg font-semibold text-red-900 mb-4">
+            <i class="fas fa-exclamation-triangle mr-2"></i>Dangerous Actions
+        </h3>
+        <div class="bg-white rounded-lg p-4 border border-red-200">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h4 class="font-medium text-red-900">Database Reset</h4>
+                    <p class="text-sm text-red-600">⚠️ This will permanently delete ALL products, transactions, and carts. This action cannot be undone!</p>
+                </div>
+                <button id="reset-database-btn" 
+                    class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium"
+                    onclick="if(typeof handleDatabaseReset === 'function') { handleDatabaseReset(); }">
+                    <i class="fas fa-trash-alt mr-2"></i>Reset Database
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Revenue Trend</h3>
+            <canvas id="revenueChart"></canvas>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">User Statistics</h3>
+            <canvas id="userStatsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Sellers & Recent Transactions -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Sellers</h3>
+            <div id="topSellers" class="space-y-3">
+                <!-- Top sellers will be populated here -->
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Transactions</h3>
+            <div id="recentTransactions" class="space-y-3">
+                <!-- Recent transactions will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Tabs -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="border-b border-gray-200">
+            <nav class="flex space-x-8 px-6">
+                <button onclick="showTab('users')"
+                    class="tab-button py-4 border-b-2 border-blue-500 text-blue-600 font-medium">
+                    Users
+                </button>
+                <button onclick="showTab('transactions')"
+                    class="tab-button py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">
+                    Transactions
+                </button>
+                <button onclick="showTab('disputes')"
+                    class="tab-button py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">
+                    Disputes
+                </button>
+                <button onclick="showTab('applications')"
+                    class="tab-button py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">
+                    Applications
+                </button>
+                <button onclick="showTab('retention')"
+                    class="tab-button py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">
+                    <i class="fas fa-archive mr-2"></i>Data Retention
+                </button>
+                <button onclick="showTab('about')"
+                    class="tab-button py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium">
+                    <i class="fas fa-info-circle mr-2"></i>About Page
+                </button>
+            </nav>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="usersTab" class="tab-content p-6">
+            <div class="mb-4 flex flex-wrap gap-4">
+                <input type="text" id="userSearch" placeholder="Search users..."
+                    class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                <select id="userRoleFilter" class="border border-gray-300 rounded-lg px-4 py-2">
+                    <option value="">All Roles</option>
+                    <option value="seller">Sellers</option>
+                    <option value="buyer">Buyers</option>
+                </select>
+                <select id="userVerifiedFilter" class="border border-gray-300 rounded-lg px-4 py-2">
+                    <option value="">All Users</option>
+                    <option value="true">Verified</option>
+                    <option value="false">Not Verified</option>
+                </select>
+            </div>
+            <div id="usersList" class="overflow-x-auto">
+                <!-- Users will be populated here -->
+            </div>
+            <div id="usersPagination" class="mt-4 flex justify-center"></div>
+        </div>
+
+        <!-- Transactions Tab -->
+        <div id="transactionsTab" class="tab-content p-6 hidden">
+            <div class="mb-4 flex flex-wrap gap-4">
+                <select id="transactionStatusFilter" class="border border-gray-300 rounded-lg px-4 py-2">
+                    <option value="">All Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+                <select id="disputeStatusFilter" class="border border-gray-300 rounded-lg px-4 py-2">
+                    <option value="">All Dispute Status</option>
+                    <option value="None">No Dispute</option>
+                    <option value="Open">Open Dispute</option>
+                    <option value="Resolved">Resolved</option>
+                </select>
+            </div>
+            <div id="transactionsList" class="overflow-x-auto">
+                <!-- Transactions will be populated here -->
+            </div>
+            <div id="transactionsPagination" class="mt-4 flex justify-center"></div>
+        </div>
+
+        <!-- Disputes Tab -->
+        <div id="disputesTab" class="tab-content p-6 hidden">
+            <div id="disputesList" class="space-y-4">
+                <!-- Disputes will be populated here -->
+            </div>
+        </div>
+
+        <!-- Applications Tab -->
+        <div id="applicationsTab" class="tab-content p-6 hidden">
+            <div id="applicationsList" class="space-y-4">
+                <!-- Applications will be populated here -->
+            </div>
+        </div>
+
+        <!-- Data Retention Tab -->
+        <div id="retentionTab" class="tab-content p-6 hidden">
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Message Data Retention</h3>
+                    <a href="admin-retention.html"
+                        class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center space-x-2">
+                        <i class="fas fa-cog"></i>
+                        <span>Manage Retention</span>
+                    </a>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-blue-600 text-xl mr-3"></i>
+                            <div>
+                                <p class="text-sm text-gray-600">Total Messages</p>
+                                <p id="retention-total-messages" class="text-xl font-bold text-gray-900">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-orange-600 text-xl mr-3"></i>
+                            <div>
+                                <p class="text-sm text-gray-600">Expired</p>
+                                <p id="retention-expired-messages" class="text-xl font-bold text-orange-600">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-archive text-green-600 text-xl mr-3"></i>
+                            <div>
+                                <p class="text-sm text-gray-600">Archived</p>
+                                <p id="retention-archived-messages" class="text-xl font-bold text-green-600">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-clock text-purple-600 text-xl mr-3"></i>
+                            <div>
+                                <p class="text-sm text-gray-600">Expiring Soon</p>
+                                <p id="retention-expiring-soon" class="text-xl font-bold text-purple-600">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Retention Policy Info -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-medium text-gray-900 mb-3">Current Retention Policies</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Standard Messages</p>
+                            <p id="retention-standard-policy" class="font-medium">30 days</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Mass Messages</p>
+                            <p id="retention-mass-policy" class="font-medium">365 days</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Auto-Archive</p>
+                            <p id="retention-archive-status" class="font-medium">Enabled</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Last Cleanup</p>
+                            <p id="retention-last-cleanup" class="font-medium">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button onclick="loadRetentionStats()"
+                        class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 flex items-center space-x-2">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh Stats</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- About Page Tab -->
+        <div id="aboutTab" class="tab-content p-6 hidden">
+            <div class="mb-8 flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-navy font-montserrat">Manage About Page</h3>
+                    <p class="text-sm text-gray-500">Edit company mission, vision, and team members.</p>
+                </div>
+                <button onclick="saveAboutData()" class="bg-navy text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-all font-bold shadow-lg">
+                    <i class="fas fa-save mr-2"></i>Save Changes
+                </button>
+                <button onclick="previewAboutPage()" class="bg-gold text-navy px-6 py-2 rounded-lg hover:bg-yellow-200 transition-all font-bold shadow-lg">
+                    <i class="fas fa-eye mr-2"></i>Preview
+                </button>
+            </div>
+
+            <!-- Content Sections -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <div class="space-y-6">
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Page Title</label>
+                        <input type="text" id="about-title-input" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. About Virtuosa">
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Our Mission</label>
+                        <textarea id="about-mission-input" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Enter mission statement..."></textarea>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Our Vision</label>
+                        <textarea id="about-vision-input" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Enter vision statement..."></textarea>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Hero Image URL</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="about-hero-input" class="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="https://example.com/banner.jpg">
+                            <button onclick="window.location.href='admin-asset-library.html'" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors" title="Select from Library">
+                                <i class="fas fa-images"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Company Story</label>
+                        <textarea id="about-story-input" rows="8" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="The story of Virtuosa..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Section Management -->
+            <div class="border-t border-gray-200 pt-10">
+                <div class="flex items-center justify-between mb-8">
+                    <h4 class="text-lg font-bold text-navy font-montserrat uppercase tracking-widest">Team Members (The Core 5)</h4>
+                    <span class="text-xs bg-gold bg-opacity-20 text-navy px-3 py-1 rounded-full font-semibold">Max 5 Members</span>
+                </div>
+                <div id="admin-team-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Team member inputs will be injected here via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dispute Resolution Modal -->
+    <div id="disputeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-lg bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Resolve Dispute</h3>
+                <div id="disputeDetails" class="mb-4">
+                    <!-- Dispute details will be populated here -->
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Resolution</label>
+                    <textarea id="resolutionText" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2"
+                        required></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Winner</label>
+                    <select id="winnerSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                        <option value="">Select winner</option>
+                        <option value="buyer">Buyer</option>
+                        <option value="seller">Seller</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeDisputeModal()"
+                        class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">
+                        Cancel
+                    </button>
+                    <button onclick="resolveDispute()"
+                        class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                        Resolve
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/header.js"></script>
+    <script src="../js/mobile-header.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/admin-auth-helper.js"></script>
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+    <script src="../js/admin-dashboard.js?v=202503291117&t=<?php echo time(); ?>"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

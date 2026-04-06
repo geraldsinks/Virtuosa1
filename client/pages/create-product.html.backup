@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Listing - Virtuosa</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-gold {
+            background-color: #FFD700;
+        }
+
+        .bg-button-gold {
+            background-color: #C19A6B;
+        }
+
+        .hover-bg-button-gold:hover {
+            background-color: #A98B68;
+        }
+
+        .bg-dark-navy {
+            background-color: #060A18;
+        }
+
+        .focus-gold:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.35);
+            border-color: #FFD700;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.35);
+            border-color: #C19A6B;
+        }
+
+        .step-active {
+            background: linear-gradient(135deg, #C19A6B 0%, #FFD700 100%);
+            color: #0A1128;
+        }
+
+        .step-inactive {
+            background-color: #e5e7eb;
+            color: #6B7280;
+        }
+
+        .step-done {
+            background-color: #166534;
+            color: #ffffff;
+        }
+
+        .drag-area {
+            border: 2px dashed #C19A6B;
+            transition: all 0.3s;
+        }
+
+        .drag-area:hover {
+            border-color: #FFD700;
+            background-color: rgba(255, 215, 0, 0.04);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased">
+    <!-- Mobile Header Structure (320px-767px) - Hidden at tablet+ -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Row 1: Utilities and Branding (Mobile only) -->
+        <div class="v-container mobile-header-row-1 md:hidden">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-2 mobile-header-actions">
+                    <!-- Cart Icon with Badge -->
+                    <a href="/pages/cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                    </a>
+                    
+                    <!-- Combined Notifications (includes messages) -->
+                    <a href="/pages/notifications.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <i class="fas fa-bell"></i>
+                        <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Search-First Experience (Mobile only) -->
+        <div class="v-container mobile-header-row-2 pb-3 md:hidden">
+            <div class="relative mobile-search-container">
+                <input id="mobile-search-input" type="text" 
+                    placeholder="Search campus marketplace..." 
+                    class="w-full pl-4 pr-12 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400 mobile-search-input"
+                    autocomplete="off">
+                <button id="mobile-search-button" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors mobile-search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <!-- Mobile Search Suggestions -->
+                <div id="mobile-search-suggestions" class="absolute mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
+                    <!-- Suggestions injected via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Header (Hidden on Mobile) -->
+        <div class="v-container v-header-row desktop-header hidden md:flex">
+            <div class="v-header-logo">
+                <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+            <div class="v-header-search">
+                <div class="relative">
+                    <input id="home-search-input" type="text"
+                        placeholder="Search campus marketplace (e.g. &quot;HP laptop&quot;, &quot;Men's hoodie&quot;)..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400"
+                        autocomplete="off">
+                    <button id="home-search-button"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <!-- Autocomplete suggestions -->
+                    <div id="home-search-suggestions"
+                        class="absolute mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
+                        <!-- Suggestions injected via JS -->
+                    </div>
+                </div>
+            </div>
+            <div id="user-info-container" class="v-header-actions">
+                <a href="/pages/login.html" id="login-link"
+                    class="text-white hover:text-gold transition-colors font-medium hidden md:flex flex-col items-start leading-tight group">
+                    <span class="text-[10px] text-gray-400 font-normal">Welcome</span>
+                    <div class="flex items-center -mt-0.5">
+                        <span class="text-sm font-semibold">Sign In</span>
+                        <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60 group-hover:rotate-180 transition-transform"></i>
+                    </div>
+                </a>
+                <div id="user-menu" class="relative hidden">
+                    <button onclick="toggleUserMenu()"
+                        class="text-white hover:text-gold transition-colors font-medium flex flex-col items-start leading-tight">
+                        <span id="user-greeting" class="text-[10px] text-gray-400 font-normal"></span>
+                        <div class="flex items-center -mt-0.5">
+                            <span class="text-sm font-semibold">My Account</span>
+                            <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60"></i>
+                        </div>
+                    </button>
+                    <div id="user-dropdown"
+                        class="absolute right-0 top-full mt-2 w-56 bg-navy rounded-xl shadow-2xl z-[60] py-4 text-white hidden border border-gray-800">
+                        <div class="px-4 pb-4 border-b border-gray-800 mb-2">
+                            <a href="/pages/profile.html" class="bg-button-gold text-white text-center py-2 px-4 rounded-lg text-sm block font-semibold hover:bg-gold transition-colors">My Profile</a>
+                        </div>
+                        <div class="px-2">
+                            <a href="/pages/buyer-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-th-large mr-3 text-gray-400"></i>Dashboard
+                            </a>
+                            <a href="/pages/orders.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-shopping-bag mr-3 text-gray-400"></i>My Orders
+                            </a>
+                            <div id="seller-links" class="hidden">
+                                <div class="border-t border-gray-800 my-1"></div>
+                                <a href="/pages/seller-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-green-400">
+                                    <i class="fas fa-store mr-3"></i>Seller Panel
+                                </a>
+                            </div>
+                            <div id="admin-link" class="hidden">
+                                <div class="border-t border-gray-800 my-1"></div>
+                                <a href="/pages/admin-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-red-400">
+                                    <i class="fas fa-cog mr-3"></i>Admin Panel
+                                </a>
+                            </div>
+                            <div class="border-t border-gray-800 my-2"></div>
+                            <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gray-300">
+                                <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="/pages/messages.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                    <i class="fas fa-envelope text-lg"></i>
+                    <span class="badge message-badge-count hidden">0</span>
+                    <span class="text-[9px] mt-0.5 font-medium">Messages</span>
+                </a>
+
+                <a href="/pages/notifications.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                    <i class="fas fa-bell text-lg"></i>
+                    <span id="notification-badge-count" class="badge hidden">0</span>
+                    <span class="text-[9px] mt-0.5 font-medium">Alerts</span>
+                </a>
+
+                <a href="/pages/cart.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span class="badge cart-badge-count">0</span>
+                    <span class="text-[9px] mt-0.5 font-medium">Cart</span>
+                </a>
+            </div>
+        </header>
+
+    
+    <!-- Mobile Navigation Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay">
+        <div class="mobile-menu-content">
+            <div class="mobile-menu-header">
+                <div class="text-xl font-bold text-gold">Menu</div>
+                <button id="mobile-menu-close" class="mobile-menu-close">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Account Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Account</div>
+                <a href="/pages/login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span id="mobile-menu-sign-text">Sign In</span>
+                </a>
+                <a href="/pages/profile.html" class="mobile-menu-link">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="/pages/buyer-dashboard.html" class="mobile-menu-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/orders.html" class="mobile-menu-link">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>My Orders</span>
+                </a>
+                <a href="/pages/transactions.html" class="mobile-menu-link">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+                <a href="/pages/reviews.html" class="mobile-menu-link">
+                    <i class="fas fa-star"></i>
+                    <span>My Reviews</span>
+                </a>
+            </div>
+
+            <!-- Seller Section (shown only to sellers) -->
+            <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
+                <div class="mobile-menu-title">Seller Tools</div>
+                <a href="/pages/seller-dashboard.html" class="mobile-menu-link">
+                    <i class="fas fa-store"></i>
+                    <span>Seller Dashboard</span>
+                </a>
+                <a href="/pages/create-product.html" class="mobile-menu-link">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Add Product</span>
+                </a>
+                <a href="/pages/seller-analytics.html" class="mobile-menu-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="/pages/seller-orders.html" class="mobile-menu-link">
+                    <i class="fas fa-box"></i>
+                    <span>Orders</span>
+                </a>
+            </div>
+
+            <!-- Admin Section (shown only to admins) -->
+            <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
+                <div class="mobile-menu-title">Admin Panel</div>
+                <a href="/pages/admin-dashboard.html" class="mobile-menu-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Admin Dashboard</span>
+                </a>
+                <a href="/pages/admin-asset-library.html" class="mobile-menu-link">
+                    <i class="fas fa-images"></i>
+                    <span>Asset Library</span>
+                </a>
+                <a href="/pages/admin-seller-applications.html" class="mobile-menu-link">
+                    <i class="fas fa-user-check"></i>
+                    <span>Seller Applications</span>
+                </a>
+                <a href="/pages/admin-mass-messaging.html" class="mobile-menu-link">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Mass Messaging</span>
+                </a>
+                <a href="/pages/admin-retention.html" class="mobile-menu-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Retention</span>
+                </a>
+            </div>
+
+            <!-- Shopping Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Shopping</div>
+                <a href="/pages/cart.html" class="mobile-menu-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Shopping Cart</span>
+                </a>
+                <a href="/pages/products.html?category=Hot%20Deals" class="mobile-menu-link">
+                    <i class="fas fa-fire"></i>
+                    <span>Hot Deals</span>
+                </a>
+                <a href="/pages/products.html?category=Best%20Sellers" class="mobile-menu-link">
+                    <i class="fas fa-crown"></i>
+                    <span>Best Sellers</span>
+                </a>
+                <a href="/pages/seller.html" class="mobile-menu-link">
+                    <i class="fas fa-store"></i>
+                    <span>Become a Seller</span>
+                </a>
+            </div>
+
+            <!-- Categories Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Categories</div>
+                <a href="/pages/products.html?category=Electronics" class="mobile-menu-link">
+                    <i class="fas fa-laptop"></i>
+                    <span>Electronics</span>
+                </a>
+                <a href="/pages/products.html?category=Computers%20%26%20Software" class="mobile-menu-link">
+                    <i class="fas fa-desktop"></i>
+                    <span>Computers & Software</span>
+                </a>
+                <a href="/pages/products.html?category=Services" class="mobile-menu-link">
+                    <i class="fas fa-concierge-bell"></i>
+                    <span>Services</span>
+                </a>
+                <a href="/pages/products.html?category=Watches%20%26%20Jewellery" class="mobile-menu-link">
+                    <i class="fas fa-gem"></i>
+                    <span>Watches & Jewellery</span>
+                </a>
+                <a href="/pages/products.html?category=Men%27s%20Clothing" class="mobile-menu-link">
+                    <i class="fas fa-tshirt"></i>
+                    <span>Men's Clothing</span>
+                </a>
+                <a href="/pages/products.html?category=Women%27s%20Clothing" class="mobile-menu-link">
+                    <i class="fas fa-female"></i>
+                    <span>Women's Clothing</span>
+                </a>
+                <a href="/pages/products.html?category=Shoes" class="mobile-menu-link">
+                    <i class="fas fa-shoe-prints"></i>
+                    <span>Shoes</span>
+                </a>
+                <a href="/pages/products.html?category=Accessories" class="mobile-menu-link">
+                    <i class="fas fa-glasses"></i>
+                    <span>Accessories</span>
+                </a>
+                <a href="/pages/products.html?category=Personal%20Care%20%26%20Beauty" class="mobile-menu-link">
+                    <i class="fas fa-spa"></i>
+                    <span>Personal Care & Beauty</span>
+                </a>
+                <a href="/pages/products.html?category=Food%20%26%20Beverages" class="mobile-menu-link">
+                    <i class="fas fa-utensils"></i>
+                    <span>Food & Beverages</span>
+                </a>
+                <a href="/pages/products.html?category=Sports%20%26%20Outdoors" class="mobile-menu-link">
+                    <i class="fas fa-football-ball"></i>
+                    <span>Sports & Outdoors</span>
+                </a>
+                <a href="/pages/products.html?category=Home%20%26%20Living" class="mobile-menu-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home & Living</span>
+                </a>
+            </div>
+
+            <!-- Customer Service Section -->
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-title">Customer Service</div>
+                <a href="#" class="mobile-menu-link">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Help Center</span>
+                </a>
+                <a href="#" class="mobile-menu-link">
+                    <i class="fas fa-comments"></i>
+                    <span>Contact Support</span>
+                </a>
+                <a href="/pages/messages.html" class="mobile-menu-link">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+                <a href="/pages/notifications.html" class="mobile-menu-link">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+            </div>
+
+            <!-- Seller Section (shown for authenticated sellers) -->
+            <div class="mobile-menu-section" id="mobile-seller-section" style="display: none;">
+                <div class="mobile-menu-title">Seller Tools</div>
+                <a href="/pages/seller-dashboard.html" class="mobile-menu-link">
+                    <i class="fas fa-store"></i>
+                    <span>Seller Dashboard</span>
+                </a>
+                <a href="/pages/create-product.html" class="mobile-menu-link">
+                    <i class="fas fa-plus"></i>
+                    <span>Create Listing</span>
+                </a>
+                <a href="/pages/seller-analytics.html" class="mobile-menu-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="/pages/seller-verification.html" class="mobile-menu-link">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Verification</span>
+                </a>
+            </div>
+
+            <!-- Admin Section (shown for authenticated admins) -->
+            <div class="mobile-menu-section" id="mobile-admin-section" style="display: none;">
+                <div class="mobile-menu-title">Admin Tools</div>
+                <a href="/pages/admin-dashboard.html" class="mobile-menu-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Admin Dashboard</span>
+                </a>
+                <a href="/pages/admin-seller-applications.html" class="mobile-menu-link">
+                    <i class="fas fa-user-check"></i>
+                    <span>Seller Applications</span>
+                </a>
+                <a href="/pages/admin-mass-messaging.html" class="mobile-menu-link">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Mass Messaging</span>
+                </a>
+                <a href="/pages/admin-retention.html" class="mobile-menu-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Retention Analytics</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="desktop-only bg-dark-navy text-white shadow-sm py-1.5 px-6 md:px-12 z-40 border-t border-gray-800">
+        <div class="container mx-auto nav-row-2-container">
+            <!-- Desktop "Explore" Menu Trigger -->
+            <button id="desktop-explore-menu" onclick="window.openMobileMenu()" class="flex items-center text-white hover:text-gold px-3 py-1 rounded-full border border-gray-700 hover:border-gold transition-all mr-6 group shrink-0">
+                <i class="fas fa-bars mr-2 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-[10px] uppercase tracking-wider">Explore</span>
+            </button>
+
+            <!-- Category Menu -->
+            <div class="flex items-center space-x-6 overflow-x-auto hide-scrollbar py-1">
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="nav-category-item">Hot Deals</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="nav-category-item">Best Sellers</a>
+                <a href="/pages/seller.html" class="nav-category-item text-gold">Sell Items</a>
+                <div class="h-4 w-[1px] bg-gray-700 mx-2 shrink-0"></div>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="nav-category-item">Electronics</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="nav-category-item">Computers & Software</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="nav-category-item">Services</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="nav-category-item">Watches & Jewellery</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="nav-category-item">Men's Clothing</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="nav-category-item">Women's Clothing</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="nav-category-item">Shoes</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="nav-category-item">Accessories</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="nav-category-item">Personal Care & Beauty</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="nav-category-item">Food & Beverages</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="nav-category-item">Sports & Outdoors</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="nav-category-item">Home & Living</a>
+            </div>
+        </div>
+    </nav>
+
+
+
+    <main class="container mx-auto px-4 py-8 max-w-3xl">
+        <!-- Page Header -->
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-navy">Create New Listing</h1>
+                <p class="text-gray-500 mt-1 text-sm">List your item on the Virtuosa campus marketplace</p>
+            </div>
+            <a href="/pages/seller-dashboard.html"
+                class="text-sm text-gold font-semibold hover:underline flex items-center gap-1">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Step Progress -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <div class="flex items-center">
+                <!-- Step 1 -->
+                <div class="flex items-center flex-1">
+                    <div id="step1-indicator"
+                        class="step-active w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                        1</div>
+                    <div class="ml-3 hidden sm:block">
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Step 1</p>
+                        <p class="text-sm font-bold text-navy">Basic Info</p>
+                    </div>
+                </div>
+                <div id="line-1" class="h-1 flex-1 mx-2 rounded bg-gray-200"></div>
+                <!-- Step 2 -->
+                <div class="flex items-center flex-1">
+                    <div id="step2-indicator"
+                        class="step-inactive w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                        2</div>
+                    <div class="ml-3 hidden sm:block">
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Step 2</p>
+                        <p class="text-sm font-bold text-gray-500">Details</p>
+                    </div>
+                </div>
+                <div id="line-2" class="h-1 flex-1 mx-2 rounded bg-gray-200"></div>
+                <!-- Step 3 -->
+                <div class="flex items-center">
+                    <div id="step3-indicator"
+                        class="step-inactive w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                        3</div>
+                    <div class="ml-3 hidden sm:block">
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Step 3</p>
+                        <p class="text-sm font-bold text-gray-500">Photos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form id="productForm" onsubmit="createProduct(event)" class="space-y-6">
+
+            <!-- STEP 1: Basic Info -->
+            <div id="step1Content" class="step-content bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <div class="flex items-center mb-6 pb-4 border-b border-gray-100">
+                    <div class="bg-gold bg-opacity-10 p-2 rounded-lg mr-3">
+                        <i data-lucide="file-text" class="w-5 h-5 text-gold"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-navy">Basic Information</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Product Name <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="productName" required
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm transition-all"
+                            placeholder="e.g., Introduction to Psychology Textbook">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Category <span
+                                class="text-red-500">*</span></label>
+                        <select id="category" required onchange="updateSubcategories()"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm bg-white transition-all">
+                            <option value="">Select category</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Computers & Software">Computers & Software</option>
+                            <option value="Men's Clothing">Men's Clothing</option>
+                            <option value="Women's Clothing">Women's Clothing</option>
+                            <option value="Shoes">Shoes</option>
+                            <option value="Accessories">Accessories</option>
+                            <option value="Personal Care & Beauty">Personal Care & Beauty</option>
+                            <option value="Textbooks">Textbooks</option>
+                            <option value="Food & Beverages">Food & Beverages</option>
+                            <option value="Sports & Outdoors">Sports & Outdoors</option>
+                            <option value="Home & Living">Home & Living</option>
+                            <option value="Services">Services</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Subcategory</label>
+                        <select id="subcategory"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm bg-white transition-all">
+                            <option value="">Select subcategory</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Condition <span
+                                class="text-red-500">*</span></label>
+                        <select id="condition" required
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm bg-white transition-all">
+                            <option value="">Select condition</option>
+                            <option value="New">New</option>
+                            <option value="Like New">Like New</option>
+                            <option value="Good">Good</option>
+                            <option value="Fair">Fair</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Price (ZMW) <span
+                                class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <span
+                                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">ZMW</span>
+                            <input type="number" id="price" required min="0" step="0.01"
+                                class="w-full border border-gray-300 rounded-xl pl-14 pr-4 py-3 text-sm transition-all"
+                                placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Original Price (ZMW) <span
+                                class="text-xs text-gray-400 font-normal">— Optional</span></label>
+                        <div class="relative">
+                            <span
+                                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">ZMW</span>
+                            <input type="number" id="originalPrice" min="0" step="0.01"
+                                class="w-full border border-gray-300 rounded-xl pl-14 pr-4 py-3 text-sm transition-all"
+                                placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Description <span
+                                class="text-red-500">*</span></label>
+                        <textarea id="description" required rows="4"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm resize-none transition-all"
+                            placeholder="Describe your item — include edition, any wear, included accessories, etc."></textarea>
+                    </div>
+                </div>
+
+                <div class="flex justify-end mt-8">
+                    <button type="button" onclick="nextStep()"
+                        class="bg-navy text-gold font-bold px-8 py-3 rounded-xl hover:bg-opacity-90 transition-all flex items-center gap-2 shadow-lg">
+                        Next Step <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Additional Details -->
+            <div id="step2Content" class="step-content hidden bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <div class="flex items-center mb-6 pb-4 border-b border-gray-100">
+                    <div class="bg-blue-50 p-2 rounded-lg mr-3">
+                        <i data-lucide="info" class="w-5 h-5 text-blue-500"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-navy">Additional Details</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Listing Type Section -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Listing Type <span
+                                class="text-red-500">*</span></label>
+                        <div class="space-y-3">
+                            <label
+                                class="flex items-start gap-3 cursor-pointer bg-gray-50 hover:bg-yellow-50 p-4 rounded-xl border border-gray-200 hover:border-gold transition-all">
+                                <input type="radio" name="listingType" value="one_time" checked
+                                    class="w-4 h-4 accent-yellow-500 mt-1" onchange="toggleInventoryOptions()">
+                                <div class="flex-1">
+                                    <span class="text-sm font-semibold text-navy block">One-Time Sale</span>
+                                    <span class="text-xs text-gray-500">Perfect for unique items, used textbooks, or single products. Listing will be marked as sold after purchase.</span>
+                                </div>
+                            </label>
+                            <label
+                                class="flex items-start gap-3 cursor-pointer bg-gray-50 hover:bg-yellow-50 p-4 rounded-xl border border-gray-200 hover:border-gold transition-all">
+                                <input type="radio" name="listingType" value="persistent"
+                                    class="w-4 h-4 accent-yellow-500 mt-1" onchange="toggleInventoryOptions()">
+                                <div class="flex-1">
+                                    <span class="text-sm font-semibold text-navy block">Persistent Listing</span>
+                                    <span class="text-xs text-gray-500">Ideal for items with multiple quantities (new products, supplies). Listing remains active until you remove it or run out of inventory.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Options (Hidden by default) -->
+                    <div id="inventoryOptions" class="md:col-span-2 hidden space-y-4">
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                            <div class="flex items-center mb-3">
+                                <i data-lucide="package" class="w-5 h-5 text-blue-600 mr-2"></i>
+                                <h4 class="text-sm font-semibold text-blue-900">Inventory Management</h4>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Initial Quantity</label>
+                                    <input type="number" id="inventory" min="1" value="1"
+                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Low Stock Alert</label>
+                                    <input type="number" id="lowStockThreshold" min="1" value="1"
+                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="inventoryTracking" checked
+                                        class="w-4 h-4 accent-blue-500 mr-2">
+                                    <label for="inventoryTracking" class="text-sm text-gray-700">Enable inventory tracking</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Course Code <span
+                                class="text-xs text-gray-400 font-normal">— Optional</span></label>
+                        <input type="text" id="courseCode"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm transition-all"
+                            placeholder="e.g., PSY101">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Course Name <span
+                                class="text-xs text-gray-400 font-normal">— Optional</span></label>
+                        <input type="text" id="courseName"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm transition-all"
+                            placeholder="e.g., Introduction to Psychology">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Author / Brand <span
+                                class="text-xs text-gray-400 font-normal">— Optional</span></label>
+                        <input type="text" id="author"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm transition-all"
+                            placeholder="Author name or brand">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">ISBN / Model <span
+                                class="text-xs text-gray-400 font-normal">— Optional</span></label>
+                        <input type="text" id="isbn"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm transition-all"
+                            placeholder="ISBN or model number">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Campus Location</label>
+                        <div class="relative">
+                            <i data-lucide="map-pin"
+                                class="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+                            <input type="text" id="location"
+                                class="w-full border border-gray-300 rounded-xl pl-10 pr-4 py-3 text-sm transition-all"
+                                placeholder="e.g., UNZA Great East Road Campus">
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Delivery Options</label>
+                        <div class="flex flex-wrap gap-3">
+                            <label
+                                class="flex items-center gap-2 cursor-pointer bg-gray-50 hover:bg-yellow-50 px-4 py-3 rounded-xl border border-gray-200 hover:border-gold transition-all">
+                                <input type="checkbox" id="pickupAvailable" class="w-4 h-4 accent-yellow-500">
+                                <div>
+                                    <span class="text-sm font-semibold text-navy block">Pickup Available</span>
+                                    <span class="text-xs text-gray-500">Buyer collects from you</span>
+                                </div>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 cursor-pointer bg-gray-50 hover:bg-yellow-50 px-4 py-3 rounded-xl border border-gray-200 hover:border-gold transition-all">
+                                <input type="checkbox" id="deliveryAvailable" class="w-4 h-4 accent-yellow-500">
+                                <div>
+                                    <span class="text-sm font-semibold text-navy block">Delivery Available</span>
+                                    <span class="text-xs text-gray-500">You deliver to the buyer</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-8">
+                    <button type="button" onclick="previousStep()"
+                        class="border border-gray-300 text-gray-700 font-bold px-6 py-3 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+                    </button>
+                    <button type="button" onclick="nextStep()"
+                        class="bg-navy text-gold font-bold px-8 py-3 rounded-xl hover:bg-opacity-90 transition-all flex items-center gap-2 shadow-lg">
+                        Next Step <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Photos -->
+            <div id="step3Content" class="step-content hidden bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <div class="flex items-center mb-6 pb-4 border-b border-gray-100">
+                    <div class="bg-purple-50 p-2 rounded-lg mr-3">
+                        <i data-lucide="image" class="w-5 h-5 text-purple-500"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-navy">Product Photos</h3>
+                </div>
+
+                <p class="text-sm text-gray-500 mb-5">Add clear photos of your item. Up to <strong>5 images</strong>.
+                    Good photos lead to faster sales!</p>
+
+                <div id="imagePreview" class="grid grid-cols-3 md:grid-cols-5 gap-3 mb-5"></div>
+
+                <div class="drag-area rounded-2xl p-10 text-center cursor-pointer">
+                    <input type="file" id="imageInput" accept="image/*" multiple onchange="handleImageUpload()"
+                        class="hidden">
+                    <label for="imageInput" class="cursor-pointer flex flex-col items-center">
+                        <div class="bg-gold bg-opacity-10 p-4 rounded-full mb-4">
+                            <i data-lucide="upload-cloud" class="w-8 h-8 text-gold"></i>
+                        </div>
+                        <p class="text-navy font-semibold">Click to upload images</p>
+                        <p class="text-gray-400 text-xs mt-1">PNG, JPG, GIF — up to 10MB each</p>
+                    </label>
+                </div>
+
+                <div class="flex justify-between mt-8">
+                    <button type="button" onclick="previousStep()"
+                        class="border border-gray-300 text-gray-700 font-bold px-6 py-3 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+                    </button>
+                    <button type="submit"
+                        class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-navy font-bold px-8 py-3 rounded-xl hover:opacity-90 transition-all flex items-center gap-2 shadow-lg">
+                        <i data-lucide="check-circle" class="w-5 h-5"></i> Create Listing
+                    </button>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="successModal"
+        class="fixed inset-0 bg-black bg-opacity-60 hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4 text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+                <i data-lucide="check-circle" class="w-9 h-9 text-green-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-navy mb-2">Listing Created!</h3>
+            <p class="text-gray-500 text-sm mb-6">Your product is now live on the Virtuosa marketplace.</p>
+            <div class="flex flex-col gap-3">
+                <button onclick="viewProduct()"
+                    class="w-full bg-navy text-gold font-bold py-3 rounded-xl hover:bg-opacity-90 transition-all">
+                    View My Listing
+                </button>
+                <button onclick="createAnother()"
+                    class="w-full border border-gray-200 text-gray-600 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-all">
+                    Create Another
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-12">
+        <div class="container mx-auto text-center">
+            &copy; 2025 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="../js/header.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/create-product.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) window.lucide.createIcons();
+            // The step UI logic is now handled in create-product.js
+            if (typeof updateStepDisplay === 'function') {
+                updateStepDisplay();
+            }
+        });
+    </script>
+<script src="/js/config.js"></script>
+    <script src="/js/header.js"></script>
+    <script src="/js/mobile-header.js"></script>
+    
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

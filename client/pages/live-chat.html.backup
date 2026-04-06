@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Support Center (AI Assistant & Live Chat)</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    
+    <!-- Brevo Conversations {literal} -->
+    <script>
+        (function(d, w, c) {
+            w.BrevoConversationsID = '69bbeb8b6c3245cfb90cfcf6';
+            w[c] = w[c] || function() {
+                (w[c].q = w[c].q || []).push(arguments);
+            };
+            var s = d.createElement('script');
+            s.async = true;
+            s.src = 'https://conversations-widget.brevo.com/brevo-conversations.js';
+            if (d.head) d.head.appendChild(s);
+        })(document, window, 'BrevoConversations');
+    </script>
+    <!-- /Brevo Conversations {/literal} -->
+    
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .chat-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .chat-window {
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #f9fafb;
+        }
+
+        .chat-input-container {
+            padding: 1rem;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .chat-input {
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+            background: white;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.support {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(90deg, #FFD700, #C19A6B);
+            color: #0A1128;
+            border-bottom-right-radius: 0.25rem;
+        }
+
+        .message.support .message-bubble {
+            background: #e5e7eb;
+            color: #374151;
+            border-bottom-left-radius: 0.25rem;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0 0.5rem;
+        }
+
+        .message.user .message-avatar {
+            background: #FFD700;
+            color: #0A1128;
+            order: 2;
+        }
+
+        .message.support .message-avatar {
+            background: #0A1128;
+            color: white;
+            order: 1;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: #e5e7eb;
+            border-radius: 1rem;
+            border-bottom-left-radius: 0.25rem;
+            max-width: 100px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #6b7280;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .quick-reply {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 9999px;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.875rem;
+        }
+
+        .quick-reply:hover {
+            background: #FFD700;
+            border-color: #FFD700;
+            color: #0A1128;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .status-online {
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        .status-away {
+            background: #f59e0b;
+        }
+
+        .status-offline {
+            background: #6b7280;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .chat-info-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #0ea5e9;
+        }
+
+        .wait-time {
+            background: linear-gradient(90deg, #10b981, #059669);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="/index.html" class="hover:text-gold transition-colors">Home</a>
+                    <a href="/pages/products.html" class="hover:text-gold transition-colors">Products</a>
+                    <a href="/pages/seller.html" class="hover:text-gold transition-colors">Sell</a>
+                    <a href="/pages/login.html" class="hover:text-gold transition-colors">Sign In</a>
+                </nav>
+                <button class="md:hidden" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Page Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl md:text-5xl font-bold text-navy mb-4">Virtuosa Support Center</h1>
+                <p class="text-gray-600 text-lg">Get instant help from our AI Assistant or connect with live human support</p>
+                <div class="mt-4 flex justify-center space-x-4">
+                    <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-semibold">
+                        🤖 AI Assistant Available 24/7
+                    </div>
+                    <div class="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold">
+                        💬 Live Human Support via Brevo Widget
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <!-- Chat Area -->
+                <div class="lg:col-span-3">
+                    <div class="chat-container rounded-xl overflow-hidden">
+                        <!-- Chat Header -->
+                        <div class="bg-navy text-white p-4 flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="status-indicator status-online"></div>
+                                <div>
+                                    <h3 class="font-semibold">Virtuosa Assistant (AI Bot)</h3>
+                                    <p class="text-sm text-gray-300">AI Assistant - Instant responses</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <span class="wait-time">
+                                    <i class="fas fa-robot mr-1"></i>
+                                    Instant replies
+                                </span>
+                                <button onclick="endChat()" class="text-gray-300 hover:text-white transition-colors">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Chat Messages -->
+                        <div class="chat-window">
+                            <div id="chat-messages" class="chat-messages">
+                                <!-- Welcome Message -->
+                                <div class="message support">
+                                    <div class="message-avatar">
+                                        <i class="fas fa-robot"></i>
+                                    </div>
+                                    <div class="message-bubble">
+                                        <p>🤖 Welcome to Virtuosa AI Assistant! I'm a bot designed to help you with common questions about our platform.</p>
+                                        <p class="text-sm mt-2 opacity-75">For live human support, use the Brevo chat widget on this page. How can I assist you today?</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Replies -->
+                            <div id="quick-replies" class="p-3 bg-gray-50 border-t border-gray-200">
+                                <div class="flex flex-wrap">
+                                    <button class="quick-reply" onclick="sendQuickReply('Where is my order?')">
+                                        📦 Where is my order?
+                                    </button>
+                                    <button class="quick-reply" onclick="sendQuickReply('How do I return an item?')">
+                                        🔄 How do I return an item?
+                                    </button>
+                                    <button class="quick-reply" onclick="sendQuickReply('Payment issue')">
+                                        💳 Payment issue
+                                    </button>
+                                    <button class="quick-reply" onclick="sendQuickReply('Account problem')">
+                                        👤 Account problem
+                                    </button>
+                                    <button class="quick-reply" onclick="sendQuickReply('Seller verification')">
+                                        ✅ Seller verification
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Chat Input -->
+                            <div class="chat-input-container">
+                                <form id="chat-form" class="flex items-center space-x-3">
+                                    <button type="button" class="text-gray-400 hover:text-gray-600 transition-colors">
+                                        <i class="fas fa-paperclip"></i>
+                                    </button>
+                                    <input 
+                                        type="text" 
+                                        id="chat-input"
+                                        placeholder="Type your message..."
+                                        class="chat-input flex-grow px-4 py-2 rounded-full focus:outline-none"
+                                        autocomplete="off"
+                                    >
+                                    <button type="submit" class="bg-gold text-navy px-4 py-2 rounded-full hover:bg-yellow-500 transition-colors">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
+                    <div class="space-y-6">
+                        <!-- Live Chat Widget Notice -->
+                        <div class="bg-gradient-to-r from-blue-50 to-green-50 border-2 border-blue-300 rounded-xl p-6">
+                            <h3 class="text-lg font-bold text-navy mb-3 flex items-center">
+                                <i class="fas fa-comments text-blue-600 mr-2"></i>
+                                Live Human Support
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="bg-white rounded-lg p-3 border border-blue-200">
+                                    <p class="text-sm text-gray-700 mb-2">
+                                        <strong>🤖 Current Chat:</strong> AI Assistant (Bot)
+                                    </p>
+                                    <p class="text-xs text-gray-600">
+                                        Instant automated responses to common questions
+                                    </p>
+                                </div>
+                                <div class="bg-green-100 rounded-lg p-3 border border-green-300">
+                                    <p class="text-sm text-green-800 mb-2">
+                                        <strong>💬 Live Chat:</strong> Brevo Widget
+                                    </p>
+                                    <p class="text-xs text-green-700">
+                                        Chat with real human support agents via the Brevo chat widget
+                                    </p>
+                                </div>
+                                <div class="text-center pt-2">
+                                    <div class="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        Look for the Brevo chat widget on this page
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Info -->
+                        <div class="chat-info-card rounded-xl p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4 flex items-center">
+                                <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                                Chat Information
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Email</span>
+                                    <span class="text-gray-800">virtuosa@gmail.com</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Phone</span>
+                                    <span class="text-gray-800">+260 767 547 457</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Hours</span>
+                                    <span class="text-gray-800">Mon-Fri, 9AM-6PM CAT</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Status:</span>
+                                <span class="text-green-600 font-semibold">Active</span>
+                            </div>
+                        </div>
+
+                        <!-- Support Hours -->
+                        <div class="chat-container rounded-xl p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4 flex items-center">
+                                <i class="fas fa-clock text-gold mr-2"></i>
+                                Support Hours
+                            </h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Monday - Friday:</span>
+                                    <span class="text-gray-800">9:00 AM - 8:00 PM</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Saturday:</span>
+                                    <span class="text-gray-800">10:00 AM - 6:00 PM</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Sunday:</span>
+                                    <span class="text-gray-800">12:00 PM - 4:00 PM</span>
+                                </div>
+                                <div class="mt-4 p-3 bg-yellow-50 rounded-lg">
+                                    <p class="text-xs text-yellow-800">
+                                        <i class="fas fa-lightbulb mr-1"></i>
+                                        Average response time: under 2 minutes during business hours
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alternative Support -->
+                        <div class="chat-container rounded-xl p-6">
+                            <h3 class="text-lg font-bold text-navy mb-4 flex items-center">
+                                <i class="fas fa-life-ring text-gold mr-2"></i>
+                                Other Support Options
+                            </h3>
+                            <div class="space-y-3">
+                                <a href="/pages/faq.html" class="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-question-circle text-gold mr-3"></i>
+                                        <div>
+                                            <div class="font-semibold text-gray-800">FAQ</div>
+                                            <div class="text-xs text-gray-600">Find quick answers</div>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a href="/pages/contact-support.html" class="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-envelope text-gold mr-3"></i>
+                                        <div>
+                                            <div class="font-semibold text-gray-800">Email Support</div>
+                                            <div class="text-xs text-gray-600">24-48 hour response</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Emergency Contact -->
+                        <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+                            <h3 class="text-lg font-bold text-red-800 mb-3 flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                Emergency
+                            </h3>
+                            <p class="text-sm text-red-700 mb-3">
+                                For urgent safety or security issues:
+                            </p>
+                            <div class="space-y-2">
+                                <div class="flex items-center">
+                                    <i class="fas fa-phone-alt text-red-600 mr-2"></i>
+                                    <span class="text-sm font-semibold text-red-800">1-800-URGENT</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-auto">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">About Us</h3>
+                <p class="text-sm">Virtuosa is a student trading platform connecting buyers and sellers for books, electronics, and more. Join our community to trade smarter!</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Become a Seller</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/seller.html" class="hover:text-gold transition-colors">Start Selling</a></li>
+                    <li><a href="/pages/seller-guide.html" class="hover:text-gold transition-colors">Seller Guide</a></li>
+                    <li><a href="/pages/seller-benefits.html" class="hover:text-gold transition-colors">Seller Benefits</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Payments</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/payment-options.html" class="hover:text-gold transition-colors">Payment Options</a></li>
+                    <li><a href="/pages/secure-transactions.html" class="hover:text-gold transition-colors">Secure Transactions</a></li>
+                    <li><a href="/pages/refund-policy.html" class="hover:text-gold transition-colors">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Help and Contact</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/pages/faq.html" class="hover:text-gold transition-colors">FAQ</a></li>
+                    <li><a href="/pages/contact-support.html" class="hover:text-gold transition-colors">Contact Support</a></li>
+                    <li><a href="/pages/live-chat.html" class="hover:text-gold transition-colors">Live Chat</a></li>
+                </ul>
+                <div class="mt-6">
+                    <p class="text-navy font-semibold">Emergency Hotline: +260 767 547 457</p>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Follow Us</h3>
+                <div class="flex space-x-4">
+                    <a href="https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://x.com" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-x-twitter fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/virtuosa_official_zm?igshid=bjV0ZHQwN2hmaDRq&ut-m_source=qr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                    <a href="https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 text-center text-sm">
+            &copy; 2025 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="/js/config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatForm = document.getElementById('chat-form');
+            const chatInput = document.getElementById('chat-input');
+            const chatMessages = document.getElementById('chat-messages');
+            
+            let isTyping = false;
+            let messageCount = 1;
+            let chatSessionId = null;
+            let reconnectAttempts = 0;
+            const maxReconnectAttempts = 3;
+
+            // Initialize chat session
+            function initializeChat() {
+                try {
+                    // Get or create session ID
+                    chatSessionId = localStorage.getItem('chatSessionId') || 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('chatSessionId', chatSessionId);
+
+                    // Add connection status
+                    addSystemMessage('Connecting to support agent...', 'info');
+                    
+                    // Simulate agent joining
+                    setTimeout(() => {
+                        addSystemMessage('Support agent joined the chat', 'success');
+                        addAgentMessage('👋 Hello! I\'m here to help you with any questions about Virtuosa. What can I assist you with today?');
+                    }, 1500);
+
+                } catch (error) {
+                    console.error('Chat initialization error:', error);
+                    addSystemMessage('Unable to connect to chat. Please refresh the page.', 'error');
+                }
+            }
+
+            // Add system message
+            function addSystemMessage(text, type = 'info') {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'text-center py-2';
+                
+                const bgColor = type === 'success' ? 'bg-green-100 text-green-800' : 
+                               type === 'error' ? 'bg-red-100 text-red-800' : 
+                               'bg-blue-100 text-blue-800';
+                
+                messageDiv.innerHTML = `
+                    <span class="${bgColor} text-xs px-3 py-1 rounded-full">
+                        ${text}
+                    </span>
+                `;
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Add agent message
+            function addAgentMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message support';
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'message-avatar';
+                avatar.innerHTML = '<i class="fas fa-headset"></i>';
+                
+                const bubble = document.createElement('div');
+                bubble.className = 'message-bubble';
+                bubble.innerHTML = `<p>${escapeHtml(message)}</p>`;
+                
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(bubble);
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Play notification sound (if available)
+                playNotificationSound();
+            }
+
+            // Add user message
+            function addUserMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user';
+                
+                const bubble = document.createElement('div');
+                bubble.className = 'message-bubble';
+                bubble.innerHTML = `<p>${escapeHtml(message)}</p>`;
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'message-avatar';
+                avatar.innerHTML = '<i class="fas fa-user"></i>';
+                
+                messageDiv.appendChild(bubble);
+                messageDiv.appendChild(avatar);
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Show typing indicator
+            function showTypingIndicator() {
+                if (isTyping) return;
+                
+                isTyping = true;
+                const typingDiv = document.createElement('div');
+                typingDiv.id = 'typing-indicator';
+                typingDiv.className = 'message support';
+                typingDiv.innerHTML = `
+                    <div class="message-avatar">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Hide typing indicator
+            function hideTypingIndicator() {
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                isTyping = false;
+            }
+
+            // Generate intelligent response
+            function generateAgentResponse(userMessage) {
+                const message = userMessage.toLowerCase();
+                
+                // Check for specific keywords and provide contextual responses
+                if (message.includes('hello') || message.includes('hi') || message.includes('hey')) {
+                    return 'Hello! How can I help you with Virtuosa today?';
+                }
+                
+                if (message.includes('payment') || message.includes('pay')) {
+                    return 'We accept Credit/Debit Cards, Mobile Money (MTN, Airtel, Zamtel), and Cash on Delivery. Mobile Money is recommended for Zambian users with low fees. Would you like more details about any payment method?';
+                }
+                
+                if (message.includes('mobile money') || message.includes('mtn') || message.includes('airtel') || message.includes('zamtel')) {
+                    return 'Mobile Money is our most popular payment method in Zambia! We support MTN Mobile Money, Airtel Money, and Zamtel Money with just 1-2% fees and instant processing. You can link your account in your profile settings.';
+                }
+                
+                if (message.includes('sell') || message.includes('selling') || message.includes('seller')) {
+                    return 'Great! To start selling on Virtuosa, you\'ll need to verify your student status and create your first listing. I recommend checking out our Seller Guide at /pages/seller-guide.html for best practices. What type of items are you planning to sell?';
+                }
+                
+                if (message.includes('buy') || message.includes('purchase') || message.includes('order')) {
+                    return 'For buying, you can browse our marketplace or search for specific items. We offer secure payment protection and most items deliver within 24 hours. Are you looking for something specific?';
+                }
+                
+                if (message.includes('refund') || message.includes('return')) {
+                    return 'Our refund policy allows returns within 30 days for most items, 14 days for electronics. The process is handled through your order history. You can read our full refund policy at /pages/refund-policy.html. What specific issue are you having?';
+                }
+                
+                if (message.includes('contact') || message.includes('phone') || message.includes('email')) {
+                    return 'You can reach us at virtuosa@gmail.com or call +260 767 547 457 during business hours (Mon-Fri, 9AM-6PM CAT). For urgent issues, I\'m here to help right now!';
+                }
+                
+                if (message.includes('account') || message.includes('login') || message.includes('sign')) {
+                    return 'For account issues, try resetting your password first. If that doesn\'t work, I can help you with verification or account recovery. What specific problem are you experiencing?';
+                }
+                
+                if (message.includes('delivery') || message.includes('shipping') || message.includes('pickup')) {
+                    return 'We offer local pickup on campus and delivery within Zambia. Most items are available for same-day pickup. Delivery times vary by location. Are you asking about a specific order?';
+                }
+                
+                if (message.includes('fees') || message.includes('commission') || message.includes('cost')) {
+                    return 'Virtuosa charges 5-8% commission on successful sales. Listing is always free! Mobile money has the lowest fees at 1-2%. Cash on delivery has no fees. Sellers get paid within 3-5 business days after delivery confirmation.';
+                }
+                
+                if (message.includes('security') || message.includes('safe') || message.includes('protect')) {
+                    return 'Security is our top priority! We use SSL encryption, verify all users with student emails, have secure payment escrow, and offer fraud protection. All transactions are monitored 24/7. Is there a specific security concern I can help with?';
+                }
+                
+                // Default responses
+                const defaultResponses = [
+                    "I understand. Let me help you with that. Could you provide more details about your question?",
+                    "That's a great question! Based on what you've told me, I'd recommend checking our FAQ section first, then I can help with specifics.",
+                    "I'm here to help! Could you tell me more about what you're looking for?",
+                    "Thanks for reaching out! Let me connect you with the right information. What specific aspect can I help with?",
+                    "I can definitely assist with that. Let me guide you through the process step by step."
+                ];
+                
+                return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+            }
+
+            // Simulate agent typing and response
+            function simulateAgentResponse(userMessage) {
+                showTypingIndicator();
+                
+                // Variable response time to feel more natural
+                const responseTime = 2000 + Math.random() * 2000;
+                
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    const response = generateAgentResponse(userMessage);
+                    addAgentMessage(response);
+                    
+                    // Store message for potential chat history
+                    storeChatMessage('agent', response);
+                }, responseTime);
+            }
+
+            // Store chat message in localStorage
+            function storeChatMessage(sender, message) {
+                try {
+                    const chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+                    chatHistory.push({
+                        sender: sender,
+                        message: message,
+                        timestamp: new Date().toISOString(),
+                        sessionId: chatSessionId
+                    });
+                    
+                    // Keep only last 50 messages
+                    if (chatHistory.length > 50) {
+                        chatHistory = chatHistory.slice(-50);
+                    }
+                    
+                    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+                } catch (error) {
+                    console.error('Error storing chat message:', error);
+                }
+            }
+
+            // Play notification sound
+            function playNotificationSound() {
+                try {
+                    // Create a simple beep sound using Web Audio API
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 800;
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                } catch (error) {
+                    // Silently fail if audio is not supported
+                }
+            }
+
+            // Handle form submission
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const message = chatInput.value.trim();
+                
+                if (message) {
+                    addUserMessage(message);
+                    storeChatMessage('user', message);
+                    chatInput.value = '';
+                    
+                    // Simulate agent response
+                    simulateAgentResponse(message);
+                }
+            });
+
+            // Send quick reply
+            window.sendQuickReply = function(message) {
+                addUserMessage(message);
+                storeChatMessage('user', message);
+                simulateAgentResponse(message);
+            };
+
+            // End chat function
+            window.endChat = function() {
+                if (confirm('Are you sure you want to end this chat session?')) {
+                    addAgentMessage('Thank you for chatting with Virtuosa Support! Have a great day! 😊');
+                    storeChatMessage('agent', 'Thank you for chatting with Virtuosa Support! Have a great day! 😊');
+                    
+                    setTimeout(() => {
+                        alert('Chat session ended. You can start a new chat anytime or email us at virtuosa@gmail.com');
+                        window.location.href = '/pages/contact-support.html';
+                    }, 2000);
+                }
+            };
+
+            // Handle connection issues
+            function handleConnectionError() {
+                if (reconnectAttempts < maxReconnectAttempts) {
+                    reconnectAttempts++;
+                    addSystemMessage(`Connection lost. Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`, 'error');
+                    
+                    setTimeout(() => {
+                        initializeChat();
+                    }, 3000);
+                } else {
+                    addSystemMessage('Unable to reconnect. Please refresh the page or contact us directly.', 'error');
+                }
+            }
+
+            // Check connection status periodically
+            setInterval(() => {
+                if (Math.random() < 0.05) { // 5% chance to simulate connection check
+                    // This would be a real connection check in production
+                    console.log('Chat connection status: Connected');
+                }
+            }, 30000);
+
+            // Handle page visibility change
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    // User returned to the page
+                    addSystemMessage('Welcome back! I\'m still here to help you.', 'info');
+                }
+            });
+
+            // Handle window close
+            window.addEventListener('beforeunload', function() {
+                // Save current chat state
+                localStorage.setItem('chatActive', 'true');
+            });
+
+            // Initialize chat when page loads
+            initializeChat();
+
+            // Auto-focus input
+            chatInput.focus();
+
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Ctrl/Cmd + Enter to send message
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    chatForm.dispatchEvent(new Event('submit'));
+                }
+                
+                // Escape to end chat
+                if (e.key === 'Escape' && e.shiftKey) {
+                    endChat();
+                }
+            });
+        });
+
+        function toggleMobileMenu() {
+            // Mobile menu toggle functionality
+            console.log('Mobile menu toggle');
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+    
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

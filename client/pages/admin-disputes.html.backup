@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Dispute Management - Admin Dashboard - Virtuosa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <!-- Standard Navigation -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="v-container">
+            <div class="flex items-center justify-between py-4">
+                <div class="flex items-center space-x-4">
+                    <a href="admin-dashboard.html" class="text-white hover:text-gold transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+                    </a>
+                    <h1 class="text-xl font-bold">Dispute Management</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="notifications.html" class="relative text-white hover:text-gold transition-colors">
+                        <i class="fas fa-bell"></i>
+                        <span id="notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                    <div id="user-info" class="flex items-center space-x-2">
+                        <!-- User info will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow v-container py-6">
+        <!-- Statistics Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Disputes</p>
+                        <p id="totalDisputes" class="text-2xl font-bold text-gray-900">-</p>
+                        <p class="text-sm text-gray-500">last 30 days</p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-exclamation-triangle text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Pending</p>
+                        <p id="pendingDisputes" class="text-2xl font-bold text-yellow-600">-</p>
+                        <p class="text-sm text-gray-500">awaiting review</p>
+                    </div>
+                    <div class="bg-yellow-100 p-3 rounded-full">
+                        <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Resolved</p>
+                        <p id="resolvedDisputes" class="text-2xl font-bold text-green-600">-</p>
+                        <p class="text-sm text-gray-500">successfully closed</p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-full">
+                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Escalated</p>
+                        <p id="escalatedDisputes" class="text-2xl font-bold text-red-600">-</p>
+                        <p class="text-sm text-gray-500">high priority</p>
+                    </div>
+                    <div class="bg-red-100 p-3 rounded-full">
+                        <i class="fas fa-arrow-up text-red-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <select id="status-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="seller_response">Seller Response</option>
+                        <option value="admin_review">Admin Review</option>
+                        <option value="negotiation">Negotiation</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="escalated">Escalated</option>
+                    </select>
+
+                    <select id="priority-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">All Priority</option>
+                        <option value="urgent">Urgent</option>
+                        <option value="high">High</option>
+                        <option value="normal">Normal</option>
+                        <option value="low">Low</option>
+                    </select>
+
+                    <select id="severity-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">All Severity</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+
+                    <select id="type-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">All Types</option>
+                        <option value="product_not_as_described">Product Not as Described</option>
+                        <option value="damaged_product">Damaged Product</option>
+                        <option value="wrong_item">Wrong Item</option>
+                        <option value="delivery_issue">Delivery Issue</option>
+                        <option value="quality_issue">Quality Issue</option>
+                        <option value="refund_request">Refund Request</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <div class="relative">
+                        <input type="text" id="search-input" placeholder="Search disputes..." 
+                            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    <button onclick="refreshDisputes()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disputes List -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Active Disputes</h2>
+            </div>
+            
+            <div id="disputes-container" class="divide-y divide-gray-200">
+                <!-- Disputes will be populated here -->
+                <div class="p-6 text-center text-gray-500">
+                    <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
+                    <p>Loading disputes...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div id="pagination-container" class="px-6 py-4 border-t border-gray-200">
+                <!-- Pagination will be populated here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Dispute Detail Modal -->
+    <div id="dispute-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 id="modal-title" class="text-xl font-semibold text-gray-900">Dispute Details</h3>
+                        <button onclick="closeDisputeModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="modal-content" class="p-6">
+                    <!-- Dispute details will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resolution Modal -->
+    <div id="resolution-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-semibold text-gray-900">Resolve Dispute</h3>
+                        <button onclick="closeResolutionModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <form id="resolution-form" class="p-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Resolution Type</label>
+                            <select id="resolution-type" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Select resolution type</option>
+                                <option value="full_refund">Full Refund</option>
+                                <option value="partial_refund">Partial Refund</option>
+                                <option value="replacement">Replacement</option>
+                                <option value="repair">Repair</option>
+                                <option value="store_credit">Store Credit</option>
+                                <option value="reshipment">Reshipment</option>
+                                <option value="compensation">Compensation</option>
+                                <option value="mutual_agreement">Mutual Agreement</option>
+                                <option value="seller_favor">In Seller's Favor</option>
+                                <option value="buyer_favor">In Buyer's Favor</option>
+                                <option value="no_action">No Action</option>
+                            </select>
+                        </div>
+
+                        <div id="refund-amount-section" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Refund Amount ($)</label>
+                            <input type="number" id="refund-amount" step="0.01" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+
+                        <div id="compensation-section" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Compensation Amount ($)</label>
+                            <input type="number" id="compensation-amount" step="0.01" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Summary</label>
+                            <textarea id="resolution-summary" required rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Brief summary of the resolution..."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Detailed Reasoning</label>
+                            <textarea id="resolution-reasoning" required rows="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Explain your reasoning for this decision..."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Required Actions</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="actions" value="refund_buyer" class="mr-2">
+                                    <span>Process refund to buyer</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="actions" value="charge_seller" class="mr-2">
+                                    <span>Charge seller account</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="actions" value="issue_store_credit" class="mr-2">
+                                    <span>Issue store credit</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="actions" value="return_product" class="mr-2">
+                                    <span>Require product return</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="actions" value="update_product_listing" class="mr-2">
+                                    <span>Update product listing</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="return-instructions-section" class="hidden">
+                            <h4 class="font-medium text-gray-900 mb-2">Return Instructions</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Shipping Address</label>
+                                    <textarea id="return-address" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Return Method</label>
+                                    <select id="return-method" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="standard">Standard Shipping</option>
+                                        <option value="express">Express Shipping</option>
+                                        <option value="pickup">In-person Pickup</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Shipping Paid By</label>
+                                    <select id="return-shipping-paid" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="buyer">Buyer</option>
+                                        <option value="seller">Seller</option>
+                                        <option value="platform">Platform</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="closeResolutionModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-check mr-2"></i>Resolve Dispute
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/admin-auth-helper.js"></script>
+    <script>
+        let currentPage = 1;
+        let currentFilters = {
+            status: 'all',
+            priority: 'all',
+            severity: 'all',
+            type: 'all',
+            search: ''
+        };
+        let currentDispute = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check admin access first
+            const hasAccess = await checkAdminAccess();
+            if (!hasAccess) {
+                return;
+            }
+            
+            loadDisputeStats();
+            loadDisputes();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Filter changes
+            ['status-filter', 'priority-filter', 'severity-filter', 'type-filter'].forEach(id => {
+                document.getElementById(id).addEventListener('change', function(e) {
+                    currentFilters[id.replace('-filter', '')] = e.target.value;
+                    currentPage = 1;
+                    loadDisputes();
+                });
+            });
+
+            // Search
+            document.getElementById('search-input').addEventListener('input', debounce(function(e) {
+                currentFilters.search = e.target.value;
+                currentPage = 1;
+                loadDisputes();
+            }, 500));
+
+            // Resolution form
+            document.getElementById('resolution-form').addEventListener('submit', handleResolutionSubmit);
+
+            // Resolution type changes
+            document.getElementById('resolution-type').addEventListener('change', function(e) {
+                toggleResolutionFields(e.target.value);
+            });
+
+            // Return checkbox
+            document.querySelector('input[name="actions"][value="return_product"]').addEventListener('change', function(e) {
+                document.getElementById('return-instructions-section').classList.toggle('hidden', !e.target.checked);
+            });
+        }
+
+        async function loadDisputeStats() {
+            try {
+                const response = await fetch('/api/disputes/stats?timeframe=30d');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('totalDisputes').textContent = data.disputeStats.total || 0;
+                    document.getElementById('pendingDisputes').textContent = data.disputeStats.pending || 0;
+                    document.getElementById('resolvedDisputes').textContent = data.disputeStats.resolved || 0;
+                    document.getElementById('escalatedDisputes').textContent = data.disputeStats.escalated || 0;
+                }
+            } catch (error) {
+                console.error('Error loading dispute stats:', error);
+            }
+        }
+
+        async function loadDisputes() {
+            try {
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    limit: 20,
+                    ...currentFilters
+                });
+
+                const response = await fetch(`/api/disputes/admin?${params}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderDisputes(data.disputes);
+                    renderPagination(data.currentPage, data.pages, data.total);
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error loading disputes:', error);
+                document.getElementById('disputes-container').innerHTML = `
+                    <div class="p-6 text-center text-red-500">
+                        <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                        <p>Error loading disputes: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderDisputes(disputes) {
+            const container = document.getElementById('disputes-container');
+            
+            if (!disputes || disputes.length === 0) {
+                container.innerHTML = `
+                    <div class="p-6 text-center text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-4"></i>
+                        <p>No disputes found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = disputes.map(dispute => `
+                <div class="p-6 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full ${getStatusClass(dispute.status)}">
+                                    ${formatStatus(dispute.status)}
+                                </span>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full ${getPriorityClass(dispute.priority)}">
+                                    ${dispute.priority}
+                                </span>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full ${getSeverityClass(dispute.severity)}">
+                                    ${dispute.severity}
+                                </span>
+                                ${dispute.age > 7 ? '<span class="px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-800">Old</span>' : ''}
+                            </div>
+                            
+                            <h4 class="text-lg font-medium text-gray-900 mb-2">${dispute.title}</h4>
+                            <p class="text-gray-600 mb-3">${dispute.description.substring(0, 200)}${dispute.description.length > 200 ? '...' : ''}</p>
+                            
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div>
+                                    <span class="text-gray-500">Order:</span>
+                                    <span class="ml-1 font-medium">#${dispute.order?.orderNumber}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Type:</span>
+                                    <span class="ml-1 font-medium">${formatDisputeType(dispute.type)}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Buyer:</span>
+                                    <span class="ml-1 font-medium">${dispute.buyer?.fullName}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Seller:</span>
+                                    <span class="ml-1 font-medium">${dispute.seller?.fullName}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3 text-sm text-gray-500">
+                                Created: ${formatDate(dispute.createdAt)}
+                                ${dispute.assignedAdmin ? `| Assigned to: ${dispute.assignedAdmin.fullName}` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col space-y-2 ml-4">
+                            <button onclick="viewDispute('${dispute._id}')" class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-eye mr-1"></i>View
+                            </button>
+                            ${!dispute.assignedAdmin ? `
+                                <button onclick="assignToMe('${dispute._id}')" class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+                                    <i class="fas fa-user-plus mr-1"></i>Assign
+                                </button>
+                            ` : ''}
+                            ${dispute.status === 'admin_review' ? `
+                                <button onclick="openResolutionModal('${dispute._id}')" class="px-3 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
+                                    <i class="fas fa-gavel mr-1"></i>Resolve
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function viewDispute(disputeId) {
+            try {
+                const response = await fetch(`/api/disputes/${disputeId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentDispute = data.dispute;
+                    renderDisputeDetail(data.dispute);
+                    document.getElementById('dispute-modal').classList.remove('hidden');
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error loading dispute details:', error);
+                alert('Error loading dispute details: ' + error.message);
+            }
+        }
+
+        function renderDisputeDetail(dispute) {
+            const modalContent = document.getElementById('modal-content');
+            
+            modalContent.innerHTML = `
+                <div class="space-y-6">
+                    <!-- Basic Info -->
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-3">Dispute Information</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div><span class="text-gray-500">Title:</span> ${dispute.title}</div>
+                            <div><span class="text-gray-500">Type:</span> ${formatDisputeType(dispute.type)}</div>
+                            <div><span class="text-gray-500">Status:</span> ${formatStatus(dispute.status)}</div>
+                            <div><span class="text-gray-500">Priority:</span> ${dispute.priority}</div>
+                            <div><span class="text-gray-500">Severity:</span> ${dispute.severity}</div>
+                            <div><span class="text-gray-500">Age:</span> ${dispute.age} days</div>
+                        </div>
+                    </div>
+
+                    <!-- Parties -->
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-3">Parties Involved</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h5 class="font-medium text-gray-900 mb-2">Buyer</h5>
+                                <p class="text-sm">${dispute.buyer?.fullName}</p>
+                                <p class="text-sm text-gray-500">${dispute.buyer?.email}</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h5 class="font-medium text-gray-900 mb-2">Seller</h5>
+                                <p class="text-sm">${dispute.seller?.fullName}</p>
+                                <p class="text-sm text-gray-500">${dispute.seller?.email}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Info -->
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-3">Order Details</h4>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm"><span class="text-gray-500">Order #:</span> ${dispute.order?.orderNumber}</p>
+                            <p class="text-sm"><span class="text-gray-500">Product:</span> ${dispute.product?.title}</p>
+                            <p class="text-sm"><span class="text-gray-500">Amount:</span> $${dispute.order?.totalAmount}</p>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-3">Description</h4>
+                        <p class="text-gray-700">${dispute.description}</p>
+                    </div>
+
+                    <!-- Buyer Resolution Request -->
+                    ${dispute.buyerResolution ? `
+                        <div>
+                            <h4 class="font-medium text-gray-900 mb-3">Buyer's Resolution Request</h4>
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <p class="text-sm"><span class="text-gray-500">Requested:</span> ${formatResolutionType(dispute.buyerResolution)}</p>
+                                ${dispute.buyerRefundAmount ? `<p class="text-sm"><span class="text-gray-500">Amount:</span> $${dispute.buyerRefundAmount}</p>` : ''}
+                                ${dispute.buyerExplanation ? `<p class="text-sm mt-2">${dispute.buyerExplanation}</p>` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Evidence -->
+                    ${dispute.evidence && dispute.evidence.length > 0 ? `
+                        <div>
+                            <h4 class="font-medium text-gray-900 mb-3">Evidence</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                ${dispute.evidence.map(evidence => `
+                                    <div class="border rounded-lg overflow-hidden">
+                                        ${evidence.type === 'image' ? 
+                                            `<img src="${evidence.url}" alt="${evidence.filename}" class="w-full h-32 object-cover">` :
+                                            `<div class="p-4 text-center">
+                                                <i class="fas fa-file text-2xl text-gray-400"></i>
+                                                <p class="text-xs mt-1">${evidence.filename}</p>
+                                            </div>`
+                                        }
+                                        <p class="p-2 text-xs text-gray-500">${evidence.description || ''}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Timeline -->
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-3">Timeline</h4>
+                        <div class="space-y-3">
+                            ${dispute.timeline.map(entry => `
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium">${formatAction(entry.action)}</p>
+                                        <p class="text-sm text-gray-600">${entry.message}</p>
+                                        <p class="text-xs text-gray-500">${formatDate(entry.timestamp)} by ${entry.actorType}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Messages -->
+                    ${dispute.messages && dispute.messages.length > 0 ? `
+                        <div>
+                            <h4 class="font-medium text-gray-900 mb-3">Messages</h4>
+                            <div class="space-y-3 max-h-64 overflow-y-auto">
+                                ${dispute.messages.map(message => `
+                                    <div class="flex items-start space-x-3 ${message.senderType === 'admin' ? 'bg-purple-50 p-3 rounded-lg' : ''}">
+                                        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user text-xs text-gray-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="text-sm font-medium">${message.sender?.fullName}</span>
+                                                <span class="text-xs text-gray-500">${message.senderType}</span>
+                                                <span class="text-xs text-gray-500">${formatDate(message.timestamp)}</span>
+                                            </div>
+                                            <p class="text-sm text-gray-700">${message.content}</p>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        async function assignToMe(disputeId) {
+            try {
+                const response = await fetch(`/api/disputes/${disputeId}/assign`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        adminId: getCurrentUserId() // You'll need to implement this
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    loadDisputes();
+                    alert('Dispute assigned to you successfully');
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error assigning dispute:', error);
+                alert('Error assigning dispute: ' + error.message);
+            }
+        }
+
+        function openResolutionModal(disputeId) {
+            currentDispute = { _id: disputeId };
+            document.getElementById('resolution-modal').classList.remove('hidden');
+        }
+
+        function closeDisputeModal() {
+            document.getElementById('dispute-modal').classList.add('hidden');
+            currentDispute = null;
+        }
+
+        function closeResolutionModal() {
+            document.getElementById('resolution-modal').classList.add('hidden');
+            document.getElementById('resolution-form').reset();
+            toggleResolutionFields('');
+        }
+
+        function toggleResolutionFields(resolutionType) {
+            const refundSection = document.getElementById('refund-amount-section');
+            const compensationSection = document.getElementById('compensation-section');
+            
+            refundSection.classList.toggle('hidden', !resolutionType.includes('refund'));
+            compensationSection.classList.toggle('hidden', !resolutionType.includes('compensation'));
+        }
+
+        async function handleResolutionSubmit(e) {
+            e.preventDefault();
+            
+            if (!currentDispute) return;
+            
+            const formData = new FormData(e.target);
+            const actions = Array.from(formData.getAll('actions'));
+            
+            const resolutionData = {
+                resolutionType: formData.get('resolution-type'),
+                refundAmount: formData.get('refund-amount') || null,
+                compensationAmount: formData.get('compensation-amount') || null,
+                summary: formData.get('resolution-summary'),
+                reasoning: formData.get('resolution-reasoning'),
+                actions,
+                returnRequired: actions.includes('return_product'),
+                returnInstructions: actions.includes('return_product') ? {
+                    shippingAddress: formData.get('return-address'),
+                    returnMethod: formData.get('return-method'),
+                    shippingPaidBy: formData.get('return-shipping-paid')
+                } : null
+            };
+            
+            try {
+                const response = await fetch(`/api/disputes/${currentDispute._id}/resolve`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(resolutionData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    closeResolutionModal();
+                    loadDisputes();
+                    alert('Dispute resolved successfully');
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error resolving dispute:', error);
+                alert('Error resolving dispute: ' + error.message);
+            }
+        }
+
+        function renderPagination(currentPage, totalPages, totalItems) {
+            const container = document.getElementById('pagination-container');
+            
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let pagination = '<div class="flex items-center justify-between">';
+            
+            // Info
+            pagination += `<div class="text-sm text-gray-700">
+                Showing <span class="font-medium">${(currentPage - 1) * 20 + 1}</span> to 
+                <span class="font-medium">${Math.min(currentPage * 20, totalItems)}</span> of 
+                <span class="font-medium">${totalItems}</span> results
+            </div>`;
+            
+            // Navigation
+            pagination += '<div class="flex space-x-2">';
+            
+            // Previous
+            if (currentPage > 1) {
+                pagination += `<button onclick="changePage(${currentPage - 1})" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">Previous</button>`;
+            }
+            
+            // Page numbers
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const isActive = i === currentPage;
+                pagination += `<button onclick="changePage(${i})" class="px-3 py-1 border ${isActive ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 hover:bg-gray-50'} rounded">${i}</button>`;
+            }
+            
+            // Next
+            if (currentPage < totalPages) {
+                pagination += `<button onclick="changePage(${currentPage + 1})" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">Next</button>`;
+            }
+            
+            pagination += '</div></div>';
+            
+            container.innerHTML = pagination;
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            loadDisputes();
+        }
+
+        function refreshDisputes() {
+            loadDisputeStats();
+            loadDisputes();
+        }
+
+        // Utility functions
+        function getStatusClass(status) {
+            const classes = {
+                'pending': 'bg-yellow-100 text-yellow-800',
+                'seller_response': 'bg-blue-100 text-blue-800',
+                'admin_review': 'bg-purple-100 text-purple-800',
+                'negotiation': 'bg-orange-100 text-orange-800',
+                'resolved': 'bg-green-100 text-green-800',
+                'escalated': 'bg-red-100 text-red-800',
+                'closed': 'bg-gray-100 text-gray-800',
+                'withdrawn': 'bg-gray-100 text-gray-800'
+            };
+            return classes[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getPriorityClass(priority) {
+            const classes = {
+                'urgent': 'bg-red-100 text-red-800',
+                'high': 'bg-orange-100 text-orange-800',
+                'normal': 'bg-blue-100 text-blue-800',
+                'low': 'bg-gray-100 text-gray-800'
+            };
+            return classes[priority] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getSeverityClass(severity) {
+            const classes = {
+                'critical': 'bg-red-100 text-red-800',
+                'high': 'bg-orange-100 text-orange-800',
+                'medium': 'bg-yellow-100 text-yellow-800',
+                'low': 'bg-green-100 text-green-800'
+            };
+            return classes[severity] || 'bg-gray-100 text-gray-800';
+        }
+
+        function formatStatus(status) {
+            return status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function formatDisputeType(type) {
+            return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function formatResolutionType(type) {
+            return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function formatAction(action) {
+            return action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function getCurrentUserId() {
+            // You'll need to implement this based on your auth system
+            return localStorage.getItem('userId');
+        }
+    </script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

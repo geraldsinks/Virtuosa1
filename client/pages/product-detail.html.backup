@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Virtuosa</title>
+    <meta name="description" content="View product details, pricing, and seller information on Virtuosa — Zambia's student trading platform.">
+    <link rel="canonical" href="https://virtuosazm.com/product">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Performance Resource Hints -->
+    <link rel="preconnect" href="https://api.virtuosazm.com">
+    <link rel="preconnect" href="https://res.cloudinary.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- Open Graph / Facebook (Defaults) -->
+    <meta property="og:type" content="product">
+    <meta property="og:url" content="https://virtuosazm.com/product-detail">
+    <meta property="og:title" content="Virtuosa Professional Marketplace">
+    <meta property="og:description" content="Safe, verified campus marketplace for Zambian students.">
+    <meta property="og:image" content="https://virtuosazm.com/favicon-enhanced.svg">
+
+    <!-- Twitter (Defaults) -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Virtuosa Professional Marketplace">
+    <meta property="twitter:description" content="Safe, verified campus marketplace for Zambian students.">
+    <meta property="twitter:image" content="https://virtuosazm.com/favicon-enhanced.svg">
+
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Virtuosa",
+      "url": "https://virtuosazm.com",
+      "logo": "https://virtuosazm.com/favicon-enhanced.svg",
+      "sameAs": [
+        "https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr",
+        "https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr"
+      ],
+      "description": "Zambia's premier student trading platform for campus marketplaces."
+    }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body { font-family: 'Montserrat', sans-serif; }
+        .text-gold { color: #FFD700; }
+        .bg-gold { background-color: #FFD700; }
+        .bg-navy { background-color: #0A1128; }
+        .bg-button-gold { background-color: #C19A6B; }
+        .hover-bg-button-gold:hover { background-color: #A98B68; }
+        .product-image-container { aspect-ratio: 1/1; overflow: hidden; border-radius: 1rem; }
+        .product-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .product-image:hover { transform: scale(1.05); }
+    </style>
+</head>
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <!-- Desktop Header from index.html -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Mobile Header Structure (320px-767px) - Hidden at tablet+ -->
+        <div class="v-container mobile-header-row-1 md:hidden">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-2 mobile-header-actions">
+                    <!-- Cart Icon with Badge -->
+                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                    
+                    <!-- Combined Notifications (includes messages) -->
+                    <a href="notifications.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <i class="fas fa-bell"></i>
+                        <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Search-First Experience (Mobile only) -->
+        <div class="v-container mobile-header-row-2 pb-3 md:hidden">
+            <div class="relative mobile-search-container">
+                <input id="mobile-search-input" type="text" 
+                    placeholder="Search campus marketplace..." 
+                    class="w-full pl-4 pr-12 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400 mobile-search-input"
+                    autocomplete="off">
+                <button id="mobile-search-button" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors mobile-search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <!-- Mobile Search Suggestions -->
+                <div id="mobile-search-suggestions" class="absolute mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
+                    <!-- Suggestions injected via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Header (Hidden on Mobile) -->
+        <div class="v-container v-header-row desktop-header hidden md:flex">
+            <div class="v-header-logo">
+                <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+            <div class="v-header-search">
+                <div class="relative">
+                    <input id="home-search-input" type="text"
+                        placeholder="Search campus marketplace (e.g. &quot;HP laptop&quot;, &quot;Men's hoodie&quot;)..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400"
+                        autocomplete="off">
+                    <button id="home-search-button"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <!-- Autocomplete suggestions -->
+                    <div id="home-search-suggestions"
+                        class="absolute mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
+                        <!-- Suggestions injected via JS -->
+                    </div>
+                </div>
+            </div>
+            <div id="user-info-container" class="v-header-actions">
+                <a href="login.html" id="login-link"
+                    class="text-white hover:text-gold transition-colors font-medium hidden md:flex flex-col items-start leading-tight group">
+                    <span class="text-[10px] text-gray-400 font-normal">Welcome</span>
+                    <div class="flex items-center -mt-0.5">
+                        <span class="text-sm font-semibold">Sign In</span>
+                        <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60 group-hover:rotate-180 transition-transform"></i>
+                    </div>
+                </a>
+                <div id="user-menu" class="relative hidden">
+                    <button onclick="toggleUserMenu()"
+                        class="text-white hover:text-gold transition-colors font-medium flex flex-col items-start leading-tight">
+                        <span id="user-greeting" class="text-[10px] text-gray-400 font-normal"></span>
+                        <div class="flex items-center -mt-0.5">
+                            <span class="text-sm font-semibold">My Account</span>
+                            <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60"></i>
+                        </div>
+                    </button>
+                    <div id="user-dropdown"
+                        class="absolute right-0 top-full mt-2 w-56 bg-navy rounded-xl shadow-2xl z-[60] py-4 text-white hidden border border-gray-800">
+                        <div class="px-4 pb-4 border-b border-gray-800 mb-2">
+                            <a href="profile.html" class="bg-button-gold text-white text-center py-2 px-4 rounded-lg text-sm block font-semibold hover:bg-gold transition-colors">My Profile</a>
+                        </div>
+                        <div class="px-2">
+                            <a href="buyer-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-th-large mr-3 text-gray-400"></i>Dashboard
+                            </a>
+                            <a href="orders.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-shopping-bag mr-3 text-gray-400"></i>My Orders
+                            </a>
+                            <a href="transactions.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-exchange-alt mr-3 text-gray-400"></i>My Transactions
+                            </a>
+                            <a href="reviews.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-star mr-3 text-gray-400"></i>My Reviews
+                            </a>
+                            <div id="seller-links" class="hidden">
+                                <div class="border-t border-gray-800 my-1"></div>
+                                <a href="seller-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-green-400">
+                                    <i class="fas fa-store mr-3"></i>Seller Panel
+                                </a>
+                            </div>
+                            <div id="admin-link" class="hidden">
+                                <div class="border-t border-gray-800 my-1"></div>
+                                <a href="admin-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-red-400">
+                                    <i class="fas fa-cog mr-3"></i>Admin Panel
+                                </a>
+                            </div>
+                            <div class="border-t border-gray-800 my-2"></div>
+                            <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gray-300">
+                                <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="messages.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                    <i class="fas fa-envelope text-lg"></i>
+                    <span class="badge message-badge-count hidden">0</span>
+                    <span class="text-[9px] mt-0.5 font-medium">Messages</span>
+                </a>
+
+                <a href="notifications.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                    <i class="fas fa-bell text-lg"></i>
+                    <span id="notification-badge-count" class="badge hidden">0</span>
+                    <span class="text-[9px] mt-0.5 font-medium">Alerts</span>
+                </a>
+
+                <a href="cart.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span class="badge cart-badge-count">0</span>
+                    <span class="text-[9px] mt-0.5 font-medium">Cart</span>
+                </a>
+            </div>
+        </header>
+
+    <!-- Navigation Bar (Desktop Only) -->
+    <nav class="desktop-only bg-dark-navy text-white shadow-sm py-1.5 px-6 md:px-12 z-40 border-t border-gray-800">
+        <div class="container mx-auto nav-row-2-container">
+            <!-- Desktop "Explore" Menu Trigger -->
+            <button id="desktop-explore-menu" onclick="window.openMobileMenu()" class="flex items-center text-white hover:text-gold px-3 py-1 rounded-full border border-gray-700 hover:border-gold transition-all mr-6 group shrink-0">
+                <i class="fas fa-bars mr-2 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-[10px] uppercase tracking-wider">Explore</span>
+            </button>
+
+            <!-- Category Menu -->
+            <div class="flex items-center space-x-6 overflow-x-auto hide-scrollbar py-1">
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="nav-category-item">Hot Deals</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="nav-category-item">Best Sellers</a>
+                <a href="seller.html" class="nav-category-item text-gold">Sell Items</a>
+                <div class="h-4 w-[1px] bg-gray-700 mx-2 shrink-0"></div>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="nav-category-item">Electronics</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="nav-category-item">Computers & Software</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="nav-category-item">Services</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="nav-category-item">Watches & Jewellery</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="nav-category-item">Men's Clothing</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="nav-category-item">Women's Clothing</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="nav-category-item">Shoes</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="nav-category-item">Accessories</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="nav-category-item">Personal Care & Beauty</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="nav-category-item">Food & Beverages</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="nav-category-item">Sports & Outdoors</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="nav-category-item">Home & Living</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+    <div class="mobile-menu-content">
+        <div class="mobile-menu-header">
+            <div class="text-xl font-bold text-gold">Menu</div>
+            <button id="mobile-menu-close" class="mobile-menu-close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="mobile-menu-section px-4 py-2">
+            <a href="../index.html" class="block py-2 text-gray-300 hover:text-gold transition-colors">Home</a>
+            <a href="products.html" class="block py-2 text-gray-300 hover:text-gold transition-colors">Products</a>
+            <a href="cart.html" class="block py-2 text-gray-300 hover:text-gold transition-colors">Cart</a>
+        </div>
+    </div>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div id="product-container" class="max-w-6xl mx-auto hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- Product Images -->
+                <div class="space-y-4">
+                    <div class="product-image-container bg-white shadow-sm border border-gray-100">
+                        <img id="main-product-image" src="" alt="Product image" class="product-image" width="600" height="600" loading="lazy">
+                    </div>
+                    <div id="thumbnail-container" class="grid grid-cols-4 gap-4">
+                        <!-- Thumbnails will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Product Details -->
+                <div class="flex flex-col">
+                    <div class="mb-2">
+                        <span id="product-category" class="text-sm font-semibold text-gold uppercase tracking-wider"></span>
+                    </div>
+                    <h1 id="product-name" class="text-3xl md:text-4xl font-bold text-navy mb-4"></h1>
+                    
+                    <div class="flex items-center gap-4 mb-6">
+                        <span id="product-price" class="text-2xl font-bold text-gold"></span>
+                        <span id="product-original-price" class="text-lg text-gray-400 line-through hidden"></span>
+                        <span id="product-discount" class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full hidden"></span>
+                    </div>
+
+                    <div class="border-t border-gray-100 pt-6 mb-6">
+                        <h3 class="text-sm font-bold text-navy uppercase tracking-wider mb-3">Description</h3>
+                        <p id="product-description" class="text-gray-600 leading-relaxed"></p>
+                    </div>
+
+                    <div class="space-y-6 pt-6 border-t border-gray-100">
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center border border-gray-200 rounded-full px-4 py-2 space-x-6">
+                                <button id="decrease-qty" class="text-gray-500 hover:text-navy transition-colors">
+                                    <i data-lucide="minus" class="w-4 h-4"></i>
+                                </button>
+                                <span id="quantity" class="font-bold text-navy w-4 text-center">1</span>
+                                <button id="increase-qty" class="text-gray-500 hover:text-navy transition-colors">
+                                    <i data-lucide="plus" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            <button id="add-to-cart-btn" class="flex-grow bg-navy text-white font-bold py-4 px-8 rounded-full hover:bg-gray-800 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2">
+                                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                                Add to Cart
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 py-6">
+                            <div class="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                                <div class="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center text-gold">
+                                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Quality</p>
+                                    <p class="text-xs font-semibold text-navy">Campus Verified</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                                <div class="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center text-gold">
+                                    <i data-lucide="truck" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Delivery</p>
+                                    <p class="text-xs font-semibold text-navy">Fast Pickup</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seller Info -->
+                    <div class="mt-8 p-6 bg-gray-100 rounded-2xl border border-gray-200">
+                        <h3 class="text-sm font-bold text-navy uppercase tracking-wider mb-4">Seller Information</h3>
+                        <div class="flex items-center gap-4">
+                            <div id="seller-avatar" class="w-12 h-12 bg-navy rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                <!-- Initial will be here -->
+                            </div>
+                            <div class="flex-grow">
+                                <p id="seller-name" class="font-bold text-navy"></p>
+                                <p class="text-xs text-gray-500">Member since 2024</p>
+                            </div>
+                            <a id="visit-shop-link" href="#" class="text-sm font-bold text-navy hover:text-gold transition-colors">Visit Shop</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Similar Items Section -->
+            <div class="mt-16 pt-8 border-t border-gray-200">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-navy">Similar Items</h2>
+                    <a href="/products" class="text-gold hover:text-navy transition-colors font-medium">View All →</a>
+                </div>
+                <div id="similar-items-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Similar items will be injected here -->
+                </div>
+                <div id="similar-loading" class="hidden text-center py-8">
+                    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gold mx-auto mb-4"></div>
+                    <p class="text-gray-500">Loading similar items...</p>
+                </div>
+                <div id="similar-empty" class="hidden text-center py-8">
+                    <p class="text-gray-500">No similar items found</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="flex flex-col items-center justify-center py-20">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold mb-4"></div>
+            <p class="text-gray-500 font-medium">Loading premium product details...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden flex flex-col items-center justify-center py-20 text-center">
+            <div class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6">
+                <i data-lucide="alert-circle" class="w-10 h-10"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-navy mb-2">Product Not Found</h2>
+            <p class="text-gray-500 max-w-md mb-8">We couldn't find the item you're looking for. It might have been sold or removed from the marketplace.</p>
+            <a href="products.html" class="bg-navy text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-all">Browse More Items</a>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="../js/mobile-menu.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/search.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../js/image-optimizer.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const productContainer = document.getElementById('product-container');
+            const loadingState = document.getElementById('loading-state');
+            const errorState = document.getElementById('error-state');
+            
+            // Get product ID from URL (supports both ?id=... and /product/:id clean URLs)
+            const url = new URL(window.location.href);
+            const urlParams = url.searchParams;
+            let productId = urlParams.get('id');
+
+            // Fallback: extract ID from path segment for clean URLs like /product/123
+            if (!productId) {
+                const segments = window.location.pathname.split('/').filter(Boolean);
+                const lastSegment = segments[segments.length - 1];
+                // Basic ObjectId-style check (24-char hex) but accept any non-empty id
+                if (lastSegment) {
+                    productId = lastSegment;
+                }
+            }
+
+            if (!productId) {
+                showError();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/products/${productId}`);
+                if (!response.ok) throw new Error('Product not found');
+                
+                const product = await response.json();
+                renderProduct(product);
+                
+                // Load similar items after rendering main product
+                loadSimilarItems(product);
+                
+                // Initialize Lucide icons after rendering
+                lucide.createIcons();
+            } catch (error) {
+                console.error('Error fetching product:', error);
+                showError();
+            }
+        });
+
+        async function loadSimilarItems(currentProduct) {
+            const similarContainer = document.getElementById('similar-items-container');
+            const similarLoading = document.getElementById('similar-loading');
+            const similarEmpty = document.getElementById('similar-empty');
+
+            similarContainer.innerHTML = '';
+            similarLoading.classList.remove('hidden');
+            similarEmpty.classList.add('hidden');
+
+            try {
+                // Search for similar items by category and name keywords
+                const searchTerms = [
+                    currentProduct.category,
+                    ...currentProduct.name.split(' ').filter(word => word.length > 2)
+                ].slice(0, 3); // Limit to avoid too many terms
+
+                const response = await fetch(`${API_BASE}/products?search=${searchTerms.join(' ')}&limit=8`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const similarProducts = data.products || [];
+                    
+                    // Filter out the current product and limit to 8 items
+                    const filteredProducts = similarProducts
+                        .filter(p => p._id !== currentProduct._id)
+                        .slice(0, 8);
+
+                    if (filteredProducts.length > 0) {
+                        renderSimilarItems(filteredProducts);
+                    } else {
+                        showEmptySimilarItems();
+                    }
+                } else {
+                    showEmptySimilarItems();
+                }
+            } catch (error) {
+                console.error('Error loading similar items:', error);
+                showEmptySimilarItems();
+            } finally {
+                similarLoading.classList.add('hidden');
+            }
+        }
+
+        function renderSimilarItems(products) {
+            const similarContainer = document.getElementById('similar-items-container');
+            
+            similarContainer.innerHTML = products.map(product => {
+                const imageUrl = product.images && product.images.length > 0 
+                    ? optimizeImageUrl(fixServerUrl(product.images[0]), 300, 300)
+                    : 'https://placehold.co/300x300?text=No+Image';
+                
+                const price = parseFloat(product.price);
+                const originalPrice = product.originalPrice && parseFloat(product.originalPrice) > price 
+                    ? parseFloat(product.originalPrice) 
+                    : null;
+
+                return `
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow cursor-pointer" 
+                         onclick="window.location.href='/product/${product._id}'">
+                        <div class="aspect-square overflow-hidden bg-gray-50">
+                            <img src="${imageUrl}" 
+                                 alt="${product.name}" 
+                                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                 loading="lazy"
+                                 onerror="this.src='https://placehold.co/300x200?text=No+Image'">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-gray-900 text-sm line-clamp-2 mb-2">${product.name}</h3>
+                            <p class="text-xs text-gray-500 mb-3">${product.category || 'General'}</p>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="text-lg font-bold text-navy">K${price.toLocaleString()}</span>
+                                    ${originalPrice ? `
+                                        <span class="text-xs text-gray-400 line-through ml-1">K${originalPrice.toLocaleString()}</span>
+                                    ` : ''}
+                                </div>
+                                ${originalPrice ? `
+                                    <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                                        ${Math.round(((originalPrice - price) / originalPrice) * 100)}% OFF
+                                    </span>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showEmptySimilarItems() {
+            const similarEmpty = document.getElementById('similar-empty');
+            similarEmpty.classList.remove('hidden');
+        }
+
+        function renderProduct(product) {
+            document.getElementById('product-name').textContent = product.name;
+            document.getElementById('product-category').textContent = product.category || 'General';
+            document.getElementById('product-description').textContent = product.description || 'No description available for this item.';
+            
+            // Update page title and meta for SEO
+            const productName = product.name;
+            const productDesc = (product.description || '').substring(0, 150);
+            const productImages = product.images || [];
+            const productImg = productImages.length > 0 ? fixServerUrl(productImages[0]) : 'https://virtuosazm.com/favicon-enhanced.svg';
+            const productUrl = window.location.href;
+
+            document.title = `${productName} - Virtuosa`;
+            const metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) metaDesc.content = `${productName} - ${product.category || 'Product'} on Virtuosa. ${productDesc}`;
+            
+            // Dynamic OG Tags
+            const ogTags = {
+                'og:title': productName,
+                'og:description': productDesc,
+                'og:image': productImg,
+                'og:url': productUrl,
+                'twitter:title': productName,
+                'twitter:description': productDesc,
+                'twitter:image': productImg
+            };
+
+            Object.entries(ogTags).forEach(([property, content]) => {
+                let element = document.querySelector(`meta[property="${property}"]`) || 
+                             document.querySelector(`meta[name="${property}"]`);
+                if (element) element.setAttribute('content', content);
+            });
+            
+            const price = parseFloat(product.price);
+            document.getElementById('product-price').textContent = `K${price.toLocaleString()}`;
+            
+            if (product.originalPrice && product.originalPrice > product.price) {
+                const originalPrice = parseFloat(product.originalPrice);
+                const priceEl = document.getElementById('product-original-price');
+                priceEl.textContent = `K${originalPrice.toLocaleString()}`;
+                priceEl.classList.remove('hidden');
+                
+                const discount = Math.round(((originalPrice - price) / originalPrice) * 100);
+                const discountEl = document.getElementById('product-discount');
+                discountEl.textContent = `${discount}% OFF`;
+                discountEl.classList.remove('hidden');
+            }
+
+            // Images
+            const mainImage = document.getElementById('main-product-image');
+            const images = product.images || [];
+            const productAlt = `${product.name} - ${product.category || 'Product'} on Virtuosa`;
+            mainImage.alt = productAlt;
+            if (images.length > 0) {
+                mainImage.src = optimizeImageUrl(fixServerUrl(images[0]), 600, 600);
+                
+                const thumbnailContainer = document.getElementById('thumbnail-container');
+                images.forEach((img, idx) => {
+                    const thumb = document.createElement('div');
+                    thumb.className = `cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${idx === 0 ? 'border-gold' : 'border-transparent hover:border-gray-300'}`;
+                    thumb.innerHTML = `<img src="${optimizeImageUrl(fixServerUrl(img), 150, 150)}" alt="${product.name} - image ${idx + 1}" class="w-full h-full object-cover" width="150" height="150" loading="lazy">`;
+                    thumb.onclick = () => {
+                        mainImage.src = optimizeImageUrl(fixServerUrl(img), 600, 600);
+                        document.querySelectorAll('#thumbnail-container div').forEach(d => d.classList.remove('border-gold'));
+                        thumb.classList.add('border-gold');
+                    };
+                    thumbnailContainer.appendChild(thumb);
+                });
+            } else {
+                mainImage.src = 'https://placehold.co/600x600?text=No+Image';
+                mainImage.alt = 'No product image available';
+            }
+            
+            // Inject Product JSON-LD Schema for Google Rich Results
+            const isInStock = product.status !== 'Out of Stock' && product.status !== 'Sold';
+            const schemaData = {
+                "@context": "https://schema.org/",
+                "@type": "Product",
+                "name": product.name,
+                "description": product.description || '',
+                "category": product.category || '',
+                "image": images.length > 0 ? images.map(img => fixServerUrl(img)) : [],
+                "offers": {
+                    "@type": "Offer",
+                    "price": price.toFixed(2),
+                    "priceCurrency": "ZMW",
+                    "availability": isInStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+                    "seller": {
+                        "@type": "Organization",
+                        "name": product.seller?.storeName || product.seller?.name || 'Virtuosa Seller'
+                    }
+                }
+            };
+            if (product.condition) schemaData.itemCondition = product.condition === 'New' ? 'https://schema.org/NewCondition' : 'https://schema.org/UsedCondition';
+            
+            const schemaScript = document.createElement('script');
+            schemaScript.type = 'application/ld+json';
+            schemaScript.textContent = JSON.stringify(schemaData);
+            document.head.appendChild(schemaScript);
+
+            // Seller Info
+            document.getElementById('seller-name').textContent = product.seller?.storeName || product.seller?.name || 'Virtuosa Seller';
+            const initial = (product.seller?.storeName || product.seller?.name || 'V')[0].toUpperCase();
+            document.getElementById('seller-avatar').textContent = initial;
+            
+            const shopLink = document.getElementById('visit-shop-link');
+            const sellerId = product.seller?._id || product.seller;
+            shopLink.href = `seller-shop.html?${product.seller?.storeSlug ? `shop=${product.seller.storeSlug}` : `sellerId=${sellerId}`}`;
+
+            // Quantity Control
+            let qty = 1;
+            const quantityEl = document.getElementById('quantity');
+            document.getElementById('increase-qty').onclick = () => { qty++; quantityEl.textContent = qty; };
+            document.getElementById('decrease-qty').onclick = () => { if (qty > 1) { qty--; quantityEl.textContent = qty; } };
+
+            // Add to Cart
+            const addToCartBtn = document.getElementById('add-to-cart-btn');
+            addToCartBtn.onclick = async () => {
+                const productData = {
+                    _id: product._id,
+                    name: product.name,
+                    price: product.price,
+                    image: images[0] || '',
+                    category: product.category || ''
+                };
+                
+                // Use the same addToCart function as products.html
+                if (typeof addToCart === 'function') {
+                    await addToCart(productData, qty);
+                } else {
+                    console.error('addToCart function not available');
+                }
+                
+                // Visual feedback
+                const originalContent = addToCartBtn.innerHTML;
+                addToCartBtn.innerHTML = '<i data-lucide="check" class="w-5 h-5"></i> Added to Cart!';
+                addToCartBtn.classList.replace('bg-navy', 'bg-green-600');
+                lucide.createIcons();
+                
+                setTimeout(() => {
+                    addToCartBtn.innerHTML = originalContent;
+                    addToCartBtn.classList.replace('bg-green-600', 'bg-navy');
+                    lucide.createIcons();
+                }, 2000);
+            };
+
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('product-container').classList.remove('hidden');
+        }
+
+        function showError() {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('error-state').classList.remove('hidden');
+        }
+    </script>
+    <script src="../js/config.js"></script>
+    <script>
+        // Helper function to fix URLs to point to server
+        function fixServerUrl(url) {
+            if (!url) return url;
+            return url.startsWith('/') ? `${API_BASE}${url}` : url;
+        }
+    </script>
+    <script src="../js/header.js"></script>
+    <script src="../js/cart.js"></script>
+    
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+</html>

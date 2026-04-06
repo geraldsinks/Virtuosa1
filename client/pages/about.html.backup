@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Virtuosa - Zambia's Student Marketplace</title>
+    <meta name="description" content="Discover the story behind Virtuosa, the campus-focused marketplace empowering students across Zambia. Meet our team and learn about our mission.">
+    <link rel="canonical" href="https://virtuosazm.com/about">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon-48x48.svg" sizes="48x48">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: '#0A1128',
+                        gold: '#FEF08A',
+                        'dark-navy': '#050914',
+                    },
+                    fontFamily: {
+                        montserrat: ['Montserrat', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(10, 17, 40, 0.9) 0%, rgba(10, 17, 40, 0.7) 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px border rgba(255, 255, 255, 0.1);
+        }
+        .text-gradient {
+            background: linear-gradient(to right, #FEF08A, #FDE68A);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .team-card:hover .team-overlay {
+            opacity: 1;
+        }
+        .team-overlay {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-navy antialiased">
+    
+    <!-- Header -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/" class="text-2xl md:text-3xl font-bold text-gold font-montserrat">Virtuosa</a>
+                <nav class="hidden md:flex space-x-8 font-semibold">
+                    <a href="/" class="hover:text-gold transition-colors">Home</a>
+                    <a href="/products" class="hover:text-gold transition-colors">Products</a>
+                    <a href="/login" class="hover:text-gold transition-colors">Login</a>
+                    <a href="/signup" class="bg-gold text-navy px-5 py-2 rounded-full hover:bg-yellow-200 transition-colors">Join Now</a>
+                </nav>
+                <button id="mobile-menu-toggle" class="md:hidden text-white hover:text-gold">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="about-hero" class="relative h-[60vh] flex items-center justify-center text-center overflow-hidden bg-navy">
+        <img id="hero-img" src="https://placehold.co/1200x600/0A1128/FFFFFF?text=Virtuosa+Campus+Life" alt="Virtuosa Story" class="absolute inset-0 w-full h-full object-cover opacity-40">
+        <div class="absolute inset-0 hero-gradient"></div>
+        <div class="relative z-10 container mx-auto px-4">
+            <h1 id="about-title" class="text-5xl md:text-7xl font-bold text-white mb-6 font-montserrat opacity-0 transform translate-y-10 transition-all duration-1000">About Virtuosa</h1>
+            <p id="about-subtitle" class="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto font-light leading-relaxed opacity-0 transform translate-y-10 transition-all duration-1000 delay-300">
+                Empowering the next generation of Zambian entrepreneurs and students through a seamless campus commerce experience.
+            </p>
+        </div>
+    </section>
+
+    <!-- Mission & Vision -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8">
+                    <div class="animate-on-scroll">
+                        <span class="text-gold font-bold uppercase tracking-widest text-sm">Our Mission</span>
+                        <h2 id="mission-title" class="text-3xl font-bold mt-2 font-montserrat">Driving Campus Success</h2>
+                        <p id="mission-text" class="text-gray-600 mt-4 leading-relaxed text-lg">
+                            We aim to connect campus communities through safe and reliable student-to-student commerce, making essential resources accessible and affordable for everyone.
+                        </p>
+                    </div>
+                    <div class="animate-on-scroll delay-200">
+                        <span class="text-gold font-bold uppercase tracking-widest text-sm">Our Vision</span>
+                        <h2 id="vision-title" class="text-3xl font-bold mt-2 font-montserrat">The Future of Student Trade</h2>
+                        <p id="vision-text" class="text-gray-600 mt-4 leading-relaxed text-lg">
+                            To be the leading digital marketplace for tertiary institutions in Zambia, fostering a culture of entrepreneurship and collaboration on every campus.
+                        </p>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="aspect-square rounded-2xl overflow-hidden shadow-2xl">
+                        <img src="https://placehold.co/600x600/0A1128/FFFFFF?text=Collaboration" alt="Virtuosa Mission" class="w-full h-full object-cover">
+                    </div>
+                    <div class="absolute -bottom-6 -left-6 bg-gold p-8 rounded-2xl shadow-xl hidden md:block">
+                        <p class="text-navy font-bold text-4xl">20k+</p>
+                        <p class="text-navy opacity-70">Active Students</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Story -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4 text-center max-w-4xl">
+            <h2 class="text-4xl font-bold mb-10 font-montserrat">The Virtuosa Story</h2>
+            <p id="story-text" class="text-xl text-gray-700 leading-loose italic">
+                Virtuosa started with a simple idea: make campus trading safer and easier for everyone. Founded in 2024, our platform was built specifically for the Zambian student experience. We understand the challenges of finding textbooks, electronics, and essentials on campus, and we are here to bridge that gap.
+            </p>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="team-section" class="py-24 bg-navy text-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold font-montserrat mb-4">Meet the Visionaries</h2>
+                <div class="h-1 w-20 bg-gold mx-auto"></div>
+            </div>
+            
+            <div id="team-grid" class="space-y-12">
+                <!-- Team cards will be injected here with hierarchy -->
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gold">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold text-navy mb-8 font-montserrat">Ready to join the community?</h2>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/signup" class="bg-navy text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-gray-800 transition-all shadow-lg">Create Account</a>
+                <a href="/products" class="bg-white text-navy px-10 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all shadow-lg">Browse Marketplace</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-auto">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">About Us</h3>
+                <p class="text-sm">Virtuosa is a student trading platform connecting buyers and sellers for books,
+                    electronics, and more. Join our community to trade smarter!</p>
+                <a href="/about" class="text-sm hover:text-gold transition-colors mt-2 inline-block">Learn more &rarr;</a>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Become a Seller</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/seller" class="hover:text-gold transition-colors">Start Selling</a></li>
+                    <li><a href="/seller-guide" class="hover:text-gold transition-colors">Seller Guide</a></li>
+                    <li><a href="/seller-benefits" class="hover:text-gold transition-colors">Seller Benefits</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Payments</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/payment-options" class="hover:text-gold transition-colors">Payment Options</a></li>
+                    <li><a href="/secure-transactions" class="hover:text-gold transition-colors">Secure Transactions</a></li>
+                    <li><a href="/refund-policy" class="hover:text-gold transition-colors">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Help and Contact</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/faq" class="hover:text-gold transition-colors">FAQ</a></li>
+                    <li><a href="/contact" class="hover:text-gold transition-colors">Contact Support</a></li>
+                    <li><a href="/live-chat" class="hover:text-gold transition-colors">Live Chat</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Follow Us</h3>
+                <div class="flex space-x-4">
+                    <a href="https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr" target="_blank"
+                        class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://x.com" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-x-twitter fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr" target="_blank"
+                        class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 text-center text-sm">
+            <div class="mb-2">
+                <a href="/terms" class="hover:text-gold transition-colors">Terms</a>
+                <span class="mx-2">|</span>
+                <a href="/privacy" class="hover:text-gold transition-colors">Privacy Policy</a>
+                <span class="mx-2">|</span>
+                <a href="/refund-policy" class="hover:text-gold transition-colors">Refund Policy</a>
+            </div>
+            &copy; 2026 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="../js/config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Animate hero on load
+            setTimeout(() => {
+                document.getElementById('about-title').classList.replace('opacity-0', 'opacity-100');
+                document.getElementById('about-title').classList.replace('translate-y-10', 'translate-y-0');
+                document.getElementById('about-subtitle').classList.replace('opacity-0', 'opacity-100');
+                document.getElementById('about-subtitle').classList.replace('translate-y-10', 'translate-y-0');
+            }, 100);
+
+            // Fetch dynamic content
+            try {
+                // Show loading state
+                const heroTitle = document.getElementById('about-title');
+                const heroSubtitle = document.getElementById('about-subtitle');
+                const missionText = document.getElementById('mission-text');
+                const visionText = document.getElementById('vision-text');
+                const storyText = document.getElementById('story-text');
+                const teamGrid = document.getElementById('team-grid');
+                
+                // Store original content
+                const originalTitle = heroTitle.textContent;
+                const originalSubtitle = heroSubtitle.textContent;
+                const originalMission = missionText.textContent;
+                const originalVision = visionText.textContent;
+                const originalStory = storyText.textContent;
+                
+                // Show loading indicators
+                heroTitle.innerHTML = '<div class="inline-flex items-center"><div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>Loading...</div>';
+                heroSubtitle.innerHTML = '<div class="inline-flex items-center"><div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-300 mr-2"></div>Loading...</div>';
+                missionText.innerHTML = '<div class="inline-flex items-center"><div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>Loading...</div>';
+                visionText.innerHTML = '<div class="inline-flex items-center"><div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>Loading...</div>';
+                storyText.innerHTML = '<div class="inline-flex items-center"><div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700 mr-2"></div>Loading...</div>';
+                teamGrid.innerHTML = '<div class="col-span-full text-center py-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div><p class="text-gray-600">Loading team information...</p></div>';
+
+                const response = await fetch(`${API_BASE}/public/about`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+
+                // Update content with fetched data
+                    heroTitle.textContent = data.title || originalTitle;
+                    heroSubtitle.textContent = data.subtitle || originalSubtitle;
+                    missionText.textContent = data.mission || originalMission;
+                    visionText.textContent = data.vision || originalVision;
+                    storyText.textContent = data.story || originalStory;
+                    
+                    if (data.heroImage) {
+                        const heroImg = document.getElementById('hero-img');
+                        heroImg.src = data.heroImage;
+                        heroImg.onerror = function() {
+                            this.src = FALLBACK_IMAGES.HERO;
+                        };
+                    }
+
+                    teamGrid.innerHTML = '';
+
+                    if (data.team && data.team.length > 0) {
+                        // Find the founder (first one with 'founder' or 'ceo' in role)
+                        const founder = data.team.find(member => 
+                            member.role.toLowerCase().includes('founder') || 
+                            member.role.toLowerCase().includes('ceo')
+                        );
+                        
+                        // Get all other team members (excluding the founder)
+                        const otherMembers = data.team.filter(member => 
+                            !member.role.toLowerCase().includes('founder') && 
+                            !member.role.toLowerCase().includes('ceo')
+                        );
+
+                        // Display founder at the top (prominent circular card with modern styling)
+                        if (founder) {
+                            const founderSection = document.createElement('div');
+                            founderSection.className = 'flex justify-center mb-20 animate-fade-in-up';
+                            founderSection.innerHTML = `
+                                <div class="text-center relative">
+                                    <!-- Background decorative elements -->
+                                    <div class="absolute -top-8 -left-8 w-16 h-16 bg-gold/10 rounded-full blur-xl"></div>
+                                    <div class="absolute -bottom-8 -right-8 w-20 h-20 bg-navy/10 rounded-full blur-xl"></div>
+                                    
+                                    <h3 class="text-3xl font-bold text-gold mb-10 tracking-wider animate-pulse-glow">Founder & CEO</h3>
+                                    <div class="relative group inline-block">
+                                        <!-- Main avatar container with glassmorphism -->
+                                        <div class="relative">
+                                            <div class="w-56 h-56 rounded-full overflow-hidden bg-gradient-to-br from-gold/20 via-navy/10 to-gold/20 backdrop-blur-sm border border-white/20 shadow-2xl transform transition-all duration-700 hover:scale-110 hover:rotate-1 hover:shadow-gold-glow">
+                                                <img src="${founder.image || FALLBACK_IMAGES.TEAM_MEMBER}" alt="${founder.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER}'">
+                                                
+                                                <!-- Overlay gradient -->
+                                                <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                            </div>
+                                            
+                                            <!-- Floating role badge -->
+                                            <div class="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-gold to-gold-dark text-navy font-bold py-2 px-8 rounded-full text-sm shadow-xl border border-white/30 backdrop-blur-sm animate-bounce-subtle">
+                                                ${founder.role}
+                                            </div>
+                                            
+                                            <!-- Status indicator -->
+                                            <div class="absolute top-4 right-4 w-4 h-4 bg-green-400 rounded-full border-2 border-white shadow-lg animate-pulse"></div>
+                                        </div>
+                                        
+                                        <!-- Name and bio with modern typography -->
+                                        <div class="mt-12 space-y-4">
+                                            <h3 class="text-3xl font-bold font-montserrat text-white tracking-wide">${founder.name}</h3>
+                                            <div class="max-w-lg mx-auto">
+                                                <p class="text-gray-300 leading-relaxed text-lg italic font-light">${founder.bio || ''}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Decorative elements -->
+                                        <div class="flex justify-center space-x-2 mt-6">
+                                            <div class="w-2 h-2 bg-gold rounded-full animate-pulse" style="animation-delay: 0s"></div>
+                                            <div class="w-2 h-2 bg-gold rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
+                                            <div class="w-2 h-2 bg-gold rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            teamGrid.appendChild(founderSection);
+                        }
+
+                        // Display all other team members at the same level below
+                        if (otherMembers.length > 0) {
+                            const teamSection = document.createElement('div');
+                            teamSection.className = 'space-y-12 animate-fade-in-up';
+                            teamSection.style.animationDelay = '0.3s';
+                            teamSection.innerHTML = '<h3 class="text-2xl font-bold text-gold text-center mb-12 tracking-wider">Our Amazing Team</h3>';
+                            
+                            const teamCardsContainer = document.createElement('div');
+                            teamCardsContainer.className = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 justify-items-center';
+                            
+                            otherMembers.forEach((member, index) => {
+                                const card = createModernTeamCard(member, index);
+                                teamCardsContainer.appendChild(card);
+                            });
+                            
+                            teamSection.appendChild(teamCardsContainer);
+                            teamGrid.appendChild(teamSection);
+                        }
+                    } else {
+                        teamGrid.innerHTML = '<div class="col-span-full text-center py-8"><p class="text-gray-400">Team information will be available soon.</p></div>';
+                    }
+
+                    // Helper function to create modern team cards with glassmorphism and animations
+                    function createModernTeamCard(member, index) {
+                        const card = document.createElement('div');
+                        
+                        // Modern circular card for team members with glassmorphism
+                        card.className = `relative group text-center animate-fade-in-up`;
+                        card.style.animationDelay = `${0.5 + (index * 0.1)}s`;
+                        
+                        card.innerHTML = `
+                            <div class="relative">
+                                <!-- Main avatar with glassmorphism effect -->
+                                <div class="relative w-36 h-36 rounded-full overflow-hidden bg-gradient-to-br from-white/10 via-gold/5 to-white/5 backdrop-blur-md border border-white/20 shadow-xl transform transition-all duration-500 hover:scale-110 hover:-rotate-2 hover:shadow-2xl hover:shadow-gold/30 group-hover:border-gold/50 mx-auto">
+                                    <img src="${member.image || FALLBACK_IMAGES.TEAM_MEMBER}" alt="${member.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-110" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER}'">
+                                    
+                                    <!-- Hover overlay -->
+                                    <div class="absolute inset-0 bg-gradient-to-t from-gold/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    
+                                    <!-- Subtle inner glow -->
+                                    <div class="absolute inset-2 rounded-full border border-gold/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                </div>
+                                
+                                <!-- Floating role badge with modern design -->
+                                <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-gold to-gold-dark text-navy font-semibold py-1.5 px-4 rounded-full text-xs shadow-lg border border-white/40 backdrop-blur-sm animate-bounce-subtle whitespace-nowrap">
+                                    ${member.role}
+                                </div>
+                                
+                                <!-- Status indicator for active team members -->
+                                <div class="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full border border-white shadow-md animate-pulse opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            </div>
+                            
+                            <!-- Name and bio with modern typography -->
+                            <div class="mt-8 space-y-2">
+                                <h3 class="text-lg font-bold font-montserrat text-white tracking-wide group-hover:text-gold transition-colors duration-300">${member.name}</h3>
+                                <div class="max-w-32 mx-auto">
+                                    <p class="text-gray-400 text-sm leading-relaxed line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">${member.bio || ''}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Hover effect indicator -->
+                            <div class="flex justify-center mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                <div class="w-6 h-1 bg-gradient-to-r from-transparent via-gold to-transparent rounded-full"></div>
+                            </div>
+                        `;
+                        
+                        return card;
+                    }
+                } catch (error) {
+                console.error('Error loading about data:', error);
+                
+                // Show user-friendly error messages
+                const errorMessage = error.message.includes('Failed to fetch') 
+                    ? 'Unable to connect to our servers. Please check your internet connection and try again.'
+                    : error.message || 'An error occurred while loading the about page.';
+                
+                // Show error in hero section
+                const aboutTitle = document.getElementById('about-title');
+                const aboutSubtitle = document.getElementById('about-subtitle');
+                if (aboutTitle) aboutTitle.textContent = errorMessage;
+                if (aboutSubtitle) aboutSubtitle.textContent = 'Please refresh the page to try again.';
+                
+                // Show error in content sections
+                const missionText = document.getElementById('mission-text');
+                const visionText = document.getElementById('vision-text');
+                const storyText = document.getElementById('story-text');
+                if (missionText) missionText.textContent = errorMessage;
+                if (visionText) visionText.textContent = errorMessage;
+                if (storyText) storyText.textContent = errorMessage;
+                const teamGrid = document.getElementById('team-grid');
+                if (teamGrid) {
+                    teamGrid.innerHTML = `
+                        <div class="col-span-full text-center py-8">
+                            <div class="text-red-600 mb-3">
+                                <i class="fas fa-exclamation-triangle text-2xl"></i>
+                            </div>
+                            <p class="text-red-700 mb-4" id="team-error-message"></p>
+                            <button onclick="location.reload()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                                <i class="fas fa-redo mr-2"></i>Refresh Page
+                            </button>
+                        </div>
+                    `;
+                    // Set error message safely
+                    const errorMsgElement = document.getElementById('team-error-message');
+                    if (errorMsgElement) {
+                        errorMsgElement.textContent = errorMessage;
+                    }
+                }
+                
+                // Add retry functionality
+                setTimeout(() => {
+                    const retryButton = document.createElement('button');
+                    retryButton.innerHTML = '<i class="fas fa-redo mr-2"></i>Retry Loading';
+                    retryButton.className = 'fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-lg z-50';
+                    retryButton.onclick = () => location.reload();
+                    document.body.appendChild(retryButton);
+                }, 3000);
+            }
+        });
+
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-toggle').addEventListener('click', () => {
+            // Implementation for mobile menu toggle
+        });
+    </script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

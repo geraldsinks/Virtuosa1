@@ -48,71 +48,6 @@
             border-right: 1px solid #e5e7eb;
         }
 
-        /* Mobile Menu Styles */
-        .mobile-menu-content {
-            padding: 0;
-            background: white;
-        }
-
-        .mobile-menu-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            border-bottom: 1px solid #e5e7eb;
-            background: #0A1128;
-            color: white;
-        }
-
-        .mobile-menu-close {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-
-        .mobile-menu-close:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .mobile-menu-section {
-            padding: 16px 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
-
-        .mobile-menu-title {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: #6b7280;
-            margin-bottom: 8px;
-            padding: 0 20px;
-        }
-
-        .mobile-menu-link {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: #1f2937;
-            text-decoration: none;
-            transition: background-color 0.2s;
-            font-size: 14px;
-        }
-
-        .mobile-menu-link:hover {
-            background: #f9fafb;
-            color: #0A1128;
-        }
-
-        .mobile-menu-link i {
-            width: 20px;
-            margin-right: 12px;
-            color: #6b7280;
-        }
-
         /* Mobile-specific improvements */
         @media (max-width: 768px) {
             /* Reset body constraints for proper mobile messaging */
@@ -802,8 +737,6 @@
                 transform: scale(0.95);
             }
             
-            /* Mobile menu styles are handled by style.css */
-            
             /* Make input area always visible and properly positioned */
             .mobile-input-area {
                 position: sticky;
@@ -955,6 +888,14 @@
             }
         }
     </style>
+
+    <!-- Unified Header System -->
+    <script src="/js/config.js"></script>
+    <script src="/js/token-manager.js"></script>
+    <script src="/js/auth-manager.js"></script>
+    <script src="/js/cache-manager.js" defer></script>
+    <script src="/js/unified-header.js" defer></script>
+    <script src="/js/production-router.js" defer></script>
 </head>
 
 <body class="bg-gray-50 flex flex-col h-screen overflow-hidden">
@@ -1128,7 +1069,6 @@
     </nav>
 
     <!-- Mobile Navigation Menu Overlay -->
-    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
     <div class="mobile-menu-content">
         <div class="mobile-menu-header">
             <div class="text-xl font-bold text-gold">Menu</div>

@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Products</title>
+    <meta name="description" content="Browse all products on Virtuosa. Shop textbooks, electronics, fashion, and more from students on your campus.">
+    <link rel="canonical" href="https://virtuosazm.com/products">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon-48x48.svg" sizes="48x48">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Performance Resource Hints -->
+    <link rel="preconnect" href="https://api.virtuosazm.com">
+    <link rel="preconnect" href="https://res.cloudinary.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Virtuosa",
+      "url": "https://virtuosazm.com",
+      "logo": "https://virtuosazm.com/favicon-enhanced.svg",
+      "sameAs": [
+        "https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr",
+        "https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr"
+      ],
+      "description": "Zambia's premier student trading platform for campus marketplaces."
+    }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-gold {
+            background-color: #FFD700;
+        }
+
+        .bg-button-gold {
+            background-color: #C19A6B;
+        }
+
+        .hover-bg-button-gold:hover {
+            background-color: #A98B68;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .bg-dark-navy {
+            background-color: #060A18;
+        }
+
+        .product-card {
+            transition: transform 0.3s ease-in-out, box-shadow 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border-radius: 1rem;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-image-container {
+            aspect-ratio: 1/1;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            height: 200px;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .product-image:hover {
+            transform: scale(1.05);
+        }
+
+        .product-content {
+            padding: 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-title-section {
+            margin-bottom: 0.5rem;
+        }
+
+        .product-price-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-condition {
+            font-size: 0.75rem;
+            background: #f3f4f6;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            display: -moz-box;
+            display: box;
+            -webkit-line-clamp: 2;
+            -moz-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            -moz-box-orient: vertical;
+            box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Search suggestions positioning */
+        .mobile-search-container,
+        .v-header-search {
+            position: relative;
+        }
+
+        #mobile-search-suggestions,
+        #home-search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 0.5rem;
+            z-index: 50;
+            transform: translateY(0);
+        }
+
+        /* Desktop specific positioning */
+        .v-header-search #home-search-suggestions {
+            margin-top: 0.75rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Skeleton Pulse Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .skeleton-product-card {
+            background: #e5e7eb;
+            border-radius: 12px;
+            height: 420px;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+    <!-- Desktop Header from product-detail.html -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Mobile Header Structure (320px-767px) - Hidden at tablet+ -->
+        <div class="v-container mobile-header-row-1 md:hidden">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-2 mobile-header-actions">
+                    <!-- Cart Icon with Badge -->
+                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                    
+                    <!-- Combined Notifications (includes messages) -->
+                    <a href="notifications.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <i class="fas fa-bell"></i>
+                        <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Search-First Experience (Mobile only) -->
+        <div class="v-container mobile-header-row-2 pb-3 md:hidden">
+            <div class="relative mobile-search-container">
+                <input id="mobile-search-input" type="text" 
+                    placeholder="Search campus marketplace..." 
+                    class="w-full pl-4 pr-12 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400 mobile-search-input"
+                    autocomplete="off">
+                <button id="mobile-search-button" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors mobile-search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <!-- Mobile Search Suggestions -->
+                <div id="mobile-search-suggestions" class="absolute top-full left-0 right-0 mt-1 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
+                    <!-- Mobile search suggestions will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Header (768px+) - Hidden on mobile -->
+        <div class="v-container v-header-row desktop-header hidden md:flex">
+            <div class="v-header-logo">
+                <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+            <div class="v-header-search">
+                <div class="relative">
+                    <select id="desktop-search-category" class="absolute left-3 top-1/2 transform -translate-y-1/2 bg-transparent text-gray-300 text-sm focus:outline-none appearance-none">
+                        <option value="all">All</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="books">Books</option>
+                        <option value="food">Food & Beverages</option>
+                    </select>
+                    <input id="desktop-search-input" type="text" 
+                        placeholder="Search campus marketplace (e.g. &quot;HP laptop&quot;, &quot;Men's hoodie&quot;)..." 
+                        class="w-full pl-24 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-white placeholder-gray-400">
+                    <button id="desktop-search-button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Desktop Search Suggestions - moved to v-header-search level -->
+            <div id="home-search-suggestions" class="absolute top-full left-0 right-0 mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
+                <!-- Desktop search suggestions will be inserted here -->
+            </div>
+            <div id="user-info-container" class="v-header-actions">
+                <a href="login.html" id="login-link"
+                    class="text-white hover:text-gold transition-colors font-medium hidden md:flex flex-col items-start leading-tight group">
+                    <span class="text-[10px] text-gray-400 font-normal">Welcome</span>
+                    <div class="flex items-center -mt-0.5">
+                        <span class="text-sm font-semibold">Sign In</span>
+                        <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60 group-hover:rotate-180 transition-transform"></i>
+                    </div>
+                </a>
+                <div id="user-menu" class="relative hidden">
+                    <button onclick="toggleUserMenu()"
+                        class="text-white hover:text-gold transition-colors font-medium flex flex-col items-start leading-tight">
+                        <span id="user-greeting" class="text-[10px] text-gray-400 font-normal"></span>
+                        <div class="flex items-center -mt-0.5">
+                            <span class="text-sm font-semibold">My Account</span>
+                            <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60"></i>
+                        </div>
+                    </button>
+                    <div id="user-dropdown"
+                        class="absolute right-0 top-full mt-2 w-56 bg-navy rounded-xl shadow-2xl z-[60] py-4 text-white hidden border border-gray-800">
+                        <div class="px-4 pb-4 border-b border-gray-800 mb-2">
+                            <a href="profile.html" class="bg-button-gold text-white text-center py-2 px-4 rounded-lg text-sm block font-semibold hover:bg-gold transition-colors">My Profile</a>
+                        </div>
+                        <div class="px-2">
+                            <a href="buyer-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-th-large mr-3 text-gray-400"></i>Dashboard
+                            </a>
+                            <a href="orders.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-shopping-bag mr-3 text-gray-400"></i>My Orders
+                            </a>
+                            <a href="transactions.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-exchange-alt mr-3 text-gray-400"></i>My Transactions
+                            </a>
+                            <a href="reviews.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
+                                <i class="fas fa-star mr-3 text-gray-400"></i>My Reviews
+                            </a>
+                            <div id="seller-links" class="hidden">
+                                <div class="border-t border-gray-800 my-1"></div>
+                                <a href="seller-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-green-400">
+                                    <i class="fas fa-store mr-3"></i>Seller Panel
+                                </a>
+                            </div>
+                            <div id="admin-link" class="hidden">
+                                <div class="border-t border-gray-800 my-1"></div>
+                                <a href="admin-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-red-400">
+                                    <i class="fas fa-cog mr-3"></i>Admin Panel
+                                </a>
+                            </div>
+                            <div class="border-t border-gray-800 my-2"></div>
+                            <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gray-300">
+                                <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="messages.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                    <i class="fas fa-envelope text-lg"></i>
+                    <span class="badge message-badge-count hidden">0</span>
+                    <span class="text-[9px] mt-0.5 font-medium">Messages</span>
+                </a>
+
+                <a href="notifications.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                    <i class="fas fa-bell text-lg"></i>
+                    <span id="notification-badge-count" class="badge hidden">0</span>
+                    <span class="text-[9px] mt-0.5 font-medium">Alerts</span>
+                </a>
+
+                <a href="cart.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span class="badge cart-badge-count">0</span>
+                    <span class="text-[9px] mt-0.5 font-medium">Cart</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Cart Banner Notification -->
+    <div id="cart-banner" class="hidden">
+        <div id="cart-banner-message"></div>
+    </div>
+
+    <!-- Navigation Bar (Desktop Only) -->
+    <nav class="desktop-only bg-dark-navy text-white shadow-sm py-1.5 px-6 md:px-12 z-40 border-t border-gray-800">
+        <div class="container mx-auto nav-row-2-container">
+            <!-- Desktop "Explore" Menu Trigger -->
+            <button id="desktop-explore-menu" onclick="window.openMobileMenu()" class="flex items-center text-white hover:text-gold px-3 py-1 rounded-full border border-gray-700 hover:border-gold transition-all mr-6 group shrink-0">
+                <i class="fas fa-bars mr-2 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-[10px] uppercase tracking-wider">Explore</span>
+            </button>
+
+            <!-- Category Menu -->
+            <div class="flex items-center space-x-6 overflow-x-auto hide-scrollbar py-1">
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="nav-category-item">Hot Deals</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="nav-category-item">Best Sellers</a>
+                <a href="seller.html" class="nav-category-item text-gold">Sell Items</a>
+                <div class="h-4 w-[1px] bg-gray-700 mx-2 shrink-0"></div>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="nav-category-item">Electronics</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="nav-category-item">Computers & Software</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="nav-category-item">Services</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="nav-category-item">Watches & Jewellery</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="nav-category-item">Men's Clothing</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="nav-category-item">Women's Clothing</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="nav-category-item">Shoes</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="nav-category-item">Accessories</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="nav-category-item">Personal Care & Beauty</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="nav-category-item">Food & Beverages</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="nav-category-item">Sports & Outdoors</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="nav-category-item">Home & Living</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+    <div class="mobile-menu-content">
+        <div class="mobile-menu-header">
+            <div class="text-xl font-bold text-gold">Menu</div>
+            <button id="mobile-menu-close" class="mobile-menu-close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="mobile-menu-section px-4 py-2">
+            <a href="../index.html" class="block py-2 text-gray-300 hover:text-gold transition-colors">Home</a>
+            <a href="products.html" class="block py-2 text-gray-300 hover:text-gold transition-colors">Products</a>
+            <a href="cart.html" class="block py-2 text-gray-300 hover:text-gold transition-colors">Cart</a>
+        </div>
+        
+        <!-- Mobile Categories Section -->
+        <div class="mobile-menu-section px-4 py-2 border-t border-gray-700">
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Categories</div>
+            <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="block py-1 text-gray-300 hover:text-gold transition-colors text-sm">Hot Deals</a>
+            <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="block py-1 text-gray-300 hover:text-gold transition-colors text-sm">Best Sellers</a>
+            <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="block py-1 text-gray-300 hover:text-gold transition-colors text-sm">Electronics</a>
+            <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="block py-1 text-gray-300 hover:text-gold transition-colors text-sm">Computers & Software</a>
+            <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="block py-1 text-gray-300 hover:text-gold transition-colors text-sm">Services</a>
+            <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="block py-1 text-gray-300 hover:text-gold transition-colors text-sm">Watches & Jewellery</a>
+            <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="block py-1 text-gray-300 hover:text-gold transition-colors text-sm">Men's Clothing</a>
+            <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="block py-1 text-gray-300 hover:text-gold transition-colors text-sm">Women's Clothing</a>
+            <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="block py-1 text-gray-300 hover:text-gold transition-colors text-sm">Shoes</a>
+            <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="block py-1 text-gray-300 hover:text-gold transition-colors text-sm">Accessories</a>
+            <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="block py-1 text-gray-300 hover:text-gold transition-colors text-sm">Personal Care & Beauty</a>
+            <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="block py-1 text-gray-300 hover:text-gold transition-colors text-sm">Food & Beverages</a>
+            <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="block py-1 text-gray-300 hover:text-gold transition-colors text-sm">Sports & Outdoors</a>
+            <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="block py-1 text-gray-300 hover:text-gold transition-colors text-sm">Home & Living</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 v-container py-6">
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Filters Sidebar (Desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sticky top-24">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Filters</h2>
+                        <span id="filter-count-badge" class="hidden inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full">0</span>
+                    </div>
+
+                    <!-- Clear all filters -->
+                    <div class="flex justify-end mb-4">
+                        <button id="clear-all-filters"
+                            class="text-[11px] text-gray-500 hover:text-red-500 hover:underline">Clear all</button>
+                    </div>
+
+                    <!-- Price filter -->
+                    <section>
+                        <h3 class="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Price (ZMW)</h3>
+                        <div class="space-y-2">
+                            <div class="space-y-1 text-xs">
+                                <label class="flex items-center gap-2">
+                                    <input type="radio" name="price-bracket" value="all" class="text-gold" checked>
+                                    <span>Any price</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="radio" name="price-bracket" value="under-100" class="text-gold">
+                                    <span>Under K100</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="radio" name="price-bracket" value="100-500" class="text-gold">
+                                    <span>K100 - K500</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="radio" name="price-bracket" value="500-1000" class="text-gold">
+                                    <span>K500 - K1,000</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="radio" name="price-bracket" value="1000-plus" class="text-gold">
+                                    <span>K1,000+</span>
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Condition filter -->
+                    <section class="mt-4">
+                        <h3 class="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Condition</h3>
+                        <div class="space-y-1 text-xs">
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="condition-checkbox" value="New">
+                                <span>New</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="condition-checkbox" value="Like New">
+                                <span>Like New</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="condition-checkbox" value="Good">
+                                <span>Good</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="condition-checkbox" value="Fair">
+                                <span>Fair</span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <!-- Campus verified filter -->
+                    <section class="mt-4">
+                        <h3 class="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Trust & safety</h3>
+                        <label class="flex items-center gap-2 text-xs">
+                            <input type="checkbox" id="campus-verified-only">
+                            <span>Campus verified sellers only</span>
+                        </label>
+                    </section>
+                </div>
+            </aside>
+
+            <!-- Products Area -->
+            <section class="flex-1">
+                <!-- Mobile Filter Toggle -->
+                <div class="flex items-center justify-between mb-4 lg:hidden">
+                    <button id="mobile-filter-toggle" class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+                        <i class="fas fa-sliders-h"></i>
+                        <span>Filters</span>
+                        <span id="mobile-filter-count-badge" class="hidden inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full">0</span>
+                    </button>
+                </div>
+
+                <!-- Results Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Campus Marketplace</h1>
+                        <p id="results-count" class="text-sm text-gray-600 mt-1">Loading products...</p>
+                    </div>
+                    
+                    <!-- Sort Dropdown (Desktop) -->
+                    <div class="hidden sm:block">
+                        <select id="sort-select" class="px-4 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold">
+                            <option value="relevance">Sort by: Relevance</option>
+                            <option value="price-asc">Price: Low to High</option>
+                            <option value="price-desc">Price: High to Low</option>
+                            <option value="newest">Newest First</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Active Filters -->
+                <div id="active-filters-container" class="mb-6 min-h-[32px]">
+                    <span class="text-xs text-gray-500">No filters applied. Showing all campus items.</span>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="flex-grow">
+                    <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Skeleton Placeholders -->
+                        <div class="skeleton-product-card animate-pulse"></div>
+                        <div class="skeleton-product-card animate-pulse"></div>
+                        <div class="skeleton-product-card animate-pulse"></div>
+                        <div class="skeleton-product-card animate-pulse"></div>
+                        <div class="skeleton-product-card animate-pulse"></div>
+                        <div class="skeleton-product-card animate-pulse"></div>
+                    </div>
+                </div>
+                <!-- Loading State -->
+                <div id="loading-state" class="text-center py-12">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gold"></div>
+                    <p class="text-gray-600 mt-4">Loading products...</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy text-gray-400 p-4 text-center shadow-inner mt-auto">
+        &copy; 2025 Virtuosa. All rights reserved.
+    </footer>
+
+    <!-- Load dependencies first -->
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-auto border-t border-gray-800">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">About Us</h3>
+                <p class="text-sm">Virtuosa is a student trading platform connecting buyers and sellers for books,
+                    electronics, and more. Join our community to trade smarter!</p>
+                <a href="/about" class="text-sm hover:text-gold transition-colors mt-2 inline-block">Learn more &rarr;</a>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Become a Seller</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/seller" class="hover:text-gold transition-colors">Start Selling</a></li>
+                    <li><a href="/seller-guide" class="hover:text-gold transition-colors">Seller Guide</a></li>
+                    <li><a href="/seller-benefits" class="hover:text-gold transition-colors">Seller Benefits</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Payments</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/payment-options" class="hover:text-gold transition-colors">Payment Options</a></li>
+                    <li><a href="/secure-transactions" class="hover:text-gold transition-colors">Secure Transactions</a></li>
+                    <li><a href="/refund-policy" class="hover:text-gold transition-colors">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Help and Contact</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/faq" class="hover:text-gold transition-colors">FAQ</a></li>
+                    <li><a href="/contact" class="hover:text-gold transition-colors">Contact Support</a></li>
+                    <li><a href="/live-chat" class="hover:text-gold transition-colors">Live Chat</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Follow Us</h3>
+                <div class="flex space-x-4">
+                    <a href="https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr" target="_blank"
+                        class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://x.com" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-x-twitter fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr" target="_blank"
+                        class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 text-center text-sm">
+            <div class="mb-2">
+                <a href="/terms" class="hover:text-gold transition-colors">Terms</a>
+                <span class="mx-2">|</span>
+                <a href="/privacy" class="hover:text-gold transition-colors">Privacy Policy</a>
+                <span class="mx-2">|</span>
+                <a href="/refund-policy" class="hover:text-gold transition-colors">Refund Policy</a>
+            </div>
+            &copy; 2026 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth-helper.js"></script>
+    <script src="../js/cache-manager.js"></script>
+    <script src="../js/api-batcher.js"></script>
+    <script src="../js/debounce.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/header.js"></script>
+    <script src="../js/mobile-header.js"></script>
+    
+    <!-- Main products page script -->
+    <script>
+        // Helper function to fix URLs to point to server
+        function fixServerUrl(url) {
+            if (!url) return url;
+            return url.startsWith('/') ? `${API_BASE}${url}` : url;
+        }
+
+        // Make the helper function globally available
+        window.fixServerUrl = fixServerUrl;
+
+        // Initialize products page after DOM is ready and dependencies are loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeProductsPage();
+        });
+
+        async function initializeProductsPage() {
+            // Products page functionality
+            if (window.isProductsScriptRunning) return;
+            window.isProductsScriptRunning = true;
+
+            // Get DOM elements
+            const productGrid = document.getElementById('product-grid');
+            const resultsCount = document.getElementById('results-count');
+            const loadingState = document.getElementById('loading-state');
+            const globalSearchInput = document.getElementById('desktop-search-input');
+            const globalSearchButton = document.getElementById('desktop-search-button');
+            const sortSelect = document.getElementById('sort-select');
+            const filterBadge = document.getElementById('filter-count-badge');
+            const mobileFilterBadge = document.getElementById('mobile-filter-count-badge');
+            const activeFiltersContainer = document.getElementById('active-filters-container');
+
+            let allProducts = [];
+            let filteredProducts = [];
+            let currentCategory = null;
+
+            // Filter state
+            const filters = {
+                searchQuery: '',
+                priceBracket: 'all',
+                conditions: new Set(),
+                campusVerifiedOnly: false,
+                sortBy: 'relevance'
+            };
+
+            // Create debounced fetch function for search
+            const debouncedFetchProducts = window.debounce(async () => {
+                await fetchProducts();
+            }, 300);
+
+            // Fetch products from API with caching and optimization
+            async function fetchProducts() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const categoryFromUrl = urlParams.get('category');
+                const searchFromUrl = urlParams.get('q');
+                
+                // Extract category from clean URL path (e.g., /products/Electronics)
+                let categoryFromPath = null;
+                const pathParts = window.location.pathname.split('/');
+                if (pathParts.length >= 3 && pathParts[1] === 'products' && pathParts[2]) {
+                    categoryFromPath = decodeURIComponent(pathParts[2]);
+                }
+
+                // Use category from query string first (for backward compatibility), then path
+                currentCategory = categoryFromUrl || categoryFromPath || null;
+
+                if (searchFromUrl && globalSearchInput) {
+                    globalSearchInput.value = searchFromUrl;
+                    filters.searchQuery = searchFromUrl;
+                }
+
+                console.log('Fetching products with category:', currentCategory);
+
+                // Generate cache key based on current filters
+                const cacheKey = `products_${currentCategory || 'all'}_${filters.searchQuery || ''}_${filters.sortBy}`;
+                
+                // Try cache first
+                if (window.cacheManager) {
+                    const cachedProducts = window.cacheManager.getCachedApiResponse(cacheKey);
+                    if (cachedProducts) {
+                        console.log('📦 Cache hit for products:', cacheKey);
+                        allProducts = cachedProducts.products || [];
+                        filteredProducts = [...allProducts];
+                        
+                        if (allProducts.length === 0) {
+                            showEmptyState();
+                        } else {
+                            applyFiltersAndRender();
+                        }
+                        return;
+                    }
+                }
+
+                const url = currentCategory 
+                    ? `${API_BASE}/products?category=${encodeURIComponent(currentCategory)}` 
+                    : `${API_BASE}/products`;
+
+                try {
+                    loadingState.style.display = 'block';
+                    if (productGrid) productGrid.style.display = 'none';
+
+                    // Use API batcher if available, otherwise use regular fetch
+                    let response;
+                    if (window.apiBatcher && window.cacheManager) {
+                        response = await window.apiBatcher.batchRequest(url, {
+                            method: 'GET',
+                            headers: { 'Content-Type': 'application/json' },
+                            cache: true,
+                            cacheKey: cacheKey
+                        });
+                    } else {
+                        response = await fetch(url, {
+                            method: 'GET',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                    }
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        allProducts = data.products || [];
+                        filteredProducts = [...allProducts];
+
+                        // Cache the results
+                        if (window.cacheManager) {
+                            window.cacheManager.cacheApiResponse(cacheKey, data);
+                        }
+
+                        if (allProducts.length === 0) {
+                            showEmptyState();
+                            return;
+                        }
+
+                        applyFiltersAndRender();
+                    } else {
+                        console.error('Failed to fetch products:', await response.json());
+                        showErrorState();
+                    }
+                } catch (error) {
+                    console.error('Error fetching products:', error);
+                    showErrorState();
+                } finally {
+                    loadingState.style.display = 'none';
+                    if (productGrid) productGrid.style.display = 'grid';
+                }
+            }
+
+            function showEmptyState() {
+                if (productGrid) {
+                    productGrid.innerHTML = '<p class="text-center text-gray-600 col-span-full py-10">No products available yet. Check back soon for new campus listings.</p>';
+                }
+                if (resultsCount) {
+                    resultsCount.textContent = '0 items found';
+                }
+            }
+
+            function showErrorState() {
+                if (productGrid) {
+                    productGrid.innerHTML = '<p class="text-center text-gray-600 py-10">Error loading products. Please try again.</p>';
+                }
+                if (resultsCount) {
+                    resultsCount.textContent = 'Error loading products';
+                }
+            }
+
+            // Filter and sort products
+            function productMatchesFilters(product) {
+                // Category
+                if (currentCategory && product.category !== currentCategory) return false;
+
+                // Search query
+                if (filters.searchQuery) {
+                    const query = filters.searchQuery.toLowerCase();
+                    const searchableText = [
+                        product.name,
+                        product.description,
+                        product.category,
+                        product.subcategory,
+                        product.subject,
+                        product.courseCode,
+                        product.author,
+                        product.brand,
+                        product.sellerName
+                    ].filter(Boolean).join(' ').toLowerCase();
+
+                    if (!searchableText.includes(query)) return false;
+                }
+
+                // Price bracket
+                if (filters.priceBracket !== 'all') {
+                    const price = product.price || 0;
+                    switch (filters.priceBracket) {
+                        case 'under-100':
+                            if (price >= 100) return false;
+                            break;
+                        case '100-500':
+                            if (price < 100 || price > 500) return false;
+                            break;
+                        case '500-1000':
+                            if (price < 500 || price > 1000) return false;
+                            break;
+                        case '1000-plus':
+                            if (price <= 1000) return false;
+                            break;
+                    }
+                }
+
+                // Condition
+                if (filters.conditions.size > 0) {
+                    const condition = (product.condition || '').toLowerCase();
+                    if (!Array.from(filters.conditions).some(c => condition === c.toLowerCase())) {
+                        return false;
+                    }
+                }
+
+                // Campus verified
+                if (filters.campusVerifiedOnly) {
+                    const isVerified = product.seller?.isStudentVerified || product.sellerVerified;
+                    if (!isVerified) return false;
+                }
+
+                return true;
+            }
+
+            function sortProducts(products) {
+                const items = [...products];
+                switch (filters.sortBy) {
+                    case 'price-asc':
+                        return items.sort((a, b) => (a.price || 0) - (b.price || 0));
+                    case 'price-desc':
+                        return items.sort((a, b) => (b.price || 0) - (a.price || 0));
+                    case 'newest':
+                        return items.sort((a, b) => {
+                            const aDate = new Date(a.createdAt || 0).getTime();
+                            const bDate = new Date(b.createdAt || 0).getTime();
+                            return bDate - aDate;
+                        });
+                    case 'relevance':
+                    default:
+                        return items;
+                }
+            }
+
+            // Render products
+            function renderProducts() {
+                if (!productGrid) return;
+                
+                if (filteredProducts.length === 0) {
+                    productGrid.innerHTML = '<p class="text-center text-gray-600 col-span-full py-10">No items match your criteria. Try adjusting your filters.</p>';
+                    updateResultsSummary();
+                    return;
+                }
+
+                productGrid.innerHTML = filteredProducts.map(product => {
+                    const imageUrl = product.images && product.images[0]
+                        ? window.optimizeImageUrl ? window.optimizeImageUrl(fixServerUrl(product.images[0]), 400, 300) : fixServerUrl(product.images[0])
+                        : 'https://placehold.co/400x300?text=No+Image';
+
+                    const isVerified = product.seller?.isStudentVerified || product.sellerVerified;
+                    const isHotDeal = product.originalPrice && product.originalPrice > product.price;
+                    const isOutOfStock = product.status === 'Out of Stock' || product.status === 'Sold';
+                    const isPersistent = product.listingType === 'persistent';
+                    const showInventory = isPersistent && product.inventory !== undefined;
+                    const isLowStock = showInventory && product.inventoryTracking && product.inventory <= (product.lowStockThreshold || 1);
+
+                    return `
+                        <div class="product-card bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 overflow-hidden group flex flex-col h-full ${isOutOfStock ? 'opacity-75' : ''}">
+                            <div class="relative aspect-square w-full bg-gray-50 overflow-hidden">
+                                <img src="${imageUrl}" 
+                                     alt="${product.name}" 
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                     width="300"
+                                     height="300"
+                                     loading="lazy" />
+                                <div class="absolute top-2 left-2 flex gap-1">
+                                    ${isVerified ? `
+                                        <span class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full text-[10px] font-semibold border border-emerald-200">
+                                            <i class="fas fa-shield-check w-3 h-3"></i> Campus Verified
+                                        </span>
+                                    ` : ''}
+                                    ${isHotDeal ? `
+                                        <span class="bg-red-50 text-red-600 px-2 py-1 rounded-full text-[10px] font-semibold border border-red-200">
+                                            <i class="fas fa-fire w-3 h-3"></i> Hot Deal
+                                        </span>
+                                    ` : ''}
+                                    ${isPersistent ? `
+                                        <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-[10px] font-semibold border border-blue-200">
+                                            <i class="fas fa-infinity w-3 h-3"></i> Multi-Stock
+                                        </span>
+                                    ` : ''}
+                                    ${isOutOfStock ? `
+                                        <span class="bg-gray-50 text-gray-700 px-2 py-1 rounded-full text-[10px] font-semibold border border-gray-200">
+                                            <i class="fas fa-times-circle w-3 h-3"></i> ${product.status === 'Sold' ? 'Sold' : 'Out of Stock'}
+                                        </span>
+                                    ` : ''}
+                                    ${isLowStock && !isOutOfStock ? `
+                                        <span class="bg-orange-50 text-orange-700 px-2 py-1 rounded-full text-[10px] font-semibold border border-orange-200">
+                                            <i class="fas fa-exclamation-triangle w-3 h-3"></i> Low Stock
+                                        </span>
+                                    ` : ''}
+                                </div>
+                                <div class="absolute top-2 right-2">
+                                    <button class="bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-colors">
+                                        <i class="far fa-heart text-gray-600 hover:text-red-500"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="p-4 flex flex-col flex-1">
+                                <h3 class="font-semibold text-gray-900 mb-1.5 line-clamp-2 text-[15px] leading-tight">${product.name}</h3>
+                                <p class="text-xs text-gray-500 mb-4 line-clamp-2">${product.description}</p>
+                                <div class="flex items-center justify-between mb-4 mt-auto">
+                                    <div class="flex flex-col">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-lg font-bold text-navy">ZMW ${(product.price || 0).toFixed(2)}</span>
+                                            ${product.originalPrice && product.originalPrice > product.price ? `
+                                                <span class="text-xs text-gray-400 line-through">ZMW ${product.originalPrice.toFixed(2)}</span>
+                                            ` : ''}
+                                        </div>
+                                        ${showInventory ? `
+                                            <div class="text-xs text-gray-500 mt-1">
+                                                <i class="fas fa-box w-3 h-3 mr-1"></i>
+                                                ${product.inventory} in stock
+                                                ${product.totalSold > 0 ? `• ${product.totalSold} sold` : ''}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                    <span class="text-[10px] bg-gray-100 font-medium text-gray-600 px-2 py-1 rounded-full whitespace-nowrap self-start mt-1">${product.condition}</span>
+                                </div>
+                                <div class="flex flex-col gap-2 pt-3 border-t border-gray-100">
+                                    <button class="w-full bg-button-gold text-white font-semibold py-2 px-4 rounded-lg hover-bg-button-gold transition-colors text-sm ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'js-add-to-cart'}"
+                                        ${isOutOfStock ? 'disabled' : ''}
+                                        data-item-id="${product._id}"
+                                        data-item-name="${product.name}"
+                                        data-item-price="${product.price}"
+                                        data-item-image="${product.images?.[0] || ''}"
+                                        data-item-category="${product.category || ''}">
+                                        ${isOutOfStock ? (product.status === 'Sold' ? 'Sold Out' : 'Out of Stock') : 'Add to Cart'}
+                                    </button>
+                                    <a href="/product/${product._id}" class="text-center text-navy hover:text-gold text-xs font-medium w-full py-1">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                updateFilterBadges();
+                updateResultsSummary();
+            }
+
+            function updateResultsSummary() {
+                if (!resultsCount) return;
+                const total = allProducts.length;
+                const shown = filteredProducts.length;
+                const label = currentCategory && currentCategory !== 'Other'
+                    ? ` in ${currentCategory}`
+                    : '';
+                resultsCount.textContent = `${shown} of ${total} items found${label}`;
+            }
+
+            function updateFilterBadges() {
+                let count = 0;
+                const chips = [];
+
+                if (filters.searchQuery) {
+                    count++;
+                    chips.push({ type: 'search', label: `Search: "${filters.searchQuery}"` });
+                }
+                if (filters.priceBracket !== 'all') {
+                    count++;
+                    const labelMap = {
+                        'under-100': 'Under K100',
+                        '100-500': 'K100 - K500',
+                        '500-1000': 'K500 - K1,000',
+                        '1000-plus': 'K1,000+'
+                    };
+                    chips.push({ type: 'price', label: labelMap[filters.priceBracket] });
+                }
+                if (filters.conditions.size > 0) {
+                    count += filters.conditions.size;
+                    filters.conditions.forEach(cond => chips.push({ type: 'condition', value: cond, label: cond }));
+                }
+                if (filters.campusVerifiedOnly) {
+                    count++;
+                    chips.push({ type: 'campus', label: 'Campus verified only' });
+                }
+
+                if (filterBadge) {
+                    if (count > 0) {
+                        filterBadge.classList.remove('hidden');
+                        filterBadge.textContent = count;
+                    } else {
+                        filterBadge.classList.add('hidden');
+                    }
+                }
+                if (mobileFilterBadge) {
+                    if (count > 0) {
+                        mobileFilterBadge.classList.remove('hidden');
+                        mobileFilterBadge.textContent = count;
+                    } else {
+                        mobileFilterBadge.classList.add('hidden');
+                    }
+                }
+
+                if (activeFiltersContainer) {
+                    if (chips.length === 0) {
+                        activeFiltersContainer.innerHTML = '<span class="text-xs text-gray-500">No filters applied. Showing all campus items.</span>';
+                        return;
+                    }
+                    activeFiltersContainer.innerHTML = chips.map(chip => `
+                        <button 
+                            class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-100 text-[11px] text-gray-700 border border-gray-200 hover:border-red-400 hover:text-red-600 transition-colors"
+                            data-filter-type="${chip.type}"
+                            ${chip.value ? `data-filter-value="${chip.value}"` : ''}
+                        >
+                            <span>${chip.label}</span>
+                            <i class="fas fa-times w-3 h-3"></i>
+                        </button>
+                    `).join('');
+                }
+            }
+
+            function applyFiltersAndRender() {
+                filteredProducts = sortProducts(allProducts.filter(productMatchesFilters));
+                renderProducts();
+            }
+
+            // Event listeners
+            if (globalSearchInput) {
+                // Create debounced search handler
+                const debouncedSearch = window.debounce((query) => {
+                    filters.searchQuery = query;
+                    applyFiltersAndRender();
+                }, 300);
+
+                globalSearchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.trim();
+                    debouncedSearch(query);
+                });
+
+                globalSearchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        // Immediate search on Enter
+                        filters.searchQuery = e.target.value.trim();
+                        applyFiltersAndRender();
+                    }
+                });
+            }
+
+            if (globalSearchButton) {
+                globalSearchButton.addEventListener('click', () => {
+                    if (globalSearchInput) {
+                        filters.searchQuery = globalSearchInput.value.trim();
+                        applyFiltersAndRender();
+                    }
+                });
+            }
+
+            if (sortSelect) {
+                sortSelect.addEventListener('change', (e) => {
+                    filters.sortBy = e.target.value;
+                    applyFiltersAndRender();
+                });
+            }
+
+            // Filter event listeners
+            const priceRadios = document.querySelectorAll('input[name="price-bracket"]');
+            priceRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    filters.priceBracket = e.target.value;
+                    applyFiltersAndRender();
+                });
+            });
+
+            const conditionCheckboxes = document.querySelectorAll('.condition-checkbox');
+            conditionCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        filters.conditions.add(e.target.value);
+                    } else {
+                        filters.conditions.delete(e.target.value);
+                    }
+                    applyFiltersAndRender();
+                });
+            });
+
+            const campusVerifiedCheckbox = document.getElementById('campus-verified-only');
+            if (campusVerifiedCheckbox) {
+                campusVerifiedCheckbox.addEventListener('change', (e) => {
+                    filters.campusVerifiedOnly = e.target.checked;
+                    applyFiltersAndRender();
+                });
+            }
+
+            // Clear filters
+            const clearAllFiltersButton = document.getElementById('clear-all-filters');
+            if (clearAllFiltersButton) {
+                clearAllFiltersButton.addEventListener('click', () => {
+                    // Reset all filters
+                    filters.searchQuery = '';
+                    filters.priceBracket = 'all';
+                    filters.conditions.clear();
+                    filters.campusVerifiedOnly = false;
+                    filters.sortBy = 'relevance';
+
+                    // Reset UI
+                    if (globalSearchInput) globalSearchInput.value = '';
+                    document.querySelector('input[name="price-bracket"][value="all"]').checked = true;
+                    conditionCheckboxes.forEach(cb => cb.checked = false);
+                    if (campusVerifiedCheckbox) campusVerifiedCheckbox.checked = false;
+                    if (sortSelect) sortSelect.value = 'relevance';
+
+                    applyFiltersAndRender();
+                });
+            }
+
+            // Active filter chips
+            if (activeFiltersContainer) {
+                activeFiltersContainer.addEventListener('click', (e) => {
+                    const button = e.target.closest('button[data-filter-type]');
+                    if (!button) return;
+                    
+                    const type = button.getAttribute('data-filter-type');
+                    const value = button.getAttribute('data-filter-value');
+
+                    switch (type) {
+                        case 'search':
+                            filters.searchQuery = '';
+                            if (globalSearchInput) globalSearchInput.value = '';
+                            break;
+                        case 'price':
+                            filters.priceBracket = 'all';
+                            document.querySelector('input[name="price-bracket"][value="all"]').checked = true;
+                            break;
+                        case 'condition':
+                            if (value) {
+                                filters.conditions.delete(value);
+                                const checkbox = document.querySelector(`.condition-checkbox[value="${value}"]`);
+                                if (checkbox) checkbox.checked = false;
+                            }
+                            break;
+                        case 'campus':
+                            filters.campusVerifiedOnly = false;
+                            if (campusVerifiedCheckbox) campusVerifiedCheckbox.checked = false;
+                            break;
+                    }
+
+                    applyFiltersAndRender();
+                });
+            }
+
+            // Listen for search events from header
+            window.addEventListener('virtuosaSearch', (e) => {
+                const query = e.detail?.query || '';
+                filters.searchQuery = query;
+                if (globalSearchInput) {
+                    globalSearchInput.value = query;
+                }
+                applyFiltersAndRender();
+            });
+
+            // Listen for category events from header
+            window.addEventListener('virtuosaCategory', (e) => {
+                const category = e.detail?.category || null;
+                console.log('Category event received:', category);
+                
+                // Update current category
+                currentCategory = (category === 'Other') ? null : category;
+                
+                // Update URL to reflect the new category
+                const newUrl = currentCategory 
+                    ? `/products?category=${encodeURIComponent(currentCategory)}`
+                    : '/products';
+                
+                // Update browser history
+                history.pushState({}, '', newUrl);
+                
+                // Fetch fresh data for the new category
+                fetchProducts();
+            });
+
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', (e) => {
+                console.log('Popstate event detected, reloading products');
+                // Reload products when user navigates with back/forward buttons
+                fetchProducts();
+            });
+
+            // Initialize
+            await fetchProducts();
+        }
+    </script>
+    
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+    <script src="../js/image-optimizer.js"></script>
+    <script src="../js/cache-manager.js"></script>
+    <script src="../js/debounce.js"></script>
+    <script src="../js/api-batcher.js"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - FAQ</title>
+    <meta name="description" content="Find answers to common questions about buying, selling, payments, safety, and more on Virtuosa — Zambia's student trading platform.">
+    <link rel="canonical" href="https://virtuosazm.com/faq">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon-48x48.svg" sizes="48x48">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .faq-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            cursor: pointer;
+            padding: 1.25rem;
+            background: transparent;
+            border: none;
+            width: 100%;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .faq-question:hover {
+            background: rgba(255, 215, 0, 0.1);
+            color: #0A1128;
+        }
+
+        .faq-question.active {
+            background: rgba(255, 215, 0, 0.2);
+            color: #0A1128;
+        }
+
+        .faq-answer {
+            padding: 0 1.25rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            color: #6b7280;
+        }
+
+        .faq-answer.active {
+            padding: 0 1.25rem 1.25rem 1.25rem;
+            max-height: 500px;
+        }
+
+        .chevron-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .chevron-icon.rotate {
+            transform: rotate(180deg);
+        }
+
+        .category-badge {
+            background: linear-gradient(90deg, #FFD700, #C19A6B);
+            color: #0A1128;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased flex flex-col min-h-screen">
+    <!-- Header (same as other pages) -->
+    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="/index.html" class="hover:text-gold transition-colors">Home</a>
+                    <a href="/pages/products.html" class="hover:text-gold transition-colors">Products</a>
+                    <a href="/pages/seller.html" class="hover:text-gold transition-colors">Sell</a>
+                    <a href="/pages/login.html" class="hover:text-gold transition-colors">Sign In</a>
+                </nav>
+                <button class="md:hidden" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Page Header -->
+            <div class="text-center mb-10">
+                <h1 class="text-4xl md:text-5xl font-bold text-navy mb-4">Frequently Asked Questions</h1>
+                <p class="text-gray-600 text-lg">Find answers to common questions about Virtuosa</p>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="mb-8">
+                <div class="relative max-w-2xl mx-auto">
+                    <input 
+                        type="text" 
+                        id="faq-search"
+                        placeholder="Search FAQs..."
+                        class="w-full px-4 py-3 pl-12 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
+                    >
+                    <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- FAQ Container -->
+            <div class="faq-container rounded-xl">
+                <!-- Getting Started Category -->
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-navy mb-6 flex items-center">
+                        <i class="fas fa-rocket text-gold mr-3"></i>
+                        Getting Started
+                    </h2>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>What is Virtuosa?</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Virtuosa is a student trading platform designed to connect buyers and sellers within campus communities. Students can buy, sell, and trade textbooks, electronics, clothing, services, and more in a safe and convenient environment.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How do I create an account?</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Creating an account is simple! Click on "Sign In" at the top of the page, then select "Create Account". Fill in your email address, create a password, and verify your student email. You'll receive a confirmation email to activate your account.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Is Virtuosa only for students?</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Virtuosa is primarily designed for students, faculty, and staff within educational institutions. However, some campuses may allow alumni to participate. Check with your institution's specific guidelines.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buying Category -->
+                <div class="p-6 border-t border-gray-200">
+                    <h2 class="text-2xl font-bold text-navy mb-6 flex items-center">
+                        <i class="fas fa-shopping-cart text-gold mr-3"></i>
+                        Buying
+                    </h2>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How do I purchase an item?</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>To purchase an item: 1) Browse or search for products, 2) Click on the item you're interested in, 3) Review the details and seller information, 4) Click "Add to Cart" or "Buy Now", 5) Proceed to checkout and complete your payment, 6) Arrange pickup or delivery with the seller.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>What payment methods are accepted?</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>We accept various payment methods including credit/debit cards, PayPal, and campus cash where available. All transactions are processed securely through our payment partners.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How do I contact a seller?</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>You can contact sellers through our messaging system. Simply click on the product, then click "Contact Seller" to ask questions about the item, negotiate prices, or arrange pickup details.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selling Category -->
+                <div class="p-6 border-t border-gray-200">
+                    <h2 class="text-2xl font-bold text-navy mb-6 flex items-center">
+                        <i class="fas fa-store text-gold mr-3"></i>
+                        Selling
+                    </h2>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How do I start selling?</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>To start selling: 1) Create or sign in to your account, 2) Click "Become a Seller" or go to your dashboard, 3) Complete the seller verification process, 4) Click "Add Product" and fill in the item details, 5) Upload clear photos and set your price, 6) Publish your listing.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>What are the selling fees?</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Virtuosa charges a small commission on completed sales. The fee structure varies by item category and price range. Check our seller dashboard for detailed fee information. There are no listing fees.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How do I get paid?</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Payments are processed securely through our platform. Once the buyer confirms receipt of the item, the payment (minus fees) is transferred to your linked bank account or PayPal account within 3-5 business days.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Safety Category -->
+                <div class="p-6 border-t border-gray-200">
+                    <h2 class="text-2xl font-bold text-navy mb-6 flex items-center">
+                        <i class="fas fa-shield-alt text-gold mr-3"></i>
+                        Safety & Security
+                    </h2>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How do you ensure safe transactions?</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>We implement multiple safety measures: user verification, secure payment processing, rating systems, and dispute resolution. We also recommend meeting in public places for in-person exchanges and using our messaging system for all communications.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>What should I do if I have a problem with a transaction?</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>If you encounter issues, first try to resolve it directly with the seller through our messaging system. If that doesn't work, you can file a dispute through your order history. Our support team will mediate and help find a resolution.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How do I report suspicious activity?</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Report suspicious activity by clicking the "Report" button on user profiles or listings, or contact our support team directly at support@virtuosa.com. We take all reports seriously and investigate promptly.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Support Category -->
+                <div class="p-6 border-t border-gray-200">
+                    <h2 class="text-2xl font-bold text-navy mb-6 flex items-center">
+                        <i class="fas fa-cog text-gold mr-3"></i>
+                        Technical Support
+                    </h2>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>I forgot my password. How do I reset it?</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Click "Sign In" then "Forgot Password". Enter your email address, and we'll send you a password reset link. Follow the instructions in the email to create a new password.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Why isn't my account verified?</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Account verification may take 24-48 hours. Ensure you've provided a valid student email address and completed all required fields. If verification takes longer, contact support with your student ID and institution information.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How do I delete my account?</span>
+                            <i class="fas fa-chevron-down chevron-icon"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>To delete your account, go to Settings > Account > Delete Account. Please note that this action is permanent and cannot be undone. Any active listings will be removed, and transaction history may be retained for legal purposes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Support Section -->
+            <div class="mt-12 text-center bg-gold rounded-xl p-8">
+                <h2 class="text-2xl font-bold text-navy mb-4">Still have questions?</h2>
+                <p class="text-navy mb-6">Our support team is here to help you</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/contact" class="bg-navy text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
+                        <i class="fas fa-envelope mr-2"></i>Contact Support
+                    </a>
+                    <a href="/live-chat" class="bg-white text-navy border-2 border-navy px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-comments mr-2"></i>Live Chat
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (same as other pages) -->
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-auto">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">About Us</h3>
+                <p class="text-sm">Virtuosa is a student trading platform connecting buyers and sellers for books, electronics, and more. Join our community to trade smarter!</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Become a Seller</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/seller" class="hover:text-gold transition-colors">Start Selling</a></li>
+                    <li><a href="/seller-guide" class="hover:text-gold transition-colors">Seller Guide</a></li>
+                    <li><a href="/seller-benefits" class="hover:text-gold transition-colors">Seller Benefits</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Payments</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/payment-options" class="hover:text-gold transition-colors">Payment Options</a></li>
+                    <li><a href="/secure-transactions" class="hover:text-gold transition-colors">Secure Transactions</a></li>
+                    <li><a href="/refund-policy" class="hover:text-gold transition-colors">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Help and Contact</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/faq" class="hover:text-gold transition-colors">FAQ</a></li>
+                    <li><a href="/contact" class="hover:text-gold transition-colors">Contact Support</a></li>
+                    <li><a href="/live-chat" class="hover:text-gold transition-colors">Live Chat</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Follow Us</h3>
+                <div class="flex space-x-4">
+                    <a href="https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://x.com" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-x-twitter fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 text-center text-sm">
+            <div class="mb-2">
+                <a href="/terms" class="hover:text-gold transition-colors">Terms</a>
+                <span class="mx-2">|</span>
+                <a href="/privacy" class="hover:text-gold transition-colors">Privacy Policy</a>
+            </div>
+            &copy; 2026 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="/js/config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // FAQ Accordion functionality
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', function() {
+                    const answer = this.nextElementSibling;
+                    const chevron = this.querySelector('.chevron-icon');
+                    const isActive = this.classList.contains('active');
+                    
+                    // Close all other FAQs in the same category
+                    const category = this.closest('.p-6');
+                    const otherQuestions = category.querySelectorAll('.faq-question');
+                    
+                    otherQuestions.forEach(otherQuestion => {
+                        if (otherQuestion !== this) {
+                            otherQuestion.classList.remove('active');
+                            otherQuestion.nextElementSibling.classList.remove('active');
+                            otherQuestion.querySelector('.chevron-icon').classList.remove('rotate');
+                        }
+                    });
+                    
+                    // Toggle current FAQ
+                    this.classList.toggle('active');
+                    answer.classList.toggle('active');
+                    chevron.classList.toggle('rotate');
+                });
+            });
+
+            // Search functionality
+            const searchInput = document.getElementById('faq-search');
+            const faqItems = document.querySelectorAll('.faq-item');
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                faqItems.forEach(item => {
+                    const question = item.querySelector('.faq-question span').textContent.toLowerCase();
+                    const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+                    
+                    if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Show/hide categories based on visible items
+                const categories = document.querySelectorAll('.p-6');
+                categories.forEach(category => {
+                    const visibleItems = category.querySelectorAll('.faq-item[style="display: block;"]');
+                    if (visibleItems.length === 0 && searchTerm !== '') {
+                        category.style.display = 'none';
+                    } else {
+                        category.style.display = 'block';
+                    }
+                });
+            });
+        });
+
+        function toggleMobileMenu() {
+            // Mobile menu toggle functionality
+            console.log('Mobile menu toggle');
+        }
+    </script>
+    
+    <!-- FAQPage JSON-LD Schema for Google Rich Results -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {"@type": "Question", "name": "What is Virtuosa?", "acceptedAnswer": {"@type": "Answer", "text": "Virtuosa is a student trading platform designed to connect buyers and sellers within campus communities. Students can buy, sell, and trade textbooks, electronics, clothing, services, and more in a safe and convenient environment."}},
+        {"@type": "Question", "name": "How do I create an account?", "acceptedAnswer": {"@type": "Answer", "text": "Click on Sign In at the top of the page, then select Create Account. Fill in your email address, create a password, and verify your student email."}},
+        {"@type": "Question", "name": "Is Virtuosa only for students?", "acceptedAnswer": {"@type": "Answer", "text": "Virtuosa is primarily designed for students, faculty, and staff within educational institutions. However, some campuses may allow alumni to participate."}},
+        {"@type": "Question", "name": "How do I purchase an item?", "acceptedAnswer": {"@type": "Answer", "text": "Browse or search for products, click on the item, review the details, click Add to Cart or Buy Now, proceed to checkout, and arrange pickup or delivery with the seller."}},
+        {"@type": "Question", "name": "What payment methods are accepted?", "acceptedAnswer": {"@type": "Answer", "text": "We accept various payment methods including credit/debit cards, PayPal, and campus cash where available. All transactions are processed securely."}},
+        {"@type": "Question", "name": "How do I contact a seller?", "acceptedAnswer": {"@type": "Answer", "text": "You can contact sellers through our messaging system. Click on the product, then click Contact Seller to ask questions or negotiate prices."}},
+        {"@type": "Question", "name": "How do I start selling?", "acceptedAnswer": {"@type": "Answer", "text": "Create or sign in to your account, click Become a Seller, complete seller verification, click Add Product, upload photos, set your price, and publish your listing."}},
+        {"@type": "Question", "name": "What are the selling fees?", "acceptedAnswer": {"@type": "Answer", "text": "Virtuosa charges a small commission on completed sales. The fee structure varies by item category and price range. There are no listing fees."}},
+        {"@type": "Question", "name": "How do I get paid?", "acceptedAnswer": {"@type": "Answer", "text": "Payments are processed securely. Once the buyer confirms receipt, payment minus fees is transferred to your linked bank account within 3-5 business days."}},
+        {"@type": "Question", "name": "How do you ensure safe transactions?", "acceptedAnswer": {"@type": "Answer", "text": "We implement multiple safety measures: user verification, secure payment processing, rating systems, and dispute resolution."}},
+        {"@type": "Question", "name": "What should I do if I have a problem with a transaction?", "acceptedAnswer": {"@type": "Answer", "text": "First try to resolve it with the seller through our messaging system. If that doesn't work, file a dispute through your order history."}},
+        {"@type": "Question", "name": "How do I report suspicious activity?", "acceptedAnswer": {"@type": "Answer", "text": "Report suspicious activity by clicking the Report button on user profiles or listings, or contact our support team directly."}},
+        {"@type": "Question", "name": "I forgot my password. How do I reset it?", "acceptedAnswer": {"@type": "Answer", "text": "Click Sign In then Forgot Password. Enter your email address and follow the instructions in the reset email."}},
+        {"@type": "Question", "name": "Why isn't my account verified?", "acceptedAnswer": {"@type": "Answer", "text": "Account verification may take 24-48 hours. Ensure you've provided a valid student email and completed all required fields."}},
+        {"@type": "Question", "name": "How do I delete my account?", "acceptedAnswer": {"@type": "Answer", "text": "Go to Settings > Account > Delete Account. This action is permanent and cannot be undone."}}
+      ]
+    }
+    </script>
+
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-auto border-t border-gray-800">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">About Us</h3>
+                <p class="text-sm">Virtuosa is a student trading platform connecting buyers and sellers for books,
+                    electronics, and more. Join our community to trade smarter!</p>
+                <a href="/about" class="text-sm hover:text-gold transition-colors mt-2 inline-block">Learn more &rarr;</a>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Become a Seller</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/seller" class="hover:text-gold transition-colors">Start Selling</a></li>
+                    <li><a href="/seller-guide" class="hover:text-gold transition-colors">Seller Guide</a></li>
+                    <li><a href="/seller-benefits" class="hover:text-gold transition-colors">Seller Benefits</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Payments</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/payment-options" class="hover:text-gold transition-colors">Payment Options</a></li>
+                    <li><a href="/secure-transactions" class="hover:text-gold transition-colors">Secure Transactions</a></li>
+                    <li><a href="/refund-policy" class="hover:text-gold transition-colors">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Help and Contact</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="/faq" class="hover:text-gold transition-colors">FAQ</a></li>
+                    <li><a href="/contact" class="hover:text-gold transition-colors">Contact Support</a></li>
+                    <li><a href="/live-chat" class="hover:text-gold transition-colors">Live Chat</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white mb-4">Follow Us</h3>
+                <div class="flex space-x-4">
+                    <a href="https://www.facebook.com/share/16cWYpWWHb/?mibextid=wwXlfr" target="_blank"
+                        class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-facebook-f fa-lg"></i>
+                    </a>
+                    <a href="https://x.com" target="_blank" class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-x-twitter fa-lg"></i>
+                    </a>
+                    <a href="https://www.instagram.com/virtuosa_official_zm?igsh=bjV0ZHQwN2hmaDRq&ut-m_source=qr" target="_blank"
+                        class="text-gray-400 hover:text-gold transition-colors">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 text-center text-sm">
+            <div class="mb-2">
+                <a href="/terms" class="hover:text-gold transition-colors">Terms</a>
+                <span class="mx-2">|</span>
+                <a href="/privacy" class="hover:text-gold transition-colors">Privacy Policy</a>
+                <span class="mx-2">|</span>
+                <a href="/refund-policy" class="hover:text-gold transition-colors">Refund Policy</a>
+            </div>
+            &copy; 2026 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

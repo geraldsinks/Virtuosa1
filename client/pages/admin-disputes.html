@@ -10,31 +10,19 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
+
+    <!-- Unified Header System -->
+    <script src="/js/config.js"></script>
+    <script src="/js/token-manager.js"></script>
+    <script src="/js/auth-manager.js"></script>
+    <script src="/js/cache-manager.js" defer></script>
+    <script src="/js/unified-header.js" defer></script>
+    <script src="/js/production-router.js" defer></script>
 </head>
 
 <body class="bg-gray-50 flex flex-col min-h-screen">
     <!-- Standard Navigation -->
-    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
-        <div class="v-container">
-            <div class="flex items-center justify-between py-4">
-                <div class="flex items-center space-x-4">
-                    <a href="admin-dashboard.html" class="text-white hover:text-gold transition-colors">
-                        <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
-                    </a>
-                    <h1 class="text-xl font-bold">Dispute Management</h1>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="notifications.html" class="relative text-white hover:text-gold transition-colors">
-                        <i class="fas fa-bell"></i>
-                        <span id="notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">0</span>
-                    </a>
-                    <div id="user-info" class="flex items-center space-x-2">
-                        <!-- User info will be populated here -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+    
 
     <!-- Main Content -->
     <main class="flex-grow v-container py-6">

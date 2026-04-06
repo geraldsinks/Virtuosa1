@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Messages - Virtuosa</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="../favicon-enhanced.svg" sizes="32x32">
+    <link rel="apple-touch-icon" href="../favicon-enhanced.svg">
+    <meta name="theme-color" content="#0A1128">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bg-navy {
+            background-color: #0A1128;
+        }
+
+        .text-gold {
+            color: #FFD700;
+        }
+
+        .bg-gold {
+            background-color: #FFD700;
+        }
+
+        .chat-container {
+            height: calc(100vh - 140px);
+        }
+
+        .conversation-list {
+            border-right: 1px solid #e5e7eb;
+        }
+
+        /* Mobile Menu Styles */
+        .mobile-menu-content {
+            padding: 0;
+            background: white;
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #0A1128;
+            color: white;
+        }
+
+        .mobile-menu-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .mobile-menu-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-menu-section {
+            padding: 16px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .mobile-menu-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin-bottom: 8px;
+            padding: 0 20px;
+        }
+
+        .mobile-menu-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #1f2937;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            font-size: 14px;
+        }
+
+        .mobile-menu-link:hover {
+            background: #f9fafb;
+            color: #0A1128;
+        }
+
+        .mobile-menu-link i {
+            width: 20px;
+            margin-right: 12px;
+            color: #6b7280;
+        }
+
+        /* Mobile-specific improvements */
+        @media (max-width: 768px) {
+            /* Reset body constraints for proper mobile messaging */
+            body {
+                overflow: hidden;
+                position: fixed;
+                width: 100%;
+                height: 100vh;
+                overscroll-behavior: none;
+                -webkit-text-size-adjust: 100%;
+                -ms-text-size-adjust: 100%;
+            }
+
+            /* Main container should fill available space */
+            main.flex-grow {
+                height: 100vh;
+                margin-top: 0;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .main-chat-container {
+                height: 100dvh;
+                margin-top: 0;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* Container should be full height on mobile */
+            .container.mx-auto {
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .mobile-hidden {
+                display: none !important;
+            }
+
+            .mobile-full {
+                width: 100%;
+                height: 100%;
+            }
+
+            /* Mobile sidebar with proper scrolling */
+            #sidebar {
+                position: relative;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            #sidebar.mobile-full {
+                width: 100%;
+                height: 100vh;
+            }
+
+            /* Mobile conversation list with optimized scrolling */
+            #conversation-list {
+                flex: 1;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                scroll-behavior: smooth;
+                overscroll-behavior: contain;
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+
+            /* Enhanced mobile conversation items */
+            .conversation-list-item {
+                min-height: 64px;
+                padding: 10px 14px;
+                position: relative;
+                overflow: hidden;
+                border-bottom: 1px solid #f3f4f6;
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+
+            .conversation-list-item:active {
+                background-color: #f9fafb;
+                transform: scale(0.98);
+            }
+
+            .conversation-list-item.active {
+                background-color: #fef3c7;
+                border-left: 4px solid #f59e0b;
+            }
+
+            .mobile-conversation-item {
+                min-height: 72px;
+                padding: 12px;
+                border-bottom: 1px solid #f3f4f6;
+                transition: all 0.2s ease;
+            }
+
+            .mobile-conversation-item:active {
+                background-color: #f9fafb;
+                transform: scale(0.98);
+            }
+
+            .mobile-avatar {
+                width: 48px;
+                height: 48px;
+                flex-shrink: 0;
+            }
+
+            .mobile-online-indicator {
+                width: 12px;
+                height: 12px;
+                border-width: 2px;
+            }
+
+            .mobile-conversation-content {
+                flex-grow: 1;
+                min-width: 0;
+                margin-left: 10px;
+            }
+
+            .mobile-conversation-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 2px;
+            }
+
+            .mobile-conversation-name {
+                font-size: 14px;
+                font-weight: 600;
+                color: #1f2937;
+            }
+
+            .mobile-conversation-time {
+                font-size: 11px;
+                color: #9ca3af;
+                flex-shrink: 0;
+                margin-left: 8px;
+            }
+
+            .mobile-conversation-message {
+                font-size: 13px;
+                color: #6b7280;
+                line-height: 1.3;
+            }
+
+            .mobile-unread-badge {
+                min-width: 20px;
+                height: 20px;
+                font-size: 11px;
+                font-weight: 600;
+                margin-left: 8px;
+            }
+
+            /* Conversation list scroll optimization */
+            #conversation-list {
+                -webkit-overflow-scrolling: touch;
+                scroll-behavior: smooth;
+            }
+
+            /* Pull-to-refresh indicator */
+            .conversation-list-pull-refresh {
+                height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #f9fafb;
+                color: #6b7280;
+                font-size: 14px;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .conversation-list-pull-refresh.active {
+                opacity: 1;
+            }
+
+            /* Enhanced mobile message bubbles - COMPACT */
+            /* Responsive mobile message bubbles - COMPACT */
+            .message-bubble {
+                max-width: 85%;
+                margin: 2px 0;
+                font-size: 13px;
+                line-height: 1.35;
+                padding: 8px 12px;
+                border-radius: 16px;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                filter: drop-shadow(0 1px 1px rgba(0,0,0,0.05));
+                position: relative;
+            }
+
+            /* Adjust max-width on wider mobiles/tablets */
+            @media (min-width: 480px) and (max-width: 767px) {
+                .message-bubble {
+                    max-width: 70%;
+                }
+            }
+
+            .message-bubble.sent {
+                background: #0A1128;
+                color: white;
+                margin-left: auto !important;
+                margin-right: 0 !important;
+                border-bottom-right-radius: 4px;
+            }
+
+            .message-bubble.received {
+                background: #f3f4f6;
+                color: #1f2937;
+                margin-right: auto !important;
+                margin-left: 0 !important;
+                border-bottom-left-radius: 4px;
+            }
+
+            /* Mobile message content with better tap targets */
+            .message-bubble .message-content {
+                position: relative;
+                padding: 4px;
+            }
+
+            .message-bubble .message-content:active {
+                transform: scale(0.98);
+                transition: transform 0.1s ease;
+            }
+
+            /* Mobile input area with proper spacing */
+            .mobile-input-area {
+                padding: 8px 12px;
+                background: white;
+                border-top: 1px solid #e5e7eb;
+                position: sticky;
+                bottom: 0;
+                z-index: 20;
+                min-height: 60px;
+                max-height: 100px;
+                overscroll-behavior: contain;
+                padding-bottom: calc(8px + env(safe-area-inset-bottom));
+            }
+
+            /* Mobile input field with better sizing */
+            .mobile-input-area #message-input {
+                font-size: 14px;
+                padding: 10px 14px;
+                min-height: 36px;
+                border-radius: 20px;
+                background: #f3f4f6;
+                border: 1px solid #e5e7eb;
+                flex-grow: 1;
+            }
+
+            /* Mobile input buttons with proper sizing */
+            .mobile-input-area .mobile-touch-button {
+                min-width: 36px;
+                min-height: 36px;
+                border-radius: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 6px;
+                background: #f3f4f6;
+                border: 1px solid #e5e7eb;
+            }
+
+            /* Mobile send button with proper sizing */
+            .mobile-input-area button[type="submit"] {
+                min-width: 36px;
+                min-height: 36px;
+                border-radius: 18px;
+                padding: 6px;
+                background: #0A1128;
+                color: #FFD700;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* Mobile search input */
+            .mobile-input-area #search-input {
+                font-size: 16px;
+                padding: 10px 12px;
+                min-height: 40px;
+                border-radius: 20px;
+            }
+
+            /* Mobile emoji picker with better positioning */
+            #chat-area #emoji-picker {
+                position: fixed;
+                bottom: calc(60px + env(safe-area-inset-bottom) + 8px);
+                left: 8px;
+                right: 8px;
+                max-width: none;
+                z-index: 100;
+                background: white;
+                border: 1px solid #e5e7eb;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                padding: 8px;
+            }
+
+            #chat-area #emoji-picker button {
+                min-width: 32px;
+                min-height: 32px;
+                font-size: 18px;
+                padding: 4px;
+                border-radius: 6px;
+                transition: all 0.2s ease;
+            }
+
+            #chat-area #emoji-picker button:active {
+                transform: scale(0.9);
+                background: #f3f4f6;
+            }
+
+            /* File input mobile optimization */
+            .mobile-input-area #file-input {
+                min-width: 44px;
+                min-height: 44px;
+            }
+
+            /* Typing indicator mobile */
+            .mobile-input-area #typing-indicator {
+                font-size: 12px;
+                padding: 8px 16px;
+            }
+
+            /* Mobile chat header with proper sizing */
+            .mobile-chat-header {
+                padding: 16px;
+                min-height: 68px;
+                background: white;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            /* Mobile message container with proper padding */
+            .mobile-message-container {
+                padding: 16px;
+                height: calc(100vh - 220px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+                background: #f9fafb;
+            }
+
+            /* Touch-friendly buttons with proper sizing */
+            .mobile-touch-button {
+                min-width: 36px;
+                min-height: 36px;
+                padding: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* Safe area and viewport fixes */
+            .safe-area-top {
+                padding-top: env(safe-area-inset-top);
+            }
+
+            .safe-area-bottom {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+
+            /* Fix for iOS Safari viewport issues */
+            @supports (-webkit-touch-callout: none) {
+                .main-chat-container {
+                    height: -webkit-fill-available;
+                }
+                
+                #chat-area {
+                    height: -webkit-fill-available;
+                }
+                
+                #sidebar {
+                    height: -webkit-fill-available;
+                }
+            }
+
+            /* Prevent zoom on input focus */
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            textarea {
+                font-size: 16px !important;
+                transform: scale(1) !important;
+            }
+
+            /* Better touch feedback */
+            .mobile-touch-button {
+                -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+                transition: all 0.2s ease;
+            }
+
+            .mobile-touch-button:active {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
+            
+            /* Mobile-specific scrollbar styling */
+            #conversation-list::-webkit-scrollbar,
+            #message-container::-webkit-scrollbar {
+                width: 4px;
+            }
+            
+            #conversation-list::-webkit-scrollbar-track,
+            #message-container::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            
+            #conversation-list::-webkit-scrollbar-thumb,
+            #message-container::-webkit-scrollbar-thumb {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 2px;
+            }
+            
+            #conversation-list::-webkit-scrollbar-thumb:hover,
+            #message-container::-webkit-scrollbar-thumb:hover {
+                background: rgba(0, 0, 0, 0.3);
+            }
+            
+            /* Pull-to-refresh functionality for conversation list */
+            .conversation-list-pull-refresh {
+                height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #f9fafb;
+                color: #6b7280;
+                font-size: 14px;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            
+            .conversation-list-pull-refresh.active {
+                opacity: 1;
+            }
+            
+            /* Mobile loading states */
+            .mobile-loading {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                color: #6b7280;
+                font-size: 14px;
+            }
+            
+            .mobile-loading-spinner {
+                width: 20px;
+                height: 20px;
+                border: 2px solid #e5e7eb;
+                border-top: 2px solid #0A1128;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin-right: 8px;
+            }
+            
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            
+            /* Mobile empty states */
+            .mobile-empty-state {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 40px 20px;
+                text-align: center;
+                color: #6b7280;
+            }
+            
+            .mobile-empty-state-icon {
+                width: 48px;
+                height: 48px;
+                margin-bottom: 16px;
+                opacity: 0.3;
+            }
+            
+            .mobile-empty-state-title {
+                font-size: 16px;
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: #374151;
+            }
+            
+            .mobile-empty-state-text {
+                font-size: 14px;
+                line-height: 1.5;
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* Hide site header on mobile in messages page */
+            .site-header {
+                display: none !important;
+            }
+            
+            /* Navigation - ensure hidden on mobile */
+            nav.desktop-only {
+                display: none !important;
+            }
+            
+            /* Unified Mobile Header Logic */
+            .mobile-messages-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 16px;
+                height: 60px;
+                padding-top: env(safe-area-inset-top);
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 50;
+                background: #0A1128;
+                color: white;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            
+            /* Show menu toggle on list view, back button on chat view */
+            #mobile-chat-back-button { display: none; }
+            body.mobile-chat-active #mobile-menu-toggle { display: none !important; }
+            body.mobile-chat-active #mobile-chat-back-button { display: flex; }
+            
+            /* Hide all global headers when chat is active to show only the chat header */
+            body.mobile-chat-active .mobile-messages-header,
+            body.mobile-chat-active .site-header {
+                display: none !important;
+            }
+            
+            /* Add top padding to conversation list to account for mobile header */
+            #sidebar #conversation-list {
+                padding-top: 0;
+            }
+            
+            #sidebar {
+                padding-top: calc(60px + env(safe-area-inset-top));
+            }
+            
+            /* Main container - ensure it fills height without overflow issues */
+            main.flex-grow {
+                height: 100dvh;
+                margin-top: 0;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .main-chat-container {
+                height: 100dvh;
+                margin-top: 0;
+            }
+            
+            /* Fix message container scrolling - prevent elastic behavior */
+            /* Account for: chat header (68px) + input area (60px) = 128px (mobile header is always hidden) */
+            .mobile-message-container {
+                flex: 1;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 8px;
+                overscroll-behavior: contain;
+                position: relative;
+                height: auto !important;
+            }
+            
+            /* Fix conversation list scrolling - dynamic height */
+            #conversation-list {
+                height: 100dvh;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+                position: relative;
+            }
+            
+            /* Mobile chat area with proper layout */
+            #chat-area {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                display: none;
+                flex-direction: column;
+                height: 100dvh;
+                width: 100%;
+                background: white;
+                z-index: 10;
+            }
+
+            #chat-area.mobile-full {
+                display: flex !important;
+            }
+
+            /* Mobile chat header with proper sizing and safe area */
+            #chat-area #chat-header {
+                min-height: 56px;
+                padding: 8px 12px;
+                padding-top: calc(8px + env(safe-area-inset-top));
+                flex-shrink: 0;
+                background: white;
+                border-bottom: 1px solid #e5e7eb;
+                position: sticky;
+                top: 0;
+                z-index: 20;
+            }
+
+            /* Mobile message container with proper layout */
+            #chat-area #message-container {
+                flex: 1;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+                padding: 8px;
+                background: #f9fafb;
+                min-height: 0;
+            }
+
+            /* Mobile input area with proper positioning and safe area */
+            #chat-area #input-area {
+                position: sticky;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                border-top: 1px solid #e5e7eb;
+                padding: 8px 12px;
+                padding-bottom: calc(8px + env(safe-area-inset-bottom));
+                z-index: 30;
+                flex-shrink: 0;
+                min-height: 60px;
+                max-height: 100px;
+                display: flex !important;
+                flex-direction: column;
+            }
+            
+            /* Ensure input area is always visible on mobile */
+            .mobile-input-area {
+                display: flex !important;
+                position: sticky !important;
+                bottom: 0 !important;
+                background: white !important;
+                border-top: 1px solid #e5e7eb !important;
+                padding: 8px 12px !important;
+                padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+                z-index: 30 !important;
+                min-height: 60px !important;
+            }
+            
+            /* Touch-friendly mobile input with better sizing */
+            #chat-area #message-form {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                padding: 0;
+            }
+
+            #chat-area #message-input {
+                font-size: 14px; /* Prevents zoom on iOS */
+                padding: 10px 14px;
+                min-height: 36px;
+                max-height: 80px;
+                border-radius: 20px;
+                background: #f3f4f6;
+                border: 1px solid #e5e7eb;
+                flex-grow: 1;
+                resize: none;
+                line-height: 1.4;
+            }
+
+            /* Mobile input buttons with proper touch targets */
+            #chat-area #file-button,
+            #chat-area #emoji-button,
+            #chat-area button[type="submit"] {
+                min-width: 36px;
+                min-height: 36px;
+                border-radius: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 6px;
+                transition: all 0.2s ease;
+            }
+
+            #chat-area #file-button:active,
+            #chat-area #emoji-button:active,
+            #chat-area button[type="submit"]:active {
+                transform: scale(0.95);
+            }
+            
+            /* Mobile menu styles are handled by style.css */
+            
+            /* Make input area always visible and properly positioned */
+            .mobile-input-area {
+                position: sticky;
+                bottom: 0;
+                background: white;
+                border-top: 1px solid #e5e7eb;
+                padding: 12px 16px;
+                z-index: 10;
+                min-height: 80px;
+                max-height: 120px;
+                overscroll-behavior: contain;
+                margin-top: auto;
+                flex-shrink: 0;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            }
+            
+            /* Compressed mobile input form */
+            .mobile-input-area #message-form {
+                gap: 6px;
+                padding: 0;
+            }
+            
+            /* Enhanced mobile message styles */
+            .mobile-message-bubble {
+                margin: 4px 0 !important;
+                width: 100% !important;
+                display: flex !important;
+            }
+            
+            .mobile-message-bubble.sent {
+                justify-content: flex-end !important;
+            }
+            
+            .mobile-message-bubble.received {
+                justify-content: flex-start !important;
+            }
+
+            .mobile-message-bubble .message-content {
+                padding: 8px 12px !important;
+                font-size: 13px !important;
+                line-height: 1.35 !important;
+            }
+
+            .mobile-message-text {
+                font-size: 16px;
+                line-height: 1.5;
+                margin: 8px 0;
+            }
+
+            .mobile-message-meta {
+                margin-top: 12px;
+                font-size: 12px;
+            }
+
+            .mobile-message-time {
+                font-size: 12px;
+            }
+
+            .mobile-message-status {
+                font-size: 12px;
+            }
+
+            .mobile-message-edited {
+                font-size: 10px;
+            }
+
+            .mobile-message-reactions {
+                margin-top: 12px;
+            }
+
+            .mobile-reaction {
+                font-size: 16px;
+                padding: 4px 8px;
+                margin: 2px;
+            }
+
+            .mobile-message-actions {
+                top: 8px;
+                right: 8px;
+            }
+
+            .mobile-action-button {
+                font-size: 14px;
+                padding: 6px 10px;
+                min-width: 36px;
+                min-height: 36px;
+            }
+
+            .mobile-reply-bubble {
+                padding: 12px;
+                margin-bottom: 12px;
+                font-size: 12px;
+            }
+
+            .mobile-product-bubble {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+
+            .mobile-product-bubble img {
+                width: 48px;
+                height: 48px;
+            }
+
+            .mobile-product-bubble p {
+                font-size: 12px;
+            }
+
+            .mobile-image-bubble img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 8px;
+            }
+
+            .mobile-file-bubble {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+
+            .mobile-file-bubble svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .mobile-file-bubble p {
+                font-size: 12px;
+            }
+
+            /* Touch-friendly hover states */
+            .mobile-message-bubble:active {
+                transform: scale(0.98);
+                transition: transform 0.1s ease;
+            }
+
+            .mobile-reaction:active {
+                transform: scale(0.9);
+                transition: transform 0.1s ease;
+            }
+
+            .mobile-action-button:active {
+                transform: scale(0.95);
+                transition: transform 0.1s ease;
+            }
+
+            /* Improve tap targets */
+            .mobile-touch-target {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 flex flex-col h-screen overflow-hidden">
+    
+    <!-- Unified Header for Messages -->
+    <header class="mobile-messages-header bg-navy text-white shadow-lg fixed top-0 left-0 right-0 z-50 safe-area-top">
+        <!-- Left Side: Toggleable Button -->
+        <div class="flex items-center w-12">
+            <!-- Hamburger Menu (List View) -->
+            <button id="mobile-menu-toggle" class="text-white hover:text-gold transition-colors p-2" onclick="window.openMobileMenu()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            
+            <!-- Back Button (Chat View) -->
+            <button id="mobile-chat-back-button" class="text-white hover:text-gold transition-colors p-2 hidden" onclick="window.backToConversations()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Center: Dynamic Title -->
+        <div class="flex-1 text-center">
+            <h1 id="mobile-header-title" class="text-lg font-bold text-gold">Messages</h1>
+        </div>
+
+        <!-- Right Side: Utils (Cart) -->
+        <div class="flex items-center justify-end w-12">
+            <a href="cart.html" class="relative text-white hover:text-gold transition-colors p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span class="cart-badge-count absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">0</span>
+            </a>
+        </div>
+    </header>
+    
+    <!-- Site Header (Hidden on Mobile in Messages) -->
+    <header class="site-header bg-navy text-white shadow-lg sticky top-0 z-50">
+        <!-- Row 1: Utilities and Branding -->
+        <div class="v-container mobile-header-row-1">
+            <div class="flex items-center justify-between py-3">
+                <!-- Hamburger Menu (Left) -->
+                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Brand Name (Center) -->
+                <div class="flex-1 text-center">
+                    <a href="../index.html" class="text-2xl md:text-3xl font-bold text-gold mobile-logo">Virtuosa</a>
+                </div>
+
+                <!-- Customer Utilities (Right) -->
+                <div class="flex items-center space-x-3 mobile-header-actions">
+                    <!-- Cart Icon with Badge -->
+                    <a href="cart.html" class="relative v-touch text-white hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Search Bar -->
+        <div class="v-container mobile-header-row-2 pb-3">
+            <div class="relative mobile-search-container">
+                <input id="mobile-search-input" type="text" 
+                    placeholder="Search campus marketplace..." 
+                    class="w-full pl-4 pr-12 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400 mobile-search-input"
+                    autocomplete="off">
+                <button id="mobile-search-button" 
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors mobile-search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Desktop Header (Hidden on Mobile) -->
+        <div class="v-container v-header-row desktop-header">
+            <div class="v-header-logo">
+                <a href="../index.html" class="text-xl md:text-3xl font-bold text-gold">Virtuosa</a>
+            </div>
+
+            <div class="v-header-search">
+                <div class="relative">
+                    <input id="home-search-input" type="text"
+                        placeholder="Search campus marketplace..."
+                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400"
+                        autocomplete="off">
+                    <button id="home-search-button"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="user-info-container" class="v-header-actions">
+                <a href="login.html" id="login-link" class="text-white hover:text-gold transition-colors font-medium text-sm md:text-base hidden md:block">Log In</a>
+                <div id="user-menu" class="relative hidden">
+                    <button onclick="toggleUserMenu()" class="text-white hover:text-gold transition-colors font-medium flex items-center space-x-2">
+                        <span id="user-greeting" class="hidden md:inline"></span>
+                        <i class="fas fa-user-circle text-lg md:text-base"></i>
+                        <i class="fas fa-chevron-down text-xs hidden md:inline"></i>
+                    </button>
+                    <div id="user-dropdown" class="absolute right-0 top-10 w-48 bg-navy rounded-lg shadow-xl z-50 py-2 hidden">
+                        <a href="profile.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-user mr-2"></i>My Profile</a>
+                        <a href="buyer-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-tachometer-alt mr-2"></i>Dashboard</a>
+                        <a href="notifications.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-bell mr-2"></i>Notifications</a>
+                        <a href="transactions.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-exchange-alt mr-2"></i>My Transactions</a>
+                        <a href="reviews.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-star mr-2"></i>My Reviews</a>
+                        <div id="seller-links" class="hidden">
+                            <a href="seller-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-store mr-2"></i>Seller Panel</a>
+                            <a href="create-product.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-plus mr-2"></i>Create Listing</a>
+                        </div>
+                        <div id="admin-link" class="hidden">
+                            <a href="admin-dashboard.html" class="block px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-cog mr-2"></i>Admin Panel</a>
+                        </div>
+                        <div class="border-t border-gray-700 my-1"></div>
+                        <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i>Log Out</button>
+                    </div>
+                </div>
+                <a href="cart.html" class="relative text-white hover:text-gold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Bar (Desktop Only) -->
+    <nav class="desktop-only bg-dark-navy text-white shadow-sm py-1.5 px-6 md:px-12 z-40 border-t border-gray-800">
+        <div class="container mx-auto nav-row-2-container">
+            <!-- Desktop "Explore" Menu Trigger -->
+            <button id="desktop-explore-menu" onclick="window.openMobileMenu()" class="flex items-center text-white hover:text-gold px-3 py-1 rounded-full border border-gray-700 hover:border-gold transition-all mr-6 group shrink-0">
+                <i class="fas fa-bars mr-2 group-hover:scale-110 transition-transform"></i>
+                <span class="font-bold text-[10px] uppercase tracking-wider">Explore</span>
+            </button>
+
+            <!-- Category Menu -->
+            <div class="flex items-center space-x-6 overflow-x-auto hide-scrollbar py-1">
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="nav-category-item">Hot Deals</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="nav-category-item">Best Sellers</a>
+                <a href="seller.html" class="nav-category-item text-gold">Sell Items</a>
+                <div class="h-4 w-[1px] bg-gray-700 mx-2 shrink-0"></div>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="nav-category-item">Electronics</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="nav-category-item">Computers & Software</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="nav-category-item">Services</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="nav-category-item">Watches & Jewellery</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="nav-category-item">Men's Clothing</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="nav-category-item">Women's Clothing</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="nav-category-item">Shoes</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="nav-category-item">Accessories</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="nav-category-item">Personal Care & Beauty</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="nav-category-item">Food & Beverages</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="nav-category-item">Sports & Outdoors</a>
+                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="nav-category-item">Home & Living</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+    <div class="mobile-menu-content">
+        <div class="mobile-menu-header">
+            <div class="text-xl font-bold text-gold">Menu</div>
+            <button id="mobile-menu-close" class="mobile-menu-close">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Account</div>
+            <a href="login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
+                <i class="fas fa-sign-in-alt"></i>
+                <span id="mobile-menu-sign-text">Sign In</span>
+            </a>
+            <a href="profile.html" class="mobile-menu-link">
+                <i class="fas fa-user"></i>
+                <span>My Profile</span>
+            </a>
+            <a href="buyer-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="orders.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-bag"></i>
+                <span>My Orders</span>
+            </a>
+            <a href="transactions.html" class="mobile-menu-link">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="reviews.html" class="mobile-menu-link">
+                <i class="fas fa-star"></i>
+                <span>My Reviews</span>
+            </a>
+        </div>
+
+        <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Seller Tools</div>
+            <a href="seller-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Seller Dashboard</span>
+            </a>
+            <a href="create-product.html" class="mobile-menu-link">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Product</span>
+            </a>
+        </div>
+
+        <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
+            <div class="mobile-menu-title">Admin Panel</div>
+            <a href="admin-dashboard.html" class="mobile-menu-link">
+                <i class="fas fa-cog"></i>
+                <span>Admin Dashboard</span>
+            </a>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-title">Shopping</div>
+            <a href="cart.html" class="mobile-menu-link">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Shopping Cart</span>
+            </a>
+            <a href="products.html?category=Hot%20Deals" class="mobile-menu-link">
+                <i class="fas fa-fire"></i>
+                <span>Hot Deals</span>
+            </a>
+            <a href="products.html?category=Best%20Sellers" class="mobile-menu-link">
+                <i class="fas fa-crown"></i>
+                <span>Best Sellers</span>
+            </a>
+            <a href="seller.html" class="mobile-menu-link">
+                <i class="fas fa-store"></i>
+                <span>Become a Seller</span>
+            </a>
+        </div>
+    </div>
+
+
+
+    <main class="flex-grow flex overflow-hidden main-chat-container">
+        <div class="container mx-auto flex h-full bg-white shadow-xl">
+            <!-- Conversations Sidebar -->
+            <div id="sidebar" class="w-full md:w-1/3 flex flex-col border-r border-gray-100 mobile-full">
+                <div class="p-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between mobile-chat-header">
+                    <h2 class="text-xl font-bold text-navy">Messages</h2>
+                    <i data-lucide="message-square" class="text-gold w-5 h-5"></i>
+                </div>
+                <div id="conversation-list" class="flex-grow overflow-y-auto">
+                    <!-- Conversations will be loaded here -->
+                    <div class="p-8 text-center text-gray-400">
+                        <p>No conversations yet.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Space -->
+            <div id="chat-area" class="hidden md:flex flex-col flex-grow bg-white">
+                <!-- Chat Header -->
+                <div id="chat-header"
+                    class="p-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10 mobile-chat-header">
+                    <div class="flex items-center gap-3">
+                        <button onclick="backToConversations()" class="md:hidden mobile-touch-button p-2 hover:bg-gray-100 rounded-full">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        </button>
+                        <div id="recipient-avatar"
+                            class="w-10 h-10 rounded-full bg-gold bg-opacity-10 flex items-center justify-center font-bold text-gold">
+                            ?</div>
+                        <div>
+                            <h3 id="recipient-name" class="font-bold text-navy">Select a conversation</h3>
+                            <p id="recipient-status" class="text-xs text-green-500 font-medium">Online</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="mobile-touch-button p-2 hover:bg-gray-100 rounded-lg text-gray-400"><i data-lucide="phone"
+                                class="w-5 h-5"></i></button>
+                        <button class="mobile-touch-button p-2 hover:bg-gray-100 rounded-lg text-gray-400"><i data-lucide="more-vertical"
+                                class="w-5 h-5"></i></button>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div id="message-container" class="flex-grow overflow-y-auto mobile-message-container space-y-4 bg-gray-50 bg-opacity-50">
+                    <div class="flex flex-col items-center justify-center h-full text-gray-400">
+                        <i data-lucide="send" class="w-12 h-12 mb-4 opacity-20"></i>
+                        <p>Your messages will appear here</p>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div id="input-area" class="mobile-input-area bg-white border-t border-gray-100 safe-area-bottom">
+                    <!-- Typing Indicator -->
+                    <div id="typing-indicator" class="hidden text-xs text-gray-500 mb-2 italic px-4">
+                        Someone is typing...
+                    </div>
+                    
+                    <form id="message-form" class="">
+                        <button type="button" id="file-button" class="mobile-touch-button hover:bg-gray-100 rounded-lg text-gray-400 relative">
+                            <i data-lucide="paperclip" class="w-6 h-6"></i>
+                            <input type="file" id="file-input" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*,application/pdf,.doc,.docx,.txt">
+                        </button>
+                        <button type="button" id="emoji-button" class="mobile-touch-button hover:bg-gray-100 rounded-lg text-gray-400">
+                            <i data-lucide="smile" class="w-6 h-6"></i>
+                        </button>
+                        <input type="text" id="message-input" placeholder="Type a message..."
+                            class="flex-grow py-3 px-4 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold border-none text-sm">
+                        <button type="submit"
+                            class="bg-navy text-gold mobile-touch-button rounded-xl hover:bg-opacity-90 transition-all shadow-md">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                        </button>
+                    </form>
+                    
+                    <!-- Emoji Picker (Hidden by default) -->
+                    <div id="emoji-picker" class="hidden relative bg-white border border-gray-200 rounded-lg shadow-lg p-3 grid grid-cols-8 gap-1 z-50">
+                        <button type="button" onclick="addReactionToInput('😀')" class="text-xl hover:bg-gray-100 rounded">😀</button>
+                        <button type="button" onclick="addReactionToInput('😂')" class="text-xl hover:bg-gray-100 rounded">😂</button>
+                        <button type="button" onclick="addReactionToInput('❤️')" class="text-xl hover:bg-gray-100 rounded">❤️</button>
+                        <button type="button" onclick="addReactionToInput('👍')" class="text-xl hover:bg-gray-100 rounded">👍</button>
+                        <button type="button" onclick="addReactionToInput('🎉')" class="text-xl hover:bg-gray-100 rounded">🎉</button>
+                        <button type="button" onclick="addReactionToInput('🔥')" class="text-xl hover:bg-gray-100 rounded">🔥</button>
+                        <button type="button" onclick="addReactionToInput('😍')" class="text-xl hover:bg-gray-100 rounded">😍</button>
+                        <button type="button" onclick="addReactionToInput('🤔')" class="text-xl hover:bg-gray-100 rounded">🤔</button>
+                        <button type="button" onclick="addReactionToInput('😎')" class="text-xl hover:bg-gray-100 rounded">😎</button>
+                        <button type="button" onclick="addReactionToInput('😢')" class="text-xl hover:bg-gray-100 rounded">😢</button>
+                        <button type="button" onclick="addReactionToInput('🙏')" class="text-xl hover:bg-gray-100 rounded">🙏</button>
+                        <button type="button" onclick="addReactionToInput('💪')" class="text-xl hover:bg-gray-100 rounded">💪</button>
+                        <button type="button" onclick="addReactionToInput('🚀')" class="text-xl hover:bg-gray-100 rounded">🚀</button>
+                        <button type="button" onclick="addReactionToInput('🌟')" class="text-xl hover:bg-gray-100 rounded">🌟</button>
+                        <button type="button" onclick="addReactionToInput('💯')" class="text-xl hover:bg-gray-100 rounded">💯</button>
+                        <button type="button" onclick="addReactionToInput('🎯')" class="text-xl hover:bg-gray-100 rounded">🎯</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/header.js"></script>
+    <script src="../js/mobile-header.js"></script>
+    <script src="../js/auth-helper.js"></script>
+    <script src="../js/messages.js"></script>
+    
+    <!-- Clean URL Support -->
+    <script src="../js/router.js"></script>
+    <script src="../js/url-helper.js"></script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>

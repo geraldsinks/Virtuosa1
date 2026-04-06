@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Under Maintenance - Virtuosa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .maintenance-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .countdown-timer {
+            font-variant-numeric: tabular-nums;
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-navy to-blue-900 min-h-screen flex items-center justify-center">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Main Maintenance Card -->
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <!-- Header Section -->
+            <div class="bg-gradient-to-r from-navy to-blue-700 text-white p-8 text-center">
+                <div class="maintenance-animation inline-block mb-4">
+                    <i class="fas fa-tools text-6xl"></i>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold mb-2">Site Under Maintenance</h1>
+                <p class="text-blue-100 text-lg">We're working to make Virtuosa better for you</p>
+            </div>
+
+            <!-- Content Section -->
+            <div class="p-8">
+                <!-- Dynamic Maintenance Info -->
+                <div id="maintenanceInfo" class="mb-8">
+                    <div class="text-center mb-6">
+                        <h2 id="maintenanceTitle" class="text-2xl font-bold text-gray-800 mb-2">Scheduled Maintenance</h2>
+                        <p id="maintenanceDescription" class="text-gray-600">We're currently performing scheduled maintenance to improve our services.</p>
+                    </div>
+
+                    <!-- Progress Indicator -->
+                    <div class="mb-8">
+                        <div class="flex items-center justify-center mb-4">
+                            <svg class="progress-ring" width="120" height="120">
+                                <circle cx="60" cy="60" r="54" stroke="#e5e7eb" stroke-width="8" fill="none"></circle>
+                                <circle id="progressCircle" cx="60" cy="60" r="54" stroke="#3b82f6" stroke-width="8" fill="none"
+                                        stroke-dasharray="339.292" stroke-dashoffset="169.646" stroke-linecap="round"></circle>
+                            </svg>
+                            <div class="ml-6">
+                                <div class="text-3xl font-bold text-gray-800 countdown-timer" id="countdown">--:--:--</div>
+                                <div class="text-sm text-gray-600">Estimated time remaining</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Maintenance Details -->
+                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                        <h3 class="font-semibold text-gray-900 mb-4">What's happening?</h3>
+                        <div id="maintenanceDetails" class="space-y-3 text-sm text-gray-700">
+                            <div class="flex items-center">
+                                <i class="fas fa-clock text-blue-600 mr-3 w-5"></i>
+                                <span id="maintenanceTime">Started: Loading...</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-hourglass-end text-blue-600 mr-3 w-5"></i>
+                                <span id="estimatedEnd">Expected completion: Loading...</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-exclamation-triangle text-orange-600 mr-3 w-5"></i>
+                                <span id="affectedServices">Services affected: Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button onclick="refreshStatus()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-sync-alt mr-2"></i>Check Status
+                        </button>
+                        <button id="notifyButton" onclick="requestNotification()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-bell mr-2"></i>Notify Me When Ready
+                        </button>
+                        <a href="mailto:support@virtuosa.com" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors text-center">
+                            <i class="fas fa-envelope mr-2"></i>Contact Support
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Alternative Actions -->
+                <div class="border-t pt-6">
+                    <h3 class="font-semibold text-gray-900 mb-4 text-center">While you wait...</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="text-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-book text-blue-600 text-2xl mb-2"></i>
+                            <h4 class="font-medium text-gray-900">Read Our Blog</h4>
+                            <p class="text-sm text-gray-600 mt-1">Tips for campus marketplace success</p>
+                            <a href="#" class="text-blue-600 text-sm hover:underline mt-2 inline-block">Read more →</a>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-mobile-alt text-green-600 text-2xl mb-2"></i>
+                            <h4 class="font-medium text-gray-900">Download Mobile App</h4>
+                            <p class="text-sm text-gray-600 mt-1">Get notified when we're back</p>
+                            <a href="#" class="text-green-600 text-sm hover:underline mt-2 inline-block">Download →</a>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-users text-purple-600 text-2xl mb-2"></i>
+                            <h4 class="font-medium text-gray-900">Join Community</h4>
+                            <p class="text-sm text-gray-600 mt-1">Connect with other students</p>
+                            <a href="#" class="text-purple-600 text-sm hover:underline mt-2 inline-block">Join now →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Updates -->
+                <div id="statusUpdates" class="mt-8 hidden">
+                    <h3 class="font-semibold text-gray-900 mb-4">Live Updates</h3>
+                    <div id="updatesList" class="space-y-3 max-h-60 overflow-y-auto">
+                        <!-- Updates will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-white">
+            <p class="text-sm opacity-75">© 2024 Virtuosa. Campus Marketplace Redefined.</p>
+            <div class="mt-4 flex justify-center space-x-4">
+                <a href="#" class="text-white hover:text-blue-200 transition-colors">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" class="text-white hover:text-blue-200 transition-colors">
+                    <i class="fab fa-facebook"></i>
+                </a>
+                <a href="#" class="text-white hover:text-blue-200 transition-colors">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="#" class="text-white hover:text-blue-200 transition-colors">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Modal -->
+    <div id="notificationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-md w-full p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900">Get Notified</h3>
+                <button onclick="closeNotificationModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <p class="text-gray-600 mb-4">Enter your email address and we'll notify you when the maintenance is complete.</p>
+            <form onsubmit="submitNotification(event)">
+                <div class="mb-4">
+                    <input type="email" id="notificationEmail" required 
+                           placeholder="your.email@example.com"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeNotificationModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Notify Me
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script>
+        let maintenanceData = null;
+        let countdownInterval = null;
+        let statusCheckInterval = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadMaintenanceStatus();
+            startStatusChecks();
+        });
+
+        async function loadMaintenanceStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/maintenance/status`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.isActive && data.activeMaintenance) {
+                        maintenanceData = data.activeMaintenance;
+                        displayMaintenanceInfo(data.activeMaintenance);
+                        startCountdown(data.activeMaintenance.scheduledEndTime);
+                    } else {
+                        // Maintenance is over, redirect to home
+                        window.location.href = '/index.html';
+                    }
+                } else {
+                    showError('Unable to load maintenance status');
+                }
+            } catch (error) {
+                console.error('Load maintenance status error:', error);
+                showError('Unable to connect to server');
+            }
+        }
+
+        function displayMaintenanceInfo(maintenance) {
+            // Update title and description
+            document.getElementById('maintenanceTitle').textContent = 
+                maintenance.messageContent?.headline || maintenance.title || 'Site Under Maintenance';
+            document.getElementById('maintenanceDescription').textContent = 
+                maintenance.messageContent?.body || maintenance.description || 'We\'re currently performing maintenance to improve our services.';
+
+            // Update time information
+            const startTime = maintenance.actualStartTime || maintenance.scheduledStartTime;
+            const endTime = maintenance.scheduledEndTime;
+            
+            document.getElementById('maintenanceTime').textContent = 
+                `Started: ${startTime ? new Date(startTime).toLocaleString() : 'Recently'}`;
+            document.getElementById('estimatedEnd').textContent = 
+                `Expected completion: ${endTime ? new Date(endTime).toLocaleString() : 'Soon'}`;
+
+            // Update affected services
+            const services = maintenance.affectedServices;
+            if (services && services.length > 0) {
+                const serviceNames = services.map(service => {
+                    return service.split('_').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                    ).join(' ');
+                }).join(', ');
+                document.getElementById('affectedServices').textContent = `Services affected: ${serviceNames}`;
+            } else {
+                document.getElementById('affectedServices').textContent = 'All services may be temporarily unavailable';
+            }
+
+            // Show status updates if there are reports
+            if (maintenance.reports && maintenance.reports.length > 0) {
+                displayStatusUpdates(maintenance.reports);
+            }
+        }
+
+        function displayStatusUpdates(reports) {
+            const updatesContainer = document.getElementById('statusUpdates');
+            const updatesList = document.getElementById('updatesList');
+            
+            updatesList.innerHTML = reports
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .slice(0, 5)
+                .map(report => `
+                    <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div class="flex-shrink-0">
+                            <i class="fas ${getReportIcon(report.type)} ${getReportColor(report.severity)} text-sm"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-900">${escapeHtml(report.type)}</div>
+                            <div class="text-sm text-gray-700">${escapeHtml(report.message)}</div>
+                            <div class="text-xs text-gray-500 mt-1">
+                                ${new Date(report.timestamp).toLocaleString()}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            
+            updatesContainer.classList.remove('hidden');
+        }
+
+        function getReportIcon(type) {
+            const icons = {
+                'status_update': 'fa-info-circle',
+                'incident': 'fa-exclamation-triangle',
+                'user_feedback': 'fa-comment',
+                'performance_metric': 'fa-chart-line',
+                'completion': 'fa-check-circle'
+            };
+            return icons[type] || 'fa-info-circle';
+        }
+
+        function getReportColor(severity) {
+            const colors = {
+                'critical': 'text-red-600',
+                'error': 'text-red-500',
+                'warning': 'text-orange-500',
+                'info': 'text-blue-500'
+            };
+            return colors[severity] || 'text-gray-500';
+        }
+
+        function startCountdown(endTime) {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+
+            const updateCountdown = () => {
+                const now = new Date();
+                const end = new Date(endTime);
+                const diff = end - now;
+
+                if (diff <= 0) {
+                    document.getElementById('countdown').textContent = 'Completing...';
+                    clearInterval(countdownInterval);
+                    // Check status again
+                    setTimeout(loadMaintenanceStatus, 5000);
+                    return;
+                }
+
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById('countdown').textContent = 
+                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                // Update progress circle
+                const totalTime = new Date(endTime) - new Date(maintenanceData.actualStartTime || maintenanceData.scheduledStartTime);
+                const elapsed = totalTime - diff;
+                const progress = (elapsed / totalTime) * 100;
+                const circumference = 2 * Math.PI * 54;
+                const offset = circumference - (progress / 100) * circumference;
+                
+                document.getElementById('progressCircle').style.strokeDashoffset = offset;
+            };
+
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
+        }
+
+        function startStatusChecks() {
+            // Check for updates every 30 seconds
+            statusCheckInterval = setInterval(loadMaintenanceStatus, 30000);
+        }
+
+        async function refreshStatus() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Checking...';
+            button.disabled = true;
+
+            await loadMaintenanceStatus();
+
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+
+        function requestNotification() {
+            // Check if browser supports notifications
+            if ('Notification' in window && Notification.permission === 'granted') {
+                // Request browser notification
+                subscribeToNotifications();
+            } else {
+                // Show email modal
+                document.getElementById('notificationModal').classList.remove('hidden');
+            }
+        }
+
+        async function subscribeToNotifications() {
+            try {
+                // Register for push notifications
+                const registration = await navigator.serviceWorker.ready;
+                const subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlB64ToUint8Array('YOUR_VAPID_PUBLIC_KEY')
+                });
+
+                // Send subscription to server
+                const response = await fetch(`${API_BASE}/notifications/subscribe`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        subscription: subscription,
+                        type: 'maintenance'
+                    })
+                });
+
+                if (response.ok) {
+                    showToast('You will be notified when maintenance is complete', 'success');
+                } else {
+                    throw new Error('Failed to subscribe to notifications');
+                }
+            } catch (error) {
+                console.error('Notification subscription error:', error);
+                showToast('Unable to subscribe to notifications. Try email instead.', 'error');
+                document.getElementById('notificationModal').classList.remove('hidden');
+            }
+        }
+
+        function closeNotificationModal() {
+            document.getElementById('notificationModal').classList.add('hidden');
+            document.getElementById('notificationEmail').value = '';
+        }
+
+        async function submitNotification(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('notificationEmail').value;
+            const button = event.target.querySelector('button[type="submit"]');
+            const originalText = button.innerHTML;
+            
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Subscribing...';
+            button.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/maintenance/notify-email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        maintenanceId: maintenanceData.id
+                    })
+                });
+
+                if (response.ok) {
+                    showToast('You will be notified at ' + email + ' when maintenance is complete', 'success');
+                    closeNotificationModal();
+                } else {
+                    throw new Error('Failed to subscribe for email notification');
+                }
+            } catch (error) {
+                console.error('Email notification error:', error);
+                showToast('Failed to subscribe for email notification', 'error');
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('maintenanceInfo').innerHTML = `
+                <div class="text-center">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-4xl mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Unable to Load Status</h2>
+                    <p class="text-gray-600 mb-6">${message}</p>
+                    <button onclick="loadMaintenanceStatus()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>Try Again
+                    </button>
+                </div>
+            `;
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white z-50 ${
+                type === 'success' ? 'bg-green-600' : 
+                type === 'error' ? 'bg-red-600' : 'bg-blue-600'
+            }`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+        }
+
+        function urlB64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        // Cleanup intervals when page is unloaded
+        window.addEventListener('beforeunload', () => {
+            if (countdownInterval) clearInterval(countdownInterval);
+            if (statusCheckInterval) clearInterval(statusCheckInterval);
+        });
+    </script>
+
+    <!-- Cookie Analytics & Consent -->
+    <script src="/js/cookie-consent.js"></script>
+    <script src="/js/cookie-tracker.js"></script>
+</body>
+
+</html>
