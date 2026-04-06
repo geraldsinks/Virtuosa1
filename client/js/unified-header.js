@@ -68,10 +68,14 @@ class UnifiedHeader {
         let header = document.querySelector('header.bg-gradient-to-r');
         
         if (!header) {
+            console.log('🔧 No header found, injecting unified header...');
             const headerHTML = this.getUnifiedHeaderHTML();
             const body = document.body;
             body.insertAdjacentHTML('afterbegin', headerHTML);
-            header = document.querySelector('header.bg-gradient-to-r');
+            header = document.querySelector('header');
+            console.log('✅ Unified header injected');
+        } else {
+            console.log('✅ Header already exists');
         }
         
         // Inject horizontal category navigation if it doesn't exist
@@ -87,6 +91,7 @@ class UnifiedHeader {
      * Ensure horizontal category navigation exists and works on index.html
      */
     ensureHorizontalNavigationExists() {
+        console.log('🔄 Initializing horizontal navigation...');
         // Initialize mobile category scroller from mobile-header.js functionality
         this.initializeMobileCategoryScroller();
     }
@@ -1609,62 +1614,63 @@ class UnifiedHeader {
      * Initialize mobile category scroller (from mobile-header.js)
      */
     async initializeMobileCategoryScroller() {
-        // Wait for header to be injected
-        const maxWaitTime = 5000; // 5 seconds max wait
-        const startTime = Date.now();
+        console.log('📱 Initializing mobile category scroller...');
         
-        while (Date.now() - startTime < maxWaitTime) {
-            const searchRow = document.querySelector('.mobile-header-row-2');
-            if (searchRow) break;
-            await new Promise(resolve => setTimeout(resolve, 100));
-        }
-        
-        const searchRow = document.querySelector('.mobile-header-row-2');
-        
-        // If no mobile header (like on index.html), create a scroller container
-        if (!searchRow) {
-            // Prevent multiple scrollers
-            if (document.querySelector('.mobile-category-scroller')) return;
-            
-            // Create scroller container for index.html
-            const scrollerContainer = document.createElement('div');
-            scrollerContainer.className = 'mobile-category-scroller md:hidden flex flex-row overflow-x-auto whitespace-nowrap hide-scrollbar items-center bg-gray-900 gap-4 border-gray-700 transition-all duration-300 ease-in-out origin-top overflow-y-hidden border-b shadow-sm'; 
-            
-            // Define initial visible styles
-            scrollerContainer.style.maxHeight = '120px';
-            scrollerContainer.style.paddingTop = '0.875rem';
-            scrollerContainer.style.paddingBottom = '0.875rem';
-            scrollerContainer.style.paddingLeft = '1.25rem';
-            scrollerContainer.style.paddingRight = '1.25rem';
-            scrollerContainer.style.opacity = '1';
-            
-            // Add to page after header injection
-            setTimeout(() => {
-                const header = document.querySelector('header');
-                if (header && !document.querySelector('.mobile-category-scroller')) {
-                    header.insertAdjacentElement('afterend', scrollerContainer);
-                    this.loadCategoriesIntoScroller(scrollerContainer);
-                }
-            }, 500);
-            
+        // Prevent multiple scrollers
+        if (document.querySelector('.mobile-category-scroller')) {
+            console.log('⚠️ Scroller already exists, skipping');
             return;
         }
         
-        // Prevent multiple scrollers
-        if (document.querySelector('.mobile-category-scroller')) return;
-
-        // Original mobile scroller logic for pages with mobile header
-        this.loadCategoriesIntoScroller();
+        // Create scroller container for all pages (including index.html)
+        const scrollerContainer = document.createElement('div');
+        scrollerContainer.className = 'mobile-category-scroller md:hidden flex flex-row overflow-x-auto whitespace-nowrap hide-scrollbar items-center bg-gray-900 gap-4 border-gray-700 transition-all duration-300 ease-in-out origin-top overflow-y-hidden border-b shadow-sm'; 
+        
+        // Define initial visible styles
+        scrollerContainer.style.maxHeight = '120px';
+        scrollerContainer.style.paddingTop = '0.875rem';
+        scrollerContainer.style.paddingBottom = '0.875rem';
+        scrollerContainer.style.paddingLeft = '1.25rem';
+        scrollerContainer.style.paddingRight = '1.25rem';
+        scrollerContainer.style.opacity = '1';
+        
+        // Add to page after header injection
+        const addScrollerToPage = () => {
+            const header = document.querySelector('header');
+            if (header && !document.querySelector('.mobile-category-scroller')) {
+                console.log('📍 Adding scroller after header');
+                header.insertAdjacentElement('afterend', scrollerContainer);
+                this.loadCategoriesIntoScroller(scrollerContainer);
+            } else {
+                console.log('❌ Could not find header or scroller already exists');
+            }
+        };
+        
+        // Try immediately, then wait if needed
+        addScrollerToPage();
+        
+        // If header not ready, wait and try again
+        setTimeout(() => {
+            if (!document.querySelector('.mobile-category-scroller')) {
+                console.log('⏰ Retrying scroller addition...');
+                addScrollerToPage();
+            }
+        }, 1000);
     }
     
     async loadCategoriesIntoScroller(targetScroller = null) {
+        console.log('🔄 Loading categories into scroller...');
         try {
             let activeCats = [];
             try {
+                console.log('📡 Fetching marketing categories...');
                 const mkResponse = await fetch(`${API_BASE}/public/marketing/category-cards`);
                 if (mkResponse.ok) {
                     const categoryCards = await mkResponse.json();
                     activeCats = categoryCards.filter(c => c.active).sort((a,b) => a.displayOrder - b.displayOrder);
+                    console.log(`✅ Found ${activeCats.length} marketing categories`);
+                } else {
+                    console.log('⚠️ Marketing API failed, using fallback');
                 }
             } catch (e) {
                 console.warn('Could not load marketing categories for scroller:', e);
@@ -1672,6 +1678,7 @@ class UnifiedHeader {
             
             // Fallback to standard categories if marketing is empty
             if (activeCats.length === 0) {
+                console.log('📡 Loading fallback categories...');
                 const fallbackResponse = await fetch(`${API_BASE}/categories`);
                 if (fallbackResponse.ok) {
                     const categories = await fallbackResponse.json();
@@ -1688,10 +1695,14 @@ class UnifiedHeader {
                             displayOrder: index
                         };
                     });
+                    console.log(`✅ Created ${activeCats.length} fallback categories`);
                 }
             }
             
-            if (activeCats.length === 0) return;
+            if (activeCats.length === 0) {
+                console.log('❌ No categories available');
+                return;
+            }
             
             const categoryHtml = activeCats.map(cat => {
                 let targetUrl = cat.link ? (cat.link.startsWith('/') ? cat.link : '/pages/' + cat.link) : `/pages/products.html?category=${encodeURIComponent(cat.title)}`;
@@ -1722,9 +1733,12 @@ class UnifiedHeader {
             
             if (targetScroller) {
                 // Use provided scroller (for index.html)
+                console.log('🎯 Using provided scroller container');
                 targetScroller.innerHTML = categoryHtml;
+                console.log('✅ Categories loaded into provided scroller');
             } else {
                 // Create scroller for mobile header pages
+                console.log('🆕 Creating new scroller container');
                 const scrollerContainer = document.createElement('div');
                 scrollerContainer.className = 'mobile-category-scroller md:hidden flex flex-row overflow-x-auto whitespace-nowrap hide-scrollbar items-center bg-gray-900 gap-4 border-gray-700 transition-all duration-300 ease-in-out origin-top overflow-y-hidden border-b shadow-sm'; 
                 
@@ -1743,10 +1757,14 @@ class UnifiedHeader {
                 const mainHeader = document.querySelector('header');
                 if (mainHeader) {
                     mainHeader.insertAdjacentElement('afterend', scrollerContainer);
+                    console.log('✅ Scroller injected after header');
                 } else {
                     const searchRow = document.querySelector('.mobile-header-row-2');
                     if (searchRow) {
                         searchRow.insertAdjacentElement('afterend', scrollerContainer); // Fallback
+                        console.log('✅ Scroller injected after search row');
+                    } else {
+                        console.log('❌ Could not inject scroller');
                     }
                 }
             }
