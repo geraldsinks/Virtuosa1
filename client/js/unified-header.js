@@ -1609,13 +1609,55 @@ class UnifiedHeader {
      * Initialize mobile category scroller (from mobile-header.js)
      */
     async initializeMobileCategoryScroller() {
-        // Check if we have the mobile header search row to append below
+        // Wait for header to be injected
+        const maxWaitTime = 5000; // 5 seconds max wait
+        const startTime = Date.now();
+        
+        while (Date.now() - startTime < maxWaitTime) {
+            const searchRow = document.querySelector('.mobile-header-row-2');
+            if (searchRow) break;
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
         const searchRow = document.querySelector('.mobile-header-row-2');
-        if (!searchRow) return;
+        
+        // If no mobile header (like on index.html), create a scroller container
+        if (!searchRow) {
+            // Prevent multiple scrollers
+            if (document.querySelector('.mobile-category-scroller')) return;
+            
+            // Create scroller container for index.html
+            const scrollerContainer = document.createElement('div');
+            scrollerContainer.className = 'mobile-category-scroller md:hidden flex flex-row overflow-x-auto whitespace-nowrap hide-scrollbar items-center bg-gray-900 gap-4 border-gray-700 transition-all duration-300 ease-in-out origin-top overflow-y-hidden border-b shadow-sm'; 
+            
+            // Define initial visible styles
+            scrollerContainer.style.maxHeight = '120px';
+            scrollerContainer.style.paddingTop = '0.875rem';
+            scrollerContainer.style.paddingBottom = '0.875rem';
+            scrollerContainer.style.paddingLeft = '1.25rem';
+            scrollerContainer.style.paddingRight = '1.25rem';
+            scrollerContainer.style.opacity = '1';
+            
+            // Add to page after header injection
+            setTimeout(() => {
+                const header = document.querySelector('header');
+                if (header && !document.querySelector('.mobile-category-scroller')) {
+                    header.insertAdjacentElement('afterend', scrollerContainer);
+                    this.loadCategoriesIntoScroller(scrollerContainer);
+                }
+            }, 500);
+            
+            return;
+        }
         
         // Prevent multiple scrollers
         if (document.querySelector('.mobile-category-scroller')) return;
 
+        // Original mobile scroller logic for pages with mobile header
+        this.loadCategoriesIntoScroller();
+    }
+    
+    async loadCategoriesIntoScroller(targetScroller = null) {
         try {
             let activeCats = [];
             try {
@@ -1651,18 +1693,7 @@ class UnifiedHeader {
             
             if (activeCats.length === 0) return;
             
-            const scrollerContainer = document.createElement('div');
-            scrollerContainer.className = 'mobile-category-scroller md:hidden flex flex-row overflow-x-auto whitespace-nowrap hide-scrollbar items-center bg-gray-900 gap-4 border-gray-700 transition-all duration-300 ease-in-out origin-top overflow-y-hidden border-b shadow-sm'; 
-            
-            // Define initial visible styles
-            scrollerContainer.style.maxHeight = '120px';
-            scrollerContainer.style.paddingTop = '0.875rem';
-            scrollerContainer.style.paddingBottom = '0.875rem';
-            scrollerContainer.style.paddingLeft = '1.25rem';
-            scrollerContainer.style.paddingRight = '1.25rem';
-            scrollerContainer.style.opacity = '1';
-            
-            scrollerContainer.innerHTML = activeCats.map(cat => {
+            const categoryHtml = activeCats.map(cat => {
                 let targetUrl = cat.link ? (cat.link.startsWith('/') ? cat.link : '/pages/' + cat.link) : `/pages/products.html?category=${encodeURIComponent(cat.title)}`;
                 // Fix double /pages/ in URLs if present
                 if (targetUrl.includes('/pages/pages/')) {
@@ -1689,13 +1720,35 @@ class UnifiedHeader {
                 `;
             }).join('');
             
-            // Inject the mobile scroller OUTSIDE the sticky header so it scrolls away naturally
-            // just like the desktop nav does natively.
-            const mainHeader = document.querySelector('header');
-            if (mainHeader) {
-                mainHeader.insertAdjacentElement('afterend', scrollerContainer);
+            if (targetScroller) {
+                // Use provided scroller (for index.html)
+                targetScroller.innerHTML = categoryHtml;
             } else {
-                searchRow.insertAdjacentElement('afterend', scrollerContainer); // Fallback
+                // Create scroller for mobile header pages
+                const scrollerContainer = document.createElement('div');
+                scrollerContainer.className = 'mobile-category-scroller md:hidden flex flex-row overflow-x-auto whitespace-nowrap hide-scrollbar items-center bg-gray-900 gap-4 border-gray-700 transition-all duration-300 ease-in-out origin-top overflow-y-hidden border-b shadow-sm'; 
+                
+                // Define initial visible styles
+                scrollerContainer.style.maxHeight = '120px';
+                scrollerContainer.style.paddingTop = '0.875rem';
+                scrollerContainer.style.paddingBottom = '0.875rem';
+                scrollerContainer.style.paddingLeft = '1.25rem';
+                scrollerContainer.style.paddingRight = '1.25rem';
+                scrollerContainer.style.opacity = '1';
+                
+                scrollerContainer.innerHTML = categoryHtml;
+                
+                // Inject the mobile scroller OUTSIDE the sticky header so it scrolls away naturally
+                // just like the desktop nav does natively.
+                const mainHeader = document.querySelector('header');
+                if (mainHeader) {
+                    mainHeader.insertAdjacentElement('afterend', scrollerContainer);
+                } else {
+                    const searchRow = document.querySelector('.mobile-header-row-2');
+                    if (searchRow) {
+                        searchRow.insertAdjacentElement('afterend', scrollerContainer); // Fallback
+                    }
+                }
             }
             
             // --- DESKTOP NAV INTEGRATION ---
