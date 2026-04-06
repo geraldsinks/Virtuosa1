@@ -294,6 +294,32 @@ app.get('/api/user/role-info', authenticateToken, async (req, res) => {
     }
 });
 
+// Configure Multer for product image uploads using Cloudinary
+const productStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'virtuosa/products',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    transformation: [{ width: 1200, height: 1200, crop: 'limit' }]
+  }
+});
+
+const upload = multer({
+  storage: productStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only JPEG, JPG, PNG, and WebP images are allowed'));
+    }
+  }
+});
+
 // Create product endpoint
 app.post('/api/products', authenticateToken, upload.array('images', 5), async (req, res) => {
     try {
