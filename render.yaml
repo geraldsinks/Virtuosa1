@@ -6,6 +6,8 @@ services:
     plan: starter
     buildCommand: npm install
     startCommand: node server.js
+    runtime: node
+    nodeVersion: "20"
     envVars:
       - key: NODE_ENV
         value: production
