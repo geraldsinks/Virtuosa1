@@ -216,8 +216,189 @@
             opacity: 0.8;
         }
 
+        /* Enhanced Ad Slider Styles */
+        .ad-slider-section {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ad-slider-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(10, 17, 40, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        #ad-slider {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                        0 0 0 1px rgba(255, 215, 0, 0.1);
+        }
+
+        #ad-cards-wrapper {
+            will-change: transform;
+        }
+
         .ad-card {
-            transition: opacity 0.5s ease-in-out;
+            position: relative;
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .ad-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .ad-card:hover::before {
+            opacity: 1;
+        }
+
+        .ad-card:hover {
+            transform: scale(1.02);
+        }
+
+        .ad-card .absolute.inset-0 {
+            background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%);
+            backdrop-filter: blur(1px);
+        }
+
+        .ad-card:hover .absolute.inset-0 {
+            background: linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 100%);
+        }
+
+        /* Enhanced navigation buttons */
+        #prev-ad, #next-ad {
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #prev-ad:hover, #next-ad:hover {
+            background: rgba(255, 255, 255, 0.95) !important;
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Dots indicator */
+        #slider-dots button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #slider-dots button:hover {
+            transform: scale(1.2);
+        }
+
+        /* Progress bar */
+        #slider-progress {
+            height: 3px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        #slider-progress div {
+            height: 100%;
+            background: linear-gradient(90deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
+            background-size: 200% 100%;
+            animation: progressShine 5s linear infinite;
+            border-radius: 2px;
+        }
+
+        @keyframes progressShine {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .ad-slider-section {
+                padding: 1rem 0;
+            }
+
+            #ad-slider {
+                height: 240px;
+                border-radius: 0.75rem;
+            }
+
+            .ad-card h3 {
+                font-size: 1.5rem !important;
+            }
+
+            .ad-card p {
+                font-size: 1rem !important;
+            }
+        }
+
+        /* Horizontal Category Navigation Styles */
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-category-item {
+            white-space: nowrap;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .nav-category-item::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-category-item:hover::before {
+            width: 80%;
+        }
+
+        .nav-category-item:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            transform: translateY(-1px);
+        }
+
+        /* Mobile navigation adjustments */
+        @media (max-width: 1024px) {
+            .nav-category-item span {
+                display: none;
+            }
+            
+            .nav-category-item {
+                padding: 0.5rem;
+                min-width: 44px;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav.bg-gradient-to-r {
+                display: none;
+            }
         }
 
         .category-card {
@@ -599,27 +780,49 @@
     <!-- Mobile menu will be injected by unified-header.js -->
 
     <!-- Navigation bar will be injected by unified-header.js -->
-    <section class="ad-slider-section bg-gray-100 py-6">
+    
+    <section class="ad-slider-section bg-gradient-to-br from-gray-50 to-gray-100 py-8">
         <div class="container mx-auto px-4 relative">
-            <div id="ad-slider" class="overflow-hidden relative w-full h-80 rounded-lg shadow-xl">
-                <div id="ad-cards-wrapper" class="flex transition-transform duration-500 ease-in-out h-full">
+            <!-- Section Header -->
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-navy mb-2">Featured Promotions</h2>
+                <p class="text-gray-600">Discover amazing deals and campus essentials</p>
+            </div>
+
+            <!-- Slider Container -->
+            <div id="ad-slider" class="overflow-hidden relative w-full h-80 rounded-2xl shadow-2xl border border-gold/20">
+                <div id="ad-cards-wrapper" class="flex transition-all duration-700 ease-out h-full">
                     <!-- Ad sliders will be dynamically loaded from database -->
                 </div>
+
+                <!-- Enhanced Navigation Buttons -->
+                <button id="prev-ad"
+                    class="absolute left-4 top-1/2 transform -translate-y-1/2 p-3 rounded-full bg-white/90 backdrop-blur-md text-navy hover:bg-white hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl border border-gold/30 group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <button id="next-ad"
+                    class="absolute right-4 top-1/2 transform -translate-y-1/2 p-3 rounded-full bg-white/90 backdrop-blur-md text-navy hover:bg-white hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl border border-gold/30 group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+
+                <!-- Dots Indicator -->
+                <div id="slider-dots" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                    <!-- Dots will be dynamically generated -->
+                </div>
             </div>
-            <button id="prev-ad"
-                class="absolute left-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-black bg-opacity-50 text-white hover:bg-opacity-75 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-            </button>
-            <button id="next-ad"
-                class="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-black bg-opacity-50 text-white hover:bg-opacity-75 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-            </button>
+
+            <!-- Progress Bar -->
+            <div class="mt-4 relative">
+                <div id="slider-progress" class="h-1 bg-gray-200 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-gold to-yellow-500 rounded-full transition-all duration-100 ease-linear"></div>
+                </div>
+            </div>
         </div>
     </section>
 
