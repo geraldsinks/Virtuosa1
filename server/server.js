@@ -1153,32 +1153,6 @@ mongoose.connection.on('error', (err) => {
     console.error('MongoDB error:', err.message);
 });
 
-// Configure Multer for product image uploads using Cloudinary
-const productStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'virtuosa/products',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 1200, height: 1200, crop: 'limit' }]
-  }
-});
-
-const upload = multer({
-  storage: productStorage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|webp/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
-    
-    if (mimetype && extname) {
-      return cb(null, true);
-    } else {
-      cb(new Error('Only JPEG, JPG, PNG, and WebP images are allowed'));
-    }
-  }
-});
-
 // Configure Multer for marketing assets using Cloudinary
 const marketingStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
@@ -3197,99 +3171,6 @@ app.get('/api/categories', async (req, res) => {
     } catch (error) {
         console.error('Categories error:', error);
         res.status(500).json({ message: 'Server error' });
-    }
-});
-
-// Create new product
-app.post('/api/products', authenticateToken, upload.array('images', 5), async (req, res) => {
-    try {
-        const user = await User.findById(req.user.userId);
-        if (!user || (!user.isSeller && user.role !== 'admin' && user.role !== 'CEO' && user.isAdmin !== true && user.isAdmin !== 'true')) {
-            return res.status(403).json({ message: 'Seller access required' });
-        }
-
-        const {
-            name,
-            description,
-            price,
-            originalPrice,
-            condition,
-            category,
-            subcategory,
-            location, // From frontend
-            pickupAvailable, // From frontend
-            deliveryAvailable, // From frontend
-            courseCode,
-            courseName, // From frontend
-            author, // From frontend
-            isbn, // From frontend
-            listingType, // New field
-            inventory, // New field
-            inventoryTracking, // New field
-            lowStockThreshold // New field
-        } = req.body;
-
-        // Basic validation
-        if (!name || !description || !price || !condition || !category) {
-            return res.status(400).json({ message: 'Required fields missing' });
-        }
-
-        // Map images to Cloudinary URLs
-        const imageUrls = req.files ? req.files.map(file => file.path) : [];
-
-        // Map delivery options
-        const deliveryOptions = [];
-        if (pickupAvailable === 'true' || pickupAvailable === true) {
-            deliveryOptions.push({ type: 'Meetup', description: 'Buyer collects from you' });
-        }
-        if (deliveryAvailable === 'true' || deliveryAvailable === true) {
-            deliveryOptions.push({ type: 'Delivery', description: 'You deliver to the buyer' });
-        }
-
-        const product = new Product({
-            name,
-            description,
-            price: parseFloat(price),
-            originalPrice: originalPrice ? parseFloat(originalPrice) : undefined,
-            condition,
-            images: imageUrls,
-            category,
-            subcategory,
-            seller: user._id,
-            sellerName: user.fullName,
-            sellerEmail: user.email,
-            sellerPhone: user.phoneNumber,
-            sellerRating: user.sellerRating || 5.0,
-            campusLocation: location || 'Not specified',
-            deliveryOptions: deliveryOptions,
-            courseCode,
-            courseName,
-            author,
-            isbn,
-            listingType: listingType || 'one_time',
-            inventory: listingType === 'persistent' ? (parseInt(inventory) || 1) : 1,
-            inventoryTracking: listingType === 'persistent' ? (inventoryTracking === 'true' || inventoryTracking === true) : false,
-            lowStockThreshold: listingType === 'persistent' ? (parseInt(lowStockThreshold) || 1) : 1,
-            status: 'Active'
-        });
-
-        await product.save();
-        
-        // Log product creation with ID tracking
-        console.log(`✅ Product created with ID: ${product._id}`);
-        console.log(`📦 Product details:`, {
-            _id: product._id.toString(),
-            name: product.name,
-            price: product.price,
-            seller: product.seller.toString(),
-            sellerName: product.sellerName,
-            createdAt: product.createdAt
-        });
-        
-        res.status(201).json(product);
-    } catch (error) {
-        console.error('Create product error:', error);
-        res.status(500).json({ message: error.message || 'Server error' });
     }
 });
 
