@@ -84,7 +84,7 @@ class UnifiedHeader {
     }
 
     /**
-     * Ensure horizontal category navigation exists
+     * Ensure horizontal category navigation exists and works on index.html
      */
     ensureHorizontalNavigationExists() {
         // Initialize mobile category scroller from mobile-header.js functionality
@@ -255,223 +255,110 @@ class UnifiedHeader {
     }
 
     /**
-     * Get unified header HTML template
+     * Get unified header HTML template (professional design from original files)
      */
     getUnifiedHeaderHTML() {
         return `
-<header class="bg-gradient-to-r from-slate-900 via-navy to-slate-800 text-white shadow-2xl sticky top-0 z-50 backdrop-blur-sm bg-opacity-95 border-b border-gold/20" role="banner">
-    <!-- Mobile Header Row 1 (Hamburger, Logo, Actions) -->
-    <div class="v-container mobile-header-row-1 md:hidden px-2 sm:px-3">
-        <div class="flex items-center justify-between py-3 sm:py-4 gap-2 sm:gap-3">
+<!-- Mobile Header -->
+<header class="mobile-header-row-1 bg-navy text-white shadow-md sticky top-0 z-50 md:hidden">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center justify-between">
             <!-- Hamburger Menu -->
-            <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-all duration-300 p-2 rounded-lg hover:bg-white/10 group" 
-                    aria-label="Toggle menu" aria-controls="mobile-menu-overlay" aria-expanded="false">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <button id="mobile-menu-toggle" class="text-white hover:text-gold transition-colors p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
 
-            <!-- Brand Logo -->
-            <div class="flex-1 text-center">
-                <a href="/" class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gold via-yellow-400 to-gold bg-clip-text text-transparent hover:from-yellow-300 hover:to-yellow-500 transition-all duration-300 mobile-logo transform hover:scale-105">
-                    Virtuosa
-                </a>
-            </div>
-
-            <!-- Mobile Actions -->
-            <div class="flex items-center gap-1 sm:gap-2">
-                <!-- Quick Sell Button -->
-                <a href="/pages/seller.html" class="v-touch bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl whitespace-nowrap" 
-                   aria-label="Start Selling">
-                    <i class="fas fa-plus text-xs mr-1"></i>
-                    <span class="hidden xs:inline">Sell</span>
-                </a>
-
-                <!-- Notifications -->
-                <a href="/pages/notifications.html" class="relative v-touch text-white hover:text-gold transition-all duration-300 p-2 rounded-lg hover:bg-white/10 group" 
-                   aria-label="Notifications">
-                    <i class="fas fa-bell text-base sm:text-lg group-hover:scale-110 transition-transform duration-200"></i>
-                    <span id="mobile-notification-badge" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-gradient-to-r from-red-500 to-pink-600 rounded-full shadow-lg animate-pulse hidden">0</span>
-                </a>
-
-                <!-- Cart -->
-                <a href="/pages/cart.html" class="relative v-touch text-white hover:text-gold transition-all duration-300 p-2 rounded-lg hover:bg-white/10 group" 
-                   aria-label="Shopping cart">
-                    <i class="fas fa-shopping-cart text-base sm:text-lg group-hover:scale-110 transition-transform duration-200"></i>
-                    <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-lg hidden">0</span>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Mobile Header Row 2 (Search) -->
-    <div class="v-container mobile-header-row-2 pb-4 md:hidden px-4 relative z-30">
-        <div class="relative mobile-search-container">
-            <div class="relative">
-                <input id="mobile-search-input" type="text" 
-                    placeholder="Search campus marketplace..." 
-                    class="w-full pl-12 pr-12 py-3 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 bg-white/10 backdrop-blur-md text-white placeholder-gray-300 border border-white/20 shadow-lg"
-                    autocomplete="off" aria-label="Search products">
-                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gold">
-                    <i class="fas fa-search"></i>
-                </div>
-                <button id="mobile-search-button" 
-                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-300 hover:text-gold transition-colors bg-white/10 rounded-lg p-1"
-                    aria-label="Search">
-                    <i class="fas fa-arrow-right"></i>
-                </button>
-            </div>
-            <!-- Search Suggestions -->
-            <div id="mobile-search-suggestions" class="absolute top-full left-0 right-0 mt-2 w-full bg-slate-900/95 backdrop-blur-md border border-gold/20 rounded-2xl shadow-2xl max-h-72 overflow-y-auto hidden z-50" role="listbox">
-            </div>
-        </div>
-    </div>
-
-    <!-- Desktop Header (768px+) -->
-    <div class="v-container v-header-row desktop-header hidden md:flex md:items-center md:justify-between py-4">
-        <!-- Logo & Quick Actions -->
-        <div class="flex items-center space-x-6">
             <!-- Logo -->
-            <div class="v-header-logo flex-shrink-0">
-                <a href="/" class="text-3xl font-bold bg-gradient-to-r from-gold via-yellow-400 to-gold bg-clip-text text-transparent hover:from-yellow-300 hover:to-yellow-500 transition-all duration-300 transform hover:scale-105">
-                    Virtuosa
-                </a>
+            <div class="flex-1 text-center">
+                <a href="/" class="text-xl font-bold text-gold hover:text-yellow-400 transition-colors">Virtuosa</a>
             </div>
 
-            <!-- Quick Navigation -->
-            <nav class="hidden lg:flex items-center space-x-1">
-                <a href="/" class="px-4 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 font-medium">Home</a>
-                <a href="/pages/products.html" class="px-4 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 font-medium">Browse</a>
-                <a href="/pages/products.html?category=Hot%20Deals" class="px-4 py-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 font-medium relative">
-                    Hot Deals
-                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+            <!-- Actions -->
+            <div class="flex items-center space-x-3">
+                <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
+                    <i class="fas fa-shopping-cart text-lg"></i>
+                    <span class="cart-badge-count absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                 </a>
-                <a href="/pages/seller.html" class="px-4 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                    Start Selling
+                <a href="/pages/login.html" class="text-white hover:text-gold transition-colors">
+                    <i class="fas fa-user text-lg"></i>
                 </a>
-            </nav>
+            </div>
         </div>
+    </div>
+</header>
 
-        <!-- Search -->
-        <div class="v-header-search flex-1 mx-6 max-w-2xl">
-            <div class="relative">
-                <input id="desktop-search-input" type="text" 
-                    placeholder="Search for textbooks, electronics, and more..."
-                    class="w-full px-6 py-3 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 bg-white/10 backdrop-blur-md text-white placeholder-gray-300 border border-white/20 shadow-lg"
-                    autocomplete="off" aria-label="Search products">
-                <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gold">
-                    <i class="fas fa-search"></i>
+<!-- Mobile Search Header -->
+<header class="mobile-header-row-2 bg-gray-900 text-white shadow-md md:hidden">
+    <div class="container mx-auto px-4 py-3">
+        <div class="relative">
+            <input id="mobile-search-input" type="text" placeholder="Search products..." 
+                   class="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:border-gold focus:outline-none">
+            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <i class="fas fa-search"></i>
+            </div>
+            <button id="mobile-search-button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gold hover:text-yellow-400">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <!-- Mobile Search Suggestions -->
+            <div id="mobile-search-suggestions" class="absolute top-full left-0 right-0 mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden z-50">
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Desktop Header -->
+<header class="desktop-header bg-navy text-white shadow-md sticky top-0 z-50 hidden md:block">
+    <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <a href="/" class="text-2xl font-bold text-gold hover:text-yellow-400 transition-colors">Virtuosa</a>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="flex-1 max-w-2xl mx-8">
+                <div class="relative">
+                    <input id="desktop-search-input" type="text" placeholder="Search for products..." 
+                           class="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:border-gold focus:outline-none">
+                    <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <button id="desktop-search-button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gold hover:text-yellow-400">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <!-- Desktop Search Suggestions -->
+                    <div id="home-search-suggestions" class="absolute top-full left-0 right-0 mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden z-50">
+                    </div>
                 </div>
-                <button id="desktop-search-button" 
-                    class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-300 hover:text-gold transition-colors bg-white/10 rounded-lg p-2"
-                    aria-label="Search">
-                    <i class="fas fa-arrow-right"></i>
-                </button>
             </div>
-            <!-- Desktop Search Suggestions -->
-            <div id="home-search-suggestions" class="absolute top-full left-0 right-0 mt-2 w-full bg-slate-900/95 backdrop-blur-md border border-gold/20 rounded-2xl shadow-2xl max-h-72 overflow-y-auto hidden z-50" role="listbox">
-            </div>
-        </div>
 
-        <!-- Desktop Actions -->
-        <div id="user-info-container" class="v-header-actions flex items-center space-x-4">
-            <!-- Messages -->
-            <a href="/pages/messages.html" class="relative v-touch text-white hover:text-gold transition-all duration-300 p-3 rounded-xl hover:bg-white/10 group" 
-               aria-label="Messages">
-                <i class="fas fa-envelope text-lg group-hover:scale-110 transition-transform duration-200"></i>
-                <span class="message-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-gradient-to-r from-purple-500 to-pink-600 rounded-full shadow-lg hidden">0</span>
-            </a>
-
-            <!-- Notifications -->
-            <a href="/pages/notifications.html" class="relative v-touch text-white hover:text-gold transition-all duration-300 p-3 rounded-xl hover:bg-white/10 group" 
-               aria-label="Notifications">
-                <i class="fas fa-bell text-lg group-hover:scale-110 transition-transform duration-200"></i>
-                <span id="notification-badge-count" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-gradient-to-r from-red-500 to-pink-600 rounded-full shadow-lg animate-pulse hidden">0</span>
-            </a>
-
-            <!-- Cart -->
-            <a href="/pages/cart.html" class="relative v-touch text-white hover:text-gold transition-all duration-300 p-3 rounded-xl hover:bg-white/10 group" 
-               aria-label="Shopping cart">
-                <i class="fas fa-shopping-cart text-lg group-hover:scale-110 transition-transform duration-200"></i>
-                <span class="cart-badge-count absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-lg hidden">0</span>
-            </a>
-
-            <!-- User Menu / Login -->
-            <div id="user-profile-section" class="flex items-center space-x-4">
-                <a href="/pages/login.html" id="login-link"
-                    class="bg-gradient-to-r from-gold to-yellow-500 hover:from-yellow-400 hover:to-yellow-600 text-navy px-6 py-2 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                    Sign In
+            <!-- Navigation -->
+            <div class="flex items-center space-x-6">
+                <a href="/pages/products.html" class="text-white hover:text-gold transition-colors">Browse</a>
+                <a href="/pages/seller.html" class="text-gold hover:text-yellow-400 transition-colors font-semibold">Sell</a>
+                <a href="/pages/cart.html" class="relative text-white hover:text-gold transition-colors">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-badge-count absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                 </a>
-            </div>
-
-            <!-- User Dropdown (hidden until logged in) -->
-            <div id="user-dropdown-container" class="hidden relative">
-                <button id="user-dropdown-button" onclick="toggleUserMenu()"
-                    class="text-white hover:text-gold transition-all duration-300 p-2 rounded-xl hover:bg-white/10 flex items-center space-x-2 group"
-                    aria-label="User menu" aria-expanded="false">
-                    <div class="w-8 h-8 bg-gradient-to-r from-gold to-yellow-500 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user text-navy text-sm"></i>
-                    </div>
-                    <span id="user-greeting-short" class="text-sm font-medium hidden lg:block"></span>
-                    <i class="fas fa-chevron-down text-xs group-hover:rotate-180 transition-transform duration-200"></i>
-                </button>
-
-                <div id="user-dropdown"
-                    class="absolute right-0 top-full mt-3 w-64 bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-2xl z-[60] py-4 text-white border border-gold/20 hidden"
-                    role="menu">
-                    <div class="px-4 pb-4 border-b border-gold/20 mb-2">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <div class="w-12 h-12 bg-gradient-to-r from-gold to-yellow-500 rounded-full flex items-center justify-center">
-                                <i class="fas fa-user text-navy text-lg"></i>
-                            </div>
-                            <div>
-                                <p class="font-semibold text-white">Welcome back!</p>
-                                <p id="user-greeting-full" class="text-sm text-gray-300"></p>
-                            </div>
+                <a href="/pages/login.html" id="login-link" class="bg-gold text-navy px-4 py-2 rounded-lg hover:bg-yellow-400 transition-colors font-semibold">Sign In</a>
+                
+                <!-- User Dropdown (hidden when not logged in) -->
+                <div id="user-dropdown-container" class="relative hidden">
+                    <button id="user-dropdown-button" onclick="toggleUserMenu()" class="flex items-center space-x-2 text-white hover:text-gold transition-colors">
+                        <i class="fas fa-user"></i>
+                        <span id="user-greeting-short"></span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="user-dropdown" class="absolute right-0 top-full mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-50 hidden">
+                        <div class="p-2">
+                            <a href="/pages/profile.html" class="block px-3 py-2 text-white hover:bg-gray-700 rounded">My Profile</a>
+                            <a href="/pages/orders.html" class="block px-3 py-2 text-white hover:bg-gray-700 rounded">My Orders</a>
+                            <a href="/pages/dashboard.html" class="block px-3 py-2 text-white hover:bg-gray-700 rounded">Dashboard</a>
+                            <div class="border-t border-gray-700 my-2"></div>
+                            <button onclick="logout()" class="block w-full text-left px-3 py-2 text-white hover:bg-gray-700 rounded">Sign Out</button>
                         </div>
-                        <a href="/pages/profile.html" class="bg-gradient-to-r from-gold to-yellow-500 text-navy text-center py-3 px-4 rounded-xl text-sm block font-semibold hover:from-yellow-400 hover:to-yellow-600 transition-all duration-300 transform hover:scale-105" role="menuitem">My Profile</a>
-                    </div>
-                    <div class="px-2">
-                        <a href="/pages/buyer-dashboard.html" class="flex items-center px-3 py-3 text-sm rounded-xl hover:bg-white/10 transition-all duration-300 group" role="menuitem">
-                            <i class="fas fa-th-large mr-3 text-gold group-hover:scale-110 transition-transform duration-200"></i>
-                            <span>Dashboard</span>
-                        </a>
-                        <a href="/pages/orders.html" class="flex items-center px-3 py-3 text-sm rounded-xl hover:bg-white/10 transition-all duration-300 group" role="menuitem">
-                            <i class="fas fa-shopping-bag mr-3 text-gold group-hover:scale-110 transition-transform duration-200"></i>
-                            <span>My Orders</span>
-                        </a>
-                        <a href="/pages/transactions.html" class="flex items-center px-3 py-3 text-sm rounded-xl hover:bg-white/10 transition-all duration-300 group" role="menuitem">
-                            <i class="fas fa-exchange-alt mr-3 text-gold group-hover:scale-110 transition-transform duration-200"></i>
-                            <span>Transactions</span>
-                        </a>
-                        <a href="/pages/reviews.html" class="flex items-center px-3 py-3 text-sm rounded-xl hover:bg-white/10 transition-all duration-300 group" role="menuitem">
-                            <i class="fas fa-star mr-3 text-gold group-hover:scale-110 transition-transform duration-200"></i>
-                            <span>Reviews</span>
-                        </a>
-
-                        <!-- Seller Section (conditional) -->
-                        <div id="seller-section" class="hidden">
-                            <div class="border-t border-gold/20 my-2"></div>
-                            <a href="/pages/seller-dashboard.html" class="flex items-center px-3 py-3 text-sm rounded-xl hover:bg-white/10 transition-all duration-300 text-green-400 group" role="menuitem">
-                                <i class="fas fa-store mr-3 group-hover:scale-110 transition-transform duration-200"></i>
-                                <span>Seller Dashboard</span>
-                            </a>
-                        </div>
-
-                        <!-- Admin Section (conditional) -->
-                        <div id="admin-section" class="hidden">
-                            <div class="border-t border-gold/20 my-2"></div>
-                            <a href="/pages/admin-dashboard.html" class="flex items-center px-3 py-3 text-sm rounded-xl hover:bg-white/10 transition-all duration-300 text-red-400 group" role="menuitem">
-                                <i class="fas fa-cog mr-3 group-hover:scale-110 transition-transform duration-200"></i>
-                                <span>Admin Panel</span>
-                            </a>
-                        </div>
-
-                        <div class="border-t border-gold/20 my-2"></div>
-                        <button id="logout-button" onclick="logout()" class="flex items-center w-full px-3 py-3 text-sm rounded-xl hover:bg-white/10 transition-all duration-300 text-gray-300 group" role="menuitem">
-                            <i class="fas fa-sign-out-alt mr-3 group-hover:scale-110 transition-transform duration-200"></i>
-                            <span>Sign Out</span>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -480,110 +367,93 @@ class UnifiedHeader {
 </header>
 
 <!-- Mobile Menu Overlay -->
-<div id="mobile-menu-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-40 transition-all duration-300" 
-     aria-hidden="true" onclick="closeMobileMenu()"></div>
+<div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
 
 <!-- Mobile Menu Content -->
-<div id="mobile-menu-content" class="mobile-menu-content fixed top-0 left-0 w-80 max-w-[90vw] h-screen bg-gradient-to-b from-slate-900 via-navy to-slate-800 text-white shadow-2xl z-50 overflow-y-auto transform -translate-x-full transition-all duration-300 ease-out border-r border-gold/20" role="navigation" aria-label="Main menu">
-
-    <!-- Menu Header -->
-    <div class="sticky top-0 bg-gradient-to-r from-slate-900 to-navy border-b border-gold/20 p-4 flex items-center justify-between backdrop-blur-sm">
-        <h2 class="text-lg font-bold bg-gradient-to-r from-gold to-yellow-400 bg-clip-text text-transparent">Menu</h2>
-        <button id="mobile-menu-close" class="text-white hover:text-gold transition-all duration-300 p-2 rounded-lg hover:bg-white/10" aria-label="Close menu">
-            <i class="fas fa-times text-xl"></i>
-        </button>
-    </div>
-
-    <!-- Menu Sections -->
-    <div class="py-4">
-        <!-- Quick Actions -->
-        <div class="mobile-menu-section px-4 mb-6">
-            <div class="grid grid-cols-2 gap-3">
-                <a href="/pages/seller.html" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white p-4 rounded-2xl text-center transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                    <i class="fas fa-plus text-2xl mb-2 block"></i>
-                    <span class="text-sm font-semibold">Start Selling</span>
-                </a>
-                <a href="/pages/products.html" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 text-white p-4 rounded-2xl text-center transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                    <i class="fas fa-search text-2xl mb-2 block"></i>
-                    <span class="text-sm font-semibold">Browse</span>
-                </a>
-            </div>
+<div id="mobile-menu-content" class="fixed top-0 left-0 w-80 h-full bg-gray-900 text-white z-50 transform -translate-x-full transition-transform duration-300 md:hidden">
+    <div class="mobile-menu-header p-4 border-b border-gray-700">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-bold text-gold">Menu</h2>
+            <button id="mobile-menu-close" class="text-white hover:text-gold transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
         </div>
-
+    </div>
+    
+    <div class="p-4">
         <!-- Account Section -->
-        <div class="mobile-menu-section">
-            <div class="mobile-menu-title px-4 py-2 text-xs font-bold text-gold uppercase tracking-widest">Account</div>
-            <a href="/pages/login.html" id="mobile-menu-sign-link" class="mobile-menu-link px-4 py-3 flex items-center text-gray-200 hover:text-gold hover:bg-white/10 transition-all duration-300 rounded-xl mx-2" role="menuitem">
-                <i class="fas fa-sign-in-alt mr-3 w-5 text-center"></i>
+        <div class="mb-6">
+            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Account</h3>
+            <a href="/pages/login.html" id="mobile-menu-sign-link" class="flex items-center space-x-3 p-3 text-white hover:bg-gray-800 rounded-lg transition-colors mb-2">
+                <i class="fas fa-sign-in-alt"></i>
                 <span id="mobile-menu-sign-text">Sign In</span>
             </a>
-            <a href="/pages/profile.html" class="mobile-menu-link px-4 py-3 flex items-center text-gray-200 hover:text-gold hover:bg-white/10 transition-all duration-300 rounded-xl mx-2" role="menuitem">
-                <i class="fas fa-user mr-3 w-5 text-center"></i>
+            <a href="/pages/profile.html" class="flex items-center space-x-3 p-3 text-white hover:bg-gray-800 rounded-lg transition-colors mb-2">
+                <i class="fas fa-user"></i>
                 <span>My Profile</span>
             </a>
-            <a href="/pages/buyer-dashboard.html" class="mobile-menu-link px-4 py-3 flex items-center text-gray-200 hover:text-gold hover:bg-white/10 transition-all duration-300 rounded-xl mx-2" role="menuitem">
-                <i class="fas fa-th-large mr-3 w-5 text-center"></i>
+            <a href="/pages/dashboard.html" class="flex items-center space-x-3 p-3 text-white hover:bg-gray-800 rounded-lg transition-colors mb-2">
+                <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="/pages/orders.html" class="mobile-menu-link px-4 py-3 flex items-center text-gray-200 hover:text-gold hover:bg-white/10 transition-all duration-300 rounded-xl mx-2" role="menuitem">
-                <i class="fas fa-shopping-bag mr-3 w-5 text-center"></i>
+            <a href="/pages/orders.html" class="flex items-center space-x-3 p-3 text-white hover:bg-gray-800 rounded-lg transition-colors mb-2">
+                <i class="fas fa-shopping-bag"></i>
                 <span>My Orders</span>
             </a>
-            <a href="/pages/transactions.html" class="mobile-menu-link px-4 py-3 flex items-center text-gray-200 hover:text-gold hover:bg-white/10 transition-all duration-300 rounded-xl mx-2" role="menuitem">
-                <i class="fas fa-exchange-alt mr-3 w-5 text-center"></i>
-                <span>Transactions</span>
-            </a>
         </div>
-
+        
         <!-- Shopping Section -->
-        <div class="mobile-menu-section border-t border-gold/20">
-            <div class="mobile-menu-title px-4 py-2 text-xs font-bold text-gold uppercase tracking-widest">Shopping</div>
-            <a href="/" class="mobile-menu-link px-4 py-3 flex items-center text-gray-200 hover:text-gold hover:bg-white/10 transition-all duration-300 rounded-xl mx-2" role="menuitem">
-                <i class="fas fa-home mr-3 w-5 text-center"></i>
+        <div class="mb-6">
+            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Shopping</h3>
+            <a href="/" class="flex items-center space-x-3 p-3 text-white hover:bg-gray-800 rounded-lg transition-colors mb-2">
+                <i class="fas fa-home"></i>
                 <span>Home</span>
             </a>
-            <a href="/pages/products.html" class="mobile-menu-link px-4 py-3 flex items-center text-gray-200 hover:text-gold hover:bg-white/10 transition-all duration-300 rounded-xl mx-2" role="menuitem">
-                <i class="fas fa-th-large mr-3 w-5 text-center"></i>
+            <a href="/pages/products.html" class="flex items-center space-x-3 p-3 text-white hover:bg-gray-800 rounded-lg transition-colors mb-2">
+                <i class="fas fa-th-large"></i>
                 <span>All Products</span>
             </a>
-            <a href="/pages/products.html?category=Hot%20Deals" class="mobile-menu-link px-4 py-3 flex items-center text-gray-200 hover:text-gold hover:bg-white/10 transition-all duration-300 rounded-xl mx-2 relative" role="menuitem">
-                <i class="fas fa-tag mr-3 w-5 text-center"></i>
+            <a href="/pages/products.html?category=Hot%20Deals" class="flex items-center space-x-3 p-3 text-white hover:bg-gray-800 rounded-lg transition-colors mb-2">
+                <i class="fas fa-tag"></i>
                 <span>Hot Deals</span>
-                <span class="absolute right-4 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+            </a>
+            <a href="/pages/seller.html" class="flex items-center space-x-3 p-3 text-white hover:bg-gray-800 rounded-lg transition-colors mb-2">
+                <i class="fas fa-store"></i>
+                <span>Sell Items</span>
             </a>
         </div>
-
+        
         <!-- Seller Section (conditional) -->
-        <div id="mobile-seller-section" class="mobile-menu-section border-t border-gold/20 hidden">
-            <div class="mobile-menu-title px-4 py-2 text-xs font-bold text-gold uppercase tracking-widest">Selling</div>
-            <a href="/pages/seller-dashboard.html" class="mobile-menu-link px-4 py-3 flex items-center text-gray-200 hover:text-gold hover:bg-white/10 transition-all duration-300 rounded-xl mx-2" role="menuitem">
-                <i class="fas fa-store mr-3 w-5 text-center"></i>
+        <div id="mobile-seller-section" class="mb-6 hidden">
+            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Selling</h3>
+            <a href="/pages/seller-dashboard.html" class="flex items-center space-x-3 p-3 text-white hover:bg-gray-800 rounded-lg transition-colors mb-2">
+                <i class="fas fa-store"></i>
                 <span>My Shop</span>
             </a>
-            <a href="/pages/create-product.html" class="mobile-menu-link px-4 py-3 flex items-center text-gray-200 hover:text-gold hover:bg-white/10 transition-all duration-300 rounded-xl mx-2" role="menuitem">
-                <i class="fas fa-plus mr-3 w-5 text-center"></i>
+            <a href="/pages/create-product.html" class="flex items-center space-x-3 p-3 text-white hover:bg-gray-800 rounded-lg transition-colors mb-2">
+                <i class="fas fa-plus"></i>
                 <span>Create Product</span>
             </a>
         </div>
-
+        
         <!-- Admin Section (conditional) -->
-        <div id="mobile-admin-section" class="mobile-menu-section border-t border-gold/20 hidden">
-            <div class="mobile-menu-title px-4 py-2 text-xs font-bold text-gold uppercase tracking-widest">Administration</div>
-            <a href="/pages/admin-dashboard.html" class="mobile-menu-link px-4 py-3 flex items-center text-gray-200 hover:text-gold hover:bg-white/10 transition-all duration-300 rounded-xl mx-2" role="menuitem">
-                <i class="fas fa-cog mr-3 w-5 text-center"></i>
+        <div id="mobile-admin-section" class="mb-6 hidden">
+            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Administration</h3>
+            <a href="/pages/admin-dashboard.html" class="flex items-center space-x-3 p-3 text-white hover:bg-gray-800 rounded-lg transition-colors mb-2">
+                <i class="fas fa-cog"></i>
                 <span>Admin Dashboard</span>
             </a>
         </div>
-
+        
         <!-- Support Section -->
-        <div class="mobile-menu-section border-t border-gold/20">
-            <div class="mobile-menu-title px-4 py-2 text-xs font-bold text-gold uppercase tracking-widest">Support</div>
-            <a href="/pages/faq.html" class="mobile-menu-link px-4 py-3 flex items-center text-gray-200 hover:text-gold hover:bg-white/10 transition-all duration-300 rounded-xl mx-2" role="menuitem">
-                <i class="fas fa-question-circle mr-3 w-5 text-center"></i>
+        <div>
+            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Support</h3>
+            <a href="/pages/faq.html" class="flex items-center space-x-3 p-3 text-white hover:bg-gray-800 rounded-lg transition-colors mb-2">
+                <i class="fas fa-question-circle"></i>
                 <span>Help Center</span>
             </a>
-            <a href="/pages/contact-support.html" class="mobile-menu-link px-4 py-3 flex items-center text-gray-200 hover:text-gold hover:bg-white/10 transition-all duration-300 rounded-xl mx-2" role="menuitem">
-                <i class="fas fa-envelope mr-3 w-5 text-center"></i>
+            <a href="/pages/contact-support.html" class="flex items-center space-x-3 p-3 text-white hover:bg-gray-800 rounded-lg transition-colors mb-2">
+                <i class="fas fa-envelope"></i>
                 <span>Contact Us</span>
             </a>
         </div>
@@ -1733,6 +1603,152 @@ class UnifiedHeader {
         
         // Fallback to localStorage
         return JSON.parse(localStorage.getItem('virtuosa_cart') || '[]');
+    }
+
+    /**
+     * Initialize mobile category scroller (from mobile-header.js)
+     */
+    async initializeMobileCategoryScroller() {
+        // Check if we have the mobile header search row to append below
+        const searchRow = document.querySelector('.mobile-header-row-2');
+        if (!searchRow) return;
+        
+        // Prevent multiple scrollers
+        if (document.querySelector('.mobile-category-scroller')) return;
+
+        try {
+            let activeCats = [];
+            try {
+                const mkResponse = await fetch(`${API_BASE}/public/marketing/category-cards`);
+                if (mkResponse.ok) {
+                    const categoryCards = await mkResponse.json();
+                    activeCats = categoryCards.filter(c => c.active).sort((a,b) => a.displayOrder - b.displayOrder);
+                }
+            } catch (e) {
+                console.warn('Could not load marketing categories for scroller:', e);
+            }
+            
+            // Fallback to standard categories if marketing is empty
+            if (activeCats.length === 0) {
+                const fallbackResponse = await fetch(`${API_BASE}/categories`);
+                if (fallbackResponse.ok) {
+                    const categories = await fallbackResponse.json();
+                    // Pick some commonly popular categories to ensure the mobile scroller has data
+                    const fallbackNames = ['Hot Deals', 'Best Sellers', "Men's Clothing", "Women's Clothing", 'Electronics', 'Computers & Software', 'Shoes', 'Accessories'];
+                    
+                    activeCats = fallbackNames.map((name, index) => {
+                        const found = categories.find(c => c.name === name);
+                        return {
+                            title: name,
+                            link: `/products?category=${encodeURIComponent(name)}`,
+                            image: found ? found.image : null,
+                            active: true,
+                            displayOrder: index
+                        };
+                    });
+                }
+            }
+            
+            if (activeCats.length === 0) return;
+            
+            const scrollerContainer = document.createElement('div');
+            scrollerContainer.className = 'mobile-category-scroller md:hidden flex flex-row overflow-x-auto whitespace-nowrap hide-scrollbar items-center bg-gray-900 gap-4 border-gray-700 transition-all duration-300 ease-in-out origin-top overflow-y-hidden border-b shadow-sm'; 
+            
+            // Define initial visible styles
+            scrollerContainer.style.maxHeight = '120px';
+            scrollerContainer.style.paddingTop = '0.875rem';
+            scrollerContainer.style.paddingBottom = '0.875rem';
+            scrollerContainer.style.paddingLeft = '1.25rem';
+            scrollerContainer.style.paddingRight = '1.25rem';
+            scrollerContainer.style.opacity = '1';
+            
+            scrollerContainer.innerHTML = activeCats.map(cat => {
+                let targetUrl = cat.link ? (cat.link.startsWith('/') ? cat.link : '/pages/' + cat.link) : `/pages/products.html?category=${encodeURIComponent(cat.title)}`;
+                // Fix double /pages/ in URLs if present
+                if (targetUrl.includes('/pages/pages/')) {
+                    targetUrl = targetUrl.replace('/pages/pages/', '/pages/');
+                }
+                if (!targetUrl.startsWith('/') && !targetUrl.startsWith('http')) {
+                     targetUrl = '/' + targetUrl; // Force absolute path to avoid missing products in nested folders
+                }
+                // Enhance cat object with cleaned URL for desktop reuse
+                cat.targetUrl = targetUrl;
+                
+                const imageUrl = cat.image?.startsWith('http') ? cat.image : 
+                                (cat.image ? `${API_BASE.replace('/api', '')}${cat.image}` : null);
+                // Enhance cat object with cleaned image mapping for desktop reuse
+                cat.imageUrl = imageUrl;
+                
+                return `
+                    <a href="${targetUrl}" class="mobile-category-item flex flex-col items-center no-underline text-gray-300 hover:text-gold transition-all duration-300 shrink-0 hover:scale-105" style="min-width: 60px;">
+                        <div class="mobile-category-icon w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center mb-1.5 overflow-hidden border-2 border-transparent hover:border-gold transition-all shadow-sm">
+                            ${imageUrl ? `<img src="${imageUrl}" class="w-full h-full object-cover rounded-full" alt="${cat.title}">` : `<i class="fas fa-tag text-gray-400"></i>`}
+                        </div>
+                        <span class="mobile-category-text text-[10px] font-semibold truncate w-[68px] text-center">${cat.title}</span>
+                    </a>
+                `;
+            }).join('');
+            
+            // Inject the mobile scroller OUTSIDE the sticky header so it scrolls away naturally
+            // just like the desktop nav does natively.
+            const mainHeader = document.querySelector('header');
+            if (mainHeader) {
+                mainHeader.insertAdjacentElement('afterend', scrollerContainer);
+            } else {
+                searchRow.insertAdjacentElement('afterend', scrollerContainer); // Fallback
+            }
+            
+            // --- DESKTOP NAV INTEGRATION ---
+            const desktopMenuContainer = document.querySelector('.nav-row-2-container');
+            if (desktopMenuContainer) {
+                // Find the scrolling flex container next to Explore button
+                const desktopMenu = desktopMenuContainer.querySelector('.flex.items-center.overflow-x-auto');
+                if (desktopMenu) {
+                    // Clear out the static text links completely
+                    desktopMenu.innerHTML = '';
+                    // Adjust desktop menu styling class to fit circles better
+                    desktopMenu.className = 'flex items-center overflow-x-auto hide-scrollbar py-2 w-full gap-6 pl-2';
+                    
+                    // 1. Manually add Sell Items 
+                    const sellLinkHtml = `
+                        <a href="/pages/seller.html" class="flex flex-col items-center no-underline text-gold hover:text-yellow-300 transition-all duration-300 shrink-0 group hover:scale-105" style="min-width: 70px;">
+                            <div class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center mb-1.5 overflow-hidden border-2 border-gold group-hover:bg-gray-700 transition-all shadow-md group-hover:shadow-lg group-hover:border-yellow-300">
+                                <i class="fas fa-store-alt text-lg"></i>
+                            </div>
+                            <span class="text-[11px] font-bold text-center w-full truncate">Sell Items</span>
+                        </a>
+                        <div class="w-px h-10 bg-gray-700 mx-2 shrink-0"></div>
+                    `;
+                    
+                    // 2. Map the activeCats to desktop cards
+                    const dynamicLinksHtml = activeCats.map(cat => {
+                        return `
+                            <a href="${cat.targetUrl}" class="flex flex-col items-center no-underline text-gray-400 hover:text-gold transition-all duration-300 shrink-0 group hover:scale-105" style="min-width: 70px;">
+                                <div class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center mb-1.5 overflow-hidden border-2 border-transparent group-hover:border-gold transition-all shadow-sm group-hover:shadow-md">
+                                    ${cat.imageUrl ? `<img src="${cat.imageUrl}" class="w-full h-full object-cover" alt="${cat.title}">` : `<i class="fas fa-tags text-gray-400"></i>`}
+                                </div>
+                                <span class="text-[11px] font-medium max-w-[84px] truncate text-center">${cat.title}</span>
+                            </a>
+                        `;
+                    }).join('');
+                    
+                    desktopMenu.innerHTML = sellLinkHtml + dynamicLinksHtml;
+                    
+                    // Add mouse wheel horizontal scrolling support since desktops don't easily touch-drag
+                    desktopMenu.addEventListener('wheel', (e) => {
+                        if (e.deltaY !== 0) {
+                            // Transform vertical wheel to horizontal
+                            e.preventDefault();
+                            desktopMenu.scrollLeft += e.deltaY;
+                        }
+                    }, { passive: false });
+                }
+            }
+            // --- END DESKTOP NAV INTEGRATION ---
+            
+        } catch (error) {
+            console.error('Error loading category scroller:', error);
+        }
     }
 }
 
