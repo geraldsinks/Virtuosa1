@@ -155,8 +155,9 @@ app.use(express.static(path.join(__dirname, '../client'), {
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: ["https://virtuosazm.com", "https://virtuosa1.vercel.app", "http://localhost:5500"],
-        methods: ["GET", "POST"]
+        origin: ["https://virtuosazm.com", "https://api.virtuosazm.com", "https://virtuosa1.vercel.app", "http://localhost:5500", "http://localhost:3000"],
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
@@ -222,11 +223,14 @@ webpush.setVapidDetails(
 );
 
 console.log('🔑 VAPID keys configured for push notifications');
-console.log('🌐 CORS configured for origins:', ["https://virtuosazm.com", "https://virtuosa1.vercel.app", "http://localhost:5500"]);
+const corsOrigins = ["https://virtuosazm.com", "https://api.virtuosazm.com", "https://virtuosa1.vercel.app", "http://localhost:5500", "http://localhost:3000"];
+console.log('🌐 CORS configured for origins:', corsOrigins);
 app.use(cors( {
-    origin: ["https://virtuosazm.com", "https://virtuosa1.vercel.app", "http://localhost:5500"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
+    origin: corsOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    maxAge: 86400
 }));
 app.use(express.json());
 
@@ -351,6 +355,7 @@ app.post('/api/products', authenticateToken, upload.array('images', 5), async (r
             author,
             isbn,
             location,
+            campusLocation,
             pickupAvailable,
             deliveryAvailable,
             listingType,
@@ -361,25 +366,32 @@ app.post('/api/products', authenticateToken, upload.array('images', 5), async (r
 
         // Validate required fields
         if (!name || !description || !price || !category) {
-            return res.status(400).json({ message: 'Missing required fields' });
+            return res.status(400).json({ message: 'Missing required fields: name, description, price, category' });
         }
 
-        // Create product object
+        // Validate campus location
+        const productLocation = campusLocation || location;
+        if (!productLocation) {
+            return res.status(400).json({ message: 'Campus location is required' });
+        }
+
+        // Create product object - match Product model schema exactly
         const productData = {
             name: name.trim(),
             description: description.trim(),
             price: parseFloat(price),
-            sellerId: req.user.userId,
-            sellerName: user.fullName,
+            seller: req.user.userId,  // Changed from sellerId to seller (ObjectId)
+            sellerName: user.fullName || 'Seller',
+            sellerEmail: user.email,  // Now providing required field
+            sellerPhone: user.phone || user.phoneNumber || 'Not provided',  // Now providing required field
             category,
             subcategory: subcategory || '',
-            condition: condition || 'new',
-            location: location || '',
-            pickupAvailable: pickupAvailable === 'true',
-            deliveryAvailable: deliveryAvailable === 'true',
-            listingType: listingType || 'single',
-            status: 'active',
-            createdAt: new Date()
+            condition: condition || 'New',  // Match enum values: 'New', 'Like New', 'Good', 'Fair'
+            campusLocation: productLocation,  // Changed from location to campusLocation
+            listingType: listingType === 'persistent' ? 'persistent' : 'one_time',  // Match enum
+            status: 'Active',  // Match enum: 'Active', 'Sold', 'Reserved', 'Removed', 'Out of Stock'
+            createdAt: new Date(),
+            updatedAt: new Date()
         };
 
         // Add optional fields
@@ -391,26 +403,46 @@ app.post('/api/products', authenticateToken, upload.array('images', 5), async (r
 
         // Add inventory for persistent listings
         if (listingType === 'persistent') {
-            productData.inventory = parseInt(inventory) || 1;
-            productData.inventoryTracking = inventoryTracking === 'true';
-            productData.lowStockThreshold = parseInt(lowStockThreshold) || 1;
+            productData.inventory = Math.max(parseInt(inventory) || 1, 1);
+            productData.inventoryTracking = inventoryTracking === 'true' || inventoryTracking === true;
+            productData.lowStockThreshold = Math.max(parseInt(lowStockThreshold) || 1, 1);
         }
 
-        // Add images
+        // Add delivery options
+        if (pickupAvailable === 'true' || pickupAvailable === true) {
+            if (!productData.deliveryOptions) productData.deliveryOptions = [];
+            productData.deliveryOptions.push({ type: 'pickup' });
+        }
+        if (deliveryAvailable === 'true' || deliveryAvailable === true) {
+            if (!productData.deliveryOptions) productData.deliveryOptions = [];
+            productData.deliveryOptions.push({ type: 'delivery' });
+        }
+
+        // Add images from Cloudinary uploads
         if (req.files && req.files.length > 0) {
             productData.images = req.files.map(file => file.secure_url || file.path);
         }
 
         // Create and save product
         const product = new Product(productData);
-        await product.save();
-
-        console.log('✅ Product created successfully:', product._id);
         
-        res.status(201).json({
-            message: 'Product created successfully',
-            product: product
-        });
+        try {
+            await product.save();
+            console.log('✅ Product created successfully:', product._id);
+            
+            res.status(201).json({
+                message: 'Product created successfully',
+                success: true,
+                product: product
+            });
+        } catch (validationError) {
+            console.error('Validation error for product:', validationError);
+            return res.status(400).json({ 
+                message: 'Validation error',
+                details: validationError.message,
+                fields: validationError.errors ? Object.keys(validationError.errors) : []
+            });
+        }
 
     } catch (error) {
         console.error('❌ Error creating product:', error);

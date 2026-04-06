@@ -41,9 +41,11 @@ class VirtuosaTracker {
             return endpoint;
         }
         
-        // Fallback for production - always use API subdomain
+        // Fallback for production
         if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-            const endpoint = 'https://api.virtuosazm.com/api/analytics/track';
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+            const endpoint = `${protocol}//api.${hostname}/api/analytics/track`;
             console.log('📊 Using fallback endpoint:', endpoint);
             return endpoint;
         }

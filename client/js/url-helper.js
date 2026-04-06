@@ -39,7 +39,7 @@ class URLHelper {
         const dangerousPatterns = [
             /\.\.\//g,           // Directory traversal
             /\.\.\\/g,           // Windows directory traversal
-            /[<>"'\x00-\x1f\x7f-\x9f]/g,  // HTML injection and control characters
+            /[<>\x00-\x1f\x7f-\x9f]/g,  // HTML injection and control characters (removed quotes)
             /javascript:/gi,     // JavaScript protocol
             /data:/gi,           // Data protocol
             /vbscript:/gi,       // VBScript protocol

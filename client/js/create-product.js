@@ -193,7 +193,7 @@ function updateStepDisplay() {
     // Update step indicators with better error handling
     for (let i = 1; i <= 3; i++) {
         const stepIndicator = document.getElementById(`step${i}-indicator`);
-        if (stepIndicator) {
+        if (stepIndicator && stepIndicator !== null) {
             try {
                 if (i <= currentStep) {
                     stepIndicator.className = 'step-active w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0';
@@ -204,7 +204,7 @@ function updateStepDisplay() {
                 console.error(`Error updating step ${i} indicator:`, error);
             }
         } else {
-            console.warn(`Step ${i} indicator not found`);
+            console.warn(`Step ${i} indicator not found or null`);
         }
     }
     
@@ -247,7 +247,10 @@ async function createProduct(event) {
         formData.append('courseName', document.getElementById('courseName').value.trim());
         formData.append('author', document.getElementById('author').value.trim());
         formData.append('isbn', document.getElementById('isbn').value.trim());
-        formData.append('location', document.getElementById('location').value.trim());
+        // Send both for compatibility
+        const locationValue = document.getElementById('location').value.trim();
+        formData.append('location', locationValue);
+        formData.append('campusLocation', locationValue);
         formData.append('pickupAvailable', document.getElementById('pickupAvailable').checked);
         formData.append('deliveryAvailable', document.getElementById('deliveryAvailable').checked);
         
