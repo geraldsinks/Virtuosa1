@@ -216,122 +216,6 @@
             opacity: 0.8;
         }
 
-        /* Defensive CSS for mobile header visibility */
-        @media (max-width: 767px) {
-            .mobile-header-row-1 {
-                display: flex !important;
-            }
-            .mobile-header-row-2 {
-                display: block !important;
-            }
-            .desktop-header {
-                display: none !important;
-            }
-        }
-
-        @media (min-width: 768px) {
-            .mobile-header-row-1 {
-                display: none !important;
-            }
-            .mobile-header-row-2 {
-                display: none !important;
-            }
-            .desktop-header {
-                display: flex !important;
-            }
-        }
-
-        /* Navigation container styles */
-        .nav-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .nav-items {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        /* Additional mobile header layout fixes - Pure CSS approach */
-        @media (max-width: 767px) {
-            .mobile-header-actions {
-                gap: 0.5rem !important;
-            }
-            
-            .v-container {
-                padding-left: 16px !important;
-                padding-right: 16px !important;
-            }
-            
-            /* Force mobile header layout with pure CSS */
-            .mobile-header-row-1 .v-container > div {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: space-between !important;
-                width: 100% !important;
-            }
-            
-            .mobile-header-row-1 .flex-1 {
-                flex: 1 !important;
-                text-align: center !important;
-                display: flex !important;
-                justify-content: center !important;
-                align-items: center !important;
-            }
-            
-            .mobile-header-actions {
-                display: flex !important;
-                align-items: center !important;
-                gap: 0.5rem !important;
-                flex-shrink: 0 !important;
-            }
-        }
-
-        @media (min-width: 768px) {
-            .nav-items {
-                gap: 1.5rem;
-            }
-            
-            #desktop-all-menu {
-                display: flex !important;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .nav-items {
-                gap: 2rem;
-            }
-        }
-
-        /* Global Desktop Width Unlock */
-        @media (min-width: 1280px) {
-            .v-container, .container {
-                max-width: 1200px !important;
-                width: 95% !important;
-            }
-        }
-        
-        @media (min-width: 1536px) {
-            .v-container, .container {
-                max-width: 1440px !important;
-                width: 92% !important;
-            }
-        }
-        
-        @media (min-width: 1920px) {
-            .v-container, .container {
-                max-width: 1800px !important;
-                width: 90% !important;
-            }
-        }
-        
-        @media (min-width: 2560px) {
-            .v-container, .container {
-                max-width: 2200px !important;
-            }
-        }
-
         .ad-card {
             transition: opacity 0.5s ease-in-out;
         }
@@ -682,41 +566,6 @@
             }
         }
 
-        /* Custom responsive classes for category titles */
-        .desktop-only-mobile {
-            display: block;
-        }
-        
-        .desktop-only-titles {
-            display: none;
-        }
-        
-        .desktop-title-hidden {
-            opacity: 0.8;
-        }
-        
-        .desktop-group-hover:opacity-0 {
-            opacity: 0.8;
-        }
-        
-        @media (min-width: 1024px) {
-            .desktop-only-mobile {
-                display: none;
-            }
-            
-            .desktop-only-titles {
-                display: block;
-            }
-            
-            .desktop-title-hidden {
-                opacity: 0;
-            }
-            
-            .desktop-group-hover:opacity-0:hover {
-                opacity: 0;
-            }
-        }
-
         /* Hide desktop header on mobile */
         @media (max-width: 767px) {
             .desktop-header {
@@ -740,324 +589,16 @@
 </head>
 
 <body class="bg-gray-100 antialiased flex flex-col min-h-screen">
-    <!-- Header (will be replaced with login.html version) -->
-    <header class="bg-navy text-white shadow-lg sticky top-0 z-50">
-        <!-- Mobile Header Structure (320px-767px) -->
-        <div class="mobile-header-container" style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0.75rem 1rem;">
-            <!-- Hamburger Menu (Left) -->
-            <div class="mobile-hamburger" style="flex-shrink: 0;">
-                <button id="mobile-menu-toggle" class="v-touch text-white hover:text-gold transition-colors" style="background: none; border: none; cursor: pointer;">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Brand Name (Center) -->
-            <div class="mobile-logo" style="flex: 1; text-align: center; display: flex; justify-content: center; align-items: center;">
-                <a href="/index.html" style="color: #FFD700; font-size: 1.5rem; font-weight: bold; text-decoration: none;">Virtuosa</a>
-            </div>
-
-            <!-- Customer Utilities (Right) -->
-            <div class="mobile-actions" style="flex-shrink: 0; display: flex; align-items: center; gap: 0.75rem;">
-                <!-- Cart Icon with Badge -->
-                <a href="/pages/cart.html" style="position: relative; display: inline-flex; align-items: center; justify-content: center; color: white; text-decoration: none;">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <span class="cart-badge-count" style="position: absolute; top: -4px; right: -4px; background: #DC2626; color: white; border-radius: 9999px; font-size: 0.75rem; font-weight: bold; padding: 0.125rem 0.375rem; display: inline-flex; align-items: center; justify-content: center; min-width: 1.25rem;">0</span>
-                </a>
-                
-                <!-- Combined Notifications (includes messages) -->
-                <a href="/pages/notifications.html" style="position: relative; display: inline-flex; align-items: center; justify-content: center; color: white; text-decoration: none;">
-                    <i class="fas fa-bell" style="font-size: 1.5rem;"></i>
-                    <span id="mobile-notification-badge" style="position: absolute; top: -4px; right: -4px; background: #DC2626; color: white; border-radius: 9999px; font-size: 0.75rem; font-weight: bold; padding: 0.125rem 0.25rem; display: none; align-items: center; justify-content: center; min-width: 1rem;">0</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- Row 2: Search-First Experience (Mobile only) -->
-        <div class="v-container mobile-header-row-2 pb-3 md:hidden">
-            <div class="relative mobile-search-container">
-                <input id="mobile-search-input" type="text" 
-                    placeholder="Search campus marketplace..." 
-                    class="w-full pl-4 pr-12 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400 mobile-search-input"
-                    autocomplete="off">
-                <button id="mobile-search-button" 
-                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors mobile-search-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-                <!-- Mobile Search Suggestions -->
-                <div id="mobile-search-suggestions" class="absolute mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
-                    <!-- Suggestions injected via JS -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Desktop Header (Hidden on Mobile) -->
-        <div class="v-container v-header-row desktop-header">
-            <div class="v-header-logo">
-                <a href="/index.html" class="text-2xl md:text-3xl font-bold text-gold">Virtuosa</a>
-            </div>
-            <div class="v-header-search">
-                <div class="relative">
-                    <input id="home-search-input" type="text"
-                        placeholder="Search campus marketplace (e.g. &quot;HP laptop&quot;, &quot;Men's hoodie&quot;)..."
-                        class="w-full pl-4 pr-10 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold bg-gray-800 text-gray-200 placeholder-gray-400"
-                        autocomplete="off">
-                    <button id="home-search-button"
-                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                    <!-- Autocomplete suggestions -->
-                    <div id="home-search-suggestions"
-                        class="absolute mt-2 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl max-h-72 overflow-y-auto hidden z-50">
-                        <!-- Suggestions injected via JS -->
-                    </div>
-                </div>
-            </div>
-            <div id="user-info-container" class="v-header-actions">
-                <a href="/pages/login.html" id="login-link"
-                    class="text-white hover:text-gold transition-colors font-medium hidden md:flex flex-col items-start leading-tight group">
-                    <span class="text-[10px] text-gray-400 font-normal">Welcome</span>
-                    <div class="flex items-center -mt-0.5">
-                        <span class="text-sm font-semibold">Sign In</span>
-                        <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60 group-hover:rotate-180 transition-transform"></i>
-                    </div>
-                </a>
-                <div id="user-menu" class="relative hidden">
-                    <button onclick="toggleUserMenu()"
-                        class="text-white hover:text-gold transition-colors font-medium flex flex-col items-start leading-tight">
-                        <span id="user-greeting" class="text-[10px] text-gray-400 font-normal"></span>
-                        <div class="flex items-center -mt-0.5">
-                            <span class="text-sm font-semibold">My Account</span>
-                            <i class="fas fa-chevron-down text-[8px] ml-1 opacity-60"></i>
-                        </div>
-                    </button>
-                    <div id="user-dropdown"
-                        class="absolute right-0 top-full mt-2 w-56 bg-navy rounded-xl shadow-2xl z-[60] py-4 text-white hidden border border-gray-800">
-                        <div class="px-4 pb-4 border-b border-gray-800 mb-2">
-                            <a href="/pages/profile.html" class="bg-button-gold text-white text-center py-2 px-4 rounded-lg text-sm block font-semibold hover:bg-gold transition-colors">My Profile</a>
-                        </div>
-                        <div class="px-2">
-                            <a href="/pages/buyer-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
-                                <i class="fas fa-th-large mr-3 text-gray-400"></i>Dashboard
-                            </a>
-                            <a href="/pages/orders.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors">
-                                <i class="fas fa-shopping-bag mr-3 text-gray-400"></i>My Orders
-                            </a>
-                            <div id="seller-links" class="hidden">
-                                <div class="border-t border-gray-800 my-1"></div>
-                                <a href="/pages/seller-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-green-400">
-                                    <i class="fas fa-store mr-3"></i>Seller Panel
-                                </a>
-                            </div>
-                            <div id="admin-link" class="hidden">
-                                <div class="border-t border-gray-800 my-1"></div>
-                                <a href="/pages/admin-dashboard.html" class="flex items-center px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-red-400">
-                                    <i class="fas fa-cog mr-3"></i>Admin Panel
-                                </a>
-                            </div>
-                            <div class="border-t border-gray-800 my-2"></div>
-                            <button onclick="logout()" class="flex items-center w-full px-3 py-2 text-xs rounded-lg hover:bg-gray-800 transition-colors text-gray-300">
-                                <i class="fas fa-sign-out-alt mr-3"></i>Sign Out
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <a href="/pages/messages.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
-                    <i class="fas fa-envelope text-lg"></i>
-                    <span class="badge message-badge-count hidden">0</span>
-                    <span class="text-[9px] mt-0.5 font-medium">Messages</span>
-                </a>
-
-                <a href="/pages/notifications.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
-                    <i class="fas fa-bell text-lg"></i>
-                    <span id="notification-badge-count" class="badge hidden">0</span>
-                    <span class="text-[9px] mt-0.5 font-medium">Alerts</span>
-                </a>
-
-                <a href="/pages/cart.html" class="badge-container text-white hover:text-gold transition-colors flex flex-col items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.185 1.706.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <span class="text-[9px] mt-0.5 font-medium">Cart</span>
-                </a>
-            </div>
-        </header>
+    <!-- Header will be injected by unified-header.js -->
 
     <!-- Cart Banner Notification -->
     <div id="cart-banner" class="hidden">
         <div id="cart-banner-message"></div>
     </div>
 
-    <!-- Mobile Navigation Menu Overlay -->
-    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
-    <div id="mobile-menu-content" class="mobile-menu-content">
-        <div class="mobile-menu-header">
-            <div class="text-xl font-bold text-gold">Menu</div>
-            <button id="mobile-menu-close" class="mobile-menu-close">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
+    <!-- Mobile menu will be injected by unified-header.js -->
 
-        <!-- Account Section -->
-        <div class="mobile-menu-section">
-            <div class="mobile-menu-title">Account</div>
-            <a href="/pages/login.html" id="mobile-menu-sign-link" class="mobile-menu-link">
-                <i class="fas fa-sign-in-alt"></i>
-                <span id="mobile-menu-sign-text">Sign In</span>
-            </a>
-            <a href="/pages/profile.html" class="mobile-menu-link">
-                <i class="fas fa-user"></i>
-                <span>My Profile</span>
-            </a>
-            <a href="/pages/buyer-dashboard.html" class="mobile-menu-link">
-                <i class="fas fa-tachometer-alt"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="/pages/orders.html" class="mobile-menu-link">
-                <i class="fas fa-shopping-bag"></i>
-                <span>My Orders</span>
-            </a>
-            <a href="/pages/transactions.html" class="mobile-menu-link">
-                <i class="fas fa-exchange-alt"></i>
-                <span>Transactions</span>
-            </a>
-            <a href="/pages/reviews.html" class="mobile-menu-link">
-                <i class="fas fa-star"></i>
-                <span>My Reviews</span>
-            </a>
-        </div>
-
-        <!-- Seller Section (shown only to sellers) -->
-        <div id="mobile-seller-section" class="mobile-menu-section" style="display: none;">
-            <div class="mobile-menu-title">Seller Tools</div>
-            <a href="/pages/seller-dashboard.html" class="mobile-menu-link">
-                <i class="fas fa-store"></i>
-                <span>Seller Dashboard</span>
-            </a>
-            <a href="/pages/create-product.html" class="mobile-menu-link">
-                <i class="fas fa-plus-circle"></i>
-                <span>Add Product</span>
-            </a>
-            <a href="/pages/seller-analytics.html" class="mobile-menu-link">
-                <i class="fas fa-chart-line"></i>
-                <span>Analytics</span>
-            </a>
-            <a href="/pages/seller-orders.html" class="mobile-menu-link">
-                <i class="fas fa-box"></i>
-                <span>Orders</span>
-            </a>
-        </div>
-
-        <!-- Admin Section (shown only to admins) -->
-        <div id="mobile-admin-section" class="mobile-menu-section" style="display: none;">
-            <div class="mobile-menu-title">Admin Panel</div>
-            <a href="/pages/admin-dashboard.html" class="mobile-menu-link">
-                <i class="fas fa-cog"></i>
-                <span>Admin Dashboard</span>
-            </a>
-            <a href="/pages/admin-seller-applications.html" class="mobile-menu-link">
-                <i class="fas fa-user-check"></i>
-                <span>Seller Applications</span>
-            </a>
-            <a href="/pages/admin-mass-messaging.html" class="mobile-menu-link">
-                <i class="fas fa-bullhorn"></i>
-                <span>Mass Messaging</span>
-            </a>
-            <a href="/pages/admin-retention.html" class="mobile-menu-link">
-                <i class="fas fa-chart-line"></i>
-                <span>Retention</span>
-            </a>
-        </div>
-
-        <!-- Shopping Section -->
-        <div class="mobile-menu-section">
-            <div class="mobile-menu-title">Shopping</div>
-            <a href="/index.html" class="mobile-menu-link">
-                <i class="fas fa-home"></i>
-                <span>Home</span>
-            </a>
-            <a href="/pages/products.html" class="mobile-menu-link">
-                <i class="fas fa-th-large"></i>
-                <span>All Products</span>
-            </a>
-            <a href="javascript:void(0)" onclick="window.openCategories()" class="mobile-menu-link">
-                <i class="fas fa-list"></i>
-                <span>Categories</span>
-            </a>
-            <a href="/pages/products.html?category=Hot%20Deals" class="mobile-menu-link">
-                <i class="fas fa-tag"></i>
-                <span>Hot Deals</span>
-            </a>
-        </div>
-
-        <!-- Support Section -->
-        <div class="mobile-menu-section">
-            <div class="mobile-menu-title">Support</div>
-            <a href="/pages/faq.html" class="mobile-menu-link">
-                <i class="fas fa-question-circle"></i>
-                <span>Help Center</span>
-            </a>
-            <a href="/pages/contact-support.html" class="mobile-menu-link">
-                <i class="fas fa-envelope"></i>
-                <span>Contact Us</span>
-            </a>
-            <a href="/pages/about.html" class="mobile-menu-link">
-                <i class="fas fa-info-circle"></i>
-                <span>About</span>
-            </a>
-            <a href="/pages/faq.html" class="mobile-menu-link">
-                <i class="fas fa-comments"></i>
-                <span>FAQ</span>
-            </a>
-            <a href="/pages/notifications.html" class="mobile-menu-link">
-                <i class="fas fa-bell"></i>
-                <span>Notifications</span>
-            </a>
-        </div>
-
-    </div>
-
-    <nav class="desktop-only bg-dark-navy text-white shadow-sm py-1.5 px-6 md:px-12 z-40 border-t border-gray-800">
-        <div class="container mx-auto nav-row-2-container">
-            <!-- Desktop "Explore" Menu Trigger -->
-            <button id="desktop-explore-menu" onclick="window.openMobileMenu()" class="flex items-center text-white hover:text-gold px-3 py-1 rounded-full border border-gray-700 hover:border-gold transition-all mr-6 group shrink-0">
-                <i class="fas fa-bars mr-2 group-hover:scale-110 transition-transform"></i>
-                <span class="font-bold text-[10px] uppercase tracking-wider">Explore</span>
-            </button>
-
-            <!-- Category Menu -->
-            <div class="flex items-center space-x-6 overflow-x-auto hide-scrollbar py-1">
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Hot Deals')" class="nav-category-item">Hot Deals</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Best Sellers')" class="nav-category-item">Best Sellers</a>
-                <a href="/pages/seller.html" class="nav-category-item text-gold">Sell Items</a>
-                <div class="h-4 w-[1px] bg-gray-700 mx-2 shrink-0"></div>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Electronics')" class="nav-category-item">Electronics</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Computers & Software')" class="nav-category-item">Computers & Software</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Services')" class="nav-category-item">Services</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Watches & Jewellery')" class="nav-category-item">Watches & Jewellery</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Men\'s Clothing')" class="nav-category-item">Men's Clothing</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Women\'s Clothing')" class="nav-category-item">Women's Clothing</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Shoes')" class="nav-category-item">Shoes</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Accessories')" class="nav-category-item">Accessories</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Personal Care & Beauty')" class="nav-category-item">Personal Care & Beauty</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Food & Beverages')" class="nav-category-item">Food & Beverages</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Sports & Outdoors')" class="nav-category-item">Sports & Outdoors</a>
-                <a href="javascript:void(0)" onclick="window.handleCategoryClick('Home & Living')" class="nav-category-item">Home & Living</a>
-            </div>
-        </div>
-    </nav>
+    <!-- Navigation bar will be injected by unified-header.js -->
     <section class="ad-slider-section bg-gray-100 py-6">
         <div class="container mx-auto px-4 relative">
             <div id="ad-slider" class="overflow-hidden relative w-full h-80 rounded-lg shadow-xl">
@@ -1227,44 +768,10 @@
             &copy; 2026 Virtuosa. All rights reserved.
         </div>
     </footer>
-    <script>
-        // Immediate mobile header layout fix only (menu handling moved to mobile-header.js)
-        (function() {
-            // Immediate mobile header layout fix
-            if (window.innerWidth <= 767) {
-                var mobileHeaderRow = document.querySelector('.mobile-header-row-1 .v-container > div');
-                var mobileActions = document.querySelector('.mobile-header-actions');
-                var mobileLogo = document.querySelector('.mobile-header-row-1 .flex-1');
-                
-                if (mobileHeaderRow) {
-                    mobileHeaderRow.style.display = 'flex';
-                    mobileHeaderRow.style.alignItems = 'center';
-                    mobileHeaderRow.style.justifyContent = 'space-between';
-                    mobileHeaderRow.style.width = '100%';
-                }
-                
-                if (mobileActions) {
-                    mobileActions.style.display = 'flex';
-                    mobileActions.style.alignItems = 'center';
-                    mobileActions.style.gap = '0.5rem';
-                    mobileActions.style.flexShrink = '0';
-                }
-                
-                if (mobileLogo) {
-                    mobileLogo.style.flex = '1';
-                    mobileLogo.style.textAlign = 'center';
-                    mobileLogo.style.display = 'flex';
-                    mobileLogo.style.justifyContent = 'center';
-                    mobileLogo.style.alignItems = 'center';
-                }
-            }
-        })();
-    </script>
+
     <script src="/js/config.js" defer></script>
     <script src="/js/router.js" defer></script>
-    <script src="/js/mobile-header.js" defer></script>
     <script src="/js/ad-slider.js" defer></script>
-    <script src="/js/header.js" defer></script>
     <script src="/js/cart.js" defer></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" defer></script>
     <script src="/js/notification-modal.js" defer></script>
@@ -1963,13 +1470,13 @@
         });
     </script>
     
-    <!-- Clean URL Support -->
-    <script src="/js/url-helper.js"></script>
-    <script src="/js/image-optimizer.js"></script>
+    <!-- Unified Header Scripts -->
+    <script src="/js/config.js"></script>
+    <script src="/js/token-manager.js"></script>
+    <script src="/js/auth-manager.js"></script>
     <script src="/js/cache-manager.js"></script>
-    <script src="/js/debounce.js"></script>
-    <script src="/js/api-batcher.js"></script>
-    <script src="/js/pwa-register.js" defer></script>
+    <script src="/js/production-router.js"></script>
+    <script src="/js/unified-header.js" defer></script>
     <script>
         // Force cache refresh for development
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
