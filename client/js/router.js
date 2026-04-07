@@ -725,7 +725,22 @@ class CleanRouter {
 
     // Load the actual HTML file with proper navigation
     async loadPage(path, params = {}) {
-        console.log('🚀 ROUTER loadPage called with:', { path, params });
+        console.log('ROUTER loadPage called with:', { path, params });
+        
+        // Early exit for auth routes - always use direct navigation, no SPA processing
+        if (path === 'login' || path === 'signup' || path.includes('login.html') || path.includes('signup.html')) {
+            console.log('Auth route detected in loadPage, using direct navigation - bypassing all SPA logic');
+            const targetFile = path.includes('login') ? '/pages/login.html' : '/pages/signup.html';
+            window.location.href = targetFile;
+            return;
+        }
+        
+        // Early exit for home route - always use direct navigation
+        if (path === '/' || path === '' || path === 'index.html' || path.includes('index.html')) {
+            console.log('Home route detected in loadPage, using direct navigation - bypassing all SPA logic');
+            window.location.href = '/index.html';
+            return;
+        }
         
         // Faster Login Check
         const pathForMatching = path.split('?')[0];
@@ -1005,18 +1020,23 @@ class CleanRouter {
                         // Scroll to top
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                         
-                        // Update URL with parameters (only if they've changed)
-                        const queryString = Object.keys(params).length > 0 
-                            ? '?' + new URLSearchParams(params).toString() 
-                            : '';
-                        
-                        // Build the new URL (pathname + query string)
-                        const newUrl = window.location.pathname.replace(/\/[^\/]*$/, '') + '/' + pageFile.replace(/^.*\//, '').replace(/\.html$/, '') + queryString;
-                        
-                        // Always update the URL to match the current page
-                        if (window.location.pathname + window.location.search !== newUrl) {
-                            history.replaceState({}, '', newUrl);
-                            console.log('🔄 Updated URL to:', newUrl);
+                        // Only update URL for regular SPA pages, NOT for auth or index pages
+                        if (!isAuthPage && !isIndexPage) {
+                            // Update URL with parameters (only if they've changed)
+                            const queryString = Object.keys(params).length > 0 
+                                ? '?' + new URLSearchParams(params).toString() 
+                                : '';
+                            
+                            // Build the new URL (pathname + query string)
+                            const newUrl = window.location.pathname.replace(/\/[^\/]*$/, '') + '/' + pageFile.replace(/^.*\//, '').replace(/\.html$/, '') + queryString;
+                            
+                            // Always update the URL to match the current page
+                            if (window.location.pathname + window.location.search !== newUrl) {
+                                history.replaceState({}, '', newUrl);
+                                console.log('Updated URL to:', newUrl);
+                            }
+                        } else {
+                            console.log('Skipping URL update for ' + (isAuthPage ? 'auth' : 'index') + ' page');
                         }
                         
                         // Reinitialize URL helper for new content
