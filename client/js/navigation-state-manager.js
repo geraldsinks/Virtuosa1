@@ -210,8 +210,27 @@ class NavigationStateManager {
             document.title = title.textContent;
         }
         
-        // Reinitialize page-specific scripts
-        this.reinitializeScripts();
+        // Execute scripts using router's proper script execution
+        if (window.router && window.router.executeScripts) {
+            window.router.executeScripts(doc);
+            
+            // Reinitialize click interceptors for dynamically added content
+            setTimeout(() => {
+                if (window.router.setupClickInterceptor) {
+                    window.router.setupClickInterceptor();
+                }
+            }, 100);
+            
+            // Reinitialize mobile menu interception
+            setTimeout(() => {
+                if (window.router.setupMobileMenuInterception) {
+                    window.router.setupMobileMenuInterception();
+                }
+            }, 150);
+        } else {
+            // Fallback to basic reinitialization
+            this.reinitializeScripts();
+        }
         
         // Update URL helper links
         if (window.updateCleanLinks) {
