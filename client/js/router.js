@@ -105,11 +105,12 @@ class CleanRouter {
         this.fallbackManager = new FallbackManager(this);
         
         this.routes = {
-            'login': '/pages/login.html',
-            'signup': '/pages/signup.html', 
-            'products': '/pages/products.html',
-            'product': '/pages/product-detail.html',
-            'cart': '/pages/cart.html',
+            '': '/index.html',                    // Home route
+            'login': '/login',                    // Clean URL
+            'signup': '/signup', 
+            'products': '/products',
+            'product': '/product-detail',
+            'cart': '/cart',
             'orders': '/pages/orders.html',
             'order': '/pages/order-details.html',
             'seller': '/pages/seller.html',
@@ -736,8 +737,7 @@ class CleanRouter {
                 const pathForMatching = path.split('?')[0];
                 const normalizedPath = pathForMatching
                     .replace(/^\//, '')
-                    .replace(/\.html$/, '')
-                    .replace(/^pages\//, '');
+                    .replace(/\.html$/, '');
                 
                 pageFile = this.routes[normalizedPath] || this.routes[path] || '/index.html';
                 console.log(`📄 Using static route: ${pageFile} (normalized: ${normalizedPath})`);
