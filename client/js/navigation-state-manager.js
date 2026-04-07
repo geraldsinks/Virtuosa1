@@ -133,14 +133,24 @@ class NavigationStateManager {
     }
     
     async loadContent(url, navigationId) {
-        // Check cache first
-        const cacheKey = this.getCacheKey(url);
-        if (this.pageCache.has(cacheKey)) {
-            const cached = this.pageCache.get(cacheKey);
-            if (this.isCacheValid(cached)) {
-                console.log(`Using cache for ${url}`);
-                this.renderContent(cached.html, url);
-                return;
+        // Disable caching for pages that need full script execution
+        const needsFullScriptExecution = [
+            '/login',
+            '/signup', 
+            '/',
+            '/index.html'
+        ].includes(url);
+        
+        // Check cache first (only for pages that don't need full script execution)
+        if (!needsFullScriptExecution) {
+            const cacheKey = this.getCacheKey(url);
+            if (this.pageCache.has(cacheKey)) {
+                const cached = this.pageCache.get(cacheKey);
+                if (this.isCacheValid(cached)) {
+                    console.log(`Using cache for ${url}`);
+                    this.renderContent(cached.html, url);
+                    return;
+                }
             }
         }
         
@@ -160,8 +170,11 @@ class NavigationStateManager {
             
             const html = await response.text();
             
-            // Update cache
-            this.updateCache(cacheKey, html);
+            // Update cache (only for pages that don't need full script execution)
+            if (!needsFullScriptExecution) {
+                const cacheKey = this.getCacheKey(url);
+                this.updateCache(cacheKey, html);
+            }
             
             // Render content
             this.renderContent(html, url);
