@@ -776,10 +776,17 @@
     </style>
 
     <!-- Clean URL System -->
-    <script src="/js/navigation-state-manager.js"></script>
-    <script src="/js/unified-header-fixed.js?v=202604071953" defer></script>
-    <script src="/js/url-helper.js?v=202604071953" defer></script>
-    <script src="/js/router.js?v=202604071953" defer></script>
+    <!-- Navigation System Bootstrap (must load early) -->
+    <script src="/js/navigation-bootstrap.js"></script>
+    
+    <!-- Navigation System Core (loaded via bootstrap, but safe to include) -->
+    <script src="/js/navigation-coordinator.js"></script>
+    <script src="/js/router.js?v=202604081000"></script>
+    
+    <!-- Navigation Components & Helpers -->
+    <script src="/js/navigation-state-manager.js" defer></script>
+    <script src="/js/unified-header-fixed.js?v=202604081000" defer></script>
+    <script src="/js/url-helper.js?v=202604081000" defer></script>
 </head>
 
 <body class="bg-gray-100 antialiased flex flex-col min-h-screen">

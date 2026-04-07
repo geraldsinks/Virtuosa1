@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Page-specific title (override this per page) -->
+    <title>Virtuosa - Student Trading Platform</title>
+    <meta name="description" content="Virtuosa — Zambia's premier student trading platform.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon-48x48.svg" sizes="48x48">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/favicon-16x16.svg" sizes="16x16">
+    <meta name="theme-color" content="#0A1128">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Tailwind CSS (from CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+    
+    <!-- CRITICAL: Global Navigation Bootstrap (must load early) -->
+    <script src="/js/navigation-bootstrap.js"></script>
+
+    <!-- Page-specific styles (override this per page if needed) -->
+    <style>
+        /* Base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        main {
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #0A1128 0%, #1a2b5c 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Global Navigation Header (injected by unified-header-fixed.js) -->
+    <header class="bg-gradient-to-r from-[#0A1128] to-[#1a2b5c]" id="app-header">
+        <!-- Header will be injected here -->
+    </header>
+
+    <!-- Main Page Content -->
+    <main id="app-main" class="main-content">
+        <!-- Page content goes here -->
+        <div class="container mx-auto">
+            <div class="text-center py-12">
+                <h1 class="text-3xl font-bold mb-4">Loading...</h1>
+                <p class="text-gray-600">The page is loading. If it doesn't load, <a href="/" class="text-blue-600 underline">click here</a>.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#0A1128] text-white py-8">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2026 Virtuosa. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- ===== CORE NAVIGATION SYSTEM ===== -->
+    <!-- Navigation Coordinator (single source of truth) -->
+    <script src="/js/navigation-coordinator.js"></script>
+    
+    <!-- Main Router (page loading & navigation) -->
+    <script src="/js/router.js?v=202604081000"></script>
+
+    <!-- ===== OPTIONAL COMPONENTS ===== -->
+    <!-- Unified Header (injected in footer for deferred loading) -->
+    <script src="/js/unified-header-fixed.js?v=202604081000" defer></script>
+    
+    <!-- URL Helper (for link conversion) -->
+    <script src="/js/url-helper.js?v=202604081000" defer></script>
+    
+    <!-- Configuration -->
+    <script src="/js/config.js" defer></script>
+
+    <!-- ===== Auth & Session Management ===== -->
+    <script src="/js/token-manager.js" defer></script>
+    <script src="/js/auth-manager.js" defer></script>
+    <script src="/js/roleManager.js" defer></script>
+
+    <!-- ===== Utilities ===== -->
+    <script src="/js/cache-manager.js" defer></script>
+    <script src="/js/cookie-consent.js" defer></script>
+    <script src="/js/cookie-tracker.js" defer></script>
+
+    <!-- ===== APPLICATION READY ===== -->
+    <script>
+        // Wait for navigation system and then initialize page
+        window.navigationBootstrap.waitForReady().then(() => {
+            console.log('✓ Navigation system ready on this page');
+            
+            // Dispatch event that page-specific code can listen to
+            window.dispatchEvent(new CustomEvent('pageNavigationReady', {
+                detail: { 
+                    navigateTo: window.navigateTo,
+                    getNavigator: window.getNavigator,
+                    isProtectedRoute: window.isProtectedRoute
+                }
+            }));
+            
+            // Initialize any page-specific code here
+            if (window.initializePage && typeof window.initializePage === 'function') {
+                window.initializePage();
+            }
+        });
+    </script>
+
+    <!-- Page-specific scripts (load these last where needed) -->
+    <!-- Examples:
+    <script src="/js/page-search.js" defer></script>
+    <script src="/js/page-filters.js" defer></script>
+    -->
+</body>
+</html>
