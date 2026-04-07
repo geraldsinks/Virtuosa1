@@ -1,5 +1,5 @@
 // Standardized fallback behavior system
-console.log('Virtuosa Router v202604071940 - Enhanced debugging for URL issues');
+console.log('Virtuosa Router v202604071945 - SPA route detection fixed');
 
 if (typeof FallbackManager === 'undefined') {
 class FallbackManager {
@@ -777,7 +777,17 @@ class CleanRouter {
 
             // If it's an SPA-compatible route, load it dynamically
             // We use dynamic loading if it's a known route and NOT a direct .html request (unless it's index)
-            const isSPARoute = (this.routes[path] || this.parseDynamicRoute(path) || path === '/' || path === '' || path === 'index.html');
+            const isKnownRoute = this.routes[path] || this.routes[path.replace(/^\//, '')];
+            const isSPARoute = (isKnownRoute || this.parseDynamicRoute(path) || path === '/' || path === '' || path === 'index.html');
+
+            console.log('Route classification:', { 
+                path, 
+                isKnownRoute, 
+                pageFile, 
+                isSPARoute,
+                routesCheck: this.routes[path],
+                routesCheckNormalized: this.routes[path.replace(/^\//, '')]
+            });
 
             if (isSPARoute) {
                 console.log('SPA navigation to:', path);
