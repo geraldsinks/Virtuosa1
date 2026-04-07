@@ -327,6 +327,12 @@ class UnifiedHeader {
             .mobile-search-suggestion-item:hover {
                 background: rgba(255, 255, 255, 0.05);
             }
+            
+            /* Mobile category scroller wrapper */
+            #mobile-category-scroller-wrapper {
+                background: linear-gradient(to right, #0A1128, #1a1f35);
+                border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+            }
         `;
         document.head.appendChild(style);
     }
@@ -364,27 +370,30 @@ class UnifiedHeader {
                 </a>
             </div>
         </div>
-    </div>
-</header>
-
-<!-- Mobile Search Header -->
-<header class="mobile-header-row-2 bg-gray-900 text-white shadow-md md:hidden">
-    <div class="container mx-auto px-4 py-3">
-        <div class="relative">
-            <input id="mobile-search-input" type="text" placeholder="Search products..." 
-                   class="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:border-gold focus:outline-none">
-            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <i class="fas fa-search"></i>
-            </div>
-            <button id="mobile-search-button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gold hover:text-yellow-400">
-                <i class="fas fa-arrow-right"></i>
-            </button>
-            <!-- Mobile Search Suggestions -->
-            <div id="mobile-search-suggestions" class="absolute top-full left-0 right-0 mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden z-50">
+        
+        <!-- Mobile Search Bar (part of sticky header) -->
+        <div class="mt-3 px-4">
+            <div class="relative">
+                <input id="mobile-search-input" type="text" placeholder="Search products..." 
+                       class="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:border-gold focus:outline-none">
+                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <i class="fas fa-search"></i>
+                </div>
+                <button id="mobile-search-button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gold hover:text-yellow-400">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <!-- Mobile Search Suggestions -->
+                <div id="mobile-search-suggestions" class="absolute top-full left-0 right-0 mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden z-50">
+                </div>
             </div>
         </div>
     </div>
 </header>
+
+<!-- Mobile Category Scroller (below search bar) -->
+<div id="mobile-category-scroller-wrapper" class="md:hidden">
+    <!-- Category scroller will be injected here by initializeMobileCategoryScroller() -->
+</div>
 
 <!-- Desktop Header -->
 <header class="desktop-header bg-navy text-white shadow-md sticky top-0 z-50 hidden md:block">
@@ -448,7 +457,7 @@ class UnifiedHeader {
 <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
 
 <!-- Mobile Menu Content -->
-<div id="mobile-menu-content" class="fixed top-0 left-0 w-80 h-full bg-gray-900 text-white z-50 transform -translate-x-full transition-transform duration-300 md:hidden">
+<div id="mobile-menu-content" class="fixed top-0 left-0 w-80 h-full bg-gray-900 text-white z-50 transform -translate-x-full transition-transform duration-300 md:hidden overflow-y-auto">
     <div class="mobile-menu-header p-4 border-b border-gray-700">
         <div class="flex items-center justify-between">
             <h2 class="text-xl font-bold text-gold">Menu</h2>
@@ -591,10 +600,10 @@ class UnifiedHeader {
             const scrollerContainer = document.createElement('div');
             scrollerContainer.className = 'mobile-category-scroller md:hidden flex flex-row overflow-x-auto items-center bg-gradient-to-r from-slate-900/80 via-navy/80 to-slate-900/80 backdrop-blur-sm gap-4 border-gold/20 transition-all duration-300 ease-in-out border-b shadow-lg relative z-20';
             
-            // Define initial visible styles with better appearance
-            scrollerContainer.style.maxHeight = '120px';
-            scrollerContainer.style.paddingTop = '0.875rem';
-            scrollerContainer.style.paddingBottom = '0.875rem';
+            // Define initial visible styles with shorter height
+            scrollerContainer.style.maxHeight = '80px';
+            scrollerContainer.style.paddingTop = '0.5rem';
+            scrollerContainer.style.paddingBottom = '0.5rem';
             scrollerContainer.style.paddingLeft = '1.25rem';
             scrollerContainer.style.paddingRight = '1.25rem';
             scrollerContainer.style.opacity = '1';
@@ -627,20 +636,24 @@ class UnifiedHeader {
                 
                 return `
                     <a href="${targetUrl}" class="mobile-category-item flex flex-col items-center no-underline text-gray-300 hover:text-gold transition-all duration-300 shrink-0 hover:scale-110 group" style="min-width: 70px;">
-                        <div class="mobile-category-icon w-14 h-14 rounded-full bg-gradient-to-br from-gold/20 to-yellow-500/10 flex items-center justify-center mb-2 overflow-hidden border-2 border-gold/40 hover:border-gold transition-all shadow-md group-hover:shadow-lg group-hover:from-gold/40 group-hover:to-yellow-500/20">
+                        <div class="mobile-category-icon w-12 h-12 rounded-full bg-gradient-to-br from-gold/20 to-yellow-500/10 flex items-center justify-center mb-1 overflow-hidden border-2 border-gold/40 hover:border-gold transition-all shadow-md group-hover:shadow-lg group-hover:from-gold/40 group-hover:to-yellow-500/20">
                             ${imageUrl ? `<img src="${imageUrl}" class="w-full h-full object-cover rounded-full" alt="${cat.title}" style="object-fit: cover;">` : `<i class="fas fa-tag text-gold text-lg"></i>`}
                         </div>
-                        <span class="mobile-category-text text-[11px] font-semibold truncate w-[70px] text-center text-white group-hover:text-gold transition-colors">${cat.title}</span>
+                        <span class="mobile-category-text text-[10px] font-semibold truncate w-[70px] text-center text-white group-hover:text-gold transition-colors">${cat.title}</span>
                     </a>
                 `;
             }).join('');
             
-            // Inject the mobile scroller OUTSIDE the sticky header so it scrolls away naturally
-            const mainHeader = document.querySelector('header');
-            if (mainHeader) {
-                mainHeader.insertAdjacentElement('afterend', scrollerContainer);
+            // Inject the mobile scroller into the dedicated wrapper
+            const scrollerWrapper = document.getElementById('mobile-category-scroller-wrapper');
+            if (scrollerWrapper) {
+                scrollerWrapper.appendChild(scrollerContainer);
             } else {
-                searchRow.insertAdjacentElement('afterend', scrollerContainer); // Fallback
+                // Fallback: inject after main header
+                const mainHeader = document.querySelector('header');
+                if (mainHeader) {
+                    mainHeader.insertAdjacentElement('afterend', scrollerContainer);
+                }
             }
             
             // --- DESKTOP NAV INTEGRATION ---
