@@ -100,6 +100,7 @@ class FallbackManager {
 }
 }
 
+if (typeof CleanRouter === 'undefined') {
 class CleanRouter {
     constructor() {
         // Initialize fallback manager
@@ -1430,3 +1431,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+}
+}

@@ -13,10 +13,12 @@ if (typeof window.API_BASE === 'undefined') {
 }
 
 // Fallback image URLs for consistency
-const FALLBACK_IMAGES = {
+if (typeof FALLBACK_IMAGES === 'undefined') {
+    const FALLBACK_IMAGES = {
     HERO: 'https://placehold.co/1200x600/0A1128/FFFFFF?text=Virtuosa+Campus+Life',
     TEAM_MEMBER: 'https://placehold.co/400x400/0A1128/FFFFFF?text=Team'
 };
+}
 
 // Export for use in other scripts
 if (typeof module !== 'undefined' && module.exports) {

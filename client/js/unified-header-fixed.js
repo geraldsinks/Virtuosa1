@@ -787,6 +787,377 @@ class UnifiedHeader {
         // Update links even in basic mode
         this.updateAllLinksToClean();
     }
+
+    /**
+     * Initialize authentication state
+     */
+    async initializeAuthState() {
+        const token = localStorage.getItem('token');
+        const userFullName = localStorage.getItem('userFullName');
+
+        if (token) {
+            try {
+                // Try to fetch latest user data
+                await this.fetchAndUpdateUserData();
+            } catch (error) {
+                console.log('Using cached user data:', userFullName);
+                this.updateUIForLoggedInUser(userFullName);
+            }
+        } else {
+            this.updateUIForLoggedOutUser();
+        }
+    }
+
+    /**
+     * Fetch user data from server
+     */
+    async fetchAndUpdateUserData() {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('No token available');
+
+        const response = await fetch(`${window.API_BASE}/user/profile`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch user profile');
+
+        const userData = await response.json();
+        
+        // Update localStorage if needed
+        if (userData.fullName) localStorage.setItem('userFullName', userData.fullName);
+        if (userData.email) localStorage.setItem('userEmail', userData.email);
+        
+        this.userData = userData;
+        this.updateUIForLoggedInUser(userData.fullName || localStorage.getItem('userFullName'));
+        
+        // Update UI for seller/admin status
+        this.updateConditionalSections(userData);
+    }
+
+    /**
+     * Update UI for logged-in user
+     */
+    updateUIForLoggedInUser(fullName) {
+        // Hide login link, show user dropdown
+        const loginLink = document.getElementById('login-link');
+        const userDropdownContainer = document.getElementById('user-dropdown-container');
+        const userGreetingShort = document.getElementById('user-greeting-short');
+        const userGreetingFull = document.getElementById('user-greeting-full');
+
+        if (loginLink) loginLink.classList.add('hidden');
+        if (userDropdownContainer) userDropdownContainer.classList.remove('hidden');
+        
+        // Set user greeting
+        const firstName = fullName?.split(' ')[0] || 'User';
+        if (userGreetingShort) userGreetingShort.textContent = firstName;
+        if (userGreetingFull) userGreetingFull.textContent = fullName || 'User';
+
+        // Update mobile menu
+        const mobileMenuSignLink = document.getElementById('mobile-menu-sign-link');
+        const mobileMenuSignText = document.getElementById('mobile-menu-sign-text');
+        
+        if (mobileMenuSignLink && mobileMenuSignText) {
+            mobileMenuSignLink.href = '#';
+            mobileMenuSignLink.onclick = (e) => {
+                e.preventDefault();
+                window.logout?.();
+            };
+            mobileMenuSignText.textContent = 'Sign Out';
+            const icon = mobileMenuSignLink.querySelector('i');
+            if (icon) icon.className = 'fas fa-sign-out-alt';
+        }
+    }
+
+    /**
+     * Update UI for logged-out user
+     */
+    updateUIForLoggedOutUser() {
+        const loginLink = document.getElementById('login-link');
+        const userDropdownContainer = document.getElementById('user-dropdown-container');
+        
+        if (loginLink) loginLink.classList.remove('hidden');
+        if (userDropdownContainer) userDropdownContainer.classList.add('hidden');
+
+        // Hide conditional sections
+        const sellerSection = document.getElementById('seller-section');
+        const adminSection = document.getElementById('admin-section');
+        const mobileSellerSection = document.getElementById('mobile-seller-section');
+        const mobileAdminSection = document.getElementById('mobile-admin-section');
+
+        [sellerSection, adminSection, mobileSellerSection, mobileAdminSection].forEach(el => {
+            if (el) el.classList.add('hidden');
+        });
+
+        // Update mobile menu
+        const mobileMenuSignLink = document.getElementById('mobile-menu-sign-link');
+        const mobileMenuSignText = document.getElementById('mobile-menu-sign-text');
+        
+        if (mobileMenuSignLink && mobileMenuSignText) {
+            mobileMenuSignLink.href = '/login';  // Clean URL
+            mobileMenuSignLink.onclick = null;
+            mobileMenuSignText.textContent = 'Sign In';
+            const icon = mobileMenuSignLink.querySelector('i');
+            if (icon) icon.className = 'fas fa-sign-in-alt';
+        }
+    }
+
+    /**
+     * Update conditional sections based on user role
+     */
+    updateConditionalSections(userData) {
+        const isSeller = userData.isSeller || userData.role === 'seller';
+        const isAdmin = userData.role === 'admin' || userData.isAdmin === 'true' || userData.isAdmin === true;
+
+        // Desktop sections
+        const sellerSection = document.getElementById('seller-section');
+        const adminSection = document.getElementById('admin-section');
+
+        if (sellerSection) {
+            isSeller ? sellerSection.classList.remove('hidden') : sellerSection.classList.add('hidden');
+        }
+        if (adminSection) {
+            isAdmin ? adminSection.classList.remove('hidden') : adminSection.classList.add('hidden');
+        }
+
+        // Mobile sections
+        const mobileSellerSection = document.getElementById('mobile-seller-section');
+        const mobileAdminSection = document.getElementById('mobile-admin-section');
+
+        if (mobileSellerSection) {
+            isSeller ? mobileSellerSection.classList.remove('hidden') : mobileSellerSection.classList.add('hidden');
+        }
+        if (mobileAdminSection) {
+            isAdmin ? mobileAdminSection.classList.remove('hidden') : mobileAdminSection.classList.add('hidden');
+        }
+    }
+
+    /**
+     * Initialize search functionality (adapted from mobile-header.js and header.js)
+     */
+    async initializeSearch() {
+        // Initialize mobile search
+        this.initializeMobileSearch();
+        
+        // Initialize desktop search
+        this.initializeDesktopSearch();
+    }
+
+    /**
+     * Initialize mobile search functionality
+     */
+    async initializeMobileSearch() {
+        // Get mobile search elements
+        const mobileSearchInput = document.getElementById('mobile-search-input');
+        const mobileSearchButton = document.getElementById('mobile-search-button');
+        const mobileSearchSuggestions = document.getElementById('mobile-search-suggestions');
+
+        if (!mobileSearchInput || !mobileSearchButton || !mobileSearchSuggestions) {
+            console.warn('Mobile search elements not found');
+            return;
+        }
+
+        // Add event listeners for mobile search
+        mobileSearchInput.addEventListener('input', (e) => {
+            this.handleMobileSearchInput(e.target.value, mobileSearchSuggestions);
+        });
+
+        mobileSearchButton.addEventListener('click', () => {
+            this.performMobileSearch(mobileSearchInput.value);
+        });
+
+        mobileSearchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                this.performMobileSearch(mobileSearchInput.value);
+            }
+        });
+    }
+
+    /**
+     * Handle mobile search input with suggestions
+     */
+    async handleMobileSearchInput(query, suggestionsContainer) {
+        clearTimeout(this.mobileSearchTimeout);
+        
+        if (query.length >= 2) {
+            this.mobileSearchTimeout = setTimeout(async () => {
+                await this.showMobileSearchSuggestions(query, suggestionsContainer);
+            }, 300);
+        } else {
+            this.hideMobileSearchSuggestions(suggestionsContainer);
+        }
+    }
+
+    /**
+     * Show mobile search suggestions
+     */
+    async showMobileSearchSuggestions(query, suggestionsContainer) {
+        try {
+            const suggestions = await this.fetchSearchSuggestions(query);
+            
+            if (suggestions.length === 0) {
+                suggestionsContainer.innerHTML = `
+                    <div class="px-4 py-3 text-gray-400 text-sm">
+                        No suggestions found
+                    </div>
+                `;
+                suggestionsContainer.classList.remove('hidden');
+                return;
+            }
+
+            suggestionsContainer.innerHTML = suggestions.map(item => {
+                const imageUrl = item.image ? 
+                    (item.image.startsWith('/') ? `${window.API_BASE.replace('/api', '')}${item.image}` : item.image) : 
+                    null;
+                
+                return `
+                    <div class="mobile-search-suggestion-item px-4 py-3 hover:bg-gray-800 cursor-pointer border-b border-gray-700 last:border-b-0"
+                         data-product-id="${item.id}"
+                         data-product-name="${this.escapeHtmlAttribute(item.title)}">
+                        <div class="flex items-center space-x-3">
+                            ${imageUrl ? `
+                                <img src="${imageUrl}" alt="${item.title}" class="w-8 h-8 object-cover rounded" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-8 h-8 bg-gray-600 rounded flex items-center justify-center" style="display:none;">
+                                    <i class="fas fa-box text-gray-400 text-xs"></i>
+                                </div>
+                            ` : `
+                                <div class="w-8 h-8 bg-gray-600 rounded flex items-center justify-center">
+                                    <i class="fas fa-box text-gray-400 text-xs"></i>
+                                </div>
+                            `}
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-white line-clamp-1">${item.title}</div>
+                                <div class="text-xs text-gray-400">${item.category}</div>
+                            </div>
+                            <div class="text-gold text-sm font-bold">K${item.price ? item.price.toLocaleString() : '0'}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add click listeners for suggestions
+            suggestionsContainer.addEventListener('click', (e) => {
+                const suggestionItem = e.target.closest('.mobile-search-suggestion-item');
+                if (suggestionItem) {
+                    const productId = suggestionItem.dataset.productId;
+                    const productName = suggestionItem.dataset.productName;
+                    this.selectMobileSearchSuggestion(productName, productId);
+                }
+            });
+
+            suggestionsContainer.classList.remove('hidden');
+        } catch (error) {
+            console.error('Error fetching search suggestions:', error);
+            suggestionsContainer.innerHTML = `
+                <div class="px-4 py-3 text-gray-400 text-sm">
+                    Error loading suggestions
+                </div>
+            `;
+            suggestionsContainer.classList.remove('hidden');
+        }
+    }
+
+    /**
+     * Hide mobile search suggestions
+     */
+    hideMobileSearchSuggestions(suggestionsContainer) {
+        if (suggestionsContainer) {
+            suggestionsContainer.classList.add('hidden');
+        }
+    }
+
+    /**
+     * Fetch search suggestions from API
+     */
+    async fetchSearchSuggestions(query) {
+        try {
+            const response = await fetch(`${window.API_BASE}/search/suggestions?q=${encodeURIComponent(query)}`);
+            if (response.ok) {
+                const suggestions = await response.json();
+                return suggestions;
+            } else {
+                console.error('Search suggestions failed:', response.status);
+                return [];
+            }
+        } catch (error) {
+            console.error('Error fetching search suggestions:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Escape HTML attribute to prevent XSS
+     */
+    escapeHtmlAttribute(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
+     * Initialize desktop search functionality
+     */
+    async initializeDesktopSearch() {
+        // Similar implementation for desktop search
+        // For now, just log that it's initialized
+        console.log('Desktop search initialized');
+    }
+
+    /**
+     * Initialize mobile menu functionality
+     */
+    initializeMobileMenu() {
+        // Mobile menu toggle functionality
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenuClose = document.getElementById('mobile-menu-close');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+        const mobileMenuContent = document.getElementById('mobile-menu-content');
+        
+        if (mobileMenuToggle && mobileMenuContent) {
+            mobileMenuToggle.addEventListener('click', () => {
+                mobileMenuContent.classList.remove('-translate-x-full');
+                if (mobileMenuOverlay) mobileMenuOverlay.classList.remove('hidden');
+            });
+        }
+        
+        if (mobileMenuClose && mobileMenuContent) {
+            mobileMenuClose.addEventListener('click', () => {
+                mobileMenuContent.classList.add('-translate-x-full');
+                if (mobileMenuOverlay) mobileMenuOverlay.classList.add('hidden');
+            });
+        }
+        
+        if (mobileMenuOverlay && mobileMenuContent) {
+            mobileMenuOverlay.addEventListener('click', () => {
+                mobileMenuContent.classList.add('-translate-x-full');
+                mobileMenuOverlay.classList.add('hidden');
+            });
+        }
+    }
+
+    /**
+     * Initialize notifications functionality
+     */
+    initializeNotifications() {
+        console.log('Notifications initialized');
+    }
+
+    /**
+     * Initialize user dropdown functionality
+     */
+    initializeUserDropdown() {
+        console.log('User dropdown initialized');
+    }
+
+    /**
+     * Set up auth state observer
+     */
+    setupAuthStateObserver() {
+        // Listen for auth state changes
+        document.addEventListener('authStateChanged', () => {
+            this.initializeAuthState();
+        });
+    }
 }
 
 // Initialize on load
