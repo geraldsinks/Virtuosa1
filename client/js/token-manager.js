@@ -1,6 +1,11 @@
 // Token Manager - Automatic Token Refresh and Reconnection
 // API_BASE is provided by config.js
 
+// Prevent duplicate class declarations
+if (window.TokenManager) {
+    console.log('TokenManager class already exists, skipping declaration');
+} else {
+
 class TokenManager {
     constructor() {
         this.token = localStorage.getItem('token');
@@ -275,4 +280,7 @@ class TokenManager {
 if (typeof window !== 'undefined') {
     window.tokenManager = new TokenManager();
     console.log('✅ Token manager initialized globally');
+}
+
+// Close conditional class declaration block
 }

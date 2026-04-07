@@ -1,6 +1,11 @@
 // Shared Authentication Utility
 // Provides consistent authentication checking across all components
 
+// Prevent duplicate class declarations
+if (window.AuthManager) {
+    console.log('AuthManager class already exists, skipping declaration');
+} else {
+
 class AuthManager {
     constructor() {
         this.cachedUserData = null;
@@ -163,4 +168,7 @@ window.authManager = new AuthManager();
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = AuthManager;
+}
+
+// Close conditional class declaration block
 }

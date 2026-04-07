@@ -2,6 +2,12 @@
  * Virtuosa Cookie Consent Manager
  * Handles showing the GDPR/CCPA compliant banner and storing user preferences.
  */
+
+// Prevent duplicate class declarations
+if (window.CookieManager) {
+    console.log('CookieManager class already exists, skipping declaration');
+} else {
+
 class CookieManager {
     constructor() {
         this.cookieName = 'virtuosa_cookie_consent';
@@ -221,3 +227,6 @@ class CookieManager {
 
 // Instantiate globally
 window.CookieManager = new CookieManager();
+
+// Close conditional class declaration block
+}

@@ -5,6 +5,11 @@
  * Batches events and dispatches them to the backend periodically.
  */
 
+// Prevent duplicate class declarations
+if (window.VirtuosaTracker) {
+    console.log('VirtuosaTracker class already exists, skipping declaration');
+} else {
+
 class VirtuosaTracker {
     constructor() {
         this.events = [];
@@ -177,9 +182,19 @@ class VirtuosaTracker {
         }
 
         if (this.events.length > 0) {
+            // Get endpoint dynamically each time
+            const endpoint = this.getEndpoint();
+            console.log('📊 Flushing events to:', endpoint);
+            
+            // Ensure we have an absolute URL for sendBeacon
+            let absoluteEndpoint = endpoint;
+            if (endpoint.startsWith('/')) {
+                absoluteEndpoint = `${window.location.protocol}//${window.location.hostname}${endpoint}`;
+            }
+            
             // Navigator sendBeacon is ideal for page unloads
             const blob = new Blob([JSON.stringify({ events: this.events })], { type: 'application/json' });
-            navigator.sendBeacon(this.endpoint, blob);
+            navigator.sendBeacon(absoluteEndpoint, blob);
             this.events = [];
         }
     }
@@ -192,4 +207,7 @@ if (document.readyState === 'loading') {
     });
 } else {
     window.VirtuosaTracker = new VirtuosaTracker();
+}
+
+// Close conditional class declaration block
 }

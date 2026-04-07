@@ -3,6 +3,11 @@
  * Provides localStorage-based caching with expiration for API responses and user data
  */
 
+// Prevent duplicate class declarations
+if (window.CacheManager) {
+    console.log('CacheManager class already exists, skipping declaration');
+} else {
+
 class CacheManager {
     constructor() {
         this.prefix = 'virtuosa_cache_';
@@ -443,4 +448,7 @@ if (typeof module !== 'undefined' && module.exports) {
         cacheManager,
         cachedFetch
     };
+}
+
+// Close conditional class declaration block
 }

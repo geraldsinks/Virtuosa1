@@ -1110,30 +1110,41 @@ class CleanRouter {
         // Use global script tracking to prevent duplicates across page loads
         if (!window.loadedScripts) {
             window.loadedScripts = new Set();
+            console.log('📝 Initialized global script tracking');
         }
         
         // Separate head and body scripts to maintain execution order
         scripts.forEach(oldScript => {
-            // Skip if script already loaded globally
-            const scriptKey = oldScript.src || oldScript.textContent?.substring(0, 100);
+            // Create a more robust script key
+            let scriptKey;
+            if (oldScript.src) {
+                // For external scripts, use the full URL
+                scriptKey = 'src:' + oldScript.src;
+            } else {
+                // For inline scripts, use content hash (first 200 chars)
+                const content = oldScript.textContent || oldScript.innerHTML || '';
+                scriptKey = 'inline:' + content.substring(0, 200).replace(/\s+/g, ' ').trim();
+            }
+            
             if (window.loadedScripts.has(scriptKey)) {
-                console.log('Skipping globally loaded script:', scriptKey?.substring(0, 50) + '...');
+                console.log('🔄 Skipping already loaded script:', scriptKey.substring(0, 80) + '...');
                 return;
             }
             
             // Mark as loaded before execution to prevent race conditions
             window.loadedScripts.add(scriptKey);
+            console.log('➕ Loading script:', scriptKey.substring(0, 80) + '...');
             
             // Security validation: skip scripts with dangerous content
             const scriptContent = oldScript.innerHTML || oldScript.textContent;
             if (scriptContent && this.containsDangerousContent(scriptContent)) {
-                console.warn('Blocked potentially dangerous script execution');
+                console.warn('🚫 Blocked potentially dangerous script execution');
                 return;
             }
             
             // Skip external scripts from untrusted sources
             if (oldScript.src && !this.isTrustedSource(oldScript.src)) {
-                console.warn('Blocked script from untrusted source:', oldScript.src);
+                console.warn('🚫 Blocked script from untrusted source:', oldScript.src);
                 return;
             }
             
