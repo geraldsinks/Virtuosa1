@@ -946,9 +946,13 @@ class CleanRouter {
                             ? '?' + new URLSearchParams(params).toString() 
                             : '';
                         
-                        const currentQueryString = window.location.search;
-                        if (queryString !== currentQueryString) {
-                            history.replaceState({}, '', window.location.pathname + queryString);
+                        // Build the new URL (pathname + query string)
+                        const newUrl = window.location.pathname.replace(/\/[^\/]*$/, '') + '/' + pageFile.replace(/^.*\//, '').replace(/\.html$/, '') + queryString;
+                        
+                        // Always update the URL to match the current page
+                        if (window.location.pathname + window.location.search !== newUrl) {
+                            history.replaceState({}, '', newUrl);
+                            console.log('🔄 Updated URL to:', newUrl);
                         }
                         
                         // Reinitialize URL helper for new content
