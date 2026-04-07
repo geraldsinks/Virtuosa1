@@ -13,7 +13,7 @@ class SimpleAdSlider {
     }
 
     /**
-     * Initialize the ad slider - simple and fast
+     * Initialize the ad slider with performance optimizations
      */
     initialize() {
         this.slider = document.getElementById('ad-slider');
@@ -22,12 +22,28 @@ class SimpleAdSlider {
             return;
         }
 
-        // Get all cards
-        this.cards = Array.from(this.slider.querySelectorAll('.ad-card'));
+        // Get all cards - look for multiple possible selectors
+        this.cards = Array.from(this.slider.querySelectorAll('.ad-card')) || 
+                      Array.from(this.slider.querySelectorAll('[class*="ad-card"]')) ||
+                      Array.from(this.slider.querySelectorAll('.ad-slide')) ||
+                      [];
+        
         this.totalCards = this.cards.length;
 
         if (this.totalCards === 0) {
-            console.warn('No ad cards found');
+            console.warn('No ad cards found - checking for alternative selectors');
+            // Try to find any elements that might be ads
+            const allElements = this.slider.children;
+            for (let element of allElements) {
+                if (element.classList.contains('ad') || element.querySelector('[class*="ad"]')) {
+                    this.cards.push(element);
+                }
+            }
+            this.totalCards = this.cards.length;
+        }
+
+        if (this.totalCards === 0) {
+            console.warn('No ad cards found at all');
             return;
         }
 

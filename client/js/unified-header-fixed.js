@@ -555,9 +555,16 @@ class UnifiedHeader {
      * Initialize mobile category scroller with CLEAN URLs
      */
     async initializeMobileCategoryScroller() {
+        console.log('ð Initializing mobile category scroller...');
+        
         // Check if we have the mobile header search row to append below
         const searchRow = document.querySelector('.mobile-header-row-2');
-        if (!searchRow) return;
+        // Don't return early - try to find any search row or main header
+        const mainHeader = document.querySelector('header');
+        if (!searchRow && !mainHeader) {
+            console.warn('No search row or main header found for category scroller');
+            return;
+        }
         
         // Prevent multiple scrollers
         if (document.querySelector('.mobile-category-scroller')) return;
@@ -573,6 +580,8 @@ class UnifiedHeader {
             } catch (e) {
                 console.warn('Could not load marketing categories for scroller:', e);
             }
+        }
+    }
             
             // Fallback to standard categories if marketing is empty
             if (activeCats.length === 0) {
@@ -704,16 +713,8 @@ class UnifiedHeader {
             }
             // --- END DESKTOP NAV INTEGRATION ---
             
-            // CRITICAL: Update links after dynamic content injection
-            setTimeout(() => {
-                this.updateAllLinksToClean();
-            }, 100);
-            
-        } catch (error) {
-            console.error('Error loading category scroller:', error);
         }
-    }
-
+        // --- END DESKTOP NAV INTEGRATION ---
     /**
      * Select mobile search suggestion with CLEAN URL
      */
