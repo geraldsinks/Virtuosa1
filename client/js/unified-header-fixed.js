@@ -160,8 +160,13 @@ class UnifiedHeader {
                 e.preventDefault();
                 console.log('Logo clicked - navigating to home page');
                 
-                // Always use direct navigation for home page to avoid SPA issues
-                window.location.href = '/';
+                // Use SPA navigation for home page when possible
+                if (window.navigationStateManager) {
+                    window.navigationStateManager.navigate('/');
+                } else {
+                    // Fallback to direct navigation
+                    window.location.href = '/';
+                }
             });
         });
         
@@ -491,7 +496,7 @@ class UnifiedHeader {
                             <a href="/orders" class="block px-3 py-2 text-white hover:bg-gray-700 rounded">My Orders</a>
                             <a href="/dashboard" class="block px-3 py-2 text-white hover:bg-gray-700 rounded">Dashboard</a>
                             <div class="border-t border-gray-700 my-2"></div>
-                            <button onclick="logout()" class="block w-full text-left px-3 py-2 text-white hover:bg-gray-700 rounded">Sign Out</button>
+                             <button onclick="handleLogout()" class="block w-full text-left px-3 py-2 text-white hover:bg-gray-700 rounded">Sign Out</button>
                         </div>
                     </div>
                 </div>
@@ -792,8 +797,8 @@ class UnifiedHeader {
         console.log('ð¡ Navigating to clean URL:', productDetailUrl);
         
         // Use navigation state manager if available
-        if (window.NavigationStateManager) {
-            window.NavigationStateManager.navigate(productDetailUrl);
+        if (window.navigationStateManager) {
+            window.navigationStateManager.navigate(productDetailUrl);
         } else {
             window.location.href = productDetailUrl;
         }
@@ -813,15 +818,13 @@ class UnifiedHeader {
             console.log('Final mobile search path:', productsPath);
             
             // Use navigation state manager if available
-            if (window.NavigationStateManager) {
-                window.NavigationStateManager.navigate(productsPath);
+            if (window.navigationStateManager) {
+                window.navigationStateManager.navigate(productsPath);
             } else {
                 window.location.href = productsPath;
             }
         }
     }
-
-    // ... (rest of the methods remain the same, but ensure they all use clean URLs)
 
     /**
      * Initialize basic functionality as fallback
@@ -965,8 +968,16 @@ class UnifiedHeader {
         const mobileMenuSignText = document.getElementById('mobile-menu-sign-text');
         
         if (mobileMenuSignLink && mobileMenuSignText) {
-            mobileMenuSignLink.href = '/login';  // Clean URL
-            mobileMenuSignLink.onclick = null;
+            mobileMenuSignLink.href = '#';  // Prevent default action
+            mobileMenuSignLink.onclick = (e) => {
+                e.preventDefault();
+                // Navigate to login page using SPA navigation
+                if (window.navigationStateManager) {
+                    window.navigationStateManager.navigate('/login');
+                } else {
+                    window.location.href = '/login';
+                }
+            };
             mobileMenuSignText.textContent = 'Sign In';
             const icon = mobileMenuSignLink.querySelector('i');
             if (icon) icon.className = 'fas fa-sign-in-alt';
@@ -1230,6 +1241,24 @@ class UnifiedHeader {
      */
     initializeUserDropdown() {
         console.log('User dropdown initialized');
+    }
+
+    /**
+     * Handle logout with proper SPA navigation
+     */
+    handleLogout() {
+        // Clear auth data
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('userFullName');
+        localStorage.removeItem('userEmail');
+        
+        // Navigate to login page using SPA navigation
+        if (window.navigationStateManager) {
+            window.navigationStateManager.navigate('/login');
+        } else {
+            window.location.href = '/login';
+        }
     }
 
     /**

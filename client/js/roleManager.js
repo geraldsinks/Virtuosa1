@@ -258,6 +258,58 @@ class RoleManager {
                this.roleInfo.permissions.includes(permission);
     }
 
+    /**
+     * Check if user can access a specific route
+     * @param {string} route - The route to check (e.g., '/dashboard', '/admin')
+     * @returns {Promise<boolean>} True if user can access the route
+     */
+    async canAccessRoute(route) {
+        // Wait for initialization if not ready
+        if (!this.isInitialized) {
+            if (this.initializationLock) {
+                // Wait for existing initialization to complete
+                try {
+                    await this.initializationPromise;
+                } catch (error) {
+                    console.error('❌ Failed to initialize for access check:', error);
+                    return false;
+                }
+            } else {
+                try {
+                    this.initializationLock = true;
+                    await this.initialize();
+                } catch (error) {
+                    console.error('❌ Failed to initialize for access check:', error);
+                    return false;
+                } finally {
+                    this.initializationLock = false;
+                }
+            }
+        }
+        
+        // Remove leading slash for comparison
+        const cleanRoute = route.startsWith('/') ? route.substring(1) : route;
+        
+        // Define route access rules
+        const publicRoutes = ['', 'login', 'signup', 'products', 'product', 'faq', 'contact', 'about'];
+        const buyerRoutes = [...publicRoutes, 'dashboard', 'orders', 'order', 'cart', 'profile', 'settings', 'messages', 'notifications', 'transactions', 'create-product', 'edit-product', 'my-products', 'seller-verification'];
+        const sellerRoutes = [...buyerRoutes, 'seller', 'seller-dashboard', 'seller-shop', 'seller-analytics', 'seller-orders'];
+        const adminRoutes = [...sellerRoutes, 'admin', 'admin-users', 'admin-seller-applications', 'admin-account-deletions', 'admin-mass-messaging', 'admin-retention', 'admin-asset-library', 'marketing-dashboard', 'marketing', 'admin-transactions', 'admin-disputes', 'admin-support', 'admin-live-chat', 'admin-maintenance', 'admin-maintenance-reports', 'admin-ui-queries', 'admin-transaction-reports', 'admin-risk-management', 'admin-analytics-reports', 'admin-growth-metrics', 'admin-about'];
+        
+        // Check access based on role
+        switch (this.currentRole) {
+            case 'admin':
+                return adminRoutes.includes(cleanRoute);
+            case 'seller':
+                return sellerRoutes.includes(cleanRoute);
+            case 'buyer':
+                return buyerRoutes.includes(cleanRoute);
+            default:
+                // Not logged in, only public routes accessible
+                return publicRoutes.includes(cleanRoute);
+        }
+    }
+
     // Get user display title
     getUserTitle() {
         return this.roleInfo?.title || 'User';

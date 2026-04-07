@@ -8,28 +8,22 @@ if (window.URLHelper) {
 class URLHelper {
     static updatePageLinks() {
         // Update all anchor tags to use clean URLs
-        const links = document.querySelectorAll('a[href*=".html"]');
+        const links = document.querySelectorAll('a[href]');
         
         links.forEach(link => {
             const href = link.getAttribute('href');
+            // Skip empty hrefs, javascript:, mailto:, tel:, etc.
+            if (!href || 
+                href.startsWith('javascript:') || 
+                href.startsWith('mailto:') || 
+                href.startsWith('tel:') || 
+                href.startsWith('#')) {
+                return;
+            }
+            
             const cleanUrl = this.getCleanUrl(href);
             
             if (cleanUrl !== href) {
-                link.setAttribute('href', cleanUrl);
-            }
-        });
-        
-        // Also update category links that use query parameters
-        const categoryLinks = document.querySelectorAll('a[href*="category="]');
-        
-        categoryLinks.forEach(link => {
-            const href = link.getAttribute('href');
-            const url = new URL(href, window.location.origin);
-            const category = url.searchParams.get('category');
-            
-            if (category) {
-                // Convert products.html?category=Electronics to /products/Electronics
-                const cleanUrl = `/products/${encodeURIComponent(category)}`;
                 link.setAttribute('href', cleanUrl);
             }
         });
@@ -89,9 +83,27 @@ class URLHelper {
         
         // Use router's routes as the single source of truth
         if (window.router && window.router.routes) {
+            // First check static routes
             for (const [cleanPath, actualPath] of Object.entries(window.router.routes)) {
                 if (actualPath === normalizedPath) {
                     return '/' + cleanPath;
+                }
+            }
+            
+            // Then check dynamic routes
+            if (window.router.dynamicRoutes) {
+                for (const [pattern, destination] of Object.entries(window.router.dynamicRoutes)) {
+                    if (destination === normalizedPath) {
+                        // Convert pattern like '/product/:id' to a regex
+                        const regexPattern = pattern.replace(/:(\w+)/g, '([^/]+)');
+                        const regex = new RegExp('^' + regexPattern + '$');
+                        const match = normalizedPath.match(regex);
+                        if (match) {
+                            // Extract the clean path (first part before any parameters)
+                            const cleanPath = pattern.split('/')[1]; // Gets 'product' from '/product/:id'
+                            return '/' + cleanPath;
+                        }
+                    }
                 }
             }
         }
@@ -160,6 +172,19 @@ class URLHelper {
             
             if (window.router && window.router.routes && window.router.routes[pageName]) {
                 return '/' + pageName;
+            }
+            
+            // Check if it matches any dynamic route pattern from fallback
+            const dynamicMatches = {
+                'product-detail': 'product',
+                'order-details': 'order',
+                'seller-shop': 'seller-shop',
+                'buyer-dashboard': 'dashboard',
+                'seller-dashboard': 'seller-dashboard'
+            };
+            
+            if (dynamicMatches[pageName]) {
+                return '/' + dynamicMatches[pageName];
             }
             
             // If no mapping found, it might be a direct file access

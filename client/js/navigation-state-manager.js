@@ -26,10 +26,49 @@ class NavigationStateManager {
         this.currentUrl = window.location.pathname + window.location.search;
         this.expectedUrl = this.currentUrl;
         
+        // Navigation deduplication
+        this.lastNavigationTime = 0;
+        this.navigationDelay = 100; // Minimum delay between navigations
+        
         // Event cleanup
         this.eventListeners = new Set();
         
         this.init();
+    }
+    
+    /**
+     * Normalize a URL for comparison and storage
+     * @param {string} url - URL to normalize
+     * @returns {string} Normalized URL
+     */
+    normalizeUrl(url) {
+        if (!url) return '/';
+        
+        try {
+            // Handle relative URLs
+            let cleanUrl = url;
+            if (!cleanUrl.startsWith('http') && !cleanUrl.startsWith('//')) {
+                // Convert to absolute URL for parsing
+                cleanUrl = new URL(url, window.location.origin).toString();
+            }
+            
+            const urlObj = new URL(cleanUrl);
+            let pathname = urlObj.pathname;
+            
+            // Remove trailing slash unless it's the root
+            if (pathname !== '/' && pathname.endsWith('/')) {
+                pathname = pathname.slice(0, -1);
+            }
+            
+            // Reconstruct URL without search params for comparison
+            // (we store search separately in currentUrl)
+            return pathname;
+        } catch (e) {
+            console.warn('URL normalization failed:', e);
+            // Fallback: basic normalization
+            let normalized = url.replace(/^\/+|\/+$/g, '').replace(/\/+/g, '/');
+            return normalized ? `/${normalized}` : '/';
+        }
     }
     
     init() {
@@ -66,7 +105,13 @@ class NavigationStateManager {
             if (!link) return;
             
             const href = link.getAttribute('href');
-            if (!href || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) {
+            if (!href || 
+                href.startsWith('http') || 
+                href.startsWith('mailto:') || 
+                href.startsWith('tel:') || 
+                href.startsWith('#') ||
+                link.hasAttribute('download') ||
+                link.getAttribute('target') === '_blank') {
                 return;
             }
             
@@ -88,6 +133,25 @@ class NavigationStateManager {
     }
     
     async navigate(url, options = {}) {
+        // Normalize URL for comparison
+        const normalizedUrl = this.normalizeUrl(url);
+        const normalizedCurrentUrl = this.normalizeUrl(this.currentUrl);
+        
+        // Prevent duplicate navigation to the same URL
+        if (normalizedUrl === normalizedCurrentUrl && !this.navigationInProgress) {
+            console.log(`Preventing duplicate navigation to ${url}`);
+            return;
+        }
+        
+        // Prevent rapid-fire navigations (debouncing)
+        const now = Date.now();
+        if (now - this.lastNavigationTime < this.navigationDelay) {
+            console.log(`Throttling navigation to ${url}`);
+            // Still proceed but with replacement to avoid history pollution
+            options.replaceHistory = true;
+        }
+        this.lastNavigationTime = now;
+        
         const navigationId = ++this.lastNavigationId;
         
         // Cancel any pending navigation
@@ -95,23 +159,23 @@ class NavigationStateManager {
         
         // Set navigation state
         this.navigationInProgress = true;
-        this.expectedUrl = url;
+        this.expectedUrl = normalizedUrl;
         
         try {
             console.log(`Navigation ${navigationId}: ${url}`);
             
             // Update browser history
             if (!options.replaceHistory) {
-                history.pushState({}, '', url);
+                history.pushState({}, '', normalizedUrl);
             } else {
-                history.replaceState({}, '', url);
+                history.replaceState({}, '', normalizedUrl);
             }
             
             // Load content
-            await this.loadContent(url, navigationId);
+            await this.loadContent(normalizedUrl, navigationId);
             
             // Update current URL
-            this.currentUrl = url;
+            this.currentUrl = normalizedUrl;
             
         } catch (error) {
             console.error(`Navigation ${navigationId} failed:`, error);
@@ -155,36 +219,58 @@ class NavigationStateManager {
             }
         }
         
-        // Fetch fresh content
-        const controller = new AbortController();
-        this.pendingNavigations.set(navigationId, controller);
+        // Fetch fresh content with retry logic
+        let lastError = null;
+        const maxRetries = 2;
         
-        try {
-            const response = await fetch(url, {
-                signal: controller.signal,
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            const controller = new AbortController();
+            this.pendingNavigations.set(navigationId, controller);
             
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            const html = await response.text();
-            
-            // Update cache (only for pages that don't need full script execution)
-            if (!needsFullScriptExecution) {
-                const cacheKey = this.getCacheKey(url);
-                this.updateCache(cacheKey, html);
-            }
-            
-            // Render content
-            this.renderContent(html, url);
-            
-        } catch (error) {
-            if (error.name !== 'AbortError') {
-                throw error;
+            try {
+                const response = await fetch(url, {
+                    signal: controller.signal,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const html = await response.text();
+                
+                // Update cache (only for pages that don't need full script execution)
+                if (!needsFullScriptExecution) {
+                    const cacheKey = this.getCacheKey(url);
+                    this.updateCache(cacheKey, html);
+                }
+                
+                // Render content
+                this.renderContent(html, url);
+                return; // Success, exit retry loop
+                
+            } catch (error) {
+                lastError = error;
+                console.warn(`Navigation attempt ${attempt + 1} failed for ${url}:`, error);
+                
+                // If this was an abort error, don't retry
+                if (error.name === 'AbortError') {
+                    throw error;
+                }
+                
+                // If we have retries left, wait before trying again
+                if (attempt < maxRetries) {
+                    // Exponential backoff: 100ms, 200ms, 400ms
+                    await new Promise(resolve => setTimeout(resolve, 100 * Math.pow(2, attempt)));
+                }
+            } finally {
+                // Clean up the controller for this attempt
+                this.pendingNavigations.delete(navigationId);
             }
         }
+        
+        // If we get here, all retries failed
+        throw lastError;
     }
     
     renderContent(html, url) {

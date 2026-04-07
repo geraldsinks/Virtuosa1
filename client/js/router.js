@@ -48,8 +48,11 @@ if (typeof FallbackManager === 'undefined') {
             } = options;
 
             try {
+                // Get the fallback route from the fallbackRoutes map
+                const fallbackRoute = this.getFallback(context, userRole);
+                
                 setTimeout(() => {
-                    this.router.navigate(fallbackRoute);
+                    this.navigate(fallbackRoute);
                 }, delay);
             } catch (error) {
                 console.error('Fallback execution error:', error);
@@ -152,33 +155,13 @@ if (typeof FallbackManager === 'undefined') {
         }
 
         setupClickInterceptor() {
-            document.addEventListener('click', (e) => {
-                const link = e.target.closest('a');
-                if (!link) return;
-                const href = link.getAttribute('href');
-                if (!href || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) return;
-                if (link.hasAttribute('download') || link.getAttribute('target') === '_blank') return;
-                e.preventDefault();
-                this.navigate(href);
-            });
+            // Click interception is now handled by NavigationStateManager
+            // This method is kept for compatibility but does nothing
         }
 
         setupMobileMenuInterception() {
-            const mobileMenuContent = document.getElementById('mobile-menu-content');
-            if (!mobileMenuContent) return;
-            const newMobileMenuContent = mobileMenuContent.cloneNode(true);
-            mobileMenuContent.parentNode.replaceChild(newMobileMenuContent, mobileMenuContent);
-            newMobileMenuContent.addEventListener('click', (e) => {
-                const link = e.target.closest('a');
-                if (!link) return;
-                const href = link.getAttribute('href');
-                if (!href || href.startsWith('http') || href.startsWith('#')) return;
-                newMobileMenuContent.classList.add('-translate-x-full');
-                const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-                if (mobileMenuOverlay) mobileMenuOverlay.classList.add('hidden');
-                e.preventDefault();
-                this.navigate(href);
-            });
+            // Mobile menu interception is now handled by NavigationStateManager
+            // This method is kept for compatibility but does nothing
         }
 
         parseDynamicRoute(path) {
@@ -219,19 +202,50 @@ if (typeof FallbackManager === 'undefined') {
         }
 
         navigate(path, params = {}) {
-            const pageFile = this.routes[path.replace(/^\//, '')] || '/index.html';
+            // Normalize the path
+            let normalizedPath = path;
+            if (normalizedPath.startsWith('/')) {
+                normalizedPath = normalizedPath.substring(1);
+            }
+            
+            const pageFile = this.routes[normalizedPath] || '/index.html';
             let url = path;
             const queryString = new URLSearchParams(params).toString();
             if (queryString) url += '?' + queryString;
-            history.pushState({}, '', url);
-            this.loadPage(path, params);
+            
+            // Normalize URL for history state
+            let normalizedUrl = url;
+            if (normalizedUrl.startsWith('/')) {
+                // Already normalized
+            } else {
+                normalizedUrl = '/' + normalizedUrl;
+            }
+            
+            // Prevent duplicate history states
+            const currentState = history.state;
+            if (currentState && currentState.url === normalizedUrl) {
+                // Same state, just load the page
+                this.loadPage(normalizedPath, params);
+                return;
+            }
+            
+            history.pushState({}, '', normalizedUrl);
+            this.loadPage(normalizedPath, params);
         }
 
         async loadPage(path, params = {}) {
             this.showLoading();
             const pathClean = path.split('?')[0].replace(/^\//, '').replace(/\.html$/, '');
-            if (this.protectedRoutes.includes(pathClean) && !localStorage.getItem('token')) {
-                setTimeout(() => this.navigate('/login'), 500);
+            
+            // Check if user can access this route using roleManager
+            const canAccess = await window.roleManager?.canAccessRoute(`/${pathClean}`) ?? false;
+            if (!canAccess) {
+                // Use NavigationStateManager for navigation to avoid conflicts
+                if (window.navigationStateManager) {
+                    window.navigationStateManager.navigate('/login');
+                } else {
+                    setTimeout(() => this.navigate('/login'), 500);
+                }
                 this.hideLoading();
                 return;
             }
