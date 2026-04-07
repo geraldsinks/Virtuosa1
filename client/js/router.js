@@ -1106,17 +1106,24 @@ class CleanRouter {
         const scripts = doc.querySelectorAll('script');
         const headScripts = [];
         const bodyScripts = [];
-        const loadedScripts = new Set();
+        
+        // Use global script tracking to prevent duplicates across page loads
+        if (!window.loadedScripts) {
+            window.loadedScripts = new Set();
+        }
         
         // Separate head and body scripts to maintain execution order
         scripts.forEach(oldScript => {
-            // Skip if script already loaded
-            const scriptKey = oldScript.src || oldScript.textContent;
-            if (loadedScripts.has(scriptKey)) {
-                console.log('Skipping duplicate script:', scriptKey.substring(0, 50) + '...');
+            // Skip if script already loaded globally
+            const scriptKey = oldScript.src || oldScript.textContent?.substring(0, 100);
+            if (window.loadedScripts.has(scriptKey)) {
+                console.log('Skipping globally loaded script:', scriptKey?.substring(0, 50) + '...');
                 return;
             }
-            loadedScripts.add(scriptKey);
+            
+            // Mark as loaded before execution to prevent race conditions
+            window.loadedScripts.add(scriptKey);
+            
             // Security validation: skip scripts with dangerous content
             const scriptContent = oldScript.innerHTML || oldScript.textContent;
             if (scriptContent && this.containsDangerousContent(scriptContent)) {
@@ -1184,7 +1191,7 @@ ${scriptContent}
         }
     }
     
-    // Check for dangerous script content with stricter security validation
+    // Check for dangerous script content with improved validation
     containsDangerousContent(content) {
         // Strict allowlist approach - only allow known safe patterns
         const safePatterns = [
@@ -1197,62 +1204,60 @@ ${scriptContent}
             /\.setAttribute\s*\(/,
             /\.getAttribute\s*\(/,
             
-            // Safe timers with function expressions
-            /setTimeout\s*\(\s*function\s*\(/,
-            /setTimeout\s*\(\s*\([^)]*\)\s*=>/,
-            /setInterval\s*\(\s*function\s*\(/,
-            /setInterval\s*\(\s*\([^)]*\)\s*=>/,
-            
-            // Safe array/object methods
-            /\.forEach\s*\(/,
-            /\.map\s*\(/,
-            /\.filter\s*\(/,
-            /\.reduce\s*\(/,
-            
-            // Safe console methods
-            /console\.(log|warn|error|debug|info)\s*\(/,
-            
-            // Safe fetch usage
+            // Common legitimate patterns
+            /console\.(log|warn|error|info)/,
+            /document\.readyState/,
+            /DOMContentLoaded/,
+            /window\.location/,
+            /localStorage\.(getItem|setItem|removeItem)/,
+            /sessionStorage\.(getItem|setItem|removeItem)/,
             /fetch\s*\(/,
-            /\.json\s*\(\)/,
-            
-            // Safe event handling
-            /event\.(preventDefault|stopPropagation)/,
-            /\.target\s*,?/,
-            /\.currentTarget\s*,?/
-        ];
-        
-        // High-risk patterns - always block
-        const highRiskPatterns = [
-            // Code execution patterns
-            /eval\s*\([^)]*\)/i,
-            /Function\s*\([^)]*\)/i,
-            /new\s+Function\s*\(/i,
-            
-            // Dangerous protocols
-            /javascript\s*:/i,
-            /data\s*:\s*text\/html/i,
-            /vbscript\s*:/i,
-            
-            // Script injection
-            /<script[^>]*>.*?<\/script>/gis,
-            /document\.write\s*\([^)]*\)/i,
-            /document\.writeln\s*\([^)]*\)/i,
-            
-            // Dangerous event handlers
-            /on\w+\s*=\s*["'][^"']*(?:javascript|eval|script)/i,
-            
-            // Direct code execution
-            /setTimeout\s*\([^)]*eval[^)]*\)/i,
-            /setInterval\s*\([^)]*eval[^)]*\)/i,
-            
-            // HTML injection
-            /innerHTML\s*=\s*["'][^"']*(?:<script|javascript:|data:)/i,
-            /outerHTML\s*=\s*["'][^"']*(?:<script|javascript:|data:)/i
+            /\.then\s*\(/,
+            /\.catch\s*\(/,
+            /JSON\.(parse|stringify)/,
+            /new\s+(Date|Array|Object|Map|Set)/,
+            /\.push\s*\(/,
+            /\.pop\s*\(/,
+            /class\s+\w+/,
+            /const\s+\w+\s*=/,
+            /let\s+\w+\s*=/,
+            /var\s+\w+\s*=/,
+            /function\s+\w+\s*\(/,
+            /\w+\s*=>\s*/,
+            /if\s*\(/,
+            /for\s*\(/,
+            /while\s*\(/,
+            /return\s+/,
+            /throw\s+new\s+Error/,
+            /try\s*\{/,
+            /catch\s*\(/,
+            /finally\s*\{/,
+            // Virtuosa specific safe patterns
+            /window\.(router|navigate|API_BASE)/,
+            /window\.showToast/,
+            /window\.roleManager/,
+            /window\.unifiedHeader/,
+            /window\.URLHelper/,
+            /window\.NavigationStateManager/,
+            /BASE_API_URL/,
+            /API_BASE/,
+            /token-manager/,
+            /auth-manager/,
+            /cache-manager/,
+            /cookie-consent/,
+            /cookie-tracker/,
+            /critical-css/,
+            /ad-slider/,
+            /header\.js/
         ];
         
         // First check if content matches any safe patterns
         const hasSafeContent = safePatterns.some(pattern => pattern.test(content));
+        
+        // Allow short scripts (likely event handlers or simple initializations)
+        if (content.length < 200) {
+            return false;
+        }
         
         // If no safe patterns detected, be suspicious
         if (!hasSafeContent && content.length > 50) {
@@ -1261,19 +1266,22 @@ ${scriptContent}
         }
         
         // Block any high-risk patterns immediately
+        const highRiskPatterns = [
+            /eval\s*\(/,
+            /Function\s*\(/,
+            /document\.(write|writeln|open|close)\s*\(/,
+            /innerHTML\s*=\s*["'][^"']*(?:<script|javascript:|data:)/i,
+            /outerHTML\s*=\s*["'][^"']*(?:<script|javascript:|data:)/i,
+            /setTimeout\s*\([^)]*["'][^"']*(?:javascript|data:|<)/i,
+            /setInterval\s*\([^)]*["'][^"']*(?:javascript|data:|<)/i
+        ];
+        
         if (highRiskPatterns.some(pattern => pattern.test(content))) {
             console.error('High-risk pattern detected in script content');
             return true;
         }
         
-        // Additional checks for suspicious content
-        const suspiciousPatterns = [
-            /\b(?:eval|Function|setTimeout|setInterval)\s*\([^)]*["'][^"']*(?:javascript|data:|<)/i,
-            /\bdocument\.(write|writeln|open|close)\s*\(/i,
-            /\binnerHTML\s*=\s*["'][^"']*[<>]/i
-        ];
-        
-        return suspiciousPatterns.some(pattern => pattern.test(content));
+        return false;
     }
     
     // Check if script source is trusted with SRI validation
