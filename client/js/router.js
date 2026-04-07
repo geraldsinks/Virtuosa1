@@ -1,5 +1,5 @@
 // Standardized fallback behavior system
-console.log('Virtuosa Router v202604071930 - Proper SPA navigation restored');
+console.log('Virtuosa Router v202604071935 - URL consistency fixed');
 
 if (typeof FallbackManager === 'undefined') {
 class FallbackManager {
@@ -536,9 +536,11 @@ class CleanRouter {
                 return;
             }
             
-            let url = path;
+            // Get the actual file path from routes
+            const pageFile = this.routes[path] || this.routes[path.replace(/^\//, '').replace(/\.html$/, '')] || '/index.html';
             
-            // Add query parameters
+            // Build the final URL with parameters
+            let url = path;
             const queryString = new URLSearchParams(params).toString();
             if (queryString) {
                 url += '?' + queryString;
@@ -550,7 +552,7 @@ class CleanRouter {
                 return;
             }
             
-            // Update browser history
+            // Update browser history with the clean URL
             history.pushState({}, '', url);
             
             // Load the corresponding page
@@ -964,13 +966,20 @@ class CleanRouter {
                             ? '?' + new URLSearchParams(params).toString() 
                             : '';
                         
-                        // Build the new URL (pathname + query string)
-                        const newUrl = window.location.pathname.replace(/\/[^\/]*$/, '') + '/' + pageFile.replace(/^.*\//, '').replace(/\.html$/, '') + queryString;
+                        // Build the new URL - maintain consistency with the actual file path
+                        let newUrl;
+                        if (pageFile.includes('/pages/')) {
+                            // For pages in /pages/, use clean URL (remove /pages/ and .html)
+                            newUrl = pageFile.replace('/pages/', '/').replace(/\.html$/, '') + queryString;
+                        } else {
+                            // For root files like index.html, keep as is
+                            newUrl = pageFile + queryString;
+                        }
                         
                         // Always update the URL to match the current page
                         if (window.location.pathname + window.location.search !== newUrl) {
                             history.replaceState({}, '', newUrl);
-                            console.log('Updated URL to:', newUrl);
+                            console.log('Updated URL to:', newUrl, '(from file:', pageFile, ')');
                         }
                         
                         // Reinitialize URL helper for new content
