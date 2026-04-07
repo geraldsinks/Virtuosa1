@@ -930,7 +930,13 @@ class CleanRouter {
                 
                 setTimeout(() => {
                     try {
+                        console.log('🔄 Before replacement - Current content length:', currentContent.innerHTML.length);
+                        console.log('📄 New content length:', newContent.innerHTML.length);
+                        console.log('📝 New content preview:', newContent.innerHTML.substring(0, 200) + '...');
+                        
                         currentContent.innerHTML = newContent.innerHTML;
+                        
+                        console.log('✅ After replacement - Current content length:', currentContent.innerHTML.length);
                         
                         // Execute any scripts in the new content
                         this.executeScripts(doc);
@@ -1302,8 +1308,43 @@ ${scriptContent}
             return false;
         }
         
-        // If no safe patterns detected, be suspicious
-        if (!hasSafeContent && content.length > 50) {
+        // Allow common legitimate patterns that might not match safe patterns
+        const legitimatePatterns = [
+            /"@context":\s*"https:\/\/schema\.org"/i,  // JSON-LD structured data
+            /"@type":\s*"[^"]*"/i,           // JSON-LD types
+            /window\./,                              // Window object access
+            /document\./,                             // Document object access
+            /console\./,                              // Console logging
+            /let\s+\w+\s*=/,                        // Variable declarations
+            /const\s+\w+\s*=/,                     // Variable declarations
+            /var\s+\w+\s*=/,                         // Variable declarations
+            /function\s+\w+\s*\(/,                   // Function declarations
+            /\w+\s*=>\s*/,                           // Arrow functions
+            /if\s*\(/,                                // Conditional statements
+            /for\s*\(/,                                // Loop statements
+            /while\s*\(/,                               // Loop statements
+            /return\s+/,                               // Return statements
+            /try\s*\{/,                               // Try blocks
+            /catch\s*\(/,                               // Catch blocks
+            /finally\s*\{/,                             // Finally blocks
+            /class\s+\w+/,                             // Class declarations
+            /addEventListener/,                          // Event listeners
+            /querySelector/,                            // DOM queries
+            /querySelectorAll/,                         // DOM queries
+            /getElementById/,                          // DOM queries
+            /createElement/,                             // DOM creation
+            /appendChild/,                              // DOM manipulation
+            /removeChild/,                              // DOM manipulation
+            /innerHTML\s*=/,                           // DOM manipulation (safe if no dangerous content)
+            /textContent\s*=/,                         // DOM manipulation
+            /style\.cssText\s*=/,                     // Style manipulation
+            /classList\.(add|remove|toggle|contains)/,  // Class manipulation
+        ];
+        
+        const hasLegitimateContent = legitimatePatterns.some(pattern => pattern.test(content));
+        
+        // If no safe or legitimate patterns detected, be suspicious
+        if (!hasSafeContent && !hasLegitimateContent && content.length > 50) {
             console.warn('Script content contains no recognizable safe patterns');
             return true; // Block unknown content
         }
