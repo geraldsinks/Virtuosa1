@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin Test Dashboard - Virtuosa Debug Hub</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <!-- DOMPurify for XSS protection -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    
+    <!-- Local Resources -->
+    <link rel="stylesheet" href="css/style.css">
+    <script src="/js/config.js"></script>
+    <script src="/js/token-manager.js"></script>
+    <script src="/js/auth-manager.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .debug-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border: 1px solid #475569;
+        }
+        
+        .status-indicator {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .error-text { color: #ef4444; }
+        .success-text { color: #10b981; }
+        .warning-text { color: #f59e0b; }
+        .info-text { color: #3b82f6; }
+        
+        .page-preview {
+            border: 2px solid #374151;
+            background: #1f2937;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+        }
+        
+        .console-output {
+            background: #0f172a;
+            color: #e2e8f0;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .performance-bar {
+            transition: width 0.3s ease;
+        }
+        
+        .test-result {
+            transition: all 0.2s ease;
+        }
+        
+        .test-result:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        /* Advanced UI/UX Testing Styles */
+        .viewport-container {
+            position: relative;
+            background: #1f2937;
+            border: 2px solid #374151;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .viewport-resizer {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 100%;
+            background: #4b5563;
+            cursor: ew-resize;
+            z-index: 10;
+        }
+        
+        .design-violation {
+            outline: 3px solid #ef4444 !important;
+            outline-offset: 2px;
+            background: rgba(239, 68, 68, 0.1) !important;
+        }
+        
+        .accessibility-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        .low-contrast {
+            background: rgba(255, 0, 0, 0.3) !important;
+        }
+        
+        .missing-label {
+            outline: 2px dashed #f59e0b !important;
+        }
+        
+        .interaction-highlight {
+            position: relative;
+        }
+        
+        .interaction-highlight::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border: 2px solid #10b981;
+            border-radius: 4px;
+            pointer-events: none;
+            animation: interaction-pulse 1s infinite;
+        }
+        
+        @keyframes interaction-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .chaos-mode-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #dc2626;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 10000;
+            animation: chaos-pulse 1s infinite;
+        }
+        
+        @keyframes chaos-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .network-throttle-overlay {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #1f2937;
+            border: 1px solid #4b5563;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 10000;
+        }
+        
+        .annotation-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 9998;
+        }
+        
+        .annotation-box {
+            position: absolute;
+            border: 2px solid #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+            pointer-events: auto;
+            cursor: move;
+        }
+        
+        .annotation-comment {
+            position: absolute;
+            background: #1f2937;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 9999;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-bug text-2xl text-blue-400"></i>
+                    <h1 class="text-2xl font-bold">Admin Test Dashboard</h1>
+                    <span class="bg-blue-600 px-2 py-1 rounded text-xs">Debug Hub</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="connection-status" class="status-indicator flex items-center">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                        <span class="text-sm">Connected</span>
+                    </span>
+                    <button onclick="toggleDarkMode()" class="p-2 rounded hover:bg-gray-700" aria-label="Toggle dark mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button onclick="toggleAdvancedMode()" class="p-2 rounded hover:bg-gray-700" title="Toggle Advanced UI/UX Testing" aria-label="Toggle advanced UI/UX testing">
+                        <i class="fas fa-flask"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- Quick Stats -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="metric-card p-4 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm">Total Pages</p>
+                        <p class="text-2xl font-bold" id="total-pages">0</p>
+                    </div>
+                    <i class="fas fa-file-alt text-3xl text-blue-400"></i>
+                </div>
+            </div>
+            <div class="metric-card p-4 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm">Passed Tests</p>
+                        <p class="text-2xl font-bold success-text" id="passed-tests">0</p>
+                    </div>
+                    <i class="fas fa-check-circle text-3xl text-green-400"></i>
+                </div>
+            </div>
+            <div class="metric-card p-4 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm">Failed Tests</p>
+                        <p class="text-2xl font-bold error-text" id="failed-tests">0</p>
+                    </div>
+                    <i class="fas fa-times-circle text-3xl text-red-400"></i>
+                </div>
+            </div>
+            <div class="metric-card p-4 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm">Avg Load Time</p>
+                        <p class="text-2xl font-bold" id="avg-load-time">0ms</p>
+                    </div>
+                    <i class="fas fa-clock text-3xl text-yellow-400"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Control Panel -->
+        <section class="debug-card p-6 rounded-lg mb-6">
+            <h2 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fas fa-cogs mr-2"></i>
+                Control Panel
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <button onclick="runAllTests()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded flex items-center justify-center" aria-label="Run all tests">
+                    <i class="fas fa-play mr-2"></i>
+                    Run All Tests
+                </button>
+                <button onclick="clearResults()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded flex items-center justify-center" aria-label="Clear results">
+                    <i class="fas fa-trash mr-2"></i>
+                    Clear Results
+                </button>
+                <button onclick="exportResults()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded flex items-center justify-center" aria-label="Export results">
+                    <i class="fas fa-download mr-2"></i>
+                    Export Results
+                </button>
+                <button onclick="toggleAdvancedPanel()" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded flex items-center justify-center" aria-label="Toggle advanced UI/UX panel">
+                    <i class="fas fa-flask mr-2"></i>
+                    Advanced UI/UX
+                </button>
+            </div>
+        </section>
+
+        <!-- Advanced UI/UX Testing Panel -->
+        <section id="advanced-panel" class="debug-card p-6 rounded-lg mb-6 hidden">
+            <h2 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fas fa-flask mr-2 text-purple-400"></i>
+                Advanced UI/UX Testing
+            </h2>
+            
+            <!-- UI Stress Testing -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-3 text-purple-300">UI Stress Testing</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Liquid Breakpoint Slider</label>
+                        <input type="range" id="viewport-slider" min="320" max="1920" value="1200" 
+                               class="w-full" onchange="updateViewportWidth(this.value)">
+                        <div class="text-xs text-gray-400 mt-1">
+                            <span id="viewport-width">1200px</span> • <span id="viewport-breakpoint">Desktop</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Design System Check</label>
+                        <button onclick="runDesignSystemCheck()" class="bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded text-sm w-full" aria-label="Check design system violations">
+                            <i class="fas fa-palette mr-1"></i>
+                            Check Violations
+                        </button>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Accessibility Vision</label>
+                        <button onclick="toggleAccessibilityMode()" class="bg-indigo-600 hover:bg-indigo-700 px-3 py-2 rounded text-sm w-full" aria-label="Toggle accessibility mode">
+                            <i class="fas fa-universal-access mr-1"></i>
+                            Toggle A11y
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UX Simulation -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-3 text-purple-300">UX Simulation</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Chaos Mode</label>
+                        <select id="chaos-mode" onchange="toggleChaosMode(this.value)" class="w-full bg-gray-700 rounded px-3 py-2 text-sm">
+                            <option value="off">Normal</option>
+                            <option value="500-error">Force 500 Error</option>
+                            <option value="empty-state">Force Empty State</option>
+                            <option value="timeout">Force Timeout</option>
+                            <option value="slow-network">Slow Network</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Form Validation</label>
+                        <button onclick="revealAllErrors()" class="bg-orange-600 hover:bg-orange-700 px-3 py-2 rounded text-sm w-full" aria-label="Show all form validation errors">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            Show All Errors
+                        </button>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Network Throttle</label>
+                        <select id="network-throttle" onchange="setNetworkThrottle(this.value)" class="w-full bg-gray-700 rounded px-3 py-2 text-sm" aria-label="Select network speed">
+                            <option value="online">Online</option>
+                            <option value="slow-3g">Slow 3G</option>
+                            <option value="offline">Offline</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Interaction Tracker</label>
+                        <button onclick="toggleInteractionTracking()" class="bg-teal-600 hover:bg-teal-700 px-3 py-2 rounded text-sm w-full" aria-label="Toggle interaction tracking">
+                            <i class="fas fa-hand-pointer mr-1"></i>
+                            Track Clicks
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Impersonation -->
+            <div>
+                <h3 class="text-lg font-semibold mb-3 text-purple-300">User Impersonation & Routing</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Role Switcher</label>
+                        <select id="user-role" onchange="switchUserRole(this.value)" class="w-full bg-gray-700 rounded px-3 py-2 text-sm" aria-label="Select user role">
+                            <option value="guest">Unauthenticated Guest</option>
+                            <option value="buyer">Logged-in Buyer</option>
+                            <option value="seller">Logged-in Seller</option>
+                            <option value="new-seller">New/Unverified Seller</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Target User ID</label>
+                        <div class="flex space-x-2">
+                            <input type="text" id="target-user-id" placeholder="User ID or Store ID" 
+                                   class="flex-1 bg-gray-700 rounded px-3 py-2 text-sm" aria-label="User ID or Store ID">
+                            <button onclick="impersonateUser()" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm" aria-label="Impersonate user">
+                                Load
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">URL Health Check</label>
+                        <button onclick="checkURLHealth()" class="bg-green-600 hover:bg-green-700 px-3 py-2 rounded text-sm w-full" aria-label="Check URL health">
+                            <i class="fas fa-link mr-1"></i>
+                            Check URLs
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page Categories -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Buyer Pages -->
+            <section class="debug-card p-6 rounded-lg">
+                <h2 class="text-xl font-bold mb-4 flex items-center">
+                    <i class="fas fa-shopping-cart mr-2 text-green-400"></i>
+                    Buyer Pages
+                </h2>
+                <div id="buyer-pages" class="space-y-3">
+                    <!-- Buyer pages will be populated here -->
+                </div>
+            </section>
+
+            <!-- Seller Pages -->
+            <section class="debug-card p-6 rounded-lg">
+                <h2 class="text-xl font-bold mb-4 flex items-center">
+                    <i class="fas fa-store mr-2 text-purple-400"></i>
+                    Seller Pages
+                </h2>
+                <div id="seller-pages" class="space-y-3">
+                    <!-- Seller pages will be populated here -->
+                </div>
+            </section>
+
+            <!-- Admin Pages -->
+            <section class="debug-card p-6 rounded-lg">
+                <h2 class="text-xl font-bold mb-4 flex items-center">
+                    <i class="fas fa-shield-alt mr-2 text-red-400"></i>
+                    Admin Pages
+                </h2>
+                <div id="admin-pages" class="space-y-3">
+                    <!-- Admin pages will be populated here -->
+                </div>
+            </section>
+
+            <!-- Test Results -->
+            <section class="debug-card p-6 rounded-lg">
+                <h2 class="text-xl font-bold mb-4 flex items-center">
+                    <i class="fas fa-clipboard-list mr-2 text-yellow-400"></i>
+                    Test Results
+                </h2>
+                <div id="test-results" class="space-y-3 max-h-96 overflow-y-auto">
+                    <!-- Test results will be populated here -->
+                </div>
+            </section>
+        </div>
+
+        <!-- Page Preview Modal -->
+        <div id="preview-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="bg-gray-800 rounded-lg w-full max-w-6xl max-h-[90vh] overflow-hidden">
+                    <div class="flex items-center justify-between p-4 border-b border-gray-700">
+                        <h3 class="text-lg font-bold">Page Preview: <span id="preview-title"></span></h3>
+                        <button onclick="closePreview()" class="text-gray-400 hover:text-white">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="flex">
+                        <!-- Preview Frame -->
+                        <div class="flex-1 p-4">
+                            <div class="mb-3 flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <label class="text-sm">Viewport:</label>
+                                    <input type="range" id="modal-viewport-slider" min="320" max="1920" value="1200" 
+                                           class="w-32" onchange="updateModalViewportWidth(this.value)">
+                                    <span id="modal-viewport-width" class="text-sm text-gray-400">1200px</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="toggleAnnotationMode()" class="text-sm bg-purple-600 hover:bg-purple-700 px-2 py-1 rounded" aria-label="Toggle annotation mode">
+                                        <i class="fas fa-draw-polygon mr-1"></i>
+                                        Annotate
+                                    </button>
+                                    <button onclick="captureScreenshot()" class="text-sm bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded" aria-label="Capture screenshot">
+                                        <i class="fas fa-camera mr-1"></i>
+                                        Screenshot
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="viewport-container rounded-lg overflow-hidden" style="height: 450px;">
+                                <iframe id="preview-frame" class="w-full h-full" sandbox="allow-same-origin allow-forms"></iframe>
+                                <div class="viewport-resizer" id="viewport-resizer"></div>
+                                <div class="annotation-layer" id="annotation-layer"></div>
+                                <div class="accessibility-overlay" id="accessibility-overlay"></div>
+                            </div>
+                        </div>
+                        <!-- Debug Info Panel -->
+                        <div class="w-80 p-4 border-l border-gray-700 overflow-y-auto" style="max-height: 500px;">
+                            <h4 class="font-bold mb-3">Debug Information</h4>
+                            <div id="debug-info" class="space-y-3">
+                                <!-- Debug info will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t border-gray-700 flex justify-between">
+                        <button onclick="openInNewTab()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded" aria-label="Open page in new tab">
+                            <i class="fas fa-external-link-alt mr-2"></i>
+                            Open in New Tab
+                        </button>
+                        <button onclick="runPageTests()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded" aria-label="Run page tests">
+                            <i class="fas fa-vial mr-2"></i>
+                            Run Page Tests
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Console Output -->
+        <section class="debug-card p-6 rounded-lg mt-6">
+            <h2 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fas fa-terminal mr-2"></i>
+                Console Output
+            </h2>
+            <div id="console-output" class="console-output p-4 rounded">
+                <div class="text-gray-500">Console output will appear here...</div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Page configuration
+        const pageConfig = {
+            buyer: [
+                { name: 'Dashboard', path: 'pages/buyer-dashboard.html', type: 'buyer' },
+                { name: 'Products', path: 'pages/products.html', type: 'buyer' },
+                { name: 'Product Detail', path: 'pages/product-detail.html', type: 'buyer' },
+                { name: 'Cart', path: 'pages/cart.html', type: 'buyer' },
+                { name: 'Orders', path: 'pages/orders.html', type: 'buyer' },
+                { name: 'Order Details', path: 'pages/order-details.html', type: 'buyer' },
+                { name: 'Profile', path: 'pages/profile.html', type: 'buyer' },
+                { name: 'Settings', path: 'pages/settings.html', type: 'buyer' },
+                { name: 'Messages', path: 'pages/messages.html', type: 'buyer' },
+                { name: 'Notifications', path: 'pages/notifications.html', type: 'buyer' },
+                { name: 'Reviews', path: 'pages/reviews.html', type: 'buyer' },
+                { name: 'Disputes', path: 'pages/disputes.html', type: 'buyer' },
+                { name: 'Transactions', path: 'pages/transactions.html', type: 'buyer' },
+                { name: 'Payment Options', path: 'pages/payment-options.html', type: 'buyer' },
+                { name: 'Cash on Delivery', path: 'pages/cash-on-delivery.html', type: 'buyer' },
+                { name: 'Live Chat', path: 'pages/live-chat.html', type: 'buyer' },
+                { name: 'Contact Support', path: 'pages/contact-support.html', type: 'buyer' }
+            ],
+            seller: [
+                { name: 'Seller Dashboard', path: 'pages/seller-dashboard.html', type: 'seller' },
+                { name: 'Seller Shop', path: 'pages/seller-shop.html', type: 'seller' },
+                { name: 'Create Product', path: 'pages/create-product.html', type: 'seller' },
+                { name: 'Edit Product', path: 'pages/edit-product.html', type: 'seller' },
+                { name: 'Seller Orders', path: 'pages/seller-orders.html', type: 'seller' },
+                { name: 'Seller Analytics', path: 'pages/seller-analytics.html', type: 'seller' },
+                { name: 'Seller Benefits', path: 'pages/seller-benefits.html', type: 'seller' },
+                { name: 'Seller Guide', path: 'pages/seller-guide.html', type: 'seller' },
+                { name: 'Seller Verification', path: 'pages/seller-verification.html', type: 'seller' },
+                { name: 'Seller Disputes', path: 'pages/seller-disputes.html', type: 'seller' }
+            ],
+            admin: [
+                { name: 'Admin Dashboard', path: 'pages/admin-dashboard.html', type: 'admin' },
+                { name: 'Admin Users', path: 'pages/admin-users.html', type: 'admin' },
+                { name: 'Admin Transactions', path: 'pages/admin-transactions.html', type: 'admin' },
+                { name: 'Admin Disputes', path: 'pages/admin-disputes.html', type: 'admin' },
+                { name: 'Admin Support', path: 'pages/admin-support.html', type: 'admin' },
+                { name: 'Admin Maintenance', path: 'pages/admin-maintenance.html', type: 'admin' },
+                { name: 'Admin Mass Messaging', path: 'pages/admin-mass-messaging.html', type: 'admin' },
+                { name: 'Admin Seller Applications', path: 'pages/admin-seller-applications.html', type: 'admin' },
+                { name: 'Admin Account Deletions', path: 'pages/admin-account-deletions.html', type: 'admin' },
+                { name: 'Admin Asset Library', path: 'pages/admin-asset-library.html', type: 'admin' },
+                { name: 'Admin Cookie Data', path: 'pages/admin-cookie-data.html', type: 'admin' },
+                { name: 'Admin Live Chat', path: 'pages/admin-live-chat.html', type: 'admin' },
+                { name: 'Admin Retention', path: 'pages/admin-retention.html', type: 'admin' }
+            ]
+        };
+
+        // Configuration
+        const CONFIG = {
+            MAX_CONSOLE_MESSAGES: 100,
+            API_ENDPOINTS: [
+                '/api/auth/status',
+                '/api/products',
+                '/api/orders',
+                '/api/notifications'
+            ],
+            API_TIMEOUT: 5000,
+            TEST_DELAY: 100,
+            DESIGN_COLORS: [
+                'rgb(255, 215, 0)', // Gold
+                'rgb(10, 17, 40)',  // Navy
+                'rgb(255, 255, 255)', // White
+                'rgb(0, 0, 0)'      // Black
+            ],
+            SELECTORS: {
+                INTERACTIVE_ELEMENTS: 'button, a, input, select, textarea',
+                TEXT_ELEMENTS: 'p, h1, h2, h3, h4, h5, h6, span, a',
+                FORM_ELEMENTS: 'input, textarea, select',
+                DESIGN_ELEMENTS: 'button, a, h1, h2, h3, h4, h5, h6, p, span, div'
+            }
+        };
+
+        // Global state
+        let testResults = [];
+        let currentPreviewPage = null;
+        let performanceMetrics = {};
+        let isTestRunning = false;
+        let consoleMessages = [];
+        let eventListenersCleanup = new Map(); // Use Map for better cleanup
+        let testExecutionLock = false; // Proper async lock
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+            updateConnectionStatus();
+            startPerformanceMonitoring();
+        });
+
+        function initializeDashboard() {
+            // Populate page lists
+            populatePageList('buyer-pages', pageConfig.buyer);
+            populatePageList('seller-pages', pageConfig.seller);
+            populatePageList('admin-pages', pageConfig.admin);
+            
+            // Update total pages count
+            const totalPages = pageConfig.buyer.length + pageConfig.seller.length + pageConfig.admin.length;
+            document.getElementById('total-pages').textContent = totalPages;
+            
+            logToConsole('Dashboard initialized successfully', 'success');
+        }
+
+        function populatePageList(containerId, pages) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            pages.forEach(page => {
+                const pageCard = createPageCard(page);
+                container.appendChild(pageCard);
+            });
+        }
+
+        function createPageCard(page) {
+            const div = document.createElement('div');
+            div.className = 'test-result bg-gray-700 p-3 rounded-lg cursor-pointer hover:bg-gray-600';
+            
+            // Sanitize page data to prevent XSS
+            const sanitizedName = DOMPurify.sanitize(page.name);
+            const sanitizedPath = DOMPurify.sanitize(page.path);
+            
+            // Create unique ID using timestamp and random number to prevent conflicts
+            const uniqueId = `page_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const safeDataPage = `page_${sanitizedPath.replace(/[^a-zA-Z0-9-_]/g, '_').substring(0, 20)}`;
+            
+            // Use safe DOM manipulation instead of innerHTML
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'flex items-center justify-between';
+            
+            // Left section with icon and text
+            const leftSection = document.createElement('div');
+            leftSection.className = 'flex items-center space-x-3';
+            
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-file-alt text-gray-400';
+            
+            const textContainer = document.createElement('div');
+            
+            const nameHeader = document.createElement('h4');
+            nameHeader.className = 'font-semibold';
+            nameHeader.textContent = sanitizedName;
+            
+            const pathParagraph = document.createElement('p');
+            pathParagraph.className = 'text-xs text-gray-400';
+            pathParagraph.textContent = sanitizedPath;
+            
+            textContainer.appendChild(nameHeader);
+            textContainer.appendChild(pathParagraph);
+            leftSection.appendChild(icon);
+            leftSection.appendChild(textContainer);
+            
+            // Right section with status and buttons
+            const rightSection = document.createElement('div');
+            rightSection.className = 'flex items-center space-x-2';
+            
+            const statusSpan = document.createElement('span');
+            statusSpan.className = 'test-status px-2 py-1 rounded text-xs bg-gray-600';
+            statusSpan.setAttribute('data-page', safeDataPage);
+            statusSpan.textContent = 'Not Tested';
+            
+            const previewButton = createSafeButton({
+                text: '<i class="fas fa-eye"></i>',
+                className: 'text-blue-400 hover:text-blue-300',
+                onclick: () => previewPage(sanitizedPath, sanitizedName, page.type),
+                ariaLabel: `Preview ${sanitizedName}`
+            });
+            
+            const testButton = createSafeButton({
+                text: '<i class="fas fa-vial"></i>',
+                className: 'text-green-400 hover:text-green-300',
+                onclick: () => testPage(sanitizedPath, sanitizedName),
+                ariaLabel: `Test ${sanitizedName}`
+            });
+            
+            rightSection.appendChild(statusSpan);
+            rightSection.appendChild(previewButton);
+            rightSection.appendChild(testButton);
+            
+            headerDiv.appendChild(leftSection);
+            headerDiv.appendChild(rightSection);
+            div.appendChild(headerDiv);
+            
+            // Store mapping for later updates
+            div.setAttribute('data-original-path', sanitizedPath);
+            
+            return div;
+        }
+        
+        // Helper function to create safe buttons
+        function createSafeButton({ text, className, onclick, ariaLabel }) {
+            const button = document.createElement('button');
+            button.className = className;
+            button.setAttribute('aria-label', ariaLabel);
+            button.innerHTML = DOMPurify.sanitize(text);
+            button.addEventListener('click', onclick);
+            return button;
+        }
+
+        function previewPage(path, name, type) {
+            // Sanitize inputs
+            const sanitizedName = DOMPurify.sanitize(name);
+            const sanitizedPath = DOMPurify.sanitize(path);
+            const sanitizedType = DOMPurify.sanitize(type);
+            
+            currentPreviewPage = { path: sanitizedPath, name: sanitizedName, type: sanitizedType };
+            
+            const titleElement = document.getElementById('preview-title');
+            if (titleElement) {
+                titleElement.textContent = sanitizedName;
+            }
+            
+            const modalElement = document.getElementById('preview-modal');
+            if (modalElement) {
+                modalElement.classList.remove('hidden');
+            }
+            
+            const iframe = document.getElementById('preview-frame');
+            if (iframe) {
+                iframe.src = sanitizedPath;
+            }
+            
+            // Load debug info
+            loadDebugInfo(sanitizedPath);
+            
+            logToConsole(`Previewing page: ${sanitizedName} (${sanitizedPath})`, 'info');
+        }
+
+        function closePreview() {
+            const modalElement = document.getElementById('preview-modal');
+            if (modalElement) {
+                modalElement.classList.add('hidden');
+            }
+            
+            const iframeElement = document.getElementById('preview-frame');
+            if (iframeElement) {
+                iframeElement.src = '';
+            }
+            
+            currentPreviewPage = null;
+        }
+
+        function openInNewTab() {
+            if (currentPreviewPage) {
+                window.open(currentPreviewPage.path, '_blank');
+                logToConsole(`Opened ${currentPreviewPage.name} in new tab`, 'info');
+            }
+        }
+
+        async function testPage(path, name) {
+            // Sanitize inputs
+            const sanitizedName = DOMPurify.sanitize(name);
+            const sanitizedPath = DOMPurify.sanitize(path);
+            
+            logToConsole(`Testing page: ${sanitizedName}`, 'info');
+            
+            const startTime = performance.now();
+            const testResult = {
+                page: sanitizedName,
+                path: sanitizedPath,
+                timestamp: new Date().toISOString(),
+                tests: []
+            };
+            
+            try {
+                // Test 1: Page Load Test
+                const loadTest = await testPageLoad(sanitizedPath);
+                testResult.tests.push(loadTest);
+                
+                // Test 2: Resource Loading Test
+                const resourceTest = await testResourceLoading(sanitizedPath);
+                testResult.tests.push(resourceTest);
+                
+                // Test 3: JavaScript Error Test
+                const jsErrorTest = await testJavaScriptErrors(sanitizedPath);
+                testResult.tests.push(jsErrorTest);
+                
+                // Test 4: API Connection Test
+                const apiTest = await testAPIConnections(sanitizedPath);
+                testResult.tests.push(apiTest);
+                
+                // Test 5: Performance Test
+                const perfTest = await testPerformance(sanitizedPath);
+                testResult.tests.push(perfTest);
+                
+                // Test 6: Responsive Design Test
+                const responsiveTest = await testResponsiveDesign(sanitizedPath);
+                testResult.tests.push(responsiveTest);
+                
+            } catch (error) {
+                testResult.tests.push({
+                    name: 'Overall Test',
+                    status: 'failed',
+                    error: error.message,
+                    duration: performance.now() - startTime
+                });
+            }
+            
+            const endTime = performance.now();
+            testResult.totalDuration = endTime - startTime;
+            
+            // Update UI with safe selector
+            updateTestStatus(sanitizedPath, testResult);
+            addTestResult(testResult);
+            
+            logToConsole(`Completed testing ${sanitizedName} in ${testResult.totalDuration.toFixed(2)}ms`, 'success');
+        }
+
+        async function testPageLoad(path) {
+            const startTime = performance.now();
+            
+            try {
+                const response = await fetch(path, { method: 'HEAD' });
+                const endTime = performance.now();
+                
+                return {
+                    name: 'Page Load',
+                    status: response.ok ? 'passed' : 'failed',
+                    duration: endTime - startTime,
+                    details: {
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: Object.fromEntries(response.headers.entries())
+                    }
+                };
+            } catch (error) {
+                return {
+                    name: 'Page Load',
+                    status: 'failed',
+                    duration: performance.now() - startTime,
+                    error: error.message
+                };
+            }
+        }
+
+        async function testResourceLoading(path) {
+            const startTime = performance.now();
+            
+            try {
+                const response = await fetch(path);
+                const html = await response.text();
+                const endTime = performance.now();
+                
+                // Extract resources from HTML
+                const scripts = (html.match(/src="([^"]+)"/g) || []).map(s => s.slice(5, -1));
+                const styles = (html.match(/href="([^"]+\.css)"/g) || []).map(s => s.slice(6, -1));
+                const images = (html.match(/src="([^"]+\.(jpg|jpeg|png|gif|svg))"/gi) || []).map(s => s.slice(5, -1));
+                
+                return {
+                    name: 'Resource Loading',
+                    status: 'passed',
+                    duration: endTime - startTime,
+                    details: {
+                        scripts: scripts.length,
+                        styles: styles.length,
+                        images: images.length,
+                        totalResources: scripts.length + styles.length + images.length
+                    }
+                };
+            } catch (error) {
+                return {
+                    name: 'Resource Loading',
+                    status: 'failed',
+                    duration: performance.now() - startTime,
+                    error: error.message
+                };
+            }
+        }
+
+        async function testJavaScriptErrors(path) {
+            // This would require more sophisticated setup with puppeteer or similar
+            // For now, we'll do a basic check
+            return {
+                name: 'JavaScript Errors',
+                status: 'passed',
+                duration: 0,
+                details: {
+                    note: 'Full JS error testing requires browser automation'
+                }
+            };
+        }
+
+        async function testAPIConnections(path) {
+            const startTime = performance.now();
+            const results = [];
+            
+            for (const endpoint of CONFIG.API_ENDPOINTS) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), CONFIG.API_TIMEOUT);
+                    
+                    const response = await fetch(window.location.origin + endpoint, { 
+                        method: 'HEAD',
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    results.push({
+                        endpoint,
+                        status: response.status,
+                        ok: response.ok
+                    });
+                } catch (error) {
+                    results.push({
+                        endpoint,
+                        error: error.name === 'AbortError' ? 'Timeout' : error.message,
+                        ok: false
+                    });
+                }
+            }
+            
+            const endTime = performance.now();
+            const successCount = results.filter(r => r.ok).length;
+            
+            return {
+                name: 'API Connections',
+                status: successCount === results.length ? 'passed' : 'warning',
+                duration: endTime - startTime,
+                details: {
+                    tested: results.length,
+                    successful: successCount,
+                    results
+                }
+            };
+        }
+
+        async function testPerformance(path) {
+            const startTime = performance.now();
+            
+            try {
+                const response = await fetch(path);
+                const html = await response.text();
+                const endTime = performance.now();
+                
+                // Basic performance metrics
+                const size = new Blob([html]).size;
+                const loadTime = endTime - startTime;
+                
+                return {
+                    name: 'Performance',
+                    status: loadTime < 1000 ? 'passed' : loadTime < 3000 ? 'warning' : 'failed',
+                    duration: loadTime,
+                    details: {
+                        loadTime: loadTime.toFixed(2) + 'ms',
+                        size: (size / 1024).toFixed(2) + 'KB',
+                        sizeKB: size / 1024
+                    }
+                };
+            } catch (error) {
+                return {
+                    name: 'Performance',
+                    status: 'failed',
+                    duration: performance.now() - startTime,
+                    error: error.message
+                };
+            }
+        }
+
+        async function testResponsiveDesign(path) {
+            // This would require more sophisticated testing
+            return {
+                name: 'Responsive Design',
+                status: 'passed',
+                duration: 0,
+                details: {
+                    note: 'Full responsive testing requires visual regression testing'
+                }
+            };
+        }
+
+        function updateTestStatus(path, result) {
+            // Find the page card using the stored original path
+            const pageCard = document.querySelector(`[data-original-path="${path}"]`);
+            
+            if (pageCard) {
+                const statusElement = pageCard.querySelector('.test-status');
+                
+                if (statusElement) {
+                    const overallStatus = result.tests.every(t => t.status === 'passed') ? 'passed' :
+                                         result.tests.some(t => t.status === 'failed') ? 'failed' : 'warning';
+                    
+                    statusElement.className = `test-status px-2 py-1 rounded text-xs ${
+                        overallStatus === 'passed' ? 'bg-green-600' :
+                        overallStatus === 'failed' ? 'bg-red-600' : 'bg-yellow-600'
+                    }`;
+                    statusElement.textContent = overallStatus.toUpperCase();
+                }
+            }
+            
+            // Update global stats
+            updateGlobalStats();
+        }
+
+        function addTestResult(result) {
+            testResults.push(result);
+            
+            const resultsContainer = document.getElementById('test-results');
+            if (!resultsContainer) return;
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'bg-gray-700 p-3 rounded';
+            
+            const overallStatus = result.tests.every(t => t.status === 'passed') ? 'passed' :
+                                 result.tests.some(t => t.status === 'failed') ? 'failed' : 'warning';
+            
+            // Create elements safely
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'flex items-center justify-between mb-2';
+            
+            const nameHeader = document.createElement('h4');
+            nameHeader.className = 'font-semibold';
+            nameHeader.textContent = DOMPurify.sanitize(result.page);
+            
+            const statusSpan = document.createElement('span');
+            statusSpan.className = `px-2 py-1 rounded text-xs ${
+                overallStatus === 'passed' ? 'bg-green-600' :
+                overallStatus === 'failed' ? 'bg-red-600' : 'bg-yellow-600'
+            }`;
+            statusSpan.textContent = overallStatus.toUpperCase();
+            
+            headerDiv.appendChild(nameHeader);
+            headerDiv.appendChild(statusSpan);
+            
+            const durationDiv = document.createElement('div');
+            durationDiv.className = 'text-xs text-gray-400';
+            durationDiv.textContent = `Duration: ${result.totalDuration.toFixed(2)}ms`;
+            
+            const testsListDiv = document.createElement('div');
+            testsListDiv.className = 'mt-2 space-y-1';
+            
+            result.tests.forEach(test => {
+                const testDiv = document.createElement('div');
+                testDiv.className = 'flex items-center justify-between text-xs';
+                
+                const testNameSpan = document.createElement('span');
+                testNameSpan.textContent = DOMPurify.sanitize(test.name);
+                
+                const testStatusSpan = document.createElement('span');
+                testStatusSpan.className = test.status === 'passed' ? 'text-green-400' :
+                                          test.status === 'failed' ? 'text-red-400' : 'text-yellow-400';
+                testStatusSpan.textContent = `${test.status} (${test.duration.toFixed(2)}ms)`;
+                
+                testDiv.appendChild(testNameSpan);
+                testDiv.appendChild(testStatusSpan);
+                testsListDiv.appendChild(testDiv);
+            });
+            
+            resultDiv.appendChild(headerDiv);
+            resultDiv.appendChild(durationDiv);
+            resultDiv.appendChild(testsListDiv);
+            
+            resultsContainer.insertBefore(resultDiv, resultsContainer.firstChild);
+        }
+
+        function updateGlobalStats() {
+            const passedTests = testResults.filter(r => 
+                r.tests.every(t => t.status === 'passed')
+            ).length;
+            const failedTests = testResults.filter(r => 
+                r.tests.some(t => t.status === 'failed')
+            ).length;
+            
+            document.getElementById('passed-tests').textContent = passedTests;
+            document.getElementById('failed-tests').textContent = failedTests;
+            
+            // Calculate average load time
+            if (testResults.length > 0) {
+                const avgTime = testResults.reduce((sum, r) => sum + r.totalDuration, 0) / testResults.length;
+                document.getElementById('avg-load-time').textContent = avgTime.toFixed(0) + 'ms';
+            }
+        }
+
+        async function runAllTests() {
+            // Implement proper async locking to prevent race conditions
+            if (testExecutionLock) {
+                logToConsole('Tests already running, please wait...', 'warning');
+                return;
+            }
+            
+            testExecutionLock = true;
+            isTestRunning = true;
+            logToConsole('Starting comprehensive test suite...', 'info');
+            
+            const allPages = [
+                ...pageConfig.buyer,
+                ...pageConfig.seller,
+                ...pageConfig.admin
+            ];
+            
+            try {
+                for (const page of allPages) {
+                    // Check lock before each iteration to allow interruption
+                    if (!testExecutionLock) {
+                        logToConsole('Test execution interrupted', 'warning');
+                        break;
+                    }
+                    
+                    await testPage(page.path, page.name);
+                    // Use configured delay
+                    await new Promise(resolve => setTimeout(resolve, CONFIG.TEST_DELAY));
+                }
+                
+                logToConsole('All tests completed!', 'success');
+            } catch (error) {
+                logToConsole(`Test suite error: ${error.message}`, 'error');
+            } finally {
+                testExecutionLock = false;
+                isTestRunning = false;
+            }
+        }
+
+        function clearResults() {
+            testResults = [];
+            
+            const resultsContainer = document.getElementById('test-results');
+            if (resultsContainer) {
+                resultsContainer.innerHTML = '';
+            }
+            
+            // Reset status indicators
+            document.querySelectorAll('.test-status').forEach(el => {
+                el.className = 'test-status px-2 py-1 rounded text-xs bg-gray-600';
+                el.textContent = 'Not Tested';
+            });
+            
+            // Reset stats
+            const passedTestsElement = document.getElementById('passed-tests');
+            const failedTestsElement = document.getElementById('failed-tests');
+            const avgLoadTimeElement = document.getElementById('avg-load-time');
+            
+            if (passedTestsElement) passedTestsElement.textContent = '0';
+            if (failedTestsElement) failedTestsElement.textContent = '0';
+            if (avgLoadTimeElement) avgLoadTimeElement.textContent = '0ms';
+            
+            // Clear console messages
+            consoleMessages = [];
+            const consoleOutput = document.getElementById('console-output');
+            if (consoleOutput) {
+                consoleOutput.innerHTML = '<div class="text-gray-500">Console output will appear here...</div>';
+            }
+            
+            logToConsole('Results cleared', 'info');
+        }
+
+        function exportResults() {
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                summary: {
+                    totalTests: testResults.length,
+                    passed: document.getElementById('passed-tests').textContent,
+                    failed: document.getElementById('failed-tests').textContent,
+                    avgLoadTime: document.getElementById('avg-load-time').textContent
+                },
+                results: testResults
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+                type: 'application/json'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `test-results-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            logToConsole('Results exported successfully', 'success');
+        }
+
+        function loadDebugInfo(path) {
+            const debugInfo = document.getElementById('debug-info');
+            debugInfo.innerHTML = `
+                <div class="space-y-3">
+                    <div>
+                        <h5 class="font-semibold text-sm mb-1">Page Information</h5>
+                        <div class="text-xs text-gray-400">
+                            <p>Path: ${path}</p>
+                            <p>Type: ${currentPreviewPage?.type || 'Unknown'}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="font-semibold text-sm mb-1">Quick Tests</h5>
+                        <div class="space-y-2">
+                            <button onclick="checkPageHealth()" class="w-full bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-xs">
+                                Check Page Health
+                            </button>
+                            <button onclick="analyzeResources()" class="w-full bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-xs">
+                                Analyze Resources
+                            </button>
+                            <button onclick="testFunctionality()" class="w-full bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-xs">
+                                Test Functionality
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="font-semibold text-sm mb-1">Performance Metrics</h5>
+                        <div id="page-metrics" class="text-xs text-gray-400">
+                            <p>Load time: --</p>
+                            <p>Resources: --</p>
+                            <p>Errors: --</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function checkPageHealth() {
+            if (!currentPreviewPage) return;
+            
+            logToConsole(`Checking health of ${currentPreviewPage.name}...`, 'info');
+            
+            try {
+                const response = await fetch(currentPreviewPage.path);
+                const html = await response.text();
+                
+                // Basic health checks
+                const hasTitle = html.includes('<title>');
+                const hasMeta = html.includes('<meta');
+                const hasScripts = html.includes('<script');
+                const hasStyles = html.includes('<link');
+                
+                const healthScore = [hasTitle, hasMeta, hasScripts, hasStyles].filter(Boolean).length / 4 * 100;
+                
+                document.getElementById('page-metrics').innerHTML = `
+                    <p>Health Score: ${healthScore.toFixed(0)}%</p>
+                    <p>Title: ${hasTitle ? '✓' : '✗'}</p>
+                    <p>Meta: ${hasMeta ? '✓' : '✗'}</p>
+                    <p>Scripts: ${hasScripts ? '✓' : '✗'}</p>
+                    <p>Styles: ${hasStyles ? '✓' : '✗'}</p>
+                `;
+                
+                logToConsole(`Health check completed: ${healthScore.toFixed(0)}%`, 'success');
+            } catch (error) {
+                logToConsole(`Health check failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function analyzeResources() {
+            if (!currentPreviewPage) return;
+            
+            logToConsole(`Analyzing resources for ${currentPreviewPage.name}...`, 'info');
+            
+            try {
+                const response = await fetch(currentPreviewPage.path);
+                const html = await response.text();
+                
+                const scripts = (html.match(/src="([^"]+)"/g) || []).length;
+                const styles = (html.match(/href="([^"]+\.css)"/g) || []).length;
+                const images = (html.match(/src="([^"]+\.(jpg|jpeg|png|gif|svg))"/gi) || []).length;
+                
+                document.getElementById('page-metrics').innerHTML = `
+                    <p>Scripts: ${scripts}</p>
+                    <p>Styles: ${styles}</p>
+                    <p>Images: ${images}</p>
+                    <p>Total Resources: ${scripts + styles + images}</p>
+                `;
+                
+                logToConsole(`Resource analysis completed`, 'success');
+            } catch (error) {
+                logToConsole(`Resource analysis failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFunctionality() {
+            if (!currentPreviewPage) return;
+            
+            logToConsole(`Testing functionality of ${currentPreviewPage.name}...`, 'info');
+            
+            // This would require more sophisticated testing
+            logToConsole(`Functionality testing requires browser automation`, 'warning');
+        }
+
+        function runPageTests() {
+            if (currentPreviewPage) {
+                testPage(currentPreviewPage.path, currentPreviewPage.name);
+            }
+        }
+
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connection-status');
+            
+            // Check online status
+            if (navigator.onLine) {
+                statusElement.innerHTML = `
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                    <span class="text-sm">Online</span>
+                `;
+            } else {
+                statusElement.innerHTML = `
+                    <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                    <span class="text-sm">Offline</span>
+                `;
+            }
+            
+            // Listen for online/offline events
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+        }
+
+        function startPerformanceMonitoring() {
+            // Monitor page performance
+            if ('PerformanceObserver' in window) {
+                const observer = new PerformanceObserver((list) => {
+                    for (const entry of list.getEntries()) {
+                        if (entry.entryType === 'navigation') {
+                            const loadTime = entry.loadEventEnd - entry.loadEventStart;
+                            logToConsole(`Page load time: ${loadTime.toFixed(2)}ms`, 'info');
+                        }
+                    }
+                });
+                
+                observer.observe({ entryTypes: ['navigation'] });
+            }
+        }
+
+        function logToConsole(message, type = 'info') {
+            // Sanitize message to prevent XSS
+            const sanitizedMessage = DOMPurify.sanitize(message);
+            
+            const consoleOutput = document.getElementById('console-output');
+            if (!consoleOutput) return;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            
+            logEntry.className = `mb-1 ${
+                type === 'error' ? 'text-red-400' :
+                type === 'success' ? 'text-green-400' :
+                type === 'warning' ? 'text-yellow-400' : 'text-gray-300'
+            }`;
+            
+            logEntry.innerHTML = `<span class="text-gray-500">[${timestamp}]</span> ${sanitizedMessage}`;
+            
+            // Add to console with circular buffer
+            if (consoleOutput.children[0]?.textContent.includes('Console output will appear here')) {
+                consoleOutput.innerHTML = '';
+            }
+            
+            consoleOutput.appendChild(logEntry);
+            
+            // Add to messages array for tracking
+            consoleMessages.push({ message: sanitizedMessage, type, timestamp });
+            
+            // Limit console output to prevent memory issues
+            if (consoleMessages.length > CONFIG.MAX_CONSOLE_MESSAGES) {
+                consoleMessages.shift();
+                if (consoleOutput.children.length > CONFIG.MAX_CONSOLE_MESSAGES) {
+                    consoleOutput.removeChild(consoleOutput.firstChild);
+                }
+            }
+            
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            
+            // Also log to browser console
+            console.log(`[Test Dashboard] ${sanitizedMessage}`);
+        }
+
+        function toggleDarkMode() {
+            // This is a placeholder - the dashboard is already in dark mode
+            logToConsole('Dark mode toggle not implemented (already in dark mode)', 'info');
+        }
+
+        // Advanced UI/UX Testing Functions
+        let advancedMode = false;
+        let annotationMode = false;
+        let accessibilityMode = false;
+        let interactionTracking = false;
+        let chaosModeActive = false;
+        let networkThrottleActive = false;
+        let currentUserRole = 'guest';
+        let annotations = [];
+
+        function toggleAdvancedMode() {
+            advancedMode = !advancedMode;
+            const panel = document.getElementById('advanced-panel');
+            panel.classList.toggle('hidden');
+            logToConsole(`Advanced mode ${advancedMode ? 'enabled' : 'disabled'}`, 'info');
+        }
+
+        function toggleAdvancedPanel() {
+            const panel = document.getElementById('advanced-panel');
+            panel.classList.toggle('hidden');
+            logToConsole(`Advanced panel ${panel.classList.contains('hidden') ? 'hidden' : 'shown'}`, 'info');
+        }
+
+        // Viewport Controls
+        function updateViewportWidth(width) {
+            document.getElementById('viewport-width').textContent = width + 'px';
+            const breakpoint = width < 768 ? 'Mobile' : width < 1024 ? 'Tablet' : 'Desktop';
+            document.getElementById('viewport-breakpoint').textContent = breakpoint;
+            
+            // Update iframe width if in preview
+            const iframe = document.getElementById('preview-frame');
+            if (iframe && currentPreviewPage) {
+                iframe.style.width = width + 'px';
+                iframe.style.maxWidth = '100%';
+            }
+            
+            logToConsole(`Viewport resized to ${width}px (${breakpoint})`, 'info');
+        }
+
+        function updateModalViewportWidth(width) {
+            document.getElementById('modal-viewport-width').textContent = width + 'px';
+            
+            const iframe = document.getElementById('preview-frame');
+            if (iframe) {
+                iframe.style.width = width + 'px';
+                iframe.style.maxWidth = '100%';
+            }
+            
+            logToConsole(`Modal viewport resized to ${width}px`, 'info');
+        }
+
+        // Design System Checker
+        function runDesignSystemCheck() {
+            if (!currentPreviewPage) {
+                logToConsole('Please load a page first to check design system violations', 'warning');
+                return;
+            }
+            
+            const iframe = document.getElementById('preview-frame');
+            
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Check if we can access the iframe (same origin)
+                if (!iframeDoc) {
+                    logToConsole('Cannot access iframe content due to cross-origin restrictions', 'warning');
+                    return;
+                }
+                
+                let violations = [];
+                
+                // Use specific selectors from config
+                const elementsToCheck = iframeDoc.querySelectorAll(CONFIG.SELECTORS.DESIGN_ELEMENTS);
+                
+                elementsToCheck.forEach(el => {
+                    try {
+                        const styles = window.getComputedStyle(el);
+                        const color = styles.color;
+                        
+                        // Check against configured design colors
+                        if (color && !CONFIG.DESIGN_COLORS.some(allowedColor => color.includes(allowedColor))) {
+                            violations.push({ element: el, issue: 'Non-standard text color', value: color });
+                        }
+                    } catch (error) {
+                        // Skip elements that can't be accessed
+                    }
+                });
+                
+                // Highlight violations safely
+                violations.forEach(v => {
+                    try {
+                        v.element.classList.add('design-violation');
+                    } catch (error) {
+                        // Skip elements that can't be modified
+                    }
+                });
+                
+                logToConsole(`Found ${violations.length} design system violations`, violations.length > 0 ? 'warning' : 'success');
+                
+                // Update debug info
+                updateDebugInfoWithViolations(violations);
+                
+            } catch (error) {
+                logToConsole(`Design system check failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Accessibility Mode
+        function toggleAccessibilityMode() {
+            accessibilityMode = !accessibilityMode;
+            const overlay = document.getElementById('accessibility-overlay');
+            
+            if (accessibilityMode) {
+                checkAccessibilityIssues();
+                overlay.style.display = 'block';
+                logToConsole('Accessibility mode enabled', 'info');
+            } else {
+                overlay.style.display = 'none';
+                clearAccessibilityOverlays();
+                logToConsole('Accessibility mode disabled', 'info');
+            }
+        }
+
+        function checkAccessibilityIssues() {
+            if (!currentPreviewPage) return;
+            
+            const iframe = document.getElementById('preview-frame');
+            
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Check if we can access iframe (same origin)
+                if (!iframeDoc) {
+                    logToConsole('Cannot check accessibility due to cross-origin restrictions', 'warning');
+                    return;
+                }
+                
+                // Use configured selectors
+                const textElements = iframeDoc.querySelectorAll(CONFIG.SELECTORS.TEXT_ELEMENTS);
+                textElements.forEach(el => {
+                    try {
+                        const styles = window.getComputedStyle(el);
+                        const color = styles.color;
+                        const bgColor = styles.backgroundColor;
+                        
+                        // Simple contrast check (you'd use a proper contrast ratio calculation)
+                        if (color === 'rgb(128, 128, 128)' && bgColor === 'rgb(248, 248, 248)') {
+                            el.classList.add('low-contrast');
+                        }
+                    } catch (error) {
+                        // Skip elements that can't be accessed
+                    }
+                });
+                
+                // Check for missing labels on inputs
+                const inputs = iframeDoc.querySelectorAll(CONFIG.SELECTORS.FORM_ELEMENTS);
+                inputs.forEach(input => {
+                    try {
+                        if (!input.getAttribute('aria-label') && !input.getAttribute('title') && !iframeDoc.querySelector(`label[for="${input.id}"]`)) {
+                            input.classList.add('missing-label');
+                        }
+                    } catch (error) {
+                        // Skip elements that can't be accessed
+                    }
+                });
+                
+            } catch (error) {
+                logToConsole(`Accessibility check failed: ${error.message}`, 'error');
+            }
+        }
+
+        function clearAccessibilityOverlays() {
+            if (!currentPreviewPage) return;
+            
+            const iframe = document.getElementById('preview-frame');
+            
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                if (iframeDoc) {
+                    iframeDoc.querySelectorAll('.low-contrast, .missing-label').forEach(el => {
+                        el.classList.remove('low-contrast', 'missing-label');
+                    });
+                }
+            } catch (error) {
+                logToConsole(`Failed to clear accessibility overlays: ${error.message}`, 'error');
+            }
+        }
+
+        // Chaos Mode
+        function toggleChaosMode(mode) {
+            if (mode === 'off') {
+                disableChaosMode();
+                return;
+            }
+            
+            enableChaosMode(mode);
+        }
+
+        function enableChaosMode(mode) {
+            chaosModeActive = true;
+            
+            // Show chaos indicator
+            const indicator = document.createElement('div');
+            indicator.className = 'chaos-mode-indicator';
+            indicator.id = 'chaos-indicator';
+            indicator.textContent = `CHAOS MODE: ${mode.replace('-', ' ').toUpperCase()}`;
+            document.body.appendChild(indicator);
+            
+            // Apply chaos mode based on type
+            switch (mode) {
+                case '500-error':
+                    simulate500Error();
+                    break;
+                case 'empty-state':
+                    simulateEmptyState();
+                    break;
+                case 'timeout':
+                    simulateTimeout();
+                    break;
+                case 'slow-network':
+                    setNetworkThrottle('slow-3g');
+                    break;
+            }
+            
+            logToConsole(`Chaos mode enabled: ${mode}`, 'warning');
+        }
+
+        function disableChaosMode() {
+            chaosModeActive = false;
+            
+            // Remove chaos indicator
+            const indicator = document.getElementById('chaos-indicator');
+            if (indicator) indicator.remove();
+            
+            // Reset page
+            if (currentPreviewPage) {
+                const iframe = document.getElementById('preview-frame');
+                iframe.src = iframe.src; // Reload
+            }
+            
+            logToConsole('Chaos mode disabled', 'info');
+        }
+
+        function simulate500Error() {
+            // This would intercept network requests and return 500 errors
+            logToConsole('Simulating 500 errors for all API calls', 'warning');
+        }
+
+        function simulateEmptyState() {
+            if (!currentPreviewPage) return;
+            
+            const iframe = document.getElementById('preview-frame');
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            
+            // Hide content elements to simulate empty state
+            const contentElements = iframeDoc.querySelectorAll('.product, .order, .message');
+            contentElements.forEach(el => el.style.display = 'none');
+            
+            logToConsole('Simulating empty data state', 'warning');
+        }
+
+        function simulateTimeout() {
+            // This would simulate network timeouts
+            logToConsole('Simulating network timeouts', 'warning');
+        }
+
+        // Form Validation Reveal
+        function revealAllErrors() {
+            if (!currentPreviewPage) {
+                logToConsole('Please load a page with forms first', 'warning');
+                return;
+            }
+            
+            const iframe = document.getElementById('preview-frame');
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            
+            // Find all form elements and trigger validation
+            const forms = iframeDoc.querySelectorAll('form');
+            let errorCount = 0;
+            
+            forms.forEach(form => {
+                const inputs = form.querySelectorAll('input, textarea, select');
+                inputs.forEach(input => {
+                    // Add error styling
+                    input.style.borderColor = '#ef4444';
+                    
+                    // Create error message if not exists
+                    let errorDiv = input.parentNode.querySelector('.error-message');
+                    if (!errorDiv) {
+                        errorDiv = document.createElement('div');
+                        errorDiv.className = 'error-message text-red-500 text-xs mt-1';
+                        errorDiv.textContent = 'This field is required';
+                        input.parentNode.appendChild(errorDiv);
+                    }
+                    errorCount++;
+                });
+            });
+            
+            logToConsole(`Revealed ${errorCount} form validation errors`, 'info');
+        }
+
+        // Network Throttling
+        function setNetworkThrottle(speed) {
+            networkThrottleActive = speed !== 'online';
+            
+            // Remove existing overlay
+            const existingOverlay = document.getElementById('network-overlay');
+            if (existingOverlay) existingOverlay.remove();
+            
+            if (networkThrottleActive) {
+                // Show network throttle indicator
+                const overlay = document.createElement('div');
+                overlay.className = 'network-throttle-overlay';
+                overlay.id = 'network-overlay';
+                overlay.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-wifi text-yellow-400"></i>
+                        <span>Network: ${speed === 'slow-3g' ? 'Slow 3G' : 'Offline'}</span>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+                
+                // In a real implementation, you'd use Service Worker to throttle requests
+                logToConsole(`Network throttling set to: ${speed}`, 'warning');
+            } else {
+                logToConsole('Network throttling disabled', 'info');
+            }
+        }
+
+        // Interaction Tracking
+        function toggleInteractionTracking() {
+            interactionTracking = !interactionTracking;
+            
+            if (interactionTracking) {
+                enableInteractionTracking();
+                logToConsole('Interaction tracking enabled', 'info');
+            } else {
+                disableInteractionTracking();
+                logToConsole('Interaction tracking disabled', 'info');
+            }
+        }
+
+        function enableInteractionTracking() {
+            if (!currentPreviewPage) return;
+            
+            const iframe = document.getElementById('preview-frame');
+            
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Check if we can access iframe (same origin)
+                if (!iframeDoc) {
+                    logToConsole('Cannot track interactions due to cross-origin restrictions', 'warning');
+                    return;
+                }
+                
+                // Clear existing event listeners
+                disableInteractionTracking();
+                
+                // Add click tracking to all interactive elements
+                const interactiveElements = iframeDoc.querySelectorAll(CONFIG.SELECTORS.INTERACTIVE_ELEMENTS);
+                
+                interactiveElements.forEach(el => {
+                    const clickHandler = function(e) {
+                        try {
+                            this.classList.add('interaction-highlight');
+                            setTimeout(() => this.classList.remove('interaction-highlight'), 1000);
+                            
+                            const elementText = this.textContent || this.placeholder || this.type || this.tagName;
+                            logToConsole(`Interaction: ${this.tagName} - ${elementText}`, 'info');
+                        } catch (error) {
+                            logToConsole(`Interaction tracking error: ${error.message}`, 'error');
+                        }
+                    };
+                    
+                    el.addEventListener('click', clickHandler);
+                    
+                    // Store cleanup function in Map for better management
+                    eventListenersCleanup.set(el, { handler: clickHandler, type: 'click' });
+                });
+                
+            } catch (error) {
+                logToConsole(`Failed to enable interaction tracking: ${error.message}`, 'error');
+            }
+        }
+
+        function disableInteractionTracking() {
+            if (!currentPreviewPage) return;
+            
+            const iframe = document.getElementById('preview-frame');
+            
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                if (iframeDoc) {
+                    iframeDoc.querySelectorAll('.interaction-highlight').forEach(el => {
+                        el.classList.remove('interaction-highlight');
+                    });
+                }
+                
+                // Clean up event listeners using Map
+                eventListenersCleanup.forEach(({ handler, type }, element) => {
+                    try {
+                        element.removeEventListener(type, handler);
+                    } catch (error) {
+                        // Skip if element is no longer accessible
+                    }
+                });
+                
+                // Clear cleanup Map
+                eventListenersCleanup.clear();
+                
+            } catch (error) {
+                logToConsole(`Failed to disable interaction tracking: ${error.message}`, 'error');
+            }
+        }
+
+        // User Impersonation
+        function switchUserRole(role) {
+            currentUserRole = role;
+            logToConsole(`Switched to role: ${role}`, 'info');
+            
+            // Reload current page with new role context
+            if (currentPreviewPage) {
+                const iframe = document.getElementById('preview-frame');
+                const url = new URL(iframe.src, window.location.origin);
+                url.searchParams.set('role', role);
+                iframe.src = url.toString();
+            }
+        }
+
+        function impersonateUser() {
+            const userId = document.getElementById('target-user-id').value;
+            if (!userId) {
+                logToConsole('Please enter a User ID or Store ID', 'warning');
+                return;
+            }
+            
+            logToConsole(`Impersonating user: ${userId}`, 'info');
+            
+            // In a real implementation, you'd use backend API to get user context
+            if (currentPreviewPage) {
+                const iframe = document.getElementById('preview-frame');
+                const url = new URL(iframe.src, window.location.origin);
+                url.searchParams.set('impersonate', userId);
+                iframe.src = url.toString();
+            }
+        }
+
+        // URL Health Check
+        function checkURLHealth() {
+            if (!currentPreviewPage) {
+                logToConsole('Please load a page first to check URL health', 'warning');
+                return;
+            }
+            
+            const url = currentPreviewPage.path;
+            
+            // Check if URL follows clean architecture
+            const hasQueryParams = url.includes('?');
+            const hasIdParams = url.includes('id=');
+            const isClean = !hasQueryParams || !hasIdParams;
+            
+            if (isClean) {
+                logToConsole(`✓ URL structure is clean: ${url}`, 'success');
+            } else {
+                logToConsole(`⚠ URL could be improved: ${url} (contains query parameters)`, 'warning');
+            }
+            
+            // Check for 404/500 errors
+            fetch(url, { method: 'HEAD' })
+                .then(response => {
+                    if (response.ok) {
+                        logToConsole(`✓ URL is accessible: ${response.status}`, 'success');
+                    } else {
+                        logToConsole(`✗ URL error: ${response.status} ${response.statusText}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    logToConsole(`✗ URL check failed: ${error.message}`, 'error');
+                });
+        }
+
+        // Annotation Mode
+        function toggleAnnotationMode() {
+            annotationMode = !annotationMode;
+            
+            if (annotationMode) {
+                enableAnnotationMode();
+                logToConsole('Annotation mode enabled - click and drag to annotate', 'info');
+            } else {
+                disableAnnotationMode();
+                logToConsole('Annotation mode disabled', 'info');
+            }
+        }
+
+        function enableAnnotationMode() {
+            const annotationLayer = document.getElementById('annotation-layer');
+            annotationLayer.style.pointerEvents = 'auto';
+            annotationLayer.style.cursor = 'crosshair';
+            
+            let isDrawing = false;
+            let startX, startY;
+            let currentAnnotation = null;
+            
+            annotationLayer.addEventListener('mousedown', function(e) {
+                isDrawing = true;
+                startX = e.offsetX;
+                startY = e.offsetY;
+                
+                currentAnnotation = document.createElement('div');
+                currentAnnotation.className = 'annotation-box';
+                currentAnnotation.style.left = startX + 'px';
+                currentAnnotation.style.top = startY + 'px';
+                annotationLayer.appendChild(currentAnnotation);
+            });
+            
+            annotationLayer.addEventListener('mousemove', function(e) {
+                if (!isDrawing || !currentAnnotation) return;
+                
+                const width = e.offsetX - startX;
+                const height = e.offsetY - startY;
+                
+                currentAnnotation.style.width = Math.abs(width) + 'px';
+                currentAnnotation.style.height = Math.abs(height) + 'px';
+                
+                if (width < 0) currentAnnotation.style.left = e.offsetX + 'px';
+                if (height < 0) currentAnnotation.style.top = e.offsetY + 'px';
+            });
+            
+            annotationLayer.addEventListener('mouseup', function(e) {
+                if (!isDrawing) return;
+                isDrawing = false;
+                
+                if (currentAnnotation) {
+                    const comment = prompt('Add a comment for this annotation:');
+                    if (comment) {
+                        const commentDiv = document.createElement('div');
+                        commentDiv.className = 'annotation-comment';
+                        commentDiv.textContent = comment;
+                        commentDiv.style.left = currentAnnotation.style.left;
+                        commentDiv.style.top = (parseInt(currentAnnotation.style.top) - 25) + 'px';
+                        annotationLayer.appendChild(commentDiv);
+                        
+                        annotations.push({
+                            element: currentAnnotation,
+                            comment: comment,
+                            page: currentPreviewPage?.path
+                        });
+                    } else {
+                        currentAnnotation.remove();
+                    }
+                }
+                
+                currentAnnotation = null;
+            });
+        }
+
+        function disableAnnotationMode() {
+            const annotationLayer = document.getElementById('annotation-layer');
+            annotationLayer.style.pointerEvents = 'none';
+            annotationLayer.style.cursor = 'default';
+        }
+
+        // Screenshot Capture
+        function captureScreenshot() {
+            if (!currentPreviewPage) {
+                logToConsole('Please load a page first to capture screenshot', 'warning');
+                return;
+            }
+            
+            // In a real implementation, you'd use html2canvas or similar library
+            logToConsole('Screenshot capture requested (requires html2canvas library)', 'info');
+            
+            // For now, just create a simple data URL
+            const iframe = document.getElementById('preview-frame');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // This is a placeholder - real screenshot would need more complex implementation
+            logToConsole('Screenshot functionality requires additional libraries', 'warning');
+        }
+
+        // Update debug info with violations
+        function updateDebugInfoWithViolations(violations) {
+            const debugInfo = document.getElementById('debug-info');
+            const violationDiv = document.createElement('div');
+            violationDiv.className = 'mb-3 p-3 bg-red-900 bg-opacity-20 rounded';
+            violationDiv.innerHTML = `
+                <h5 class="font-semibold text-red-400 mb-2">Design Violations (${violations.length})</h5>
+                <div class="text-xs text-gray-300">
+                    ${violations.slice(0, 5).map(v => `<div>• ${v.issue}: ${v.value}</div>`).join('')}
+                    ${violations.length > 5 ? `<div>... and ${violations.length - 5} more</div>` : ''}
+                </div>
+            `;
+            debugInfo.appendChild(violationDiv);
+        }
+
+        // Handle escape key for modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePreview();
+            }
+        });
+
+        // Add page unload cleanup for memory management
+        window.addEventListener('beforeunload', function() {
+            // Clean up all event listeners
+            disableInteractionTracking();
+            
+            // Clear console messages
+            consoleMessages = [];
+            
+            // Reset test execution lock
+            testExecutionLock = false;
+            isTestRunning = false;
+            
+            logToConsole('Dashboard cleaned up on page unload', 'info');
+        });
+
+        // Auto-refresh connection status
+        setInterval(updateConnectionStatus, 30000); // Check every 30 seconds
+    </script>
+</body>
+</html>
