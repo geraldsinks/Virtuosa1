@@ -1,5 +1,5 @@
 // Standardized fallback behavior system
-console.log('Virtuosa Router v202604071921 - Navigation fixes applied');
+console.log('Virtuosa Router v202604071930 - Proper SPA navigation restored');
 
 if (typeof FallbackManager === 'undefined') {
 class FallbackManager {
@@ -248,18 +248,6 @@ class CleanRouter {
                 return;
             }
 
-            // Skip auth links to allow direct navigation (prevents white screen issues)
-            if (href === '/login' || href === '/signup' || href.includes('login.html') || href.includes('signup.html')) {
-                console.log('Auth link detected, allowing direct navigation to:', href);
-                return; // Don't prevent default, let the browser handle it
-            }
-
-            // Skip home page link to allow direct navigation (prevents content issues)
-            if (href === '/' || href === '/index.html') {
-                console.log('Home link detected, allowing direct navigation to:', href);
-                return; // Don't prevent default, let the browser handle it
-            }
-
             // If it's a relative internal link, route it through our SPA router
             e.preventDefault();
             this.navigate(href);
@@ -291,30 +279,6 @@ class CleanRouter {
             // Skip links that have download attribute or target="_blank"
             if (link.hasAttribute('download') || link.getAttribute('target') === '_blank') {
                 return;
-            }
-
-            // Skip auth links to allow direct navigation (prevents white screen issues)
-            if (href === '/login' || href === '/signup' || href.includes('login.html') || href.includes('signup.html')) {
-                console.log('Mobile auth link detected, allowing direct navigation to:', href);
-                // Close mobile menu first
-                newMobileMenuContent.classList.add('-translate-x-full');
-                const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-                if (mobileMenuOverlay) {
-                    mobileMenuOverlay.classList.add('hidden');
-                }
-                return; // Don't prevent default, let the browser handle it
-            }
-
-            // Skip home page link to allow direct navigation (prevents content issues)
-            if (href === '/' || href === '/index.html') {
-                console.log('Mobile home link detected, allowing direct navigation to:', href);
-                // Close mobile menu first
-                newMobileMenuContent.classList.add('-translate-x-full');
-                const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-                if (mobileMenuOverlay) {
-                    mobileMenuOverlay.classList.add('hidden');
-                }
-                return; // Don't prevent default, let the browser handle it
             }
 
             // Close mobile menu first
@@ -729,21 +693,6 @@ class CleanRouter {
     async loadPage(path, params = {}) {
         console.log('ROUTER loadPage called with:', { path, params });
         
-        // Early exit for auth routes - always use direct navigation, no SPA processing
-        if (path === 'login' || path === 'signup' || path.includes('login.html') || path.includes('signup.html')) {
-            console.log('Auth route detected in loadPage, using direct navigation - bypassing all SPA logic');
-            const targetFile = path.includes('login') ? '/pages/login.html' : '/pages/signup.html';
-            window.location.href = targetFile;
-            return;
-        }
-        
-        // Early exit for home route - always use direct navigation
-        if (path === '/' || path === '' || path === 'index.html' || path.includes('index.html')) {
-            console.log('Home route detected in loadPage, using direct navigation - bypassing all SPA logic');
-            window.location.href = '/index.html';
-            return;
-        }
-        
         // Faster Login Check
         const pathForMatching = path.split('?')[0];
         const normalizedPath = pathForMatching
@@ -814,10 +763,7 @@ class CleanRouter {
 
             // If it's an SPA-compatible route, load it dynamically
             // We use dynamic loading if it's a known route and NOT a direct .html request (unless it's index)
-            // EXCEPTION: Always use direct navigation for auth pages and home page to avoid caching issues
-            const isAuthRoute = path === 'login' || path === 'signup' || pageFile.includes('login.html') || pageFile.includes('signup.html');
-            const isHomeRoute = path === '/' || path === '' || path === 'index.html' || pageFile.includes('index.html');
-            const isSPARoute = (this.routes[path] || this.parseDynamicRoute(path)) && !isAuthRoute && !isHomeRoute;
+            const isSPARoute = (this.routes[path] || this.parseDynamicRoute(path) || path === '/' || path === '' || path === 'index.html');
 
             if (isSPARoute) {
                 console.log('SPA navigation to:', path);
@@ -825,15 +771,9 @@ class CleanRouter {
                 return;
             }
             
-            // For auth pages, home page, or non-SPA routes, use direct navigation
-            if (isAuthRoute || isHomeRoute) {
-                const routeType = isAuthRoute ? 'Auth' : 'Home';
-                console.log(routeType + ' route detected, using direct navigation to:', pageFile);
-                window.location.href = pageFile;
-            } else {
-                console.log('Non-SPA route, doing full redirect to:', finalUrl);
-                window.location.href = finalUrl;
-            }
+            // Fallback for non-SPA routes
+            console.log('Non-SPA route, doing full redirect to:', finalUrl);
+            window.location.href = finalUrl;
             
         } catch (error) {
             console.error('Router loadPage error:', error);
@@ -974,21 +914,18 @@ class CleanRouter {
                 document.title = newTitle.textContent;
             }
             
-            // Get the main content area with special handling for auth pages and index.html
-            const isAuthPage = pageFile.includes('login.html') || pageFile.includes('signup.html');
-            const isIndexPage = pageFile.includes('index.html');
+            // Get the main content area - be more intelligent about content replacement
             let newContent, currentContent;
             
-            if (isAuthPage || isIndexPage) {
-                // For auth pages and index.html, replace the entire body content
+            // Try to find the best content area for replacement
+            newContent = doc.querySelector('main, #main, .main') || doc.querySelector('body > div:first-child') || doc.querySelector('body');
+            currentContent = document.querySelector('main, #main, .main') || document.querySelector('body > div:first-child') || document.body;
+            
+            // If we're dealing with auth pages or index.html, always use body to ensure full page replacement
+            if (pageFile.includes('login.html') || pageFile.includes('signup.html') || pageFile.includes('index.html')) {
                 newContent = doc.querySelector('body');
                 currentContent = document.body;
-                const pageType = isAuthPage ? 'Auth' : 'Index';
-                console.log(pageType + ' page detected - using body replacement strategy');
-            } else {
-                // For regular pages, use main content area
-                newContent = doc.querySelector('main, #main, .main, body');
-                currentContent = document.querySelector('main, #main, .main') || document.body;
+                console.log('Full page replacement for:', pageFile);
             }
             
             console.log('🎯 Content areas found:', JSON.stringify({ 
@@ -1022,23 +959,18 @@ class CleanRouter {
                         // Scroll to top
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                         
-                        // Only update URL for regular SPA pages, NOT for auth or index pages
-                        if (!isAuthPage && !isIndexPage) {
-                            // Update URL with parameters (only if they've changed)
-                            const queryString = Object.keys(params).length > 0 
-                                ? '?' + new URLSearchParams(params).toString() 
-                                : '';
-                            
-                            // Build the new URL (pathname + query string)
-                            const newUrl = window.location.pathname.replace(/\/[^\/]*$/, '') + '/' + pageFile.replace(/^.*\//, '').replace(/\.html$/, '') + queryString;
-                            
-                            // Always update the URL to match the current page
-                            if (window.location.pathname + window.location.search !== newUrl) {
-                                history.replaceState({}, '', newUrl);
-                                console.log('Updated URL to:', newUrl);
-                            }
-                        } else {
-                            console.log('Skipping URL update for ' + (isAuthPage ? 'auth' : 'index') + ' page');
+                        // Update URL with parameters (only if they've changed)
+                        const queryString = Object.keys(params).length > 0 
+                            ? '?' + new URLSearchParams(params).toString() 
+                            : '';
+                        
+                        // Build the new URL (pathname + query string)
+                        const newUrl = window.location.pathname.replace(/\/[^\/]*$/, '') + '/' + pageFile.replace(/^.*\//, '').replace(/\.html$/, '') + queryString;
+                        
+                        // Always update the URL to match the current page
+                        if (window.location.pathname + window.location.search !== newUrl) {
+                            history.replaceState({}, '', newUrl);
+                            console.log('Updated URL to:', newUrl);
                         }
                         
                         // Reinitialize URL helper for new content
@@ -1065,15 +997,8 @@ class CleanRouter {
                         
                     } catch (error) {
                         console.error('Error during content render:', error);
-                        // For auth pages and index pages, use direct navigation as fallback
-                        if (isAuthPage || isIndexPage) {
-                            const pageType = isAuthPage ? 'Auth' : 'Index';
-                            console.log(pageType + ' page render failed, using direct navigation fallback');
-                            window.location.href = pageFile;
-                        } else {
-                            // For other pages, fallback to full page reload
-                            window.location.reload();
-                        }
+                        // Fallback to full page reload
+                        window.location.reload();
                     }
                 }, 150);
             } else {

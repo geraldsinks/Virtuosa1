@@ -8,10 +8,10 @@
  * - Proper link updating after dynamic content injection
  * - Coordination with navigation state manager
  * 
- * Version: v202604071921
+ * Version: v202604071930
  */
 
-console.log('Virtuosa Unified Header v202604071921 - Navigation fixes applied');
+console.log('Virtuosa Unified Header v202604071930 - Proper SPA navigation restored');
 
 // Prevent duplicate class declarations
 if (window.UnifiedHeader) {
