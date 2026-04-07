@@ -44,7 +44,9 @@ class UnifiedHeader {
             
             // 2. Initialize all components
             await this.initializeAuthState();
-            this.initializeSearch();
+            if (!this.isAuthPage()) {
+                this.initializeSearch();
+            }
             this.initializeMobileMenu();
             this.initializeNotifications();
             this.initializeUserDropdown();
@@ -134,9 +136,15 @@ class UnifiedHeader {
     }
 
     /**
-     * Ensure header HTML structure exists (inject if missing)
+     * Ensure header HTML exists
      */
     ensureHeaderExists() {
+        // Skip header injection on auth pages
+        if (this.isAuthPage()) {
+            console.log('â Skipping header injection on auth page');
+            return null;
+        }
+        
         let header = document.querySelector('header.bg-gradient-to-r');
         
         if (!header) {
@@ -163,6 +171,12 @@ class UnifiedHeader {
      * Ensure horizontal category navigation exists and works on index.html
      */
     ensureHorizontalNavigationExists() {
+        // Skip loading on login and signup pages
+        if (this.isAuthPage()) {
+            console.log('â Skipping horizontal navigation on auth page');
+            return;
+        }
+        
         console.log('ð Initializing horizontal navigation...');
         // Initialize mobile category scroller from mobile-header.js functionality
         this.initializeMobileCategoryScroller();
@@ -555,6 +569,12 @@ class UnifiedHeader {
      * Initialize mobile category scroller with CLEAN URLs
      */
     async initializeMobileCategoryScroller() {
+        // Skip loading on auth pages
+        if (this.isAuthPage()) {
+            console.log('â Skipping mobile category scroller on auth page');
+            return;
+        }
+        
         console.log('ð Initializing mobile category scroller...');
         
         // Check if we have the mobile header search row to append below
@@ -1152,6 +1172,17 @@ class UnifiedHeader {
                 mobileMenuOverlay.classList.add('hidden');
             });
         }
+    }
+
+    /**
+     * Check if current page is an authentication page (login/signup)
+     */
+    isAuthPage() {
+        const currentPath = window.location.pathname;
+        const isLoginPage = currentPath.includes('/login') || currentPath.includes('login.html');
+        const isSignupPage = currentPath.includes('/signup') || currentPath.includes('signup.html') || currentPath.includes('/register') || currentPath.includes('register.html');
+        
+        return isLoginPage || isSignupPage;
     }
 
     /**

@@ -737,6 +737,7 @@ function renderAuthComponent(type) {
     if (!authContainer) return;
 
     const loginFormHtml = `
+        <div class="login-form-wrapper">
             <form id="login-form" class="space-y-6">
                 <div>
                     <label for="login-email" class="form-label block text-sm">Email Address</label>
@@ -764,6 +765,7 @@ function renderAuthComponent(type) {
                     <a href="#" id="switch-to-signup" class="font-bold text-navy hover:text-gold transition-colors duration-200">Sign Up</a>
                 </p>
             </form>
+        </div>
     `;
 
     const signupFormHtml = `
