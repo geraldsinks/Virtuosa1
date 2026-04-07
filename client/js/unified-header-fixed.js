@@ -1,17 +1,12 @@
 /**
  * Fixed Unified Header System for Virtuosa
- * Production-grade centralized header management with clean URL support
+ * Production-grade centralized header management
+ * Coordinates with Navigation Coordinator and Router system
  * 
- * FIXES:
- * - All hardcoded .html links replaced with clean URLs
- * - Integration with URLHelper system
- * - Proper link updating after dynamic content injection
- * - Coordination with navigation state manager
- * 
- * Version: v202604071930
+ * Version: v202604081000
  */
 
-console.log('Virtuosa Unified Header v202604071930 - Proper SPA navigation restored');
+console.log('Virtuosa Unified Header v202604081000 - Production navigation');
 
 // Prevent duplicate class declarations
 if (window.UnifiedHeader) {
@@ -30,8 +25,6 @@ class UnifiedHeader {
         this.authCheckInProgress = false;
         this.userData = null;
         this.observers = new Set();
-        
-        // Store event listeners for cleanup
         this.eventListeners = [];
         
         // Initialize on DOM ready
@@ -48,6 +41,14 @@ class UnifiedHeader {
         window.unifiedHeaderInitialized = true;
 
         try {
+            // Wait for router to be ready
+            if (!window.router) {
+                console.warn('Waiting for router initialization...');
+                await new Promise(resolve => {
+                    document.addEventListener('DOMContentLoaded', resolve);
+                });
+            }
+            
             // 1. Ensure header HTML exists
             this.ensureHeaderExists();
             
@@ -60,16 +61,12 @@ class UnifiedHeader {
             this.initializeNotifications();
             this.initializeUserDropdown();
             
-            // 3. Set up observers for real-time updates
+            // 3. Set up observers
             this.setupAuthStateObserver();
             
-            // 4. CRITICAL: Update all links to use clean URLs
-            this.updateAllLinksToClean();
-            
-            console.log('× Unified header system initialized with clean URL support');
+            console.log('✓ Unified header system initialized');
         } catch (error) {
             console.error('Failed to initialize unified header:', error);
-            // Fallback to basic functionality
             this.initializeBasicFunctionality();
         }
     }

@@ -1,5 +1,18 @@
-// Standardized fallback behavior system
-console.log('Virtuosa Router v202604071953 - Enhanced script handling for SPA');
+/**
+ * Virtuosa Production Router - v202604081000
+ * Progressive SPA with unified navigation coordination
+ * Single source of truth for routing, navigation, and script management
+ */
+console.log('Virtuosa Router v202604081000 - Production-grade unified navigation');
+
+// Initialize unified script registry at the earliest stage
+if (!window.loadedScripts) {
+    window.loadedScripts = new Set();
+    // Track all initially loaded scripts
+    document.querySelectorAll('script[src]').forEach(script => {
+        window.loadedScripts.add(script.src);
+    });
+}
 
 if (typeof FallbackManager === 'undefined') {
     class FallbackManager {
@@ -237,17 +250,35 @@ if (typeof FallbackManager === 'undefined') {
             this.showLoading();
             const pathClean = path.split('?')[0].replace(/^\//, '').replace(/\.html$/, '');
             
-            // Check if user can access this route using roleManager
-            const canAccess = await window.roleManager?.canAccessRoute(`/${pathClean}`) ?? false;
-            if (!canAccess) {
-                // Use NavigationStateManager for navigation to avoid conflicts
-                if (window.navigationStateManager) {
-                    window.navigationStateManager.navigate('/login');
-                } else {
-                    setTimeout(() => this.navigate('/login'), 500);
+            // Get coordinator for route checking
+            const coordinator = window.NavigationCoordinator?.getInstance?.();
+            
+            // Check if this is a protected route
+            if (coordinator && coordinator.isProtectedRoute(`/${pathClean}`)) {
+                // Check authentication
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    console.log('Protected route requires authentication, redirecting to login');
+                    this.navigate('/login');
+                    this.hideLoading();
+                    return;
                 }
-                this.hideLoading();
-                return;
+                
+                // Check role-based access if role manager is ready
+                if (window.roleManager && window.roleManager.canAccessRoute) {
+                    try {
+                        const canAccess = await window.roleManager.canAccessRoute(`/${pathClean}`);
+                        if (!canAccess) {
+                            console.log('Access denied to route:', pathClean);
+                            this.navigate('/dashboard');
+                            this.hideLoading();
+                            return;
+                        }
+                    } catch (e) {
+                        console.warn('Role check failed:', e);
+                        // Continue - allow fallback to API permission check
+                    }
+                }
             }
 
             try {
@@ -257,6 +288,11 @@ if (typeof FallbackManager === 'undefined') {
                 await this.loadContentDynamically(pageFile, allParams);
             } catch (error) {
                 console.error('Load error:', error);
+                // Fallback to homepage on load error
+                if (path !== '/' && path !== '') {
+                    console.log('Falling back to homepage after load error');
+                    this.navigate('/');
+                }
             } finally {
                 this.hideLoading();
             }
@@ -281,7 +317,10 @@ if (typeof FallbackManager === 'undefined') {
         }
 
         executeScripts(doc) {
-            // Initialize global registry for tracking loaded scripts
+            // Get coordinator for script management
+            const coordinator = window.NavigationCoordinator?.getInstance?.();
+            
+            // Ensure global registry exists
             if (!window.loadedScripts) {
                 window.loadedScripts = new Set();
             }
@@ -294,39 +333,19 @@ if (typeof FallbackManager === 'undefined') {
                     const scriptSrc = oldScript.getAttribute('src');
 
                     if (scriptSrc) {
-                        // Normalize the script URL to absolute path for consistent matching
-                        let absoluteUrl = scriptSrc;
-                        if (!scriptSrc.startsWith('http')) {
-                            try {
-                                absoluteUrl = new URL(scriptSrc, window.location.origin).href;
-                            } catch (e) {
-                                // Fallback: use as-is if URL parsing fails
-                                absoluteUrl = scriptSrc;
-                            }
+                        // Check if script is already loaded using coordinator
+                        let isAlreadyLoaded = false;
+                        
+                        if (coordinator) {
+                            isAlreadyLoaded = coordinator.isScriptLoaded(scriptSrc);
+                        } else {
+                            // Fallback check
+                            isAlreadyLoaded = window.loadedScripts.has(scriptSrc) || 
+                                            document.querySelector(`script[src="${scriptSrc}"]`) !== null;
                         }
 
-                        // Check against global registry of loaded scripts
-                        let isLoaded = false;
-                        for (let loadedScript of window.loadedScripts) {
-                            // Check for exact match or same path
-                            if (loadedScript === absoluteUrl || 
-                                loadedScript === scriptSrc ||
-                                new URL(loadedScript, window.location.origin).href === absoluteUrl) {
-                                isLoaded = true;
-                                break;
-                            }
-                        }
-
-                        if (isLoaded) {
+                        if (isAlreadyLoaded) {
                             console.log(`Script ${scriptSrc} already loaded, skipping`);
-                            return;
-                        }
-
-                        // Also check if the script exists in the DOM
-                        const existingScript = document.querySelector(`script[src="${scriptSrc}"]`);
-                        if (existingScript) {
-                            console.log(`Script ${scriptSrc} already in DOM, skipping`);
-                            window.loadedScripts.add(absoluteUrl);
                             return;
                         }
                     }
@@ -337,66 +356,38 @@ if (typeof FallbackManager === 'undefined') {
                     });
 
                     if (oldScript.innerHTML.trim()) {
-                        // Inline scripts - wrap in try-catch to handle redeclaration errors
-                        const originalCode = oldScript.innerHTML.trim();
-                        const wrappedCode = `
-                            try {
-                                ${originalCode}
-                                // Mark as loaded if it defines a global
-                                if (typeof window !== 'undefined') {
-                                    const scriptName = '${scriptSrc || 'inline'}_loaded';
-                                    window[scriptName] = true;
-                                }
-                            } catch (e) {
-                                if (e.message.includes('has already been declared') ||
-                                    e.message.includes('already exists')) {
-                                    console.log('Script redeclaration handled for:', '${scriptSrc || 'inline'}', e.message);
-                                } else {
-                                    console.error('Script execution error for:', '${scriptSrc || 'inline'}', e);
-                                }
-                            }
-                        `;
-                        newScript.appendChild(document.createTextNode(wrappedCode));
+                        // Inline scripts - no wrapping needed, let them execute
+                        newScript.innerHTML = oldScript.innerHTML;
                     } else if (scriptSrc) {
-                        // Normalize external script URL
-                        let absoluteUrl = scriptSrc;
-                        if (!scriptSrc.startsWith('http')) {
-                            try {
-                                absoluteUrl = new URL(scriptSrc, window.location.origin).href;
-                            } catch (e) {
-                                absoluteUrl = scriptSrc;
-                            }
-                        }
-                        
-                        // External scripts - add load event to mark as loaded
+                        // External scripts
                         newScript.onload = () => {
-                            // Add to global registry
-                            window.loadedScripts.add(absoluteUrl);
-                            window.loadedScripts.add(scriptSrc); // Also add relative version
+                            // Register as loaded
+                            if (coordinator) {
+                                coordinator.registerScriptLoaded(scriptSrc);
+                            } else {
+                                window.loadedScripts.add(scriptSrc);
+                            }
+                            
                             const scriptName = scriptSrc.split('/').pop().split('.')[0] + 'Loaded';
                             window[scriptName] = true;
-                            console.log(`External script loaded: ${scriptSrc}`);
+                            console.log(`✓ External script loaded: ${scriptSrc}`);
                         };
+                        
                         newScript.onerror = (e) => {
-                            console.error(`Failed to load script: ${scriptSrc}`, e);
+                            console.error(`✗ Failed to load script: ${scriptSrc}`, e);
                         };
                     }
 
-                    // Add to document head instead of body for better loading order
+                    // Add to document head for better loading order
                     document.head.appendChild(newScript);
                     
-                    // Mark external scripts as loaded when added
-                    if (scriptSrc) {
-                        let absoluteUrl = scriptSrc;
-                        if (!scriptSrc.startsWith('http')) {
-                            try {
-                                absoluteUrl = new URL(scriptSrc, window.location.origin).href;
-                            } catch (e) {
-                                absoluteUrl = scriptSrc;
-                            }
+                    // Register as loaded immediately if external
+                    if (scriptSrc && !oldScript.innerHTML.trim()) {
+                        if (coordinator) {
+                            coordinator.registerScriptLoaded(scriptSrc);
+                        } else {
+                            window.loadedScripts.add(scriptSrc);
                         }
-                        window.loadedScripts.add(absoluteUrl);
-                        window.loadedScripts.add(scriptSrc); // Also add relative version
                     }
                     
                     console.log(`Added script ${index + 1}/${scripts.length}: ${scriptSrc || 'inline'}`);
