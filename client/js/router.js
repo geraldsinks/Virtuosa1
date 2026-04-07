@@ -246,6 +246,18 @@ class CleanRouter {
                 return;
             }
 
+            // Skip auth links to allow direct navigation (prevents white screen issues)
+            if (href === '/login' || href === '/signup' || href.includes('login.html') || href.includes('signup.html')) {
+                console.log('Auth link detected, allowing direct navigation to:', href);
+                return; // Don't prevent default, let the browser handle it
+            }
+
+            // Skip home page link to allow direct navigation (prevents content issues)
+            if (href === '/' || href === '/index.html') {
+                console.log('Home link detected, allowing direct navigation to:', href);
+                return; // Don't prevent default, let the browser handle it
+            }
+
             // If it's a relative internal link, route it through our SPA router
             e.preventDefault();
             this.navigate(href);
@@ -277,6 +289,30 @@ class CleanRouter {
             // Skip links that have download attribute or target="_blank"
             if (link.hasAttribute('download') || link.getAttribute('target') === '_blank') {
                 return;
+            }
+
+            // Skip auth links to allow direct navigation (prevents white screen issues)
+            if (href === '/login' || href === '/signup' || href.includes('login.html') || href.includes('signup.html')) {
+                console.log('Mobile auth link detected, allowing direct navigation to:', href);
+                // Close mobile menu first
+                newMobileMenuContent.classList.add('-translate-x-full');
+                const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+                if (mobileMenuOverlay) {
+                    mobileMenuOverlay.classList.add('hidden');
+                }
+                return; // Don't prevent default, let the browser handle it
+            }
+
+            // Skip home page link to allow direct navigation (prevents content issues)
+            if (href === '/' || href === '/index.html') {
+                console.log('Mobile home link detected, allowing direct navigation to:', href);
+                // Close mobile menu first
+                newMobileMenuContent.classList.add('-translate-x-full');
+                const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+                if (mobileMenuOverlay) {
+                    mobileMenuOverlay.classList.add('hidden');
+                }
+                return; // Don't prevent default, let the browser handle it
             }
 
             // Close mobile menu first

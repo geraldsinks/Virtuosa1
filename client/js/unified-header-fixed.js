@@ -62,9 +62,6 @@ class UnifiedHeader {
             // 4. CRITICAL: Update all links to use clean URLs
             this.updateAllLinksToClean();
             
-            // 5. Ensure logo navigation works properly
-            this.initializeLogoNavigation();
-            
             console.log('× Unified header system initialized with clean URL support');
         } catch (error) {
             console.error('Failed to initialize unified header:', error);
@@ -128,7 +125,6 @@ class UnifiedHeader {
                     // Update any new links that were added
                     setTimeout(() => {
                         this.updateAllLinksToClean();
-                        this.initializeLogoNavigation(); // Reinitialize logo navigation for new content
                     }, 100);
                 }
             });
