@@ -1,5 +1,5 @@
 // Standardized fallback behavior system
-console.log('Virtuosa Router v202604071935 - URL consistency fixed');
+console.log('Virtuosa Router v202604071940 - Enhanced debugging for URL issues');
 
 if (typeof FallbackManager === 'undefined') {
 class FallbackManager {
@@ -693,7 +693,9 @@ class CleanRouter {
 
     // Load the actual HTML file with proper navigation
     async loadPage(path, params = {}) {
+        console.log('=== LOADPAGE START ===');
         console.log('ROUTER loadPage called with:', { path, params });
+        console.log('Current URL at start:', window.location.pathname);
         
         // Faster Login Check
         const pathForMatching = path.split('?')[0];
@@ -701,6 +703,8 @@ class CleanRouter {
             .replace(/^\//, '')
             .replace(/\.html$/, '')
             .replace(/^pages\//, '');
+
+        console.log('Path processing:', { original: path, normalized: normalizedPath });
 
         if (this.protectedRoutes.includes(normalizedPath)) {
             const token = localStorage.getItem('token');
@@ -744,14 +748,22 @@ class CleanRouter {
                     .replace(/\.html$/, '');
                 
                 pageFile = this.routes[normalizedPath] || this.routes[path] || '/index.html';
-                console.log(`📄 Using static route: ${pageFile} (normalized: ${normalizedPath})`);
+                console.log('Static route resolution:', { 
+                    inputPath: path, 
+                    normalizedPath, 
+                    foundRoute: this.routes[normalizedPath], 
+                    fallbackRoute: this.routes[path],
+                    finalPageFile: pageFile 
+                });
             }
             
             // Validate route
             if (!pageFile || typeof pageFile !== 'string') {
-                console.error('❌ Invalid route:', { path, pageFile });
+                console.error('Invalid route:', { path, pageFile });
                 throw new Error(`Invalid route: ${path}`);
             }
+            
+            console.log('Route resolved to:', pageFile);
             
             // Combined params
             const allParams = { ...routeParams, ...params };
@@ -1551,7 +1563,15 @@ ${scriptContent}
                 }
                 
                 console.log('Popstate navigation to:', path, 'params:', params);
+                console.log('Current URL before loadPage:', window.location.pathname);
+                
+                // Force a clean load by clearing any existing content first
+                this.isRendering = false; // Reset rendering flag
+                
+                // Load the page with fresh content
                 this.loadPage(path, params);
+                
+                console.log('Current URL after loadPage:', window.location.pathname);
             } catch (error) {
                 console.error('Router popstate error:', error);
                 // Fallback to reload if routing fails
