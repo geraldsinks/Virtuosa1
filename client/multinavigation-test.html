@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multinavigation Test - Virtuosa</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        .status-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .metric {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .metric-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Multi-Navigation System Test</h1>
+        <p>This page tests the clean URL system under various multi-navigation scenarios to identify and fix race conditions, cache issues, and content loading inconsistencies.</p>
+
+        <div class="metrics">
+            <div class="metric">
+                <div class="metric-value" id="navCount">0</div>
+                <div class="metric-label">Navigations</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="errorCount">0</div>
+                <div class="metric-label">Errors</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="cacheHits">0</div>
+                <div class="metric-label">Cache Hits</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="avgTime">0ms</div>
+                <div class="metric-label">Avg Load Time</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Rapid Navigation Test</h2>
+            <p>Tests rapid clicking of navigation links to simulate user multi-click behavior.</p>
+            <div class="test-buttons">
+                <button class="btn btn-primary" onclick="testRapidNavigation()">Start Rapid Test</button>
+                <button class="btn btn-warning" onclick="stopRapidTest()">Stop Test</button>
+            </div>
+            <div id="rapidStatus" class="status status-warning">Ready to test rapid navigation</div>
+        </div>
+
+        <div class="test-section">
+            <h2>Cache Consistency Test</h2>
+            <p>Tests if cached content is properly invalidated and updated.</p>
+            <div class="test-buttons">
+                <button class="btn btn-success" onclick="testCacheConsistency()">Test Cache</button>
+                <button class="btn btn-primary" onclick="clearCache()">Clear Cache</button>
+            </div>
+            <div id="cacheStatus" class="status status-warning">Ready to test cache consistency</div>
+        </div>
+
+        <div class="test-section">
+            <h2>URL State Test</h2>
+            <p>Tests URL synchronization between browser history and loaded content.</p>
+            <div class="test-buttons">
+                <button class="btn btn-primary" onclick="testUrlState()">Test URL State</button>
+                <button class="btn btn-success" onclick="testBackForward()">Test Back/Forward</button>
+            </div>
+            <div id="urlStatus" class="status status-warning">Ready to test URL state</div>
+        </div>
+
+        <div class="test-section">
+            <h2>Content Loading Test</h2>
+            <p>Tests data loading consistency between clean and non-clean URLs.</p>
+            <div class="test-buttons">
+                <button class="btn btn-primary" onclick="testCleanUrls()">Test Clean URLs</button>
+                <button class="btn btn-success" onclick="testHtmlUrls()">Test HTML URLs</button>
+                <button class="btn btn-warning" onclick="testMixedUrls()">Test Mixed URLs</button>
+            </div>
+            <div id="contentStatus" class="status status-warning">Ready to test content loading</div>
+        </div>
+
+        <div class="test-section">
+            <h2>Real-time Log</h2>
+            <div class="test-buttons">
+                <button class="btn btn-primary" onclick="clearLog()">Clear Log</button>
+                <button class="btn btn-success" onclick="exportLog()">Export Log</button>
+            </div>
+            <div id="logOutput" class="log">Test log will appear here...</div>
+        </div>
+    </div>
+
+    <!-- Include the navigation system -->
+    <script src="/js/navigation-state-manager.js"></script>
+    <script src="/js/router.js"></script>
+    <script src="/js/url-helper.js"></script>
+
+    <script>
+        // Test configuration
+        const testConfig = {
+            rapidNavigationInterval: 100,
+            rapidNavigationUrls: ['/products', '/cart', '/orders', '/dashboard', '/login'],
+            maxRapidNavigations: 20,
+            testPages: [
+                { clean: '/products', html: '/pages/products.html' },
+                { clean: '/cart', html: '/pages/cart.html' },
+                { clean: '/orders', html: '/pages/orders.html' },
+                { clean: '/dashboard', html: '/pages/buyer-dashboard.html' }
+            ]
+        };
+
+        // Test metrics
+        let metrics = {
+            navigationCount: 0,
+            errorCount: 0,
+            cacheHits: 0,
+            totalLoadTime: 0,
+            navigationTimes: []
+        };
+
+        let rapidTestInterval = null;
+        let testStartTime = Date.now();
+
+        // Logging
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logOutput = document.getElementById('logOutput');
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            logOutput.textContent += logEntry;
+            logOutput.scrollTop = logOutput.scrollHeight;
+            
+            console.log(`[MultiNavTest] ${message}`);
+        }
+
+        function updateMetrics() {
+            document.getElementById('navCount').textContent = metrics.navigationCount;
+            document.getElementById('errorCount').textContent = metrics.errorCount;
+            document.getElementById('cacheHits').textContent = metrics.cacheHits;
+            
+            const avgTime = metrics.navigationTimes.length > 0 
+                ? Math.round(metrics.navigationTimes.reduce((a, b) => a + b, 0) / metrics.navigationTimes.length)
+                : 0;
+            document.getElementById('avgTime').textContent = avgTime + 'ms';
+        }
+
+        function updateStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status status-${type}`;
+        }
+
+        // Rapid Navigation Test
+        function testRapidNavigation() {
+            if (rapidTestInterval) return;
+            
+            log('Starting rapid navigation test...');
+            updateStatus('rapidStatus', 'Running rapid navigation test...', 'warning');
+            
+            let navigationCount = 0;
+            rapidTestInterval = setInterval(() => {
+                if (navigationCount >= testConfig.maxRapidNavigations) {
+                    stopRapidTest();
+                    return;
+                }
+                
+                const url = testConfig.rapidNavigationUrls[navigationCount % testConfig.rapidNavigationUrls.length];
+                const startTime = Date.now();
+                
+                log(`Navigation ${navigationCount + 1}: ${url}`);
+                
+                // Use navigation state manager if available, otherwise fallback
+                if (window.NavigationStateManager) {
+                    window.NavigationStateManager.navigate(url).catch(error => {
+                        metrics.errorCount++;
+                        log(`Navigation error: ${error.message}`, 'error');
+                        updateMetrics();
+                    });
+                } else if (window.navigateTo) {
+                    window.navigateTo(url);
+                } else {
+                    window.location.href = url;
+                }
+                
+                metrics.navigationCount++;
+                metrics.navigationTimes.push(Date.now() - startTime);
+                updateMetrics();
+                
+                navigationCount++;
+            }, testConfig.rapidNavigationInterval);
+        }
+
+        function stopRapidTest() {
+            if (rapidTestInterval) {
+                clearInterval(rapidTestInterval);
+                rapidTestInterval = null;
+                log('Rapid navigation test stopped');
+                updateStatus('rapidStatus', `Test completed. ${metrics.navigationCount} navigations, ${metrics.errorCount} errors`, 'success');
+            }
+        }
+
+        // Cache Consistency Test
+        async function testCacheConsistency() {
+            log('Starting cache consistency test...');
+            updateStatus('cacheStatus', 'Testing cache consistency...', 'warning');
+            
+            try {
+                // Clear cache first
+                if (window.NavigationStateManager) {
+                    window.NavigationStateManager.clearCache();
+                }
+                
+                // Load same page multiple times
+                const testUrl = '/products';
+                for (let i = 0; i < 3; i++) {
+                    const startTime = Date.now();
+                    log(`Cache test iteration ${i + 1}: ${testUrl}`);
+                    
+                    if (window.NavigationStateManager) {
+                        await window.NavigationStateManager.navigate(testUrl);
+                    } else {
+                        window.location.href = testUrl;
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                    
+                    const loadTime = Date.now() - startTime;
+                    metrics.navigationTimes.push(loadTime);
+                    
+                    // Check if subsequent loads are faster (indicating cache hit)
+                    if (i > 0 && loadTime < metrics.navigationTimes[i - 1]) {
+                        metrics.cacheHits++;
+                        log(`Cache hit detected: ${loadTime}ms vs ${metrics.navigationTimes[i - 1]}ms`);
+                    }
+                }
+                
+                updateStatus('cacheStatus', `Cache test completed. ${metrics.cacheHits} cache hits detected`, 'success');
+            } catch (error) {
+                metrics.errorCount++;
+                log(`Cache test error: ${error.message}`, 'error');
+                updateStatus('cacheStatus', `Cache test failed: ${error.message}`, 'error');
+            }
+            
+            updateMetrics();
+        }
+
+        function clearCache() {
+            if (window.NavigationStateManager) {
+                window.NavigationStateManager.clearCache();
+                log('Cache cleared');
+            } else if (window.router) {
+                window.router.pageCache.clear();
+                log('Router cache cleared');
+            }
+        }
+
+        // URL State Test
+        async function testUrlState() {
+            log('Starting URL state test...');
+            updateStatus('urlStatus', 'Testing URL state synchronization...', 'warning');
+            
+            try {
+                const testUrls = ['/products', '/cart', '/orders'];
+                
+                for (const url of testUrls) {
+                    log(`Testing URL state for: ${url}`);
+                    
+                    if (window.NavigationStateManager) {
+                        await window.NavigationStateManager.navigate(url);
+                        
+                        // Verify URL matches expected
+                        const currentUrl = window.NavigationStateManager.getCurrentUrl();
+                        if (currentUrl.includes(url.replace('/', ''))) {
+                            log(`URL state correct: ${currentUrl}`);
+                        } else {
+                            metrics.errorCount++;
+                            log(`URL state mismatch: expected ${url}, got ${currentUrl}`, 'error');
+                        }
+                    }
+                    
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                updateStatus('urlStatus', 'URL state test completed', 'success');
+            } catch (error) {
+                metrics.errorCount++;
+                log(`URL state test error: ${error.message}`, 'error');
+                updateStatus('urlStatus', `URL state test failed: ${error.message}`, 'error');
+            }
+            
+            updateMetrics();
+        }
+
+        async function testBackForward() {
+            log('Testing browser back/forward navigation...');
+            updateStatus('urlStatus', 'Testing back/forward navigation...', 'warning');
+            
+            try {
+                // Navigate to a few pages
+                const testUrls = ['/products', '/cart', '/orders'];
+                
+                for (const url of testUrls) {
+                    if (window.NavigationStateManager) {
+                        await window.NavigationStateManager.navigate(url);
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
+                
+                // Test back navigation
+                log('Testing back navigation...');
+                window.history.back();
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Test forward navigation
+                log('Testing forward navigation...');
+                window.history.forward();
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                updateStatus('urlStatus', 'Back/forward test completed', 'success');
+            } catch (error) {
+                metrics.errorCount++;
+                log(`Back/forward test error: ${error.message}`, 'error');
+                updateStatus('urlStatus', `Back/forward test failed: ${error.message}`, 'error');
+            }
+            
+            updateMetrics();
+        }
+
+        // Content Loading Tests
+        async function testCleanUrls() {
+            await testUrlType('clean', testConfig.testPages.map(p => p.clean));
+        }
+
+        async function testHtmlUrls() {
+            await testUrlType('html', testConfig.testPages.map(p => p.html));
+        }
+
+        async function testMixedUrls() {
+            const mixedUrls = [];
+            testConfig.testPages.forEach(page => {
+                mixedUrls.push(page.clean, page.html);
+            });
+            await testUrlType('mixed', mixedUrls);
+        }
+
+        async function testUrlType(type, urls) {
+            log(`Starting ${type} URL content loading test...`);
+            updateStatus('contentStatus', `Testing ${type} URLs...`, 'warning');
+            
+            try {
+                for (const url of urls) {
+                    const startTime = Date.now();
+                    log(`Loading ${type} URL: ${url}`);
+                    
+                    if (window.NavigationStateManager) {
+                        await window.NavigationStateManager.navigate(url);
+                    } else {
+                        window.location.href = url;
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                    
+                    const loadTime = Date.now() - startTime;
+                    metrics.navigationTimes.push(loadTime);
+                    metrics.navigationCount++;
+                    
+                    // Check if content loaded correctly
+                    const hasContent = document.querySelector('main, #main, .main, body');
+                    if (hasContent) {
+                        log(`Content loaded successfully in ${loadTime}ms`);
+                    } else {
+                        metrics.errorCount++;
+                        log(`No content found after loading ${url}`, 'error');
+                    }
+                    
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
+                
+                updateStatus('contentStatus', `${type} URL test completed`, 'success');
+            } catch (error) {
+                metrics.errorCount++;
+                log(`${type} URL test error: ${error.message}`, 'error');
+                updateStatus('contentStatus', `${type} URL test failed: ${error.message}`, 'error');
+            }
+            
+            updateMetrics();
+        }
+
+        // Utility functions
+        function clearLog() {
+            document.getElementById('logOutput').textContent = 'Log cleared...\n';
+        }
+
+        function exportLog() {
+            const logContent = document.getElementById('logOutput').textContent;
+            const blob = new Blob([logContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `multinavigation-test-${new Date().toISOString().slice(0, 10)}.log`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Multi-navigation test page initialized');
+            updateMetrics();
+            
+            // Set up error monitoring
+            window.addEventListener('error', (event) => {
+                metrics.errorCount++;
+                log(`JavaScript error: ${event.error.message}`, 'error');
+                updateMetrics();
+            });
+            
+            window.addEventListener('unhandledrejection', (event) => {
+                metrics.errorCount++;
+                log(`Unhandled promise rejection: ${event.reason}`, 'error');
+                updateMetrics();
+            });
+        });
+    </script>
+</body>
+</html>

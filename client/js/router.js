@@ -215,6 +215,11 @@ class CleanRouter {
         // Cache for page fragments
         this.pageCache = new Map();
         
+        // Navigation state tracking
+        this.isRendering = false;
+        this.navigationQueue = [];
+        this.isNavigating = false;
+        
         // Initial setup
         this.setupClickInterceptor();
     }
@@ -754,28 +759,44 @@ class CleanRouter {
 
     // Load content dynamically without full page reload with comprehensive error handling
     async loadContentDynamically(pageFile, params = {}) {
+        // Prevent concurrent loads of the same page
+        const loadKey = pageFile + JSON.stringify(params);
+        if (this.pendingRequests.has(loadKey)) {
+            console.warn('Content already loading:', pageFile);
+            return;
+        }
+        
+        const controller = new AbortController();
+        this.pendingRequests.set(loadKey, controller);
+        
         try {
             // Validate the page file path
             if (!this.isValidPath(pageFile)) {
                 throw new Error(`Invalid page file path: ${pageFile}`);
             }
             
-            // Try to get from cache first
+            // Try to get from cache first with version check
             if (this.pageCache.has(pageFile)) {
-                console.log('⚡ Using cached page fragment for:', pageFile);
-                const cachedHtml = this.pageCache.get(pageFile);
-                this.renderPageContent(cachedHtml, pageFile, params);
-                return;
+                const cached = this.pageCache.get(pageFile);
+                // Check if cache is still valid (5 minutes)
+                if (Date.now() - cached.timestamp < 5 * 60 * 1000) {
+                    console.log('⚡ Using cached page fragment for:', pageFile);
+                    this.renderPageContent(cached.html, pageFile, params);
+                    return;
+                } else {
+                    // Remove expired cache
+                    this.pageCache.delete(pageFile);
+                }
             }
 
             // Fetch the page content with timeout
-            const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
             
             const response = await fetch(pageFile, {
                 signal: controller.signal,
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Cache-Control': 'no-cache'
                 }
             });
             
@@ -797,78 +818,131 @@ class CleanRouter {
             
             const html = await response.text();
             
-            // Cache the fragment
-            this.pageCache.set(pageFile, html);
+            // Validate HTML content
+            if (!html || html.trim().length === 0) {
+                throw new Error(`Empty content received for: ${pageFile}`);
+            }
+            
+            // Cache the fragment with timestamp
+            this.pageCache.set(pageFile, {
+                html: html,
+                timestamp: Date.now()
+            });
+            
+            // Limit cache size
+            if (this.pageCache.size > 50) {
+                const oldestKey = this.pageCache.keys().next().value;
+                this.pageCache.delete(oldestKey);
+            }
             
             this.renderPageContent(html, pageFile, params);
         } catch (error) {
+            if (error.name === 'AbortError') {
+                console.log('Content loading cancelled:', pageFile);
+                return;
+            }
+            
             const errorResult = this.handleNavigationError(error, 'content-loading');
             if (errorResult.action === 'fallback') {
                 this.fallbackToRedirect(pageFile + (Object.keys(params).length > 0 ? '?' + new URLSearchParams(params).toString() : ''));
             }
+        } finally {
+            this.pendingRequests.delete(loadKey);
         }
     }
     
-    // Render page content with transitions
+    // Render page content with transitions and race condition prevention
     renderPageContent(html, pageFile, params = {}) {
-        // Validate the HTML content
-        if (!html || html.trim().length === 0) {
-            throw new Error(`Empty content received for: ${pageFile}`);
+        // Prevent concurrent renders
+        if (this.isRendering) {
+            console.warn('Render already in progress, skipping:', pageFile);
+            return;
         }
         
-        // Parse the HTML
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
+        this.isRendering = true;
         
-        // Check for parsing errors
-        const parserError = doc.querySelector('parsererror');
-        if (parserError) {
-            throw new Error(`HTML parsing error for: ${pageFile}`);
-        }
-        
-        // Update the page title
-        const newTitle = doc.querySelector('title');
-        if (newTitle) {
-            document.title = newTitle.textContent;
-        }
-        
-        // Get the main content area
-        const newContent = doc.querySelector('main, #main, .main, body');
-        const currentContent = document.querySelector('main, #main, .main') || document.body;
-        
-        if (newContent && currentContent) {
-            // Apply fade-out transition
-            currentContent.style.transition = 'opacity 150ms ease-in-out';
-            currentContent.style.opacity = '0';
+        try {
+            // Validate the HTML content
+            if (!html || html.trim().length === 0) {
+                throw new Error(`Empty content received for: ${pageFile}`);
+            }
             
+            // Parse the HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Check for parsing errors
+            const parserError = doc.querySelector('parsererror');
+            if (parserError) {
+                throw new Error(`HTML parsing error for: ${pageFile}`);
+            }
+            
+            // Update the page title
+            const newTitle = doc.querySelector('title');
+            if (newTitle) {
+                document.title = newTitle.textContent;
+            }
+            
+            // Get the main content area
+            const newContent = doc.querySelector('main, #main, .main, body');
+            const currentContent = document.querySelector('main, #main, .main') || document.body;
+            
+            if (newContent && currentContent) {
+                // Apply fade-out transition
+                currentContent.style.transition = 'opacity 150ms ease-in-out';
+                currentContent.style.opacity = '0';
+                
+                setTimeout(() => {
+                    try {
+                        currentContent.innerHTML = newContent.innerHTML;
+                        
+                        // Execute any scripts in the new content
+                        this.executeScripts(doc);
+                        
+                        // Fade back in
+                        currentContent.style.opacity = '1';
+                        
+                        // Scroll to top
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        
+                        // Update URL with parameters (only if they've changed)
+                        const queryString = Object.keys(params).length > 0 
+                            ? '?' + new URLSearchParams(params).toString() 
+                            : '';
+                        
+                        const currentQueryString = window.location.search;
+                        if (queryString !== currentQueryString) {
+                            history.replaceState({}, '', window.location.pathname + queryString);
+                        }
+                        
+                        // Reinitialize URL helper for new content
+                        if (window.URLHelper) {
+                            setTimeout(() => {
+                                window.URLHelper.updatePageLinks();
+                            }, 100);
+                        }
+                        
+                        // Trigger content loaded event
+                        document.dispatchEvent(new CustomEvent('contentLoaded', {
+                            detail: { pageFile, params }
+                        }));
+                        
+                    } catch (error) {
+                        console.error('Error during content render:', error);
+                        // Fallback to full page reload
+                        window.location.reload();
+                    }
+                }, 150);
+            } else {
+                throw new Error(`No content area found in: ${pageFile}`);
+            }
+        } catch (error) {
+            console.error('Render error:', error);
+            throw error;
+        } finally {
             setTimeout(() => {
-                currentContent.innerHTML = newContent.innerHTML;
-                
-                // Execute any scripts in the new content
-                this.executeScripts(doc);
-                
-                // Fade back in
-                currentContent.style.opacity = '1';
-                
-                // Scroll to top
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                
-                // Update URL with parameters
-                const queryString = Object.keys(params).length > 0 
-                    ? '?' + new URLSearchParams(params).toString() 
-                    : '';
-                
-                if (queryString) {
-                    history.replaceState({}, '', window.location.pathname + queryString);
-                }
-                
-                // Reinitialize URL helper for new content
-                if (window.URLHelper) {
-                    window.URLHelper.updatePageLinks();
-                }
-            }, 150);
-        } else {
-            throw new Error(`No content area found in: ${pageFile}`);
+                this.isRendering = false;
+            }, 300);
         }
     }
 
