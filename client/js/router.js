@@ -281,6 +281,11 @@ if (typeof FallbackManager === 'undefined') {
         }
 
         executeScripts(doc) {
+            // Initialize global registry for tracking loaded scripts
+            if (!window.loadedScripts) {
+                window.loadedScripts = new Set();
+            }
+
             const scripts = Array.from(doc.querySelectorAll('script'));
             console.log(`Executing ${scripts.length} scripts from new page`);
 
@@ -289,17 +294,39 @@ if (typeof FallbackManager === 'undefined') {
                     const scriptSrc = oldScript.getAttribute('src');
 
                     if (scriptSrc) {
-                        // External scripts - check if already loaded by src
-                        const existingScript = document.querySelector(`script[src="${scriptSrc}"]`);
-                        if (existingScript) {
+                        // Normalize the script URL to absolute path for consistent matching
+                        let absoluteUrl = scriptSrc;
+                        if (!scriptSrc.startsWith('http')) {
+                            try {
+                                absoluteUrl = new URL(scriptSrc, window.location.origin).href;
+                            } catch (e) {
+                                // Fallback: use as-is if URL parsing fails
+                                absoluteUrl = scriptSrc;
+                            }
+                        }
+
+                        // Check against global registry of loaded scripts
+                        let isLoaded = false;
+                        for (let loadedScript of window.loadedScripts) {
+                            // Check for exact match or same path
+                            if (loadedScript === absoluteUrl || 
+                                loadedScript === scriptSrc ||
+                                new URL(loadedScript, window.location.origin).href === absoluteUrl) {
+                                isLoaded = true;
+                                break;
+                            }
+                        }
+
+                        if (isLoaded) {
                             console.log(`Script ${scriptSrc} already loaded, skipping`);
                             return;
                         }
 
-                        // Also check if the script content indicates it's already been loaded
-                        const scriptId = scriptSrc.split('/').pop().split('.')[0];
-                        if (window[scriptId + 'Loaded'] === true) {
-                            console.log(`Script ${scriptId} content already loaded, skipping`);
+                        // Also check if the script exists in the DOM
+                        const existingScript = document.querySelector(`script[src="${scriptSrc}"]`);
+                        if (existingScript) {
+                            console.log(`Script ${scriptSrc} already in DOM, skipping`);
+                            window.loadedScripts.add(absoluteUrl);
                             return;
                         }
                     }
@@ -331,8 +358,21 @@ if (typeof FallbackManager === 'undefined') {
                         `;
                         newScript.appendChild(document.createTextNode(wrappedCode));
                     } else if (scriptSrc) {
+                        // Normalize external script URL
+                        let absoluteUrl = scriptSrc;
+                        if (!scriptSrc.startsWith('http')) {
+                            try {
+                                absoluteUrl = new URL(scriptSrc, window.location.origin).href;
+                            } catch (e) {
+                                absoluteUrl = scriptSrc;
+                            }
+                        }
+                        
                         // External scripts - add load event to mark as loaded
                         newScript.onload = () => {
+                            // Add to global registry
+                            window.loadedScripts.add(absoluteUrl);
+                            window.loadedScripts.add(scriptSrc); // Also add relative version
                             const scriptName = scriptSrc.split('/').pop().split('.')[0] + 'Loaded';
                             window[scriptName] = true;
                             console.log(`External script loaded: ${scriptSrc}`);
@@ -344,6 +384,21 @@ if (typeof FallbackManager === 'undefined') {
 
                     // Add to document head instead of body for better loading order
                     document.head.appendChild(newScript);
+                    
+                    // Mark external scripts as loaded when added
+                    if (scriptSrc) {
+                        let absoluteUrl = scriptSrc;
+                        if (!scriptSrc.startsWith('http')) {
+                            try {
+                                absoluteUrl = new URL(scriptSrc, window.location.origin).href;
+                            } catch (e) {
+                                absoluteUrl = scriptSrc;
+                            }
+                        }
+                        window.loadedScripts.add(absoluteUrl);
+                        window.loadedScripts.add(scriptSrc); // Also add relative version
+                    }
+                    
                     console.log(`Added script ${index + 1}/${scripts.length}: ${scriptSrc || 'inline'}`);
 
                 } catch (error) {
@@ -353,6 +408,16 @@ if (typeof FallbackManager === 'undefined') {
         }
 
         init() {
+            // Initialize global script tracking registry
+            if (!window.loadedScripts) {
+                window.loadedScripts = new Set();
+            }
+            
+            // Track all currently loaded scripts
+            document.querySelectorAll('script[src]').forEach(script => {
+                window.loadedScripts.add(script.src);
+            });
+            
             const style = document.createElement('style');
             style.textContent = '@keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }';
             document.head.appendChild(style);

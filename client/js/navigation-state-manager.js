@@ -72,6 +72,24 @@ class NavigationStateManager {
     }
     
     init() {
+        // Initialize global script tracking registry
+        if (!window.loadedScripts) {
+            window.loadedScripts = new Set();
+        }
+        
+        // Track all currently loaded scripts in the initial page
+        document.querySelectorAll('script[src]').forEach(script => {
+            const absoluteUrl = script.src;
+            window.loadedScripts.add(absoluteUrl);
+            // Also add relative path version for matching
+            try {
+                const url = new URL(absoluteUrl);
+                window.loadedScripts.add(url.pathname);
+            } catch (e) {
+                // Ignore parsing errors
+            }
+        });
+        
         // Clean up existing router conflicts
         this.cleanupRouterConflicts();
         
