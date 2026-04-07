@@ -7,7 +7,11 @@
  * - Integration with URLHelper system
  * - Proper link updating after dynamic content injection
  * - Coordination with navigation state manager
+ * 
+ * Version: v202604071921
  */
+
+console.log('Virtuosa Unified Header v202604071921 - Navigation fixes applied');
 
 // Prevent duplicate class declarations
 if (window.UnifiedHeader) {

@@ -1,4 +1,6 @@
 // Standardized fallback behavior system
+console.log('Virtuosa Router v202604071921 - Navigation fixes applied');
+
 if (typeof FallbackManager === 'undefined') {
 class FallbackManager {
     constructor(router) {
