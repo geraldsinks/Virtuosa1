@@ -22,17 +22,30 @@ class SimpleAdSlider {
             return;
         }
 
-        // Get all cards - look for multiple possible selectors
+        // Get all cards - look inside ad-cards-wrapper for actual ad cards
         console.log('DEBUG: Ad slider element found:', this.slider);
         console.log('DEBUG: Ad slider children:', this.slider.children.length);
         
-        this.cards = Array.from(this.slider.querySelectorAll('.ad-card')) || 
-                      Array.from(this.slider.querySelectorAll('[class*="ad-card"]')) ||
-                      Array.from(this.slider.querySelectorAll('.ad-slide')) ||
-                      Array.from(this.slider.querySelectorAll('[class*="ad"]')) ||
-                      Array.from(this.slider.querySelectorAll('.slide')) ||
-                      Array.from(this.slider.querySelectorAll('.carousel-item')) ||
-                      [];
+        // Look inside the ad-cards-wrapper for actual ad cards
+        const cardsWrapper = this.slider.querySelector('#ad-cards-wrapper');
+        if (cardsWrapper) {
+            console.log('DEBUG: Found ad-cards-wrapper:', cardsWrapper);
+            this.cards = Array.from(cardsWrapper.querySelectorAll('.ad-card')) || 
+                          Array.from(cardsWrapper.querySelectorAll('[class*="ad-card"]')) ||
+                          Array.from(cardsWrapper.querySelectorAll('[class*="ad"]')) ||
+                          Array.from(cardsWrapper.querySelectorAll('.slide')) ||
+                          Array.from(cardsWrapper.querySelectorAll('.carousel-item')) ||
+                          [];
+        } else {
+            // Fallback to direct slider search
+            this.cards = Array.from(this.slider.querySelectorAll('.ad-card')) || 
+                          Array.from(this.slider.querySelectorAll('[class*="ad-card"]')) ||
+                          Array.from(this.slider.querySelectorAll('.ad-slide')) ||
+                          Array.from(this.slider.querySelectorAll('[class*="ad"]')) ||
+                          Array.from(this.slider.querySelectorAll('.slide')) ||
+                          Array.from(this.slider.querySelectorAll('.carousel-item')) ||
+                          [];
+        }
         
         this.totalCards = this.cards.length;
         console.log('DEBUG: Found cards with selectors:', this.totalCards);
@@ -79,9 +92,17 @@ class SimpleAdSlider {
     updateSlider() {
         if (!this.slider || this.totalCards === 0) return;
 
-        // Simple transform for best performance
-        this.slider.style.transform = `translateX(-${this.currentIndex * 100}%)`;
-        this.slider.style.transition = 'transform 0.4s ease-out';
+        // Get the cards wrapper and transform it instead of the main slider
+        const cardsWrapper = this.slider.querySelector('#ad-cards-wrapper');
+        if (cardsWrapper) {
+            // Simple transform for best performance
+            cardsWrapper.style.transform = `translateX(-${this.currentIndex * 100}%)`;
+            cardsWrapper.style.transition = 'transform 0.4s ease-out';
+        } else {
+            // Fallback to main slider
+            this.slider.style.transform = `translateX(-${this.currentIndex * 100}%)`;
+            this.slider.style.transition = 'transform 0.4s ease-out';
+        }
     }
 
     /**

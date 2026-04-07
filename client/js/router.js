@@ -1431,3 +1431,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+}
+}

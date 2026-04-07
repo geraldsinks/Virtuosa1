@@ -580,27 +580,29 @@ class UnifiedHeader {
             } catch (e) {
                 console.warn('Could not load marketing categories for scroller:', e);
             }
-        }
-    }
             
             // Fallback to standard categories if marketing is empty
             if (activeCats.length === 0) {
-                const fallbackResponse = await fetch(`${API_BASE}/categories`);
-                if (fallbackResponse.ok) {
-                    const categories = await fallbackResponse.json();
-                    // Pick some commonly popular categories to ensure the mobile scroller has data
-                    const fallbackNames = ['Hot Deals', 'Best Sellers', "Men's Clothing", "Women's Clothing", 'Electronics', 'Computers & Software', 'Shoes', 'Accessories'];
-                    
-                    activeCats = fallbackNames.map((name, index) => {
-                        const found = categories.find(c => c.name === name);
-                        return {
-                            title: name,
-                            link: `/products?category=${encodeURIComponent(name)}`, // CLEAN URL
-                            image: found ? found.image : null,
-                            active: true,
-                            displayOrder: index
-                        };
-                    });
+                try {
+                    const fallbackResponse = await fetch(`${API_BASE}/categories`);
+                    if (fallbackResponse.ok) {
+                        const categories = await fallbackResponse.json();
+                        // Pick some commonly popular categories to ensure the mobile scroller has data
+                        const fallbackNames = ['Hot Deals', 'Best Sellers', "Men's Clothing", "Women's Clothing", 'Electronics', 'Computers & Software', 'Shoes', 'Accessories'];
+                        
+                        activeCats = fallbackNames.map((name, index) => {
+                            const found = categories.find(c => c.name === name);
+                            return {
+                                title: name,
+                                link: `/products?category=${encodeURIComponent(name)}`, // CLEAN URL
+                                image: found ? found.image : null,
+                                active: true,
+                                displayOrder: index
+                            };
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading fallback categories:', error);
                 }
             }
             
@@ -624,22 +626,16 @@ class UnifiedHeader {
                 // Fix any remaining .html paths
                 if (targetUrl.includes('.html')) {
                     targetUrl = targetUrl.replace('.html', '');
-                }
-                
-                // Ensure clean URL format
-                if (targetUrl.includes('/pages/')) {
-                    targetUrl = targetUrl.replace('/pages/', '');
-                }
-                
-                if (!targetUrl.startsWith('/')) {
-                    targetUrl = '/' + targetUrl;
+                    if (!targetUrl.startsWith('/')) {
+                        targetUrl = '/' + targetUrl;
+                    }
                 }
                 
                 // Enhance cat object with cleaned URL for desktop reuse
                 cat.targetUrl = targetUrl;
                 
                 const imageUrl = cat.image?.startsWith('http') ? cat.image : 
-                                (cat.image ? `${API_BASE.replace('/api', '')}${cat.image}` : null);
+                                (cat.image ? `${window.API_BASE.replace('/api', '')}${cat.image}` : null);
                 // Enhance cat object with cleaned image mapping for desktop reuse
                 cat.imageUrl = imageUrl;
                 
@@ -713,8 +709,17 @@ class UnifiedHeader {
             }
             // --- END DESKTOP NAV INTEGRATION ---
             
+            // CRITICAL: Update links after dynamic content injection
+            setTimeout(() => {
+                this.updateAllLinksToClean();
+            }, 100);
+            
+            // DEBUG: Log when category scroller is initialized
+            console.log('ð Category scroller initialization complete');
+        } catch (error) {
+            console.error('Error loading category scroller:', error);
         }
-        // --- END DESKTOP NAV INTEGRATION ---
+    }
     /**
      * Select mobile search suggestion with CLEAN URL
      */
