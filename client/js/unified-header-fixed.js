@@ -62,6 +62,9 @@ class UnifiedHeader {
             // 4. CRITICAL: Update all links to use clean URLs
             this.updateAllLinksToClean();
             
+            // 5. Ensure logo navigation works properly
+            this.initializeLogoNavigation();
+            
             console.log('× Unified header system initialized with clean URL support');
         } catch (error) {
             console.error('Failed to initialize unified header:', error);
@@ -125,6 +128,7 @@ class UnifiedHeader {
                     // Update any new links that were added
                     setTimeout(() => {
                         this.updateAllLinksToClean();
+                        this.initializeLogoNavigation(); // Reinitialize logo navigation for new content
                     }, 100);
                 }
             });
@@ -138,6 +142,30 @@ class UnifiedHeader {
                 subtree: true
             });
         }
+    }
+
+    /**
+     * Initialize logo navigation to ensure proper root path handling
+     */
+    initializeLogoNavigation() {
+        // Find all logo links in both mobile and desktop headers
+        const logoLinks = document.querySelectorAll('a[href="/"]:not([data-logo-handled])');
+        
+        logoLinks.forEach(logoLink => {
+            // Mark as handled to avoid duplicate listeners
+            logoLink.setAttribute('data-logo-handled', 'true');
+            
+            // Add click listener for reliable navigation
+            logoLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('Logo clicked - navigating to home page');
+                
+                // Always use direct navigation for home page to avoid SPA issues
+                window.location.href = '/';
+            });
+        });
+        
+        console.log(`Logo navigation initialized for ${logoLinks.length} logo links`);
     }
 
     /**

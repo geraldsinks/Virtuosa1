@@ -106,11 +106,11 @@ class CleanRouter {
         
         this.routes = {
             '': '/index.html',                    // Home route
-            'login': '/login',                    // Clean URL
-            'signup': '/signup', 
-            'products': '/products',
+            'login': '/pages/login.html',                // Clean URL mapped to actual file
+            'signup': '/pages/signup.html',              // Clean URL mapped to actual file 
+            'products': '/pages/products.html',          // Clean URL mapped to actual file
             'product': '/product-detail',
-            'cart': '/cart',
+            'cart': '/pages/cart.html',                // Clean URL mapped to actual file
             'orders': '/pages/orders.html',
             'order': '/pages/order-details.html',
             'seller': '/pages/seller.html',
@@ -761,20 +761,29 @@ class CleanRouter {
 
             // If it's an SPA-compatible route, load it dynamically
             // We use dynamic loading if it's a known route and NOT a direct .html request (unless it's index)
-            const isSPARoute = (this.routes[path] || this.parseDynamicRoute(path) || path === '/' || path === '' || path === 'index.html');
+            // EXCEPTION: Always use direct navigation for auth pages and home page to avoid caching issues
+            const isAuthRoute = path === 'login' || path === 'signup' || pageFile.includes('login.html') || pageFile.includes('signup.html');
+            const isHomeRoute = path === '/' || path === '' || path === 'index.html' || pageFile.includes('index.html');
+            const isSPARoute = (this.routes[path] || this.parseDynamicRoute(path)) && !isAuthRoute && !isHomeRoute;
 
             if (isSPARoute) {
-                console.log('✨ SPA navigation to:', path);
+                console.log('SPA navigation to:', path);
                 this.loadContentDynamically(pageFile, allParams);
                 return;
             }
             
-            // Fallback for non-SPA routes
-            console.log('🔄 Non-SPA route, doing full redirect to:', finalUrl);
-            window.location.href = finalUrl;
+            // For auth pages, home page, or non-SPA routes, use direct navigation
+            if (isAuthRoute || isHomeRoute) {
+                const routeType = isAuthRoute ? 'Auth' : 'Home';
+                console.log(routeType + ' route detected, using direct navigation to:', pageFile);
+                window.location.href = pageFile;
+            } else {
+                console.log('Non-SPA route, doing full redirect to:', finalUrl);
+                window.location.href = finalUrl;
+            }
             
         } catch (error) {
-            console.error('❌ Router loadPage error:', error);
+            console.error('Router loadPage error:', error);
             window.location.href = path.endsWith('.html') ? path : '/pages/' + path + '.html';
         } finally {
             setTimeout(() => {
@@ -912,9 +921,22 @@ class CleanRouter {
                 document.title = newTitle.textContent;
             }
             
-            // Get the main content area
-            const newContent = doc.querySelector('main, #main, .main, body');
-            const currentContent = document.querySelector('main, #main, .main') || document.body;
+            // Get the main content area with special handling for auth pages and index.html
+            const isAuthPage = pageFile.includes('login.html') || pageFile.includes('signup.html');
+            const isIndexPage = pageFile.includes('index.html');
+            let newContent, currentContent;
+            
+            if (isAuthPage || isIndexPage) {
+                // For auth pages and index.html, replace the entire body content
+                newContent = doc.querySelector('body');
+                currentContent = document.body;
+                const pageType = isAuthPage ? 'Auth' : 'Index';
+                console.log(pageType + ' page detected - using body replacement strategy');
+            } else {
+                // For regular pages, use main content area
+                newContent = doc.querySelector('main, #main, .main, body');
+                currentContent = document.querySelector('main, #main, .main') || document.body;
+            }
             
             console.log('🎯 Content areas found:', JSON.stringify({ 
                 newContent: !!newContent, 
@@ -985,8 +1007,15 @@ class CleanRouter {
                         
                     } catch (error) {
                         console.error('Error during content render:', error);
-                        // Fallback to full page reload
-                        window.location.reload();
+                        // For auth pages and index pages, use direct navigation as fallback
+                        if (isAuthPage || isIndexPage) {
+                            const pageType = isAuthPage ? 'Auth' : 'Index';
+                            console.log(pageType + ' page render failed, using direct navigation fallback');
+                            window.location.href = pageFile;
+                        } else {
+                            // For other pages, fallback to full page reload
+                            window.location.reload();
+                        }
                     }
                 }, 150);
             } else {
@@ -1518,10 +1547,19 @@ ${scriptContent}
         // Handle browser back/forward buttons
         window.addEventListener('popstate', (event) => {
             try {
-                const path = window.location.pathname;
+                let path = window.location.pathname;
                 const query = window.location.search;
                 const params = Object.fromEntries(new URLSearchParams(query.substring(1)));
-                this.loadPage(path.substring(1), params); // Remove leading slash
+                
+                // Handle root path properly
+                if (path === '/' || path === '') {
+                    path = '';
+                } else {
+                    path = path.substring(1); // Remove leading slash
+                }
+                
+                console.log('Popstate navigation to:', path, 'params:', params);
+                this.loadPage(path, params);
             } catch (error) {
                 console.error('Router popstate error:', error);
                 // Fallback to reload if routing fails
