@@ -30,12 +30,14 @@ class SimpleAdSlider {
         const cardsWrapper = this.slider.querySelector('#ad-cards-wrapper');
         if (cardsWrapper) {
             console.log('DEBUG: Found ad-cards-wrapper:', cardsWrapper);
-            this.cards = Array.from(cardsWrapper.querySelectorAll('.ad-card')) || 
-                          Array.from(cardsWrapper.querySelectorAll('[class*="ad-card"]')) ||
-                          Array.from(cardsWrapper.querySelectorAll('[class*="ad"]')) ||
-                          Array.from(cardsWrapper.querySelectorAll('.slide')) ||
-                          Array.from(cardsWrapper.querySelectorAll('.carousel-item')) ||
-                          [];
+            console.log('DEBUG: Ad-cards-wrapper children:', cardsWrapper.children.length);
+            
+            // Get all direct children that are ad cards
+            this.cards = Array.from(cardsWrapper.children).filter(child => 
+                child.classList.contains('ad-card')
+            );
+            
+            console.log('DEBUG: Filtered ad cards:', this.cards.length);
         } else {
             // Fallback to direct slider search
             this.cards = Array.from(this.slider.querySelectorAll('.ad-card')) || 
@@ -48,7 +50,7 @@ class SimpleAdSlider {
         }
         
         this.totalCards = this.cards.length;
-        console.log('DEBUG: Found cards with selectors:', this.totalCards);
+        console.log('DEBUG: Final card count:', this.totalCards);
 
         if (this.totalCards === 0) {
             console.warn('No ad cards found - checking for alternative selectors');
