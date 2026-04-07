@@ -1428,11 +1428,22 @@ class CleanRouter {
             }
         });
     }
-}
+
+    // Get clean URL from file path
+    getCleanUrl(filePath) {
+        for (const [cleanPath, actualPath] of Object.entries(this.routes)) {
+            if (actualPath === filePath) {
+                return '/' + cleanPath;
+            }
+        }
+        return '/' + filePath.replace(/^\//, '');
+    }
 }
 
 // Global router instance
 window.router = new CleanRouter();
+
+}
 
 // Global fallback helpers for consistent behavior across the application
 window.handleAuthError = function(context = 'auth', options = {}) {
