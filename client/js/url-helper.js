@@ -1,4 +1,10 @@
 // URL Helper for updating existing navigation to clean URLs
+
+// Prevent duplicate class declarations
+if (window.URLHelper) {
+    console.log('URLHelper class already exists, skipping declaration');
+} else {
+
 class URLHelper {
     static updatePageLinks() {
         // Update all anchor tags to use clean URLs
@@ -231,3 +237,6 @@ window.URLHelper = URLHelper;
 window.updateCleanLinks = () => {
     URLHelper.updatePageLinks();
 };
+
+// Close the conditional class declaration block
+}

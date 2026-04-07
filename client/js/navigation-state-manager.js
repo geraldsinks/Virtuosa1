@@ -2,6 +2,11 @@
  * Navigation State Manager - Prevents multinavigation issues
  * Handles race conditions, cache consistency, and URL state synchronization
  */
+// Prevent duplicate class declarations
+if (window.NavigationStateManager) {
+    console.log('NavigationStateManager class already exists, skipping declaration');
+} else {
+
 class NavigationStateManager {
     constructor() {
         if (window.navigationStateManager) return;
@@ -41,21 +46,17 @@ class NavigationStateManager {
     }
     
     cleanupRouterConflicts() {
-        // Disable conflicting router instances
-        if (window.router) {
-            window.router.navigate = () => {};
-            window.router.loadPage = () => {};
+        // Don't disable existing router - work with it instead
+        // Only remove conflicting popstate listeners if needed
+        if (window.getEventListeners?.(window)?.popstate) {
+            const listeners = window.getEventListeners(window).popstate;
+            // Only remove listeners that aren't from our main router
+            listeners.forEach(listener => {
+                if (!listener.listener.toString().includes('router')) {
+                    window.removeEventListener('popstate', listener.listener);
+                }
+            });
         }
-        
-        if (window.productionRouter) {
-            window.productionRouter.fixInternalLinks = () => {};
-        }
-        
-        // Remove existing popstate listeners
-        const listeners = window.getEventListeners?.(window)?.popstate || [];
-        listeners.forEach(listener => {
-            window.removeEventListener('popstate', listener.listener);
-        });
     }
     
     setupUnifiedNavigation() {
@@ -335,3 +336,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // Global access
 window.NavigationStateManager = NavigationStateManager;
 window.navigate = NavigationStateManager.navigate;
+
+// Close the conditional class declaration block
+}

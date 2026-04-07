@@ -9,6 +9,11 @@
  * - Coordination with navigation state manager
  */
 
+// Prevent duplicate class declarations
+if (window.UnifiedHeader) {
+    console.log('UnifiedHeader class already exists, skipping declaration');
+} else {
+
 class UnifiedHeader {
     constructor() {
         // Prevent multiple initializations
@@ -1220,4 +1225,7 @@ if (typeof document !== 'undefined') {
     } else {
         window.unifiedHeader = new UnifiedHeader();
     }
+}
+
+// Close the conditional class declaration block
 }

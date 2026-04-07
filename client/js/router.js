@@ -1106,9 +1106,17 @@ class CleanRouter {
         const scripts = doc.querySelectorAll('script');
         const headScripts = [];
         const bodyScripts = [];
+        const loadedScripts = new Set();
         
         // Separate head and body scripts to maintain execution order
         scripts.forEach(oldScript => {
+            // Skip if script already loaded
+            const scriptKey = oldScript.src || oldScript.textContent;
+            if (loadedScripts.has(scriptKey)) {
+                console.log('Skipping duplicate script:', scriptKey.substring(0, 50) + '...');
+                return;
+            }
+            loadedScripts.add(scriptKey);
             // Security validation: skip scripts with dangerous content
             const scriptContent = oldScript.innerHTML || oldScript.textContent;
             if (scriptContent && this.containsDangerousContent(scriptContent)) {
@@ -1151,9 +1159,21 @@ class CleanRouter {
             newScript.setAttribute(attr.name, attr.value);
         });
         
-        // Copy script content
+        // Copy script content with error wrapper
         if (oldScript.innerHTML || oldScript.textContent) {
-            newScript.appendChild(document.createTextNode(oldScript.innerHTML || oldScript.textContent));
+            const scriptContent = oldScript.innerHTML || oldScript.textContent;
+            // Wrap in try-catch to prevent duplicate identifier errors from breaking navigation
+            const wrappedContent = `
+try {
+${scriptContent}
+} catch (error) {
+    if (error.name === 'SyntaxError' && error.message.includes('already been declared')) {
+        console.warn('Duplicate identifier prevented:', error.message);
+    } else {
+        console.error('Script execution error:', error);
+    }
+}`;
+            newScript.appendChild(document.createTextNode(wrappedContent));
         }
         
         // Append to correct location
@@ -1262,6 +1282,8 @@ class CleanRouter {
             const url = new URL(src, window.location.origin);
             const trustedDomains = [
                 window.location.hostname,
+                'cdn.tailwindcss.com',
+                'cdn.socket.io',
                 'cdn.jsdelivr.net',
                 'cdnjs.cloudflare.com',
                 'unpkg.com',

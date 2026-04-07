@@ -1,6 +1,11 @@
 // Client-side Role Management Helper
 // This standardizes role checking across the application
 
+// Prevent duplicate class declarations
+if (window.RoleManager) {
+    console.log('RoleManager class already exists, skipping declaration');
+} else {
+
 class RoleManager {
     constructor() {
         this.currentRole = null;
@@ -114,9 +119,9 @@ class RoleManager {
                 if (apiError.message === 'Authentication expired') {
                     this.clearAllData();
                     if (window.router) {
-                        window.router.navigate('/login.html');
+                        window.router.navigate('/login');
                     } else {
-                        window.location.href = '/login.html';
+                        window.location.href = '/login';
                     }
                     throw apiError;
                 }
@@ -370,9 +375,9 @@ class RoleManager {
                     console.error('❌ Failed to initialize for access check:', error);
                     this.accessCheckCache.set(cacheKey, false);
                     if (window.router) {
-                        window.router.navigate('/login.html');
+                        window.router.navigate('/login');
                     } else {
-                        window.location.href = '/login.html';
+                        window.location.href = '/login';
                     }
                     return false;
                 }
@@ -384,9 +389,9 @@ class RoleManager {
                     console.error('❌ Failed to initialize for access check:', error);
                     this.accessCheckCache.set(cacheKey, false);
                     if (window.router) {
-                        window.router.navigate('/login.html');
+                        window.router.navigate('/login');
                     } else {
-                        window.location.href = '/login.html';
+                        window.location.href = '/login';
                     }
                     return false;
                 } finally {
@@ -421,39 +426,39 @@ class RoleManager {
         if (attempts >= 1) {
             console.error('🚫 Redirect loop detected, stopping redirects');
             if (window.router) {
-                window.router.navigate('/login.html');
+                window.router.navigate('/login');
             } else {
-                window.location.href = '/login.html';
+                window.location.href = '/login';
             }
             return;
         }
         
         this.redirectAttempts.set(attemptKey, attempts + 1);
         
-        // Don't redirect to the same page
-        if (dashboardType === 'buyer' && currentPath.includes('buyer-dashboard.html')) {
+        // Don't redirect to same page
+        if (dashboardType === 'buyer' && currentPath.includes('dashboard')) {
             return;
         }
-        if (dashboardType === 'seller' && currentPath.includes('seller-dashboard.html')) {
+        if (dashboardType === 'seller' && currentPath.includes('seller-dashboard')) {
             return;
         }
-        if (dashboardType === 'admin' && currentPath.includes('admin-dashboard.html')) {
+        if (dashboardType === 'admin' && currentPath.includes('admin')) {
             return;
         }
 
         // Smart redirect logic - redirect to the highest privilege dashboard user can access
-        if (this.canAccessDashboard('admin') && !currentPath.includes('admin-dashboard.html')) {
-            if (window.router) window.router.navigate('/pages/admin-dashboard.html');
-            else window.location.href = '/pages/admin-dashboard.html';
-        } else if (this.canAccessDashboard('seller') && !currentPath.includes('seller-dashboard.html')) {
-            if (window.router) window.router.navigate('/pages/seller-dashboard.html');
-            else window.location.href = '/pages/seller-dashboard.html';
-        } else if (this.canAccessDashboard('buyer') && !currentPath.includes('buyer-dashboard.html')) {
-            if (window.router) window.router.navigate('/pages/buyer-dashboard.html');
-            else window.location.href = '/pages/buyer-dashboard.html';
-        } else if (!currentPath.includes('login.html')) {
-            if (window.router) window.router.navigate('/login.html');
-            else window.location.href = '/login.html';
+        if (this.canAccessDashboard('admin') && !currentPath.includes('admin')) {
+            if (window.router) window.router.navigate('/admin');
+            else window.location.href = '/admin';
+        } else if (this.canAccessDashboard('seller') && !currentPath.includes('seller-dashboard')) {
+            if (window.router) window.router.navigate('/seller-dashboard');
+            else window.location.href = '/seller-dashboard';
+        } else if (this.canAccessDashboard('buyer') && !currentPath.includes('dashboard')) {
+            if (window.router) window.router.navigate('/dashboard');
+            else window.location.href = '/dashboard';
+        } else if (!currentPath.includes('login')) {
+            if (window.router) window.router.navigate('/login');
+            else window.location.href = '/login';
         }
     }
 
@@ -559,4 +564,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Export for use in other scripts
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = RoleManager;
+}
+
+// Close the conditional class declaration block
 }
