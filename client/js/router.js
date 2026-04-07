@@ -1,5 +1,5 @@
 // Standardized fallback behavior system
-console.log('Virtuosa Router v202604071951 - Navigation issues resolved');
+console.log('Virtuosa Router v202604071953 - Enhanced script handling for SPA');
 
 if (typeof FallbackManager === 'undefined') {
     class FallbackManager {
@@ -48,34 +48,11 @@ if (typeof FallbackManager === 'undefined') {
             } = options;
 
             try {
-                if (clearStorage) {
-                    localStorage.clear();
-                    sessionStorage.clear();
-                }
-
-                if (showMessage) {
-                    if (typeof showMessage === 'string') {
-                        console.info('Fallback redirect:', showMessage);
-                    } else if (typeof showMessage === 'function') {
-                        showMessage();
-                    }
-                }
-
-                const fallbackRoute = this.getFallback(context, userRole);
-
                 setTimeout(() => {
-                    if (window.router && window.router.navigate) {
-                        window.router.navigate(fallbackRoute);
-                    } else {
-                        window.location.href = fallbackRoute;
-                    }
+                    this.router.navigate(fallbackRoute);
                 }, delay);
-
-                return true;
             } catch (error) {
-                console.error('Fallback execution failed:', error);
-                window.location.href = '/';
-                return false;
+                console.error('Fallback execution error:', error);
             }
         }
     }
@@ -290,11 +267,74 @@ if (typeof FallbackManager === 'undefined') {
         }
 
         executeScripts(doc) {
-            doc.querySelectorAll('script').forEach(oldScript => {
-                const newScript = document.createElement('script');
-                Array.from(oldScript.attributes).forEach(a => newScript.setAttribute(a.name, a.value));
-                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                document.body.appendChild(newScript);
+            const scripts = Array.from(doc.querySelectorAll('script'));
+            console.log(`Executing ${scripts.length} scripts from new page`);
+
+            scripts.forEach((oldScript, index) => {
+                try {
+                    const scriptSrc = oldScript.getAttribute('src');
+
+                    if (scriptSrc) {
+                        // External scripts - check if already loaded by src
+                        const existingScript = document.querySelector(`script[src="${scriptSrc}"]`);
+                        if (existingScript) {
+                            console.log(`Script ${scriptSrc} already loaded, skipping`);
+                            return;
+                        }
+
+                        // Also check if the script content indicates it's already been loaded
+                        const scriptId = scriptSrc.split('/').pop().split('.')[0];
+                        if (window[scriptId + 'Loaded'] === true) {
+                            console.log(`Script ${scriptId} content already loaded, skipping`);
+                            return;
+                        }
+                    }
+
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => {
+                        newScript.setAttribute(attr.name, attr.value);
+                    });
+
+                    if (oldScript.innerHTML.trim()) {
+                        // Inline scripts - wrap in try-catch to handle redeclaration errors
+                        const originalCode = oldScript.innerHTML.trim();
+                        const wrappedCode = `
+                            try {
+                                ${originalCode}
+                                // Mark as loaded if it defines a global
+                                if (typeof window !== 'undefined') {
+                                    const scriptName = '${scriptSrc || 'inline'}_loaded';
+                                    window[scriptName] = true;
+                                }
+                            } catch (e) {
+                                if (e.message.includes('has already been declared') ||
+                                    e.message.includes('already exists')) {
+                                    console.log('Script redeclaration handled for:', '${scriptSrc || 'inline'}', e.message);
+                                } else {
+                                    console.error('Script execution error for:', '${scriptSrc || 'inline'}', e);
+                                }
+                            }
+                        `;
+                        newScript.appendChild(document.createTextNode(wrappedCode));
+                    } else if (scriptSrc) {
+                        // External scripts - add load event to mark as loaded
+                        newScript.onload = () => {
+                            const scriptName = scriptSrc.split('/').pop().split('.')[0] + 'Loaded';
+                            window[scriptName] = true;
+                            console.log(`External script loaded: ${scriptSrc}`);
+                        };
+                        newScript.onerror = (e) => {
+                            console.error(`Failed to load script: ${scriptSrc}`, e);
+                        };
+                    }
+
+                    // Add to document head instead of body for better loading order
+                    document.head.appendChild(newScript);
+                    console.log(`Added script ${index + 1}/${scripts.length}: ${scriptSrc || 'inline'}`);
+
+                } catch (error) {
+                    console.error('Error creating/executing script:', error);
+                }
             });
         }
 
