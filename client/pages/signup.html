@@ -421,18 +421,24 @@
         }
     </style>
 
-    <!-- Unified Header System -->
+    <!-- Core Dependencies (must load first) -->
     <script src="/js/config.js"></script>
     <script src="/js/token-manager.js"></script>
     <script src="/js/auth-manager.js"></script>
-    <script src="/js/cache-manager.js" defer></script>
+    <script src="/js/cache-manager.js"></script>
     
+    <!-- Auth System -->
+    <script src="../js/auth.js"></script>
     
-
-    <!-- Clean URL System -->
-    <script src="/js/navigation-state-manager.js"></script>
+    <!-- Navigation System (deferred to avoid conflicts) -->
+    <script src="/js/navigation-state-manager.js" defer></script>
     <script src="/js/unified-header-fixed.js" defer></script>
     <script src="/js/url-helper.js" defer></script>
+    <script src="/js/router.js" defer></script>
+    
+    <!-- Analytics (deferred) -->
+    <script src="/js/cookie-consent.js" defer></script>
+    <script src="/js/cookie-tracker.js" defer></script>
 </head>
 
 <body class="bg-navy antialiased min-h-screen">
@@ -467,16 +473,5 @@
             &copy; 2026 Virtuosa. All rights reserved.
         </div>
     </footer>
-    <script src="../js/config.js"></script>
-
-    <script src="../js/auth.js"></script>
-    
-    <!-- Clean URL Support -->
-    <script src="../js/router.js"></script>
-    <script src="../js/url-helper.js"></script>
-
-    <!-- Cookie Analytics & Consent -->
-    <script src="/js/cookie-consent.js"></script>
-    <script src="/js/cookie-tracker.js"></script>
-</body>
+    </body>
 </html>

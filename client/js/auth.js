@@ -936,7 +936,15 @@ function renderAuthComponent(type) {
     }
 }
 
+// Initialize auth system when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+    // Prevent multiple initializations
+    if (window.authSystemInitialized) {
+        console.log('Auth system already initialized');
+        return;
+    }
+    window.authSystemInitialized = true;
+    
     const token = localStorage.getItem('token');
     if (token) {
         // Redirect to role-specific dashboard based on stored user data
@@ -944,11 +952,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const isSeller = localStorage.getItem('isSeller') === 'true';
         
         if (isAdmin) {
-            window.location.href = '/pages/admin-dashboard.html';
+            window.location.href = '/admin';
         } else if (isSeller) {
-            window.location.href = '/pages/seller-dashboard.html';
+            window.location.href = '/seller-dashboard';
         } else {
-            window.location.href = '/pages/buyer-dashboard.html';
+            window.location.href = '/dashboard';
         }
     } else {
         const urlParams = new URLSearchParams(window.location.search);
