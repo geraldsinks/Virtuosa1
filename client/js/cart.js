@@ -881,7 +881,8 @@ function renderItem(item) {
 // Cart Management JavaScript
 
 // Toast Notification Styles
-const toastStyles = `
+if (typeof window.toastStyles === 'undefined') {
+    window.toastStyles = `
 #toast-container {
     position: fixed;
     top: 1rem;
@@ -1205,5 +1206,6 @@ function setupContinueShoppingButton() {
     // Default fallback
     continueBtn.href = 'products.html';
     console.log('📂 Default: continuing to products page');
+    }
 }
 

@@ -1,8 +1,12 @@
 // Use global API_BASE from config.js
-const BASE_API_URL = `${API_BASE}/auth`;
+// Prevent duplicate declarations
+if (typeof window.BASE_API_URL === 'undefined') {
+    window.BASE_API_URL = `${API_BASE}/auth`;
+}
 
 // Toast Notification System (shared with cart.js)
-const toastStyles = `
+if (typeof window.toastStyles === 'undefined') {
+    window.toastStyles = `
 #toast-container {
     position: fixed;
     top: 1rem;
@@ -98,6 +102,7 @@ const toastStyles = `
     border-left: 4px solid #3b82f6;
 }
 `;
+};
 
 // Inject toast styles once
 if (!document.getElementById('toast-notification-styles')) {
