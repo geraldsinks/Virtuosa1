@@ -59,10 +59,17 @@ class SimpleAdSlider {
 
         console.log('DEBUG: Ad cards wrapper found:', this.cardsWrapper);
 
-        // Use proven querySelectorAll approach (like original)
-        this.cards = Array.from(this.cardsWrapper.querySelectorAll('.ad-card'));
+        // Use direct children instead of querySelectorAll
+        this.cards = Array.from(this.cardsWrapper.children).filter(child => 
+            child.classList && child.classList.contains('ad-card')
+        );
+        
+        // Final fallback: use all direct children if still no cards
+        if (this.cards.length === 0) {
+            this.cards = Array.from(this.cardsWrapper.children);
+        }
+        
         this.totalCards = this.cards.length;
-
         console.log('DEBUG: Found ad cards:', this.totalCards);
 
         if (this.totalCards === 0) {
