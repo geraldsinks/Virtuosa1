@@ -774,6 +774,12 @@
             }
         }
     </style>
+
+    <!-- Clean URL System -->
+    <script src="/js/navigation-state-manager.js"></script>
+    <script src="/js/unified-header-fixed.js" defer></script>
+    <script src="/js/url-helper.js" defer></script>
+    <script src="/js/router.js" defer></script>
 </head>
 
 <body class="bg-gray-100 antialiased flex flex-col min-h-screen">
@@ -1685,8 +1691,7 @@
     <script src="/js/token-manager.js"></script>
     <script src="/js/auth-manager.js"></script>
     <script src="/js/cache-manager.js"></script>
-    <script src="/js/production-router.js"></script>
-    <script src="/js/unified-header.js" defer></script>
+    
     <script>
         // Force cache refresh for development
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
