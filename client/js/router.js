@@ -1,4 +1,5 @@
 // Standardized fallback behavior system
+if (typeof FallbackManager === 'undefined') {
 class FallbackManager {
     constructor(router) {
         this.router = router;
@@ -97,6 +98,8 @@ class FallbackManager {
         }
     }
 }
+}
+
 class CleanRouter {
     constructor() {
         // Initialize fallback manager

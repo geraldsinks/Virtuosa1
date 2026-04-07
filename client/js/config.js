@@ -1,17 +1,16 @@
 // Dynamic API configuration based on environment
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:5000/api'
-    : (() => {
-        // For production, use same origin as frontend for consistency
-        const protocol = window.location.protocol;
-        const hostname = window.location.hostname;
-        // Use main domain for all API requests
-        return `${protocol}//api.${hostname}/api`;
-    })();
-
-// Make API_BASE available globally
-window.API_BASE = API_BASE;
-console.log('🔌 API Base URL configured:', API_BASE);
+if (typeof window.API_BASE === 'undefined') {
+    window.API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:5000/api'
+        : (() => {
+            // For production, use same origin as frontend for consistency
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+            // Use main domain for all API requests
+            return `${protocol}//api.${hostname}/api`;
+        })();
+    console.log('🔌 API Base URL configured:', window.API_BASE);
+}
 
 // Fallback image URLs for consistency
 const FALLBACK_IMAGES = {

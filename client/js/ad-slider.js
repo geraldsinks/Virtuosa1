@@ -249,57 +249,7 @@ window.initializeAdSlider = () => {
             startProgressBar();
         });
     }
-};
-                slider.style.transition = 'transform 0.5s ease-in-out';
-            }, 50);
-        } else {
-            // Otherwise, move to the next slide with the normal transition
-            currentIndex++;
-            updateSlider();
-        }
-    }
-
-    /**
-     * Moves the slider to the previous card, looping back to the end if at the beginning.
-     */
-    function prevCard() {
-        // Move to the previous index, or to the last index if at the beginning
-        if (currentIndex === 0) {
-            // Temporarily disable the CSS transition for an instant jump
-            slider.style.transition = 'none';
-            currentIndex = totalCards - 1;
-            updateSlider();
-
-            // Re-enable the transition for the next slide
-            setTimeout(() => {
-                slider.style.transition = 'transform 0.5s ease-in-out';
-            }, 50);
-        } else {
-            // Otherwise, move to the previous slide with the normal transition
-            currentIndex--;
-            updateSlider();
-        }
-        // Restart the timer after a manual click
-        startAutoSlide();
-    }
-
-    // Event listeners for the navigation buttons
-    if (prevButton) {
-        prevButton.addEventListener('click', prevCard);
-    }
-
-    if (nextButton) {
-        nextButton.addEventListener('click', () => {
-            nextCard();
-            // Restart the timer after a manual click
-            startAutoSlide();
-        });
-    }
-
-    // Ensure we always respect the current number of cards rendered
-    slider.style.transition = 'transform 0.5s ease-in-out';
-    startAutoSlide();
-};
+}
 
 // Auto-initialize if index page didn't explicitly call it yet
 document.addEventListener('DOMContentLoaded', () => {

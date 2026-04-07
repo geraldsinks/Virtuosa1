@@ -160,6 +160,178 @@ class UnifiedHeader {
     }
 
     /**
+     * Ensure horizontal category navigation exists and works on index.html
+     */
+    ensureHorizontalNavigationExists() {
+        console.log('ð Initializing horizontal navigation...');
+        // Initialize mobile category scroller from mobile-header.js functionality
+        this.initializeMobileCategoryScroller();
+    }
+
+    /**
+     * Add enhanced CSS styles for the improved header
+     */
+    addEnhancedStyles() {
+        if (document.getElementById('enhanced-header-styles')) return;
+        
+        const style = document.createElement('style');
+        style.id = 'enhanced-header-styles';
+        style.textContent = `
+            /* Enhanced Header Animations */
+            @keyframes shimmer {
+                0% { transform: translateX(-100%); }
+                100% { transform: translateX(100%); }
+            }
+            
+            @keyframes glow {
+                0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+                50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.6); }
+            }
+            
+            /* Header hover effects */
+            header:hover {
+                animation: glow 2s ease-in-out infinite;
+            }
+            
+            /* Search input focus enhancement */
+            #mobile-search-input:focus,
+            #desktop-search-input:focus {
+                background: rgba(255, 255, 255, 0.15) !important;
+                border-color: rgba(255, 215, 0, 0.5) !important;
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.2) !important;
+            }
+            
+            /* Button hover animations */
+            .v-touch:hover {
+                transform: translateY(-1px);
+            }
+            
+            /* Mobile menu slide animation */
+            .mobile-menu-content.active {
+                animation: slideIn 0.3s ease-out;
+            }
+            
+            @keyframes slideIn {
+                from { transform: translateX(-100%); }
+                to { transform: translateX(0); }
+            }
+            
+            /* Badge pulse animation */
+            .badge {
+                animation: pulse 2s infinite;
+            }
+            
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.7; }
+            }
+            
+            /* Gradient text animation */
+            .bg-gradient-to-r.from-gold {
+                background-size: 200% 200%;
+                animation: gradientShift 3s ease infinite;
+            }
+            
+            @keyframes gradientShift {
+                0%, 100% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+            }
+            
+            /* Enhanced dropdown */
+            #user-dropdown {
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 215, 0, 0.2);
+            }
+            
+            /* Mobile menu backdrop blur */
+            #mobile-menu-overlay.active {
+                backdrop-filter: blur(4px);
+            }
+            
+            /* Quick action buttons */
+            .bg-gradient-to-r.from-green-500,
+            .bg-gradient-to-r.from-blue-500 {
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .bg-gradient-to-r.from-green-500::before,
+            .bg-gradient-to-r.from-blue-500::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                transition: left 0.5s;
+            }
+            
+            .bg-gradient-to-r.from-green-500:hover::before,
+            .bg-gradient-to-r.from-blue-500:hover::before {
+                left: 100%;
+            }
+            
+            /* Horizontal Category Navigation Styles */
+            .hide-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            
+            .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            
+            .mobile-category-scroller {
+                background: linear-gradient(to right, #0A1128, #1a1f35);
+                border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+            }
+            
+            .mobile-category-item {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .mobile-category-item:hover {
+                transform: translateY(-2px);
+            }
+            
+            .mobile-category-icon {
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            }
+            
+            .mobile-category-item:hover .mobile-category-icon {
+                border-color: #FFD700 !important;
+                box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+            }
+            
+            .mobile-category-text {
+                transition: color 0.3s ease;
+            }
+            
+            .mobile-category-item:hover .mobile-category-text {
+                color: #FFD700 !important;
+            }
+            
+            /* Mobile search suggestions */
+            #mobile-search-suggestions {
+                background: rgba(10, 17, 40, 0.95);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 215, 0, 0.2);
+                border-radius: 0.5rem;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+                max-height: 300px;
+                overflow-y: auto;
+            }
+            
+            .mobile-search-suggestion-item:hover {
+                background: rgba(255, 255, 255, 0.05);
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    /**
      * Get unified header HTML template with CLEAN URLs ONLY
      * FIXED: All .html links replaced with clean URLs
      */
