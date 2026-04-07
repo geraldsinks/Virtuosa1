@@ -56,8 +56,8 @@ class FallbackManager {
     async executeFallback(context, options = {}) {
         const {
             userRole = null,
-            showMessage = null,
-            delay = 0,
+            showMessage = false,
+            delay = 1000,
             clearStorage = false
         } = options;
         
@@ -80,14 +80,14 @@ class FallbackManager {
             // Get appropriate fallback route
             const fallbackRoute = this.getFallback(context, userRole);
             
-            // Execute redirect with delay if specified
-            if (delay > 0) {
-                setTimeout(() => {
+            // Execute redirect with delay
+            setTimeout(() => {
+                if (window.router && window.router.navigate) {
+                    window.router.navigate(fallbackRoute);
+                } else {
                     window.location.href = fallbackRoute;
-                }, delay);
-            } else {
-                window.location.href = fallbackRoute;
-            }
+                }
+            }, delay);
             
             return true;
         } catch (error) {
@@ -98,9 +98,7 @@ class FallbackManager {
         }
     }
 }
-}
 
-if (typeof CleanRouter === 'undefined') {
 class CleanRouter {
     constructor() {
         // Initialize fallback manager
