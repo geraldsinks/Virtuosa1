@@ -894,21 +894,8 @@ class CleanRouter {
     }
     
     // Render page content with transitions and race condition prevention
-    renderPageContent(html, pageFile, params = {}) {
-        // Prevent concurrent renders
-        if (this.isRendering) {
-            console.warn('Render already in progress, skipping:', pageFile);
-            return;
-        }
-        
-        this.isRendering = true;
-        
+    renderPageContent(html, pageFile, params) {
         try {
-            // Validate the HTML content
-            if (!html || html.trim().length === 0) {
-                throw new Error(`Empty content received for: ${pageFile}`);
-            }
-            
             // Parse the HTML
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
@@ -916,7 +903,7 @@ class CleanRouter {
             // Check for parsing errors
             const parserError = doc.querySelector('parsererror');
             if (parserError) {
-                throw new Error(`HTML parsing error for: ${pageFile}`);
+                throw new Error(`Failed to parse HTML for ${pageFile}: ${parserError.textContent}`);
             }
             
             // Update the page title
@@ -928,6 +915,13 @@ class CleanRouter {
             // Get the main content area
             const newContent = doc.querySelector('main, #main, .main, body');
             const currentContent = document.querySelector('main, #main, .main') || document.body;
+            
+            console.log('🎯 Content areas found:', JSON.stringify({ 
+                newContent: !!newContent, 
+                currentContent: !!currentContent,
+                newContentTag: newContent?.tagName,
+                currentContentTag: currentContent?.tagName 
+            }));
             
             if (newContent && currentContent) {
                 // Apply fade-out transition
