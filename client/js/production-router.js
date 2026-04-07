@@ -141,11 +141,26 @@ class ProductionRouter {
             'seller-dashboard': true,
             'create-product': true,
             'edit-product': true,
-            'admin-dashboard': true,
-            'admin-users': true,
-            'admin-seller-applications': true,
+            'seller-analytics': true,
+            'seller-orders': true,
+            'seller-shop': true,
             'messages': true,
             'notifications': true,
+            // Admin pages requiring authentication
+            'admin-dashboard': true,
+            'admin-account-deletions': true,
+            'admin-asset-library': true,
+            'admin-cookie-data': true,
+            'admin-disputes': true,
+            'admin-live-chat': true,
+            'admin-maintenance': true,
+            'admin-mass-messaging': true,
+            'admin-retention': true,
+            'admin-seller-applications': true,
+            'admin-support': true,
+            'admin-test-dashboard': true,
+            'admin-transactions': true,
+            'admin-users': true,
         };
 
         const requiredRoles = {
@@ -155,9 +170,22 @@ class ProductionRouter {
             'edit-product': 'seller',
             'seller-analytics': 'seller',
             'seller-orders': 'seller',
+            'seller-shop': 'seller',
+            // Admin pages requiring admin role
             'admin-dashboard': 'admin',
-            'admin-users': 'admin',
+            'admin-account-deletions': 'admin',
+            'admin-asset-library': 'admin',
+            'admin-cookie-data': 'admin',
+            'admin-disputes': 'admin',
+            'admin-live-chat': 'admin',
+            'admin-maintenance': 'admin',
+            'admin-mass-messaging': 'admin',
+            'admin-retention': 'admin',
             'admin-seller-applications': 'admin',
+            'admin-support': 'admin',
+            'admin-test-dashboard': 'admin',
+            'admin-transactions': 'admin',
+            'admin-users': 'admin',
         };
 
         // Check if current page requires auth
