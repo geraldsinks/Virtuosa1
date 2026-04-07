@@ -23,23 +23,42 @@ class SimpleAdSlider {
         }
 
         // Get all cards - look for multiple possible selectors
+        console.log('DEBUG: Ad slider element found:', this.slider);
+        console.log('DEBUG: Ad slider children:', this.slider.children.length);
+        
         this.cards = Array.from(this.slider.querySelectorAll('.ad-card')) || 
                       Array.from(this.slider.querySelectorAll('[class*="ad-card"]')) ||
                       Array.from(this.slider.querySelectorAll('.ad-slide')) ||
+                      Array.from(this.slider.querySelectorAll('[class*="ad"]')) ||
+                      Array.from(this.slider.querySelectorAll('.slide')) ||
+                      Array.from(this.slider.querySelectorAll('.carousel-item')) ||
                       [];
         
         this.totalCards = this.cards.length;
+        console.log('DEBUG: Found cards with selectors:', this.totalCards);
 
         if (this.totalCards === 0) {
             console.warn('No ad cards found - checking for alternative selectors');
             // Try to find any elements that might be ads
             const allElements = this.slider.children;
+            console.log('DEBUG: All slider children:', Array.from(allElements).map(el => ({
+                tagName: el.tagName,
+                className: el.className,
+                id: el.id
+            })));
+            
             for (let element of allElements) {
-                if (element.classList.contains('ad') || element.querySelector('[class*="ad"]')) {
+                if (element.classList.contains('ad') || 
+                    element.querySelector('[class*="ad"]') ||
+                    element.classList.contains('slide') ||
+                    element.classList.contains('carousel') ||
+                    element.tagName === 'DIV' && element.children.length > 0) {
                     this.cards.push(element);
+                    console.log('DEBUG: Found fallback card:', element.className);
                 }
             }
             this.totalCards = this.cards.length;
+            console.log('DEBUG: Found cards with fallback:', this.totalCards);
         }
 
         if (this.totalCards === 0) {
