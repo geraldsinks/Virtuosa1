@@ -1056,6 +1056,10 @@ class CleanRouter {
     // Execute scripts from loaded content with security validation
     executeScripts(doc) {
         const scripts = doc.querySelectorAll('script');
+        const headScripts = [];
+        const bodyScripts = [];
+        
+        // Separate head and body scripts to maintain execution order
         scripts.forEach(oldScript => {
             // Security validation: skip scripts with dangerous content
             const scriptContent = oldScript.innerHTML || oldScript.textContent;
@@ -1070,13 +1074,46 @@ class CleanRouter {
                 return;
             }
             
-            const newScript = document.createElement('script');
-            Array.from(oldScript.attributes).forEach(attr => {
-                newScript.setAttribute(attr.name, attr.value);
-            });
-            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-            document.body.appendChild(newScript);
+            // Check if script was originally in head or body
+            const isInHead = oldScript.parentNode && oldScript.parentNode.nodeName === 'HEAD';
+            if (isInHead) {
+                headScripts.push(oldScript);
+            } else {
+                bodyScripts.push(oldScript);
+            }
         });
+        
+        // Execute head scripts first (in order)
+        headScripts.forEach(oldScript => {
+            this.executeScript(oldScript, 'head');
+        });
+        
+        // Then execute body scripts (in order)
+        bodyScripts.forEach(oldScript => {
+            this.executeScript(oldScript, 'body');
+        });
+    }
+    
+    // Execute individual script with proper placement
+    executeScript(oldScript, target) {
+        const newScript = document.createElement('script');
+        
+        // Copy all attributes
+        Array.from(oldScript.attributes).forEach(attr => {
+            newScript.setAttribute(attr.name, attr.value);
+        });
+        
+        // Copy script content
+        if (oldScript.innerHTML || oldScript.textContent) {
+            newScript.appendChild(document.createTextNode(oldScript.innerHTML || oldScript.textContent));
+        }
+        
+        // Append to correct location
+        if (target === 'head') {
+            document.head.appendChild(newScript);
+        } else {
+            document.body.appendChild(newScript);
+        }
     }
     
     // Check for dangerous script content with stricter security validation
@@ -1342,6 +1379,7 @@ class CleanRouter {
         });
     }
 }
+}
 
 // Global router instance
 window.router = new CleanRouter();
@@ -1431,5 +1469,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
-}
-}
