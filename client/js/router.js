@@ -253,6 +253,46 @@ class CleanRouter {
         });
     }
 
+    // Special handling for mobile menu links that may be added dynamically
+    setupMobileMenuInterception() {
+        const mobileMenuContent = document.getElementById('mobile-menu-content');
+        if (!mobileMenuContent) return;
+
+        // Remove existing listener to avoid duplicates
+        const newMobileMenuContent = mobileMenuContent.cloneNode(true);
+        mobileMenuContent.parentNode.replaceChild(newMobileMenuContent, mobileMenuContent);
+
+        // Add click delegation specifically for mobile menu
+        newMobileMenuContent.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (!link) return;
+
+            const href = link.getAttribute('href');
+            if (!href) return;
+
+            // Skip external links, mailto, tel, etc.
+            if (href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) {
+                return;
+            }
+
+            // Skip links that have download attribute or target="_blank"
+            if (link.hasAttribute('download') || link.getAttribute('target') === '_blank') {
+                return;
+            }
+
+            // Close mobile menu first
+            newMobileMenuContent.classList.add('-translate-x-full');
+            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+            if (mobileMenuOverlay) {
+                mobileMenuOverlay.classList.add('hidden');
+            }
+
+            // Then navigate
+            e.preventDefault();
+            this.navigate(href);
+        });
+    }
+
     // Parse dynamic route and extract parameters with improved validation
     parseDynamicRoute(path) {
         console.log('🔍 Parsing dynamic route for path:', path);
@@ -925,6 +965,16 @@ class CleanRouter {
                                 window.URLHelper.updatePageLinks();
                             }, 100);
                         }
+                        
+                        // Reinitialize click interceptor for dynamically added content
+                        setTimeout(() => {
+                            this.setupClickInterceptor();
+                        }, 150);
+                        
+                        // Also set up immediate delegation for mobile menu links
+                        setTimeout(() => {
+                            this.setupMobileMenuInterception();
+                        }, 200);
                         
                         // Trigger content loaded event
                         document.dispatchEvent(new CustomEvent('contentLoaded', {
