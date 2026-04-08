@@ -405,14 +405,17 @@ class UnifiedHeader {
             }
             
             const scrollerContainer = document.createElement('div');
-            scrollerContainer.className = 'flex flex-row overflow-x-auto items-center gap-6 px-4 py-2 hide-scrollbar w-full container mx-auto';
+            scrollerContainer.className = 'flex flex-row overflow-x-auto items-center gap-4 md:gap-6 px-4 py-3 hide-scrollbar w-full container mx-auto';
             
             // Add static Sell link first
             const sellHtml = `
-                <a href="/seller" class="flex items-center gap-2 no-underline text-gold hover:text-yellow-300 transition-colors shrink-0 group">
-                    <span class="font-bold text-sm tracking-tight">Sell Items</span>
+                <a href="/seller" class="flex flex-col items-center no-underline text-gold hover:text-yellow-300 transition-all duration-300 shrink-0 group hover:scale-105" style="min-width: 60px;">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-800 flex items-center justify-center mb-1 overflow-hidden border-2 border-gold group-hover:bg-gray-700 transition-all shadow-md group-hover:shadow-lg group-hover:border-yellow-300">
+                        <i class="fas fa-store-alt text-lg"></i>
+                    </div>
+                    <span class="text-[10px] md:text-[11px] font-bold text-center w-full truncate max-w-[70px] md:max-w-[80px]">Sell Items</span>
                 </a>
-                <div class="h-4 w-px bg-gray-700 shrink-0"></div>
+                <div class="h-10 w-px bg-gray-700 mx-1 shrink-0"></div>
             `;
             
             scrollerContainer.innerHTML = sellHtml + activeCats.map(cat => {
@@ -422,9 +425,15 @@ class UnifiedHeader {
                     if (!targetUrl.startsWith('/')) targetUrl = '/' + targetUrl;
                 }
                 
+                const imageUrl = cat.image?.startsWith('http') ? cat.image : 
+                                (cat.image ? `${window.API_BASE.replace('/api', '')}${cat.image}` : null);
+                
                 return `
-                    <a href="${targetUrl}" class="flex items-center text-gray-300 hover:text-gold transition-colors shrink-0 group whitespace-nowrap text-sm font-medium">
-                        ${cat.title}
+                    <a href="${targetUrl}" class="flex flex-col items-center no-underline text-gray-400 hover:text-gold transition-all duration-300 shrink-0 group hover:scale-105" style="min-width: 60px;">
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-800 flex items-center justify-center mb-1 overflow-hidden border-2 border-transparent group-hover:border-gold transition-all shadow-sm group-hover:shadow-md">
+                            ${imageUrl ? `<img src="${imageUrl}" class="w-full h-full object-cover" alt="${cat.title}">` : `<i class="fas fa-tags text-gray-500"></i>`}
+                        </div>
+                        <span class="text-[10px] md:text-[11px] font-medium max-w-[70px] md:max-w-[80px] truncate text-center">${cat.title}</span>
                     </a>
                 `;
             }).join('');
