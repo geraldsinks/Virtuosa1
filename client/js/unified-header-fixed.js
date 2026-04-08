@@ -237,11 +237,6 @@ class UnifiedHeader {
 
             <!-- Right: Actions -->
             <div class="flex items-center justify-end space-x-5 md:space-x-7 shrink-0 z-10 w-1/3 md:w-auto">
-                <a href="/notifications" class="relative text-white hover:text-gold transition-colors group">
-                    <i class="far fa-bell text-xl md:text-2xl group-hover:scale-110 transition-transform"></i>
-                    <span id="notification-badge" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center hidden px-1 shadow-lg border border-red-400">0</span>
-                </a>
-                
                 <a href="/login" id="header-login-link" class="hidden md:flex flex-col text-white hover:text-gold transition-colors justify-center leading-tight items-end">
                     <span class="text-[10px] font-medium text-gray-300 uppercase tracking-wider" id="header-greeting">Hello, Sign in</span>
                     <span class="text-sm font-bold tracking-wide">Account</span>
@@ -250,6 +245,11 @@ class UnifiedHeader {
                 <div id="user-dropdown-container" class="relative hidden md:block">
                     <!-- Dropdown structure populated by auth state -->
                 </div>
+
+                <a href="/notifications" class="relative text-white hover:text-gold transition-colors group">
+                    <i class="far fa-bell text-xl md:text-2xl group-hover:scale-110 transition-transform"></i>
+                    <span id="notification-badge" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center hidden px-1 shadow-lg border border-red-400">0</span>
+                </a>
 
                 <a href="/cart" class="relative text-white hover:text-gold transition-colors flex items-center gap-1 group">
                     <div class="relative">
