@@ -311,12 +311,21 @@ if (typeof FallbackManager === 'undefined') {
             const currentContent = document.querySelector('main') || document.body;
             if (newContent && currentContent) {
                 currentContent.innerHTML = newContent.innerHTML;
-                this.executeScripts(doc);
                 window.scrollTo(0, 0);
+                
+                // Execute scripts and wait for completion
+                this.executeScripts(doc).then(() => {
+                    // After all scripts loaded, fire pageNavigationReady
+                    // This allows inline scripts and listeners to initialize
+                    window.dispatchEvent(new CustomEvent('pageNavigationReady', {
+                        detail: { pageFile, params, timestamp: Date.now() }
+                    }));
+                    console.log('🔄 pageNavigationReady event fired for:', pageFile);
+                });
             }
         }
 
-        executeScripts(doc) {
+        async executeScripts(doc) {
             // Get coordinator for script management
             const coordinator = window.NavigationCoordinator?.getInstance?.();
             
@@ -327,6 +336,9 @@ if (typeof FallbackManager === 'undefined') {
 
             const scripts = Array.from(doc.querySelectorAll('script'));
             console.log(`Executing ${scripts.length} scripts from new page`);
+
+            // Track promises for external scripts
+            const scriptPromises = [];
 
             scripts.forEach((oldScript, index) => {
                 try {
@@ -356,26 +368,31 @@ if (typeof FallbackManager === 'undefined') {
                     });
 
                     if (oldScript.innerHTML.trim()) {
-                        // Inline scripts - no wrapping needed, let them execute
+                        // Inline scripts - execute immediately
                         newScript.innerHTML = oldScript.innerHTML;
                     } else if (scriptSrc) {
-                        // External scripts
-                        newScript.onload = () => {
-                            // Register as loaded
-                            if (coordinator) {
-                                coordinator.registerScriptLoaded(scriptSrc);
-                            } else {
-                                window.loadedScripts.add(scriptSrc);
-                            }
+                        // External scripts - track loading with Promise
+                        const scriptPromise = new Promise((resolve, reject) => {
+                            newScript.onload = () => {
+                                // Register as loaded
+                                if (coordinator) {
+                                    coordinator.registerScriptLoaded(scriptSrc);
+                                } else {
+                                    window.loadedScripts.add(scriptSrc);
+                                }
+                                
+                                const scriptName = scriptSrc.split('/').pop().split('.')[0] + 'Loaded';
+                                window[scriptName] = true;
+                                console.log(`✓ External script loaded: ${scriptSrc}`);
+                                resolve();
+                            };
                             
-                            const scriptName = scriptSrc.split('/').pop().split('.')[0] + 'Loaded';
-                            window[scriptName] = true;
-                            console.log(`✓ External script loaded: ${scriptSrc}`);
-                        };
-                        
-                        newScript.onerror = (e) => {
-                            console.error(`✗ Failed to load script: ${scriptSrc}`, e);
-                        };
+                            newScript.onerror = (e) => {
+                                console.error(`✗ Failed to load script: ${scriptSrc}`, e);
+                                resolve(); // Resolve anyway to continue
+                            };
+                        });
+                        scriptPromises.push(scriptPromise);
                     }
 
                     // Add to document head for better loading order
@@ -396,6 +413,15 @@ if (typeof FallbackManager === 'undefined') {
                     console.error('Error creating/executing script:', error);
                 }
             });
+
+            // Wait for all external scripts to load
+            if (scriptPromises.length > 0) {
+                await Promise.all(scriptPromises);
+            }
+            
+            // Wait a brief moment for inline scripts to settle
+            await new Promise(resolve => setTimeout(resolve, 100));
+            console.log('✓ All page scripts loaded and executed');
         }
 
         init() {

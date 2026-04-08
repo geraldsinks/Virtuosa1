@@ -86,6 +86,51 @@ window.navigateTo = async function(url, options = {}) {
 };
 
 /**
+ * Initialize page on both initial load AND navigation
+ * Use this instead of DOMContentLoaded for SPA-compatible page setup
+ * 
+ * @param {function} callback - Function to run on page ready
+ * @param {boolean} runImmediately - If true, run now if already ready
+ * 
+ * @example
+ * window.onPageReady(() => {
+ *     setupForm();
+ *     attachEventListeners();
+ *     loadData();
+ * });
+ */
+window.onPageReady = function(callback, runImmediately = true) {
+    if (typeof callback !== 'function') {
+        console.error('onPageReady: callback must be a function');
+        return;
+    }
+    
+    // If DOMContentLoaded already fired (normal page load)
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+        if (runImmediately) {
+            // Run on next microtask to ensure DOM is settled
+            Promise.resolve().then(callback);
+        } else {
+            callback();
+        }
+    } else {
+        // Wait for DOMContentLoaded (initial page load only)
+        document.addEventListener('DOMContentLoaded', callback, { once: true });
+    }
+    
+    // ALSO listen for SPA navigation events (when router loads new page)
+    window.addEventListener('pageNavigationReady', () => {
+        // Run callback when navigating to this page via SPA
+        Promise.resolve().then(callback);
+    });
+    
+    // For backward compatibility, also dispatch events on window
+    window.addEventListener('navigationStateChanged', () => {
+        // This gives pages another opportunity to initialize
+    });
+};
+
+/**
  * Get the Navigation Coordinator instance
  */
 window.getNavigator = function() {
@@ -295,7 +340,8 @@ window.navigationBootstrap = {
     navigateTo: window.navigateTo,
     getNavigator: window.getNavigator,
     isProtectedRoute: window.isProtectedRoute,
-    getCurrentUrl: window.getCurrentUrl
+    getCurrentUrl: window.getCurrentUrl,
+    onPageReady: window.onPageReady
 };
 
 console.log('✓ Navigation Bootstrap initialized - waiting for DOM...');

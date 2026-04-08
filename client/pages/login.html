@@ -461,7 +461,8 @@
     </footer>
     <script>
         // Handle URL parameters for verification status
-        document.addEventListener('DOMContentLoaded', () => {
+        // Use window.onPageReady() instead of DOMContentLoaded to work with SPA navigation
+        window.onPageReady(() => {
             const urlParams = new URLSearchParams(window.location.search);
             const verified = urlParams.get('verified');
             const verification = urlParams.get('verification');
