@@ -216,6 +216,8 @@ if (typeof FallbackManager === 'undefined') {
         }
 
         navigate(path, params = {}) {
+            console.log('🔀 Navigating to:', path);
+            
             // Normalize the path
             let normalizedPath = path;
             if (normalizedPath.startsWith('/')) {
@@ -248,6 +250,7 @@ if (typeof FallbackManager === 'undefined') {
         }
 
         async loadPage(path, params = {}) {
+            console.log('📄 Loading page:', path);
             this.showLoading();
             const pathClean = path.split('?')[0].replace(/^\//, '').replace(/\.html$/, '');
             

@@ -256,6 +256,7 @@ function setupGlobalClickInterception() {
         
         // Only intercept internal links
         if (href.startsWith('/')) {
+            console.log('🔗 Link clicked:', href);
             e.preventDefault();
             window.navigateTo(href).catch(err => {
                 console.error('Navigation failed:', err);
