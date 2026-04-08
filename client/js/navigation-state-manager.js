@@ -1,54 +1,40 @@
 /**
  * DEPRECATED: Navigation State Manager
- * This component is deprecated in favor of Navigation Coordinator + Router system
- * Keeping for backward compatibility but it does NOT handle navigation anymore
+ * This file is kept ONLY for backward compatibility.
+ * It does nothing — all navigation is handled by router.js.
+ * 
+ * DO NOT add any logic here. If you need navigation functionality,
+ * use window.navigateTo() or window.router.navigate().
  */
-// NavigationStateManager is deprecated but kept for backward compatibility
-// Migration: use NavigationCoordinator + Router instead
+(function() {
+    'use strict';
 
-// Prevent this from registering or interfering
-if (window.NavigationStateManager) {
-    console.log('NavigationStateManager already exists, skipping re-initialization');
-} else {
-
-class NavigationStateManager {
-    constructor() {
-        // Silently skip re-initialization (deprecated - using Router instead)
-        if (window.navigationStateManager) return;
-        window.navigationStateManager = this;
-        
-        // DO NOT initialize - let Router handle everything
+    if (window.NavigationStateManager) {
+        return;
     }
-    
-    // Deprecated methods - redirect to router
-    async navigate(url, options = {}) {
-        // Silently delegate to Router (deprecated method)
+
+    function NavigationStateManager() {}
+
+    NavigationStateManager.prototype.navigate = function(url) {
         if (window.router && window.router.navigate) {
             return window.router.navigate(url);
         }
         window.location.href = url;
-    }
+    };
 
-    static navigate(url, options = {}) {
-        // Silently delegate to Router (deprecated method)
+    NavigationStateManager.navigate = function(url) {
         if (window.router && window.router.navigate) {
             return window.router.navigate(url);
         }
         window.location.href = url;
-    }
+    };
 
-    static getCurrentUrl() {
+    NavigationStateManager.getCurrentUrl = function() {
         return window.location.pathname;
-    }
+    };
 
-    static clearCache() {
-        console.log('NavigationStateManager cache clear is deprecated');
-    }
-}
+    NavigationStateManager.clearCache = function() {};
 
-// Export for backward compatibility
-window.NavigationStateManager = NavigationStateManager;
-window.navigate = NavigationStateManager.navigate;
-
-// Close conditional
-}
+    window.NavigationStateManager = NavigationStateManager;
+    window.navigate = NavigationStateManager.navigate;
+})();

@@ -781,12 +781,12 @@
     
     <!-- Navigation System Core (loaded via bootstrap, but safe to include) -->
     <script src="/js/navigation-coordinator.js"></script>
-    <script src="/js/router.js?v=202604081000"></script>
+    <script src="/js/router.js?v=202604081100"></script>
     
     <!-- Navigation Components & Helpers -->
     <script src="/js/navigation-state-manager.js" defer></script>
-    <script src="/js/unified-header-fixed.js?v=202604081000" defer></script>
-    <script src="/js/url-helper.js?v=202604081000" defer></script>
+    <script src="/js/unified-header-fixed.js?v=202604081100" defer></script>
+    <script src="/js/url-helper.js?v=202604081100" defer></script>
 </head>
 
 <body class="bg-gray-100 antialiased flex flex-col min-h-screen">
@@ -999,8 +999,10 @@
     <script src="/js/notification-modal.js" defer></script>
     <script>
         // Declare global variables before page initialization
-        let homeAllProducts = [];
-        let categoryGrid, adCardsWrapper, homeSearchInput, homeSearchButton, homeSearchSuggestions;
+        // Use var (not let/const) — var is re-declarable, preventing crashes
+        // if this script is ever re-executed during navigation edge cases
+        var homeAllProducts = [];
+        var categoryGrid, adCardsWrapper, homeSearchInput, homeSearchButton, homeSearchSuggestions;
 
         const initializeHomePage = () => {
             if (window.isIndexScriptRunning) return;

@@ -1,409 +1,297 @@
 /**
- * Global Navigation Bootstrap
- * Ensures the Navigation Coordinator + Router system is available on all pages
- * Version: v202604081000
+ * Virtuosa Navigation Bootstrap - v202604081100
  * 
- * This script should be loaded early on all pages to initialize the
- * unified navigation system globally.
+ * Global initialization script. Must load FIRST on every page.
+ * Responsibilities:
+ *  1. Intercept clicks on internal <a> links → convert to clean URLs
+ *  2. Provide window.navigateTo() API (until router.js loads and overrides it)
+ *  3. Provide window.onPageReady() for SPA-compatible page init
+ *  4. Track loaded scripts to prevent double-loading
  */
 
-console.log('🚀 Global Navigation Bootstrap starting...');
+(function() {
+    'use strict';
 
-// ============================================================================
-// PHASE 1: Initialize Global Script Registry
-// ============================================================================
+    // Prevent double-initialization
+    if (window._navigationBootstrapInitialized) {
+        return;
+    }
+    window._navigationBootstrapInitialized = true;
 
-if (!window.loadedScripts) {
-    window.loadedScripts = new Set();
-    document.querySelectorAll('script[src]').forEach(script => {
-        window.loadedScripts.add(script.src);
-    });
-    console.log(`✓ Script registry initialized with ${window.loadedScripts.size} scripts`);
-}
+    // =========================================================================
+    // 1. GLOBAL SCRIPT REGISTRY
+    // =========================================================================
 
-// Ensure the SPA initialization helper exists even if bootstrap is delayed or not loaded.
-if (typeof window.onPageReady !== 'function') {
-    window.__pageNavigationReadyState = window.__pageNavigationReadyState || { lastFired: null };
+    if (!window.loadedScripts) {
+        window.loadedScripts = new Set();
+        document.querySelectorAll('script[src]').forEach(function(script) {
+            window.loadedScripts.add(script.src);
+        });
+    }
 
-    window.onPageReady = function(callback, runImmediately = true) {
+    // =========================================================================
+    // 2. NAVIGATION STATE
+    // =========================================================================
+
+    window.navigationState = {
+        isReady: false,
+        _waiters: [],
+
+        waitForReady: function() {
+            if (this.isReady) return Promise.resolve();
+            return new Promise(function(resolve) {
+                window.navigationState._waiters.push(resolve);
+            });
+        },
+
+        markReady: function() {
+            if (this.isReady) return;
+            this.isReady = true;
+            this._waiters.forEach(function(resolve) { resolve(); });
+            this._waiters = [];
+            window.dispatchEvent(new CustomEvent('navigationSystemReady'));
+        }
+    };
+
+    // =========================================================================
+    // 3. CLEAN URL CONVERSION (lightweight version for before router loads)
+    // =========================================================================
+
+    /**
+     * Quick check if a URL is internal and should be intercepted.
+     * The full conversion happens in router.js's toCleanUrl().
+     */
+    function isInternalNavUrl(href) {
+        if (!href || typeof href !== 'string') return false;
+        
+        // Skip special protocols
+        if (href.startsWith('mailto:') || href.startsWith('tel:') ||
+            href.startsWith('javascript:') || href.startsWith('data:') ||
+            href.startsWith('#')) {
+            return false;
+        }
+
+        // Skip external URLs
+        if (href.startsWith('http://') || href.startsWith('https://')) {
+            try {
+                return new URL(href).origin === window.location.origin;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Relative or absolute internal paths
+        return true;
+    }
+
+    /**
+     * Lightweight clean URL conversion for before router.js loads.
+     * Router.js provides the full version via window.toCleanUrl().
+     */
+    function quickCleanUrl(href) {
+        // If the full router is loaded, use its converter
+        if (window.toCleanUrl) {
+            return window.toCleanUrl(href);
+        }
+
+        let url = href.trim();
+
+        // Strip ../ and ./
+        url = url.replace(/^(\.\.\/)+/, '/').replace(/^\.\//, '/');
+        if (!url.startsWith('/')) url = '/' + url;
+
+        // Separate query/hash
+        let suffix = '';
+        const hashIdx = url.indexOf('#');
+        if (hashIdx !== -1) {
+            suffix = url.substring(hashIdx);
+            url = url.substring(0, hashIdx);
+        }
+        const queryIdx = url.indexOf('?');
+        if (queryIdx !== -1) {
+            suffix = url.substring(queryIdx) + suffix;
+            url = url.substring(0, queryIdx);
+        }
+
+        // /index.html → /
+        if (url === '/index.html') return '/' + suffix;
+
+        // /pages/X.html → /X (with special case mapping)
+        const pagesMatch = url.match(/^\/pages\/(.+?)\.html$/);
+        if (pagesMatch) {
+            const name = pagesMatch[1];
+            const specialMap = {
+                'buyer-dashboard': 'dashboard',
+                'admin-dashboard': 'admin',
+                'product-detail': 'product',
+                'contact-support': 'contact'
+            };
+            return '/' + (specialMap[name] || name) + suffix;
+        }
+
+        // Strip .html from any path
+        if (url.endsWith('.html')) {
+            url = url.replace(/\.html$/, '');
+        }
+
+        return url + suffix;
+    }
+
+    // =========================================================================
+    // 4. GLOBAL CLICK INTERCEPTION
+    // =========================================================================
+
+    function handleNavClick(e) {
+        var link = e.target.closest('a');
+        if (!link) return;
+
+        var href = link.getAttribute('href');
+        if (!href) return;
+
+        // Skip links that shouldn't be intercepted
+        if (link.hasAttribute('download') ||
+            link.getAttribute('target') === '_blank' ||
+            link.getAttribute('data-no-navigate') === 'true') {
+            return;
+        }
+
+        // Only intercept internal navigation URLs
+        if (!isInternalNavUrl(href)) return;
+
+        // Convert to clean URL
+        var cleanUrl = quickCleanUrl(href);
+        
+        // If the clean URL is the same as the current page, do nothing
+        var currentPath = window.location.pathname + window.location.search;
+        if (cleanUrl === currentPath || cleanUrl === quickCleanUrl(currentPath)) {
+            e.preventDefault();
+            return;
+        }
+
+        // Prevent default and navigate via clean URL (full page reload)
+        e.preventDefault();
+
+        // If router is loaded, use it (it handles auth checks, etc.)
+        if (window.router && typeof window.router.navigate === 'function') {
+            window.router.navigate(href);
+        } else {
+            // Router not yet loaded, navigate directly with clean URL
+            window.location.href = cleanUrl;
+        }
+    }
+
+    // Attach click interception - use capture phase so it fires before
+    // any other click handlers on the page
+    document.addEventListener('click', handleNavClick, true);
+
+    // =========================================================================
+    // 5. EARLY navigateTo() (before router.js loads)
+    // =========================================================================
+
+    if (typeof window.navigateTo !== 'function') {
+        window.navigateTo = function(url) {
+            if (window.router && typeof window.router.navigate === 'function') {
+                return window.router.navigate(url);
+            }
+            // Fallback: convert to clean URL and navigate
+            var cleanUrl = quickCleanUrl(url);
+            window.location.href = cleanUrl || url;
+        };
+    }
+
+    // =========================================================================
+    // 6. onPageReady() — Works on initial load (replaces DOMContentLoaded)
+    // =========================================================================
+
+    /**
+     * Register a callback to run when the page is ready.
+     * In this hybrid architecture (full page reloads), this is just a
+     * DOMContentLoaded wrapper. It's kept for API compatibility so existing
+     * page code using window.onPageReady() continues to work.
+     */
+    window.onPageReady = function(callback) {
         if (typeof callback !== 'function') {
             console.error('onPageReady: callback must be a function');
             return;
         }
 
-        const safeInvoke = () => {
+        var safeCall = function() {
             try {
                 callback();
-            } catch (error) {
-                console.error('onPageReady callback error:', error);
+            } catch (err) {
+                console.error('onPageReady callback error:', err);
             }
         };
 
-        if (document.readyState === 'interactive' || document.readyState === 'complete') {
-            if (runImmediately) {
-                Promise.resolve().then(safeInvoke);
-            } else {
-                safeInvoke();
-            }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', safeCall, { once: true });
         } else {
-            document.addEventListener('DOMContentLoaded', safeInvoke, { once: true });
+            // DOM already ready — run on next microtask
+            Promise.resolve().then(safeCall);
         }
-
-        if (window.__pageNavigationReadyState.lastFired) {
-            Promise.resolve().then(safeInvoke);
-            return;
-        }
-
-        window.addEventListener('pageNavigationReady', safeInvoke, { once: true });
     };
-}
 
-// Polyfill legacy DOMContentLoaded handlers for SPA page injection.
-(function() {
-    const originalAddEventListener = document.addEventListener.bind(document);
+    // =========================================================================
+    // 7. HELPER APIS (for backward compatibility)
+    // =========================================================================
 
-    document.addEventListener = function(type, listener, options) {
-        if (type === 'DOMContentLoaded' && (document.readyState === 'interactive' || document.readyState === 'complete')) {
-            const event = new Event('DOMContentLoaded');
-            if (typeof listener === 'function') {
-                Promise.resolve().then(() => listener.call(document, event));
-            } else if (listener && typeof listener.handleEvent === 'function') {
-                Promise.resolve().then(() => listener.handleEvent(event));
-            }
-            return;
+    window.getNavigator = function() {
+        if (window.NavigationCoordinator && window.NavigationCoordinator.getInstance) {
+            return window.NavigationCoordinator.getInstance();
         }
-
-        return originalAddEventListener(type, listener, options);
-    };
-})();
-
-window.addEventListener('pageNavigationReady', () => {
-    window.__pageNavigationReadyState = window.__pageNavigationReadyState || { lastFired: null };
-    window.__pageNavigationReadyState.lastFired = Date.now();
-});
-
-// ============================================================================
-// PHASE 2: Global Navigation State
-// ============================================================================
-
-window.navigationState = {
-    isInitialized: false,
-    isReady: false,
-    waiters: [],
-    
-    /**
-     * Wait for navigation system to be ready
-     */
-    async waitForReady() {
-        if (this.isReady) {
-            return Promise.resolve();
-        }
-        
-        return new Promise(resolve => {
-            this.waiters.push(resolve);
-        });
-    },
-    
-    /**
-     * Mark navigation system as ready
-     */
-    markReady() {
-        if (this.isReady) return;
-        this.isReady = true;
-        console.log('✓ Navigation system is READY for all pages');
-        
-        // Resolve all waiters
-        this.waiters.forEach(resolve => resolve());
-        this.waiters = [];
-        
-        // Dispatch ready event
-        window.dispatchEvent(new CustomEvent('navigationSystemReady'));
-    }
-};
-
-// ============================================================================
-// PHASE 3: Global Navigation Helpers
-// ============================================================================
-
-/**
- * Navigate to a URL using the SPA navigation system
- * @param {string} url - URL to navigate to
- * @param {object} options - Navigation options
- */
-window.navigateTo = async function(url, options = {}) {
-    // Wait for router to be ready
-    if (!window.router) {
-        console.warn('Router not available yet, waiting...');
-        await window.navigationState.waitForReady();
-    }
-    
-    if (window.router && typeof window.router.navigate === 'function') {
-        return window.router.navigate(url, options);
-    }
-    
-    // Fallback
-    console.warn('Router navigation unavailable, using direct navigation');
-    window.location.href = url;
-};
-
-/**
- * Initialize page on both initial load AND navigation
- * Use this instead of DOMContentLoaded for SPA-compatible page setup
- * 
- * @param {function} callback - Function to run on page ready
- * @param {boolean} runImmediately - If true, run now if already ready
- * 
- * @example
- * window.onPageReady(() => {
- *     setupForm();
- *     attachEventListeners();
- *     loadData();
- * });
- */
-window.onPageReady = function(callback, runImmediately = true) {
-    if (typeof callback !== 'function') {
-        console.error('onPageReady: callback must be a function');
-        return;
-    }
-    
-    // If DOMContentLoaded already fired (normal page load)
-    if (document.readyState === 'interactive' || document.readyState === 'complete') {
-        if (runImmediately) {
-            // Run on next microtask to ensure DOM is settled
-            Promise.resolve().then(callback);
-        } else {
-            callback();
-        }
-    } else {
-        // Wait for DOMContentLoaded (initial page load only)
-        document.addEventListener('DOMContentLoaded', callback, { once: true });
-    }
-    
-    // ALSO listen for SPA navigation events (when router loads new page)
-    window.addEventListener('pageNavigationReady', () => {
-        // Run callback when navigating to this page via SPA
-        Promise.resolve().then(callback);
-    });
-    
-    // For backward compatibility, also dispatch events on window
-    window.addEventListener('navigationStateChanged', () => {
-        // This gives pages another opportunity to initialize
-    });
-};
-
-/**
- * Get the Navigation Coordinator instance
- */
-window.getNavigator = function() {
-    if (!window.NavigationCoordinator) {
-        console.warn('NavigationCoordinator not yet available');
         return null;
-    }
-    return window.NavigationCoordinator.getInstance();
-};
+    };
 
-/**
- * Check if a route is protected (requires authentication)
- */
-window.isProtectedRoute = function(route) {
-    const coordinator = window.getNavigator();
-    if (!coordinator) return false;
-    return coordinator.isProtectedRoute(route);
-};
-
-/**
- * Get current URL from navigator
- */
-window.getCurrentUrl = function() {
-    const coordinator = window.getNavigator();
-    if (coordinator) {
-        return coordinator.currentUrl;
-    }
-    return window.location.pathname;
-};
-
-// ============================================================================
-// PHASE 4: Global Click Interception
-// ============================================================================
-
-/**
- * Setup global link click interception
- */
-function setupGlobalClickInterception() {
-    // Only setup once
-    if (window.__clickInterceptionSetup) {
-        return;
-    }
-    window.__clickInterceptionSetup = true;
-    
-    document.addEventListener('click', (e) => {
-        const link = e.target.closest('a');
-        if (!link) return;
-        
-        const href = link.getAttribute('href');
-        
-        // Skip non-navigation links
-        if (!href || 
-            href.startsWith('http') || 
-            href.startsWith('mailto:') || 
-            href.startsWith('tel:') || 
-            href.startsWith('#') ||
-            link.hasAttribute('download') ||
-            link.getAttribute('target') === '_blank' ||
-            link.getAttribute('data-no-navigate') === 'true') {
-            return;
+    window.isProtectedRoute = function(route) {
+        if (window.router && window.router.isProtectedRoute) {
+            return window.router.isProtectedRoute(route);
         }
-        
-        // Only intercept internal links
-        if (href.startsWith('/')) {
-            console.log('🔗 Link clicked:', href);
-            e.preventDefault();
-            window.navigateTo(href).catch(err => {
-                console.error('Navigation failed:', err);
-                // Fallback
-                window.location.href = href;
-            });
-        }
-    }, true); // Use capture phase for better control
-    
-    console.log('✓ Global click interception setup complete');
-}
+        return false;
+    };
 
-// Setup click interception as soon as DOM is interactive
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupGlobalClickInterception);
-} else {
-    setupGlobalClickInterception();
-}
+    window.getCurrentUrl = function() {
+        return window.location.pathname;
+    };
 
-// ============================================================================
-// PHASE 5: Ensure Navigation System Scripts Load in Correct Order
-// ============================================================================
+    // =========================================================================
+    // 8. READY STATE CHECK
+    // =========================================================================
 
-/**
- * Ensure navigation scripts are loaded in the correct order
- */
-function ensureNavigationScriptsLoaded() {
-    const scripts = [
-        '/js/navigation-coordinator.js',
-        '/js/router.js'
-    ];
-    
-    const requiredScripts = scripts.filter(src => {
-        const absoluteUrl = new URL(src, window.location.origin).href;
-        for (let loaded of window.loadedScripts) {
-            if (loaded.includes(src) || loaded === absoluteUrl) {
-                return false;
-            }
-        }
-        return true;
-    });
-    
-    if (requiredScripts.length === 0) {
-        console.log('✓ Navigation scripts already loaded');
-        scheduleReadyCheck();
-        return;
-    }
-    
-    console.log(`⏳ Loading ${requiredScripts.length} navigation script(s)...`);
-    
-    let loadedCount = 0;
-    requiredScripts.forEach(src => {
-        const script = document.createElement('script');
-        script.src = src;
-        script.type = 'text/javascript';
-        
-        script.onload = () => {
-            loadedCount++;
-            console.log(`✓ Loaded: ${src} (${loadedCount}/${requiredScripts.length})`);
-            window.loadedScripts.add(src);
-            
-            if (loadedCount === requiredScripts.length) {
-                console.log('✓ All navigation scripts loaded');
-                scheduleReadyCheck();
-            }
-        };
-        
-        script.onerror = () => {
-            console.error(`✗ Failed to load: ${src}`);
-        };
-        
-        document.head.appendChild(script);
-    });
-}
-
-// ============================================================================
-// PHASE 6: Ready State Checking
-// ============================================================================
-
-/**
- * Check if the navigation system is ready
- */
-function checkNavigationReady() {
-    const hasCoordinator = typeof window.NavigationCoordinator !== 'undefined' && 
-                           window.NavigationCoordinator.getInstance;
-    const hasRouter = typeof window.router !== 'undefined' && 
-                      window.router.navigate;
-    
-    if (hasCoordinator && hasRouter) {
-        console.log('✓ Navigation system fully initialized');
-        window.navigationState.markReady();
-        return true;
-    }
-    
-    return false;
-}
-
-/**
- * Schedule ready check with retries
- */
-function scheduleReadyCheck() {
-    let attempts = 0;
-    const maxAttempts = 50; // 5 seconds max
-    
-    const checkInterval = setInterval(() => {
-        attempts++;
-        
-        if (checkNavigationReady()) {
-            clearInterval(checkInterval);
-            return;
-        }
-        
-        if (attempts >= maxAttempts) {
-            clearInterval(checkInterval);
-            console.warn('⚠️  Navigation system initialization timeout - proceeding with partial system');
+    function checkReady() {
+        // Router loaded? Mark as ready
+        if (window.router && typeof window.router.navigate === 'function') {
             window.navigationState.markReady();
+            return true;
+        }
+        return false;
+    }
+
+    // Check periodically until router loads
+    var readyAttempts = 0;
+    var readyInterval = setInterval(function() {
+        readyAttempts++;
+        if (checkReady() || readyAttempts >= 50) {
+            clearInterval(readyInterval);
+            // Even if router didn't load in time, mark ready to unblock waiters
+            if (!window.navigationState.isReady) {
+                window.navigationState.markReady();
+            }
         }
     }, 100);
-}
 
-// ============================================================================
-// PHASE 7: Initialization
-// ============================================================================
+    // =========================================================================
+    // 9. EXPOSE BOOTSTRAP STATUS
+    // =========================================================================
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('📄 DOM loaded - initializing navigation system');
-        ensureNavigationScriptsLoaded();
-    });
-} else {
-    console.log('📄 DOM already loaded - initializing navigation system');
-    ensureNavigationScriptsLoaded();
-}
+    window.navigationBootstrap = {
+        version: 'v202604081100',
+        isReady: function() { return window.navigationState.isReady; },
+        waitForReady: function() { return window.navigationState.waitForReady(); },
+        navigateTo: window.navigateTo,
+        getNavigator: window.getNavigator,
+        isProtectedRoute: window.isProtectedRoute,
+        getCurrentUrl: window.getCurrentUrl,
+        onPageReady: window.onPageReady
+    };
 
-// ============================================================================
-// PHASE 8: Expose Bootstrap Status
-// ============================================================================
-
-window.navigationBootstrap = {
-    version: 'v202604081000',
-    isReady: () => window.navigationState.isReady,
-    waitForReady: () => window.navigationState.waitForReady(),
-    navigateTo: window.navigateTo,
-    getNavigator: window.getNavigator,
-    isProtectedRoute: window.isProtectedRoute,
-    getCurrentUrl: window.getCurrentUrl,
-    onPageReady: window.onPageReady
-};
-
-console.log('✓ Navigation Bootstrap initialized - waiting for DOM...');
+})();

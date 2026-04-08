@@ -3,6 +3,9 @@
  * Provides critical CSS extraction and inlining for performance optimization
  */
 
+// Guard against re-declaration
+if (typeof window.CriticalCSSManager === 'undefined') {
+
 class CriticalCSSManager {
     constructor() {
         this.criticalCSS = this.generateCriticalCSS();
@@ -612,6 +615,7 @@ criticalCSSManager.init().catch(error => {
 });
 
 // Make available globally
+window.CriticalCSSManager = CriticalCSSManager;
 window.criticalCSSManager = criticalCSSManager;
 
 // Export for module usage
@@ -621,3 +625,5 @@ if (typeof module !== 'undefined' && module.exports) {
         criticalCSSManager
     };
 }
+
+} // end guard: if (typeof window.CriticalCSSManager === 'undefined')
