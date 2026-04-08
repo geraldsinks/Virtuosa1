@@ -21,6 +21,30 @@ if (!window.loadedScripts) {
     console.log(`✓ Script registry initialized with ${window.loadedScripts.size} scripts`);
 }
 
+// Ensure the SPA initialization helper exists even if bootstrap is delayed or not loaded.
+if (typeof window.onPageReady !== 'function') {
+    window.onPageReady = function(callback, runImmediately = true) {
+        if (typeof callback !== 'function') {
+            console.error('onPageReady: callback must be a function');
+            return;
+        }
+
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+            if (runImmediately) {
+                Promise.resolve().then(callback);
+            } else {
+                callback();
+            }
+        } else {
+            document.addEventListener('DOMContentLoaded', callback, { once: true });
+        }
+
+        window.addEventListener('pageNavigationReady', () => {
+            Promise.resolve().then(callback);
+        });
+    };
+}
+
 // ============================================================================
 // PHASE 2: Global Navigation State
 // ============================================================================

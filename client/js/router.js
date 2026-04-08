@@ -334,6 +334,30 @@ if (typeof FallbackManager === 'undefined') {
                 window.loadedScripts = new Set();
             }
 
+            // Provide a safe fallback for page initialization if the bootstrap helper is not present yet.
+            if (typeof window.onPageReady !== 'function') {
+                window.onPageReady = function(callback, runImmediately = true) {
+                    if (typeof callback !== 'function') {
+                        console.error('onPageReady: callback must be a function');
+                        return;
+                    }
+
+                    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+                        if (runImmediately) {
+                            Promise.resolve().then(callback);
+                        } else {
+                            callback();
+                        }
+                    } else {
+                        document.addEventListener('DOMContentLoaded', callback, { once: true });
+                    }
+
+                    window.addEventListener('pageNavigationReady', () => {
+                        Promise.resolve().then(callback);
+                    });
+                };
+            }
+
             const scripts = Array.from(doc.querySelectorAll('script'));
             console.log(`Executing ${scripts.length} scripts from new page`);
 
