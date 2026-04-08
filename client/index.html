@@ -1002,7 +1002,7 @@
         let homeAllProducts = [];
         let categoryGrid, adCardsWrapper, homeSearchInput, homeSearchButton, homeSearchSuggestions;
 
-        window.onPageReady(() => {
+        const initializeHomePage = () => {
             if (window.isIndexScriptRunning) return;
             window.isIndexScriptRunning = true;
 
@@ -1689,7 +1689,15 @@
             // Load marketing data on page load
             loadMarketingData();
             initHomeSearch();
-        });
+        };
+
+        if (typeof window.onPageReady === 'function') {
+            window.onPageReady(initializeHomePage);
+        } else if (document.readyState === 'interactive' || document.readyState === 'complete') {
+            initializeHomePage();
+        } else {
+            document.addEventListener('DOMContentLoaded', initializeHomePage, { once: true });
+        }
     </script>
     
     <!-- Unified Header Scripts -->

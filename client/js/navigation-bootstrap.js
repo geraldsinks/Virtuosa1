@@ -23,27 +23,45 @@ if (!window.loadedScripts) {
 
 // Ensure the SPA initialization helper exists even if bootstrap is delayed or not loaded.
 if (typeof window.onPageReady !== 'function') {
+    window.__pageNavigationReadyState = window.__pageNavigationReadyState || { lastFired: null };
+
     window.onPageReady = function(callback, runImmediately = true) {
         if (typeof callback !== 'function') {
             console.error('onPageReady: callback must be a function');
             return;
         }
 
+        const safeInvoke = () => {
+            try {
+                callback();
+            } catch (error) {
+                console.error('onPageReady callback error:', error);
+            }
+        };
+
         if (document.readyState === 'interactive' || document.readyState === 'complete') {
             if (runImmediately) {
-                Promise.resolve().then(callback);
+                Promise.resolve().then(safeInvoke);
             } else {
-                callback();
+                safeInvoke();
             }
         } else {
-            document.addEventListener('DOMContentLoaded', callback, { once: true });
+            document.addEventListener('DOMContentLoaded', safeInvoke, { once: true });
         }
 
-        window.addEventListener('pageNavigationReady', () => {
-            Promise.resolve().then(callback);
-        });
+        if (window.__pageNavigationReadyState.lastFired) {
+            Promise.resolve().then(safeInvoke);
+            return;
+        }
+
+        window.addEventListener('pageNavigationReady', safeInvoke, { once: true });
     };
 }
+
+window.addEventListener('pageNavigationReady', () => {
+    window.__pageNavigationReadyState = window.__pageNavigationReadyState || { lastFired: null };
+    window.__pageNavigationReadyState.lastFired = Date.now();
+});
 
 // ============================================================================
 // PHASE 2: Global Navigation State
