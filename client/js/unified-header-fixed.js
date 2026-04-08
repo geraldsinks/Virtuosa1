@@ -196,6 +196,16 @@ class UnifiedHeader {
             #desktop-search-input:focus, #mobile-search-input:focus {
                 box-shadow: inset 0 0 0 2px #FFD700;
             }
+
+            /* Failsafe layout breakpoints for dynamic header injection */
+            @media (min-width: 1024px) {
+                #main-site-header .lg\\:flex { display: flex !important; }
+                #main-site-header .lg\\:block { display: block !important; }
+                #main-site-header .lg\\:inline-block { display: inline-block !important; }
+                #main-site-header .lg\\:hidden { display: none !important; }
+                #main-site-header .lg\\:w-auto { width: auto !important; }
+                #main-site-header .lg\\:px-8 { padding-left: 2rem !important; padding-right: 2rem !important; }
+            }
         `;
         document.head.appendChild(style);
     }
