@@ -768,7 +768,7 @@ function renderAuthComponent(type) {
                         placeholder="Enter your email">
                 </div>
                 <div>
-                    <label for="login-password" class="form-label block text-sm">Password</label>
+                    <label for="login-password-input" class="form-label block text-sm">Password</label>
                     <div class="relative">
                         <input type="password" id="login-password-input" name="password" required 
                             class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400 pr-12" 

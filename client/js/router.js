@@ -12,6 +12,7 @@ if (!window.loadedScripts) {
     document.querySelectorAll('script[src]').forEach(script => {
         window.loadedScripts.add(script.src);
     });
+    console.log(`✓ Global script registry initialized with ${window.loadedScripts.size} scripts`);
 }
 
 if (typeof FallbackManager === 'undefined') {

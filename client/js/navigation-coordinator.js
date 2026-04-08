@@ -80,25 +80,28 @@ class NavigationCoordinator {
 
     /**
      * Initialize the script registry from currently loaded scripts
+     * Uses global window.loadedScripts as single source of truth
      */
     _initializeScriptRegistry() {
         // Ensure global registry exists
         if (!window.loadedScripts) {
             window.loadedScripts = new Set();
+            // Only initialize if it wasn't already done by bootstrap
+            document.querySelectorAll('script[src]').forEach(script => {
+                window.loadedScripts.add(script.src);
+            });
         }
         
-        // Track all currently loaded scripts
-        document.querySelectorAll('script[src]').forEach(script => {
-            const src = script.src;
-            this.loadedScripts.add(src);
-            window.loadedScripts.add(src);
+        // Sync from global registry (avoid duplication)
+        window.loadedScripts.forEach(scriptSrc => {
+            this.loadedScripts.add(scriptSrc);
             
             // Extract script name for tracking
-            const scriptName = src.split('/').pop().split('?')[0];
-            this.scriptMap.set(scriptName, src);
+            const scriptName = scriptSrc.split('/').pop().split('?')[0];
+            this.scriptMap.set(scriptName, scriptSrc);
         });
         
-        console.log(`✓ Script registry initialized with ${this.loadedScripts.size} scripts`);
+        console.log(`✓ NavigationCoordinator synced with ${this.loadedScripts.size} scripts from global registry`);
     }
 
     /**

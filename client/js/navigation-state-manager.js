@@ -3,7 +3,8 @@
  * This component is deprecated in favor of Navigation Coordinator + Router system
  * Keeping for backward compatibility but it does NOT handle navigation anymore
  */
-console.warn('NavigationStateManager is deprecated - use NavigationCoordinator + Router instead');
+// NavigationStateManager is deprecated but kept for backward compatibility
+// Migration: use NavigationCoordinator + Router instead
 
 // Prevent this from registering or interfering
 if (window.NavigationStateManager) {
@@ -12,7 +13,7 @@ if (window.NavigationStateManager) {
 
 class NavigationStateManager {
     constructor() {
-        console.warn('NavigationStateManager is deprecated - functionality handled by Router');
+        // Silently skip re-initialization (deprecated - using Router instead)
         if (window.navigationStateManager) return;
         window.navigationStateManager = this;
         
@@ -21,7 +22,7 @@ class NavigationStateManager {
     
     // Deprecated methods - redirect to router
     async navigate(url, options = {}) {
-        console.warn('NavigationStateManager.navigate() is deprecated - delegating to Router');
+        // Silently delegate to Router (deprecated method)
         if (window.router && window.router.navigate) {
             return window.router.navigate(url);
         }
@@ -29,7 +30,7 @@ class NavigationStateManager {
     }
 
     static navigate(url, options = {}) {
-        console.warn('NavigationStateManager.navigate() is deprecated');
+        // Silently delegate to Router (deprecated method)
         if (window.router && window.router.navigate) {
             return window.router.navigate(url);
         }
