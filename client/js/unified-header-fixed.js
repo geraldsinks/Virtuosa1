@@ -169,18 +169,6 @@ class UnifiedHeader {
                 display: none;
             }
             
-            /* Hide on scroll down */
-            .header-scroller-hidden {
-                transform: translateY(-100%);
-                opacity: 0;
-                pointer-events: none;
-                margin-top: -50px; /* Collapse the space */
-            }
-            #universal-category-scroller-wrapper {
-                transition: transform 0.3s ease, margin-top 0.3s ease, opacity 0.3s ease;
-                z-index: 40;
-            }
-            
             #side-menu-content.active {
                 transform: translateX(0) !important;
             }
@@ -280,11 +268,13 @@ class UnifiedHeader {
         </div>
     </div>
     
-    <!-- Universal Horizontal Scroller Wrapper -->
-    <div id="universal-category-scroller-wrapper" class="bg-dark-navy border-t border-gray-800 origin-top">
-        <!-- Injected dynamically -->
     </div>
 </header>
+    
+<!-- Universal Horizontal Scroller Wrapper -->
+<div id="universal-category-scroller-wrapper" class="bg-dark-navy border-t border-gray-800 origin-top">
+    <!-- Injected dynamically -->
+</div>
 
 <!-- Unified Side Navigation Drawer -->
 <div id="side-menu-overlay" class="fixed inset-0 bg-black/70 z-[60] hidden transition-opacity opacity-0"></div>
@@ -387,21 +377,42 @@ class UnifiedHeader {
         
         try {
             let activeCats = [];
+            
+            // Try fetching marketing cards first
             const mkResponse = await fetch(`${window.API_BASE}/public/marketing/category-cards`).catch(() => null);
             if (mkResponse && mkResponse.ok) {
                 const categoryCards = await mkResponse.json();
                 activeCats = categoryCards.filter(c => c.active).sort((a,b) => a.displayOrder - b.displayOrder);
             }
             
+            // If empty, fetch from standard categories to secure the circular images properly
             if (activeCats.length === 0) {
                 const fallbackNames = ['Hot Deals', 'Best Sellers', "Men's Clothing", "Women's Clothing", 'Electronics', 'Computers & Software', 'Shoes', 'Accessories'];
-                activeCats = fallbackNames.map((name, index) => ({
-                    title: name,
-                    link: `/products?category=${encodeURIComponent(name)}`,
-                    image: null,
-                    active: true,
-                    displayOrder: index
-                }));
+                try {
+                    const fallbackResponse = await fetch(`${window.API_BASE}/categories`);
+                    if (fallbackResponse.ok) {
+                        const standardCats = await fallbackResponse.json();
+                        activeCats = fallbackNames.map((name, index) => {
+                            const found = standardCats.find(c => c.name === name);
+                            return {
+                                title: name,
+                                link: `/products?category=${encodeURIComponent(name)}`,
+                                image: found ? found.image : null,
+                                active: true,
+                                displayOrder: index
+                            };
+                        });
+                    }
+                } catch (e) {
+                    // Final hardcoded fallback if absolutely everything fails
+                    activeCats = fallbackNames.map((name, index) => ({
+                        title: name,
+                        link: `/products?category=${encodeURIComponent(name)}`,
+                        image: null,
+                        active: true,
+                        displayOrder: index
+                    }));
+                }
             }
             
             const scrollerContainer = document.createElement('div');
@@ -454,21 +465,7 @@ class UnifiedHeader {
     }
 
     initializeHideOnScroll() {
-        const scrollerWrapper = document.getElementById('universal-category-scroller-wrapper');
-        const header = document.getElementById('main-site-header');
-        if (!scrollerWrapper || !header) return;
-
-        window.addEventListener('scroll', () => {
-            const currentScrollY = window.scrollY;
-            if (currentScrollY > 100 && currentScrollY > this.lastScrollY) {
-                // Scrolling down
-                scrollerWrapper.classList.add('header-scroller-hidden');
-            } else {
-                // Scrolling up
-                scrollerWrapper.classList.remove('header-scroller-hidden');
-            }
-            this.lastScrollY = currentScrollY;
-        }, { passive: true });
+        // Disabled: The scroller is now outside the sticky header and scrolls away natively.
     }
 
     initializeSideMenu() {
