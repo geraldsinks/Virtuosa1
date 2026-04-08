@@ -203,76 +203,66 @@ class UnifiedHeader {
     getUnifiedHeaderHTML() {
         return `
 <!-- Universal Header Top Row -->
-<header id="main-site-header" class="bg-navy text-white shadow-md sticky top-0 z-50">
-    <div class="container mx-auto px-4 py-2 md:py-3">
-        <div class="flex items-center justify-between gap-3 md:gap-6">
-            <!-- Left: Mobile Menu Toggle & Logo -->
-            <div class="flex items-center gap-3 md:gap-4 shrink-0">
-                <button id="mobile-menu-toggle" class="text-white hover:text-gold transition-colors p-1 md:p-2 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:h-7 md:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<header id="main-site-header" class="text-white shadow-lg sticky top-0 z-50 bg-gradient-to-r from-[#0A1128] via-[#101b3b] to-[#0A1128] backdrop-blur-md border-b border-white/10">
+    <div class="container mx-auto px-4 py-3 md:py-4">
+        <!-- Row 1: Menus, Logo, Actions -->
+        <div class="flex items-center justify-between relative">
+            <!-- Left: Mobile Menu Toggle -->
+            <div class="flex items-center shrink-0 z-10 w-1/3">
+                <button id="mobile-menu-toggle" class="text-white hover:text-gold transition-colors p-1 md:p-2 flex items-center group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:h-7 md:w-7 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
-                    <span class="hidden md:inline-block text-sm font-bold ml-1">All</span>
+                    <span class="hidden md:inline-block text-sm font-bold ml-2 tracking-wide uppercase">All</span>
                 </button>
-                <a href="/" class="text-xl md:text-2xl font-bold text-gold hover:text-yellow-400 transition-colors tracking-tight">Virtuosa</a>
             </div>
 
-            <!-- Middle: Desktop Search Bar -->
-            <div class="hidden md:flex flex-1 max-w-3xl">
-                <div class="relative w-full flex">
-                    <input id="desktop-search-input" type="text" placeholder="Search for products, categories, or brands..." 
-                           class="w-full pl-4 pr-12 py-2.5 rounded-l-lg bg-white text-gray-900 border-none focus:outline-none">
-                    <button id="desktop-search-button" class="bg-gold px-5 rounded-r-lg text-navy hover:bg-yellow-400 transition-colors flex items-center justify-center">
-                        <i class="fas fa-search text-lg"></i>
-                    </button>
-                    <div id="desktop-search-suggestions" class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-80 overflow-y-auto hidden z-50 text-gray-800"></div>
-                </div>
+            <!-- Center: perfectly centered Logo -->
+            <div class="absolute left-1/2 transform -translate-x-1/2 z-0 flex justify-center w-auto">
+                <a href="/" class="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-gold to-yellow-300 hover:scale-105 transition-all tracking-tight drop-shadow-sm">Virtuosa</a>
             </div>
 
             <!-- Right: Actions -->
-            <div class="flex items-center space-x-4 md:space-x-6 shrink-0">
-                <a href="/notifications" class="relative text-white hover:text-gold transition-colors">
-                    <i class="far fa-bell text-xl"></i>
-                    <span id="notification-badge" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center hidden px-1">0</span>
+            <div class="flex items-center justify-end space-x-5 md:space-x-7 shrink-0 z-10 w-1/3">
+                <a href="/notifications" class="relative text-white hover:text-gold transition-colors group">
+                    <i class="far fa-bell text-xl md:text-2xl group-hover:scale-110 transition-transform"></i>
+                    <span id="notification-badge" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center hidden px-1 shadow-lg border border-red-400">0</span>
                 </a>
                 
-                <a href="/login" id="header-login-link" class="hidden md:flex flex-col text-white hover:text-gold transition-colors justify-center leading-tight">
-                    <span class="text-[11px] font-medium text-gray-300" id="header-greeting">Hello, Sign in</span>
-                    <span class="text-sm font-bold">Account</span>
+                <a href="/login" id="header-login-link" class="hidden md:flex flex-col text-white hover:text-gold transition-colors justify-center leading-tight items-end">
+                    <span class="text-[10px] font-medium text-gray-300 uppercase tracking-wider" id="header-greeting">Hello, Sign in</span>
+                    <span class="text-sm font-bold tracking-wide">Account</span>
                 </a>
 
                 <div id="user-dropdown-container" class="relative hidden md:block">
                     <!-- Dropdown structure populated by auth state -->
                 </div>
 
-                <a href="/cart" class="relative text-white hover:text-gold transition-colors flex items-center gap-1">
+                <a href="/cart" class="relative text-white hover:text-gold transition-colors flex items-center gap-1 group">
                     <div class="relative">
-                        <i class="fas fa-shopping-cart text-xl md:text-2xl"></i>
-                        <span class="cart-badge-count absolute -top-1.5 -right-2 bg-gold text-navy text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center hidden px-1">0</span>
+                        <i class="fas fa-shopping-cart text-xl md:text-2xl group-hover:scale-110 transition-transform"></i>
+                        <span class="cart-badge-count absolute -top-1.5 -right-2 bg-gold text-navy text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center hidden px-1 shadow-lg">0</span>
                     </div>
-                    <span class="hidden md:block font-bold mt-2">Cart</span>
                 </a>
             </div>
         </div>
         
-        <!-- Mobile Search Bar (Row 2, hidden on desktop) -->
-        <div class="mt-3 md:hidden">
-            <div class="relative flex">
-                <input id="mobile-search-input" type="text" placeholder="Search..." 
-                       class="w-full pl-4 pr-10 py-2 rounded-l-lg bg-white text-gray-900 border-none focus:outline-none">
-                <button id="mobile-search-button" class="bg-gold px-4 rounded-r-lg text-navy flex items-center justify-center">
-                    <i class="fas fa-search"></i>
+        <!-- Row 2: Universal Search Bar -->
+        <div class="mt-4 md:mt-5 max-w-4xl mx-auto w-full px-2 md:px-0">
+            <div class="relative flex w-full">
+                <input id="desktop-search-input" type="text" placeholder="Search for products, categories, or brands..." 
+                       class="w-full pl-5 pr-14 py-2.5 md:py-3.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-gray-400 focus:bg-white/15 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all shadow-inner">
+                <button id="desktop-search-button" class="absolute right-1.5 top-1.5 bottom-1.5 bg-gradient-to-r from-gold to-yellow-500 px-4 md:px-6 rounded-lg text-navy hover:scale-105 transition-all flex items-center justify-center font-bold shadow-md">
+                    <i class="fas fa-search text-lg"></i>
                 </button>
-                <div id="mobile-search-suggestions" class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-y-auto hidden z-50 text-gray-800"></div>
+                <div id="desktop-search-suggestions" class="absolute top-full left-0 right-0 mt-2 bg-navy/95 backdrop-blur-xl border border-gray-700/50 rounded-xl shadow-2xl max-h-80 overflow-y-auto hidden z-50 text-white"></div>
             </div>
         </div>
-    </div>
-    
     </div>
 </header>
     
 <!-- Universal Horizontal Scroller Wrapper -->
-<div id="universal-category-scroller-wrapper" class="bg-dark-navy border-t border-gray-800 origin-top">
+<div id="universal-category-scroller-wrapper" class="bg-gradient-to-r from-[#060A18] via-[#0A1128] to-[#060A18] backdrop-blur-md border-b border-white/5 shadow-md">
     <!-- Injected dynamically -->
 </div>
 
