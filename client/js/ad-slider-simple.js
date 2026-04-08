@@ -92,13 +92,12 @@ class SimpleAdSlider {
 
         this.isTransitioning = true;
 
-        // Transform the cards wrapper directly (like original)
+        // Transform the cards wrapper directly
         this.cardsWrapper.style.transform = `translateX(-${this.currentIndex * 100}%)`;
-        this.cardsWrapper.style.transition = 'transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)';
+        this.cardsWrapper.style.transition = 'transform 0.7s cubic-bezier(0.25, 1, 0.5, 1)';
 
-        // Update dots and restart progress
+        // Update dots
         this.updateDots();
-        this.startProgressBar();
 
         // Reset transition flag after animation completes
         setTimeout(() => {
@@ -116,39 +115,16 @@ class SimpleAdSlider {
         const dots = dotsContainer.querySelectorAll('button');
         dots.forEach((dot, index) => {
             if (index === this.currentIndex) {
-                dot.className = 'w-3 h-3 rounded-full bg-gold scale-125 shadow-lg transition-all duration-300';
+                dot.className = 'slider-dot active';
+                dot.setAttribute('aria-current', 'true');
             } else {
-                dot.className = 'w-3 h-3 rounded-full bg-gray-300 hover:bg-gray-400 transition-all duration-300';
+                dot.className = 'slider-dot';
+                dot.setAttribute('aria-current', 'false');
             }
         });
     }
 
-    /**
-     * Start progress bar animation
-     */
-    startProgressBar() {
-        const progressBar = document.getElementById('slider-progress');
-        if (!progressBar) return;
-
-        const progressFill = progressBar.querySelector('div');
-        if (!progressFill) return;
-
-        let progress = 0;
-        const duration = 4000; // 4 seconds (match our auto-slide)
-        const increment = 100 / (duration / 50); // Update every 50ms
-
-        clearInterval(this.progressInterval);
-        progressFill.style.width = '0%';
-
-        this.progressInterval = setInterval(() => {
-            progress += increment;
-            if (progress >= 100) {
-                progress = 100;
-                clearInterval(this.progressInterval);
-            }
-            progressFill.style.width = progress + '%';
-        }, 50);
-    }
+    // Progress bar removed in redesigned slider
 
     /**
      * Move to next card with seamless looping
@@ -164,7 +140,7 @@ class SimpleAdSlider {
 
             // Re-enable transition after brief delay
             setTimeout(() => {
-                this.cardsWrapper.style.transition = 'transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)';
+                this.cardsWrapper.style.transition = 'transform 0.7s cubic-bezier(0.25, 1, 0.5, 1)';
             }, 50);
         } else {
             this.currentIndex++;
@@ -188,7 +164,7 @@ class SimpleAdSlider {
 
             // Re-enable transition after brief delay
             setTimeout(() => {
-                this.cardsWrapper.style.transition = 'transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)';
+                this.cardsWrapper.style.transition = 'transform 0.7s cubic-bezier(0.25, 1, 0.5, 1)';
             }, 50);
         } else {
             this.currentIndex--;
@@ -328,11 +304,8 @@ class SimpleAdSlider {
         dotsContainer.innerHTML = '';
         for (let i = 0; i < this.totalCards; i++) {
             const dot = document.createElement('button');
-            dot.className = `w-3 h-3 rounded-full transition-all duration-300 ${
-                i === this.currentIndex
-                    ? 'bg-gold scale-125 shadow-lg'
-                    : 'bg-gray-300 hover:bg-gray-400'
-            }`;
+            dot.className = i === this.currentIndex ? 'slider-dot active' : 'slider-dot';
+            dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
             dot.addEventListener('click', () => this.goToSlide(i));
             dotsContainer.appendChild(dot);
         }
