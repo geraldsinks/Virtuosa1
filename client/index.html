@@ -998,11 +998,11 @@
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" defer></script>
     <script src="/js/notification-modal.js" defer></script>
     <script>
-        // Declare global variables before DOMContentLoaded
+        // Declare global variables before page initialization
         let homeAllProducts = [];
         let categoryGrid, adCardsWrapper, homeSearchInput, homeSearchButton, homeSearchSuggestions;
 
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onPageReady(() => {
             if (window.isIndexScriptRunning) return;
             window.isIndexScriptRunning = true;
 

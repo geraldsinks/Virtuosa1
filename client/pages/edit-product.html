@@ -275,7 +275,8 @@
 
     <script src="../js/cart.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
+        window.onPageReady(async () => {
+
             const urlParams = new URLSearchParams(window.location.search);
             const productId = urlParams.get('id');
             const token = localStorage.getItem('token');
@@ -345,6 +346,7 @@
                     alert('An error occurred');
                 }
             };
+        ;
         });
     </script>
 

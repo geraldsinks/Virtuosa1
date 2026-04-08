@@ -248,7 +248,8 @@
 
     <script src="../js/cart.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
+        window.onPageReady(async () => {
+
             // Check for both query parameters and path parameters
             const urlParams = new URLSearchParams(window.location.search);
             const sellerId = urlParams.get('sellerId');
@@ -364,6 +365,7 @@
                 `;
                 if (window.lucide) window.lucide.createIcons();
             }
+        ;
         });
     </script>
     <script src="../js/config.js"></script>

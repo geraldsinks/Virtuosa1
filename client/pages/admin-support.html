@@ -181,7 +181,8 @@
         let currentPage = 1;
         const pageSize = 20;
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        window.onPageReady(async () => {
+
             // Check admin access first
             const hasAccess = await checkAdminAccess();
             if (!hasAccess) {
@@ -190,6 +191,7 @@
             
             await loadSupportStats();
             await loadSupportTickets();
+        ;
         });
 
         async function loadSupportStats() {

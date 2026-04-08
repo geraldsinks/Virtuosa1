@@ -370,11 +370,13 @@
         }
         
         // Run tests when page loads
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onPageReady(() => {
+
             setTimeout(() => {
                 const tester = new HeaderTester();
                 tester.runAllTests();
             }, 1000); // Wait for header to initialize
+        ;
         });
     </script>
 </body>

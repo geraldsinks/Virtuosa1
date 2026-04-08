@@ -479,10 +479,12 @@ Best regards,
         };
 
         // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
+        window.onPageReady(() => {
+
             checkSellerAuth();
             loadDisputes();
             setupEventListeners();
+        ;
         });
 
         function setupEventListeners() {

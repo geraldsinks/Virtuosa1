@@ -730,12 +730,14 @@
     <script src="../js/cart.js"></script>
     <script src="../js/create-product.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onPageReady(() => {
+
             if (window.lucide) window.lucide.createIcons();
             // The step UI logic is now handled in create-product.js
             if (typeof updateStepDisplay === 'function') {
                 updateStepDisplay();
             }
+        ;
         });
     </script>
 

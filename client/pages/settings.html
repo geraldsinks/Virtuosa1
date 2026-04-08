@@ -206,7 +206,8 @@
         &copy; 2025 Virtuosa. All rights reserved.
     </footer>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onPageReady(() => {
+
             const loginLink = document.getElementById('login-link');
             const userGreeting = document.getElementById('user-greeting');
             const logoutButton = document.getElementById('logout-button');
@@ -234,7 +235,8 @@
             settingsForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 alert('Settings saved successfully!');
-            });
+            ;
+        });
 
             deleteAccountBtn.addEventListener('click', () => {
                 if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {

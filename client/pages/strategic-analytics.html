@@ -572,7 +572,8 @@
     
     <script src="../js/strategicAnalyticsCharts.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
+        window.onPageReady(async () => {
+
             // Check admin access first
             const hasAccess = await checkAdminAccess();
             if (!hasAccess) {
@@ -585,6 +586,7 @@
             window.chartsManager = new StrategicAnalyticsCharts();
             
             await loadStrategicAnalytics();
+        ;
         });
 
         let currentTab = 'overview';

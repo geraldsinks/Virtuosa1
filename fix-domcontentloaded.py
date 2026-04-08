@@ -41,48 +41,55 @@ def convert_domcontentloaded_to_onpageready(html_content):
             start_line = i
             
             # Extract the function body
-            if '() => {' in line:
-                # Find opening brace
-                brace_count = 0
-                function_start = line.index('() => {')
-                before_func = line[:function_start]
-                after_func = line[function_start + len('() => {'):]
-                
+            listener_match = None
+            listener_prefix = None
+            after_func = None
+            async_prefix = ''
+
+            # Handle arrow functions and normal functions
+            for pattern in [
+                r'async\s*\(\s*\)\s*=>\s*\{',
+                r'\(\s*\)\s*=>\s*\{',
+                r'async\s+function\s*\(\s*\)\s*\{',
+                r'function\s*\(\s*\)\s*\{'
+            ]:
+                match = re.search(pattern, line)
+                if match:
+                    listener_match = match
+                    listener_prefix = line[:match.start()]
+                    after_func = line[match.end():]
+                    async_prefix = 'async ' if 'async' in pattern else ''
+                    break
+
+            if listener_match:
                 # Collect all lines until we find the closing brace
-                body_lines = [after_func]
                 brace_count = after_func.count('{') - after_func.count('}')
+                body_lines = [after_func]
                 i += 1
-                
-                while i < len(lines) and (brace_count > 0 or '});' not in lines[i]):
+
+                while i < len(lines):
                     body_lines.append(lines[i])
                     brace_count += lines[i].count('{') - lines[i].count('}')
-                    if '});' in lines[i]:
+                    if brace_count <= 0 and '});' in lines[i]:
                         break
                     i += 1
-                
+
                 # Now reconstruct with window.onPageReady
-                # Find just the function body without the wrapping addEventListener
                 try:
-                    # Join body lines
                     full_body = '\n'.join(body_lines)
-                    
-                    # Remove the trailing }); from last line
-                    if full_body.endswith('});'):
-                        full_body = full_body[:-3] + ';'
-                    elif '});' in full_body:
-                        full_body = full_body.replace('});', ';')
-                    
-                    # Construct the replacement
-                    indent = len(before_func) - len(before_func.lstrip())
+
+                    # Remove the trailing }); from last occurrences
+                    full_body = re.sub(r'\}\s*\)\s*;?\s*$', ';', full_body)
+
+                    indent = len(listener_prefix) - len(listener_prefix.lstrip())
                     indent_str = ' ' * indent
                     
-                    new_code = f"{indent_str}window.onPageReady(() => {{\n{full_body}\n{indent_str}}});"
-                    
+                    new_code = f"{indent_str}window.onPageReady({async_prefix}() => {{\n{full_body}\n{indent_str}}});"
+
                     new_lines.append(new_code)
                     replacements += 1
                     i += 1
                     continue
-                    
                 except Exception as e:
                     print(f"  ⚠️  Could not parse DOMContentLoaded at line {start_line}: {e}")
                     new_lines.append(line)

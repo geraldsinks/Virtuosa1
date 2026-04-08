@@ -188,7 +188,8 @@
         let selectedChatId = null;
         let refreshInterval = null;
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        window.onPageReady(async () => {
+
             // Check admin access first
             const hasAccess = await checkAdminAccess();
             if (!hasAccess) {
@@ -205,6 +206,7 @@
                 await loadActiveChats();
                 await loadAgents();
             }, 10000);
+        ;
         });
 
         async function loadChatStats() {

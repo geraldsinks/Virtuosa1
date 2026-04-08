@@ -318,7 +318,8 @@
         let currentDispute = null;
 
         // Initialize page
-        document.addEventListener('DOMContentLoaded', async function() {
+        window.onPageReady(async () => {
+
             // Check admin access first
             const hasAccess = await checkAdminAccess();
             if (!hasAccess) {
@@ -328,6 +329,7 @@
             loadDisputeStats();
             loadDisputes();
             setupEventListeners();
+        ;
         });
 
         function setupEventListeners() {

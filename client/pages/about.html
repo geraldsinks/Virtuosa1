@@ -233,7 +233,8 @@
 
     <script src="../js/config.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
+        window.onPageReady(async () => {
+
             // Animate hero on load
             setTimeout(() => {
                 document.getElementById('about-title').classList.replace('opacity-0', 'opacity-100');
@@ -473,6 +474,7 @@
                     document.body.appendChild(retryButton);
                 }, 3000);
             }
+        ;
         });
 
         // Mobile menu toggle

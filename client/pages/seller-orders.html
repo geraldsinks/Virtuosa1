@@ -215,7 +215,8 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
+        window.onPageReady(async () => {
+
             const API_BASE = 'https://api.virtuosazm.com/api';
             const token = localStorage.getItem('token');
             
@@ -261,7 +262,8 @@
                 currentFilter = e.target.value;
                 currentPage = 1;
                 loadOrders();
-            });
+            ;
+        });
 
             document.getElementById('refresh-orders').addEventListener('click', () => {
                 loadOrders();

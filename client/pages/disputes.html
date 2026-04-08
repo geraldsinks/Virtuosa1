@@ -394,11 +394,13 @@
         let selectedOrder = null;
 
         // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
+        window.onPageReady(() => {
+
             checkAuth();
             loadUserOrders();
             loadDisputes();
             setupEventListeners();
+        ;
         });
 
         function setupEventListeners() {

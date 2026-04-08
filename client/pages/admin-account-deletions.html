@@ -214,7 +214,8 @@
         let currentAction = null;
         let allRequests = [];
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        window.onPageReady(async () => {
+
             // Check admin access first
             const hasAccess = await checkAdminAccess();
             if (!hasAccess) {
@@ -228,6 +229,7 @@
             }
 
             await loadDeletionRequests();
+        ;
         });
 
         async function loadDeletionRequests(page = 1) {

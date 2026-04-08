@@ -437,7 +437,8 @@
         let currentMaintenanceId = null;
         let allMaintenance = [];
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        window.onPageReady(async () => {
+
             // Check admin access first
             const hasAccess = await checkAdminAccess();
             if (!hasAccess) {
@@ -460,6 +461,7 @@
             
             document.getElementById('scheduledStartTime').value = formatDateTimeLocal(startTime);
             document.getElementById('scheduledEndTime').value = formatDateTimeLocal(endTime);
+        ;
         });
 
         function formatDateTimeLocal(date) {

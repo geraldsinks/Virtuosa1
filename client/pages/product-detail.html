@@ -264,7 +264,8 @@
     <script src="../js/image-optimizer.js"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
+        window.onPageReady(async () => {
+
             const productContainer = document.getElementById('product-container');
             const loadingState = document.getElementById('loading-state');
             const errorState = document.getElementById('error-state');
@@ -305,6 +306,7 @@
                 console.error('Error fetching product:', error);
                 showError();
             }
+        ;
         });
 
         async function loadSimilarItems(currentProduct) {

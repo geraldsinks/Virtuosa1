@@ -209,9 +209,11 @@
         let countdownInterval = null;
         let statusCheckInterval = null;
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        window.onPageReady(async () => {
+
             await loadMaintenanceStatus();
             startStatusChecks();
+        ;
         });
 
         async function loadMaintenanceStatus() {

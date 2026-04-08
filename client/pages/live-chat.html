@@ -554,7 +554,8 @@
 
     <script src="/js/config.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        window.onPageReady(() => {
+
             const chatForm = document.getElementById('chat-form');
             const chatInput = document.getElementById('chat-input');
             const chatMessages = document.getElementById('chat-messages');
@@ -817,7 +818,8 @@
                     // Simulate agent response
                     simulateAgentResponse(message);
                 }
-            });
+            ;
+        });
 
             // Send quick reply
             window.sendQuickReply = function(message) {

@@ -357,7 +357,8 @@
     
     <script src="../js/cart.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
+        window.onPageReady(async () => {
+
             if (window.lucide) window.lucide.createIcons();
 
             const token = localStorage.getItem('token');
@@ -371,6 +372,7 @@
             } catch (e) {
                 console.error('Analytics load error:', e);
             }
+        ;
         });
 
         function populateAnalytics(data) {

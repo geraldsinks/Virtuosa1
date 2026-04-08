@@ -412,7 +412,8 @@
 
     <script src="/js/config.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        window.onPageReady(() => {
+
             // FAQ Accordion functionality
             const faqQuestions = document.querySelectorAll('.faq-question');
             
@@ -439,7 +440,8 @@
                     answer.classList.toggle('active');
                     chevron.classList.toggle('rotate');
                 });
-            });
+            ;
+        });
 
             // Search functionality
             const searchInput = document.getElementById('faq-search');

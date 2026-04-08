@@ -501,8 +501,10 @@
         window.fixServerUrl = fixServerUrl;
 
         // Initialize products page after DOM is ready and dependencies are loaded
-        document.addEventListener('DOMContentLoaded', function() {
+        window.onPageReady(() => {
+
             initializeProductsPage();
+        ;
         });
 
         async function initializeProductsPage() {

@@ -196,11 +196,13 @@
     <script src="js/admin-cookie-data.js"></script>
     <script>
         // Check auth inline
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onPageReady(() => {
+
             const token = localStorage.getItem('token');
             if (!token) {
                 window.location.href = 'login.html';
             }
+        ;
         });
     </script>
 

@@ -620,10 +620,12 @@
         let testExecutionLock = false; // Proper async lock
 
         // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
+        window.onPageReady(() => {
+
             initializeDashboard();
             updateConnectionStatus();
             startPerformanceMonitoring();
+        ;
         });
 
         function initializeDashboard() {
