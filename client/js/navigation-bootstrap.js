@@ -58,6 +58,25 @@ if (typeof window.onPageReady !== 'function') {
     };
 }
 
+// Polyfill legacy DOMContentLoaded handlers for SPA page injection.
+(function() {
+    const originalAddEventListener = document.addEventListener.bind(document);
+
+    document.addEventListener = function(type, listener, options) {
+        if (type === 'DOMContentLoaded' && (document.readyState === 'interactive' || document.readyState === 'complete')) {
+            const event = new Event('DOMContentLoaded');
+            if (typeof listener === 'function') {
+                Promise.resolve().then(() => listener.call(document, event));
+            } else if (listener && typeof listener.handleEvent === 'function') {
+                Promise.resolve().then(() => listener.handleEvent(event));
+            }
+            return;
+        }
+
+        return originalAddEventListener(type, listener, options);
+    };
+})();
+
 window.addEventListener('pageNavigationReady', () => {
     window.__pageNavigationReadyState = window.__pageNavigationReadyState || { lastFired: null };
     window.__pageNavigationReadyState.lastFired = Date.now();

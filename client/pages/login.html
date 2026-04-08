@@ -462,7 +462,7 @@
     <script>
         // Handle URL parameters for verification status
         // Use window.onPageReady() instead of DOMContentLoaded to work with SPA navigation
-        window.onPageReady(() => {
+        function showVerificationStatus() {
             const urlParams = new URLSearchParams(window.location.search);
             const verified = urlParams.get('verified');
             const verification = urlParams.get('verification');
@@ -474,7 +474,13 @@
             } else if (verification === 'error') {
                 showMessage('Verification link is invalid or expired. Please try again.', true);
             }
-        });
+        }
+
+        if (typeof window.onPageReady === 'function') {
+            window.onPageReady(showVerificationStatus);
+        } else {
+            document.addEventListener('DOMContentLoaded', showVerificationStatus, { once: true });
+        }
     </script>
 </body>
 

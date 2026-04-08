@@ -204,6 +204,23 @@ function togglePassword(inputId) {
 // Make togglePassword globally available
 window.togglePassword = togglePassword;
 
+function registerPageReady(callback) {
+    if (typeof callback !== 'function') {
+        return;
+    }
+
+    if (typeof window.onPageReady === 'function') {
+        window.onPageReady(callback);
+        return;
+    }
+
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+        Promise.resolve().then(callback);
+    } else {
+        document.addEventListener('DOMContentLoaded', callback, { once: true });
+    }
+}
+
 // Phone number formatting function
 function formatPhoneNumber(input) {
     // Remove all non-digit characters
@@ -224,8 +241,8 @@ function formatPhoneNumber(input) {
     input.value = value;
 }
 
-// Add phone number formatting event listener when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+// Add phone number formatting event listener when page is ready
+registerPageReady(function() {
     const phoneInput = document.getElementById('signup-phone');
     if (phoneInput) {
         phoneInput.addEventListener('input', function() {
@@ -941,8 +958,8 @@ function renderAuthComponent(type) {
     }
 }
 
-// Initialize auth system when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize auth system when page is ready
+registerPageReady(() => {
     // Prevent multiple initializations
     if (window.authSystemInitialized) {
         console.log('Auth system already initialized');
