@@ -221,14 +221,29 @@
         .ad-slider-section {
             position: relative;
             overflow: hidden;
-            background: var(--bg-primary, #f9fafb);
+            background: #0A1128; /* Blends perfectly into Welcome section */
+            margin-bottom: -1px; /* seamless connection */
         }
 
         #ad-slider {
             position: relative;
             overflow: hidden;
-            transform: translateZ(0); /* Hardware acceleration */
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+            transform: translateZ(0); 
+            height: clamp(300px, 45vh, 600px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5); 
+        }
+
+        /* Seamless fade into the next dark section */
+        #ad-slider::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, #0A1128);
+            pointer-events: none;
+            z-index: 5;
         }
 
         #ad-cards-wrapper {
@@ -240,8 +255,7 @@
             position: relative;
             cursor: pointer;
             overflow: hidden;
-            background-size: cover;
-            background-position: center;
+            background-color: #f3f4f6; /* loading fallback background */
         }
 
         .ad-card-overlay {
@@ -251,7 +265,7 @@
             width: 100%;
             height: 100%;
             /* Sophisticated dark gradient for text legibility */
-            background: linear-gradient(90deg, rgba(10, 17, 40, 0.8) 0%, rgba(10, 17, 40, 0.4) 40%, transparent 100%);
+            background: linear-gradient(90deg, rgba(10, 17, 40, 0.95) 0%, rgba(10, 17, 40, 0.4) 50%, transparent 100%);
             display: flex;
             align-items: center;
             z-index: 1;
@@ -337,7 +351,7 @@
         /* Modern Dots Indicator */
         #slider-dots-wrapper {
             position: absolute;
-            bottom: 1.5rem;
+            bottom: 2rem; /* above the gradient fade */
             left: 0;
             width: 100%;
             display: flex;
@@ -379,26 +393,24 @@
 
         /* Mobile Layout & Edge-to-Edge Constraints */
         .ad-slider-container {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 2rem 1.5rem;
-            transition: all 0.3s;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 0; /* Full bleed on all devices to act as true hero */
         }
 
         @media (max-width: 768px) {
-            .ad-slider-container {
-                padding: 0; /* Edge to edge on mobile */
+            #ad-slider {
+                height: 350px;
             }
 
-            #ad-slider {
-                height: 300px;
-                border-radius: 0; /* Remove rounding for edge-to-edge */
-                box-shadow: none;
+            #ad-slider::after {
+                height: 60px; /* smaller fade on mobile */
             }
 
             .ad-card-overlay {
                 padding: 1.5rem;
-                background: linear-gradient(to top, rgba(10, 17, 40, 0.9) 0%, rgba(10, 17, 40, 0.3) 60%, transparent 100%);
+                background: linear-gradient(to top, rgba(10, 17, 40, 0.95) 0%, rgba(10, 17, 40, 0.5) 60%, transparent 100%);
                 align-items: flex-end; /* Push text to bottom on mobile */
             }
 
@@ -869,10 +881,10 @@
 
     <!-- Navigation bar will be injected by unified-header.js -->
     
-    <section class="ad-slider-section bg-gray-50">
+    <section class="ad-slider-section">
         <div class="ad-slider-container">
             <!-- Slider Container -->
-            <div id="ad-slider" class="w-full h-[400px] md:rounded-2xl bg-gray-200">
+            <div id="ad-slider" class="w-full">
                 <div id="ad-cards-wrapper" class="flex transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] h-full">
                     <!-- Ad sliders will be dynamically loaded from database -->
                 </div>
@@ -1331,10 +1343,17 @@
                     const webpUrl = generateWebpUrl(imageUrl, 1200, 500); // Higher res for large modern slider
                     
                     return `
-                <div class="ad-card flex-none w-full h-full bg-cover bg-center"
-                     style="background-image: url('${webpUrl}');"
+                <div class="ad-card flex-none w-full h-full"
                      onclick="window.location.href='${sanitizeUrl(ad.link)}'"
                      role="button" tabindex="0">
+                     
+                     <picture>
+                        <!-- Fallback robust image loading object-fit -->
+                        <img src="${webpUrl}" 
+                             onerror="this.onerror=null; this.src='${imageUrl}';" 
+                             class="absolute inset-0 w-full h-full object-cover z-0" 
+                             alt="${encodeHtml(ad.title)}" />
+                     </picture>
                      
                      <div class="ad-card-overlay">
                          <div class="ad-card-content">
