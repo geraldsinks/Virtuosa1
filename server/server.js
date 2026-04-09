@@ -239,13 +239,28 @@ app.use(cors( {
     allowedHeaders: ["Content-Type", "Authorization"],
     maxAge: 86400
 }));
-app.use(express.json({ limit: '10mb' }));
-
-// Add raw body parser for debugging
+// Add raw body parser BEFORE JSON parser to catch exact request data
 app.use(express.raw({ type: 'application/json', limit: '10mb' }), (req, res, next) => {
     if (req.path === '/api/auth/login' && req.method === 'POST') {
-        console.log('🔍 RAW DEBUG - Raw body received:', req.body.toString());
-        console.log('🔍 RAW DEBUG - Raw body length:', req.body.length);
+        const rawBody = req.body.toString();
+        console.log('🔍 RAW DEBUG - Raw body string:', rawBody);
+        console.log('🔍 RAW DEBUG - Raw body length:', rawBody.length);
+        console.log('🔍 RAW DEBUG - Raw body chars:', Array.from(rawBody).map(c => `${c}(${c.charCodeAt(0)})`));
+        
+        // Store raw body for later use
+        req.rawBody = rawBody;
+    }
+    next();
+});
+
+app.use(express.json({ limit: '10mb' }));
+
+// Add JSON parsing debug
+app.use((req, res, next) => {
+    if (req.path === '/api/auth/login' && req.method === 'POST') {
+        console.log('🔍 JSON DEBUG - Parsed body:', JSON.stringify(req.body));
+        console.log('🔍 JSON DEBUG - Email from parsed body:', req.body.email);
+        console.log('🔍 JSON DEBUG - Email chars from parsed body:', req.body.email ? Array.from(req.body.email).map(c => `${c}(${c.charCodeAt(0)})`) : 'undefined');
     }
     next();
 });
