@@ -1943,7 +1943,7 @@ const promotionSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-// Promotion model already loaded at line 73
+const Promotion = mongoose.model('Promotion', promotionSchema);
 
 // Banner/Hero Manager Schema
 const bannerSchema = new mongoose.Schema({
@@ -2025,7 +2025,7 @@ const adSliderSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-// AdSlider model already loaded at line 71
+const AdSlider = mongoose.model('AdSlider', adSliderSchema);
 
 // Category Card Management Schema
 const categoryCardSchema = new mongoose.Schema({
@@ -2043,7 +2043,7 @@ const categoryCardSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-// CategoryCard model already loaded at line 72
+const CategoryCard = mongoose.model('CategoryCard', categoryCardSchema);
 
 // Fallback Category Override Schema
 const fallbackCategorySchema = new mongoose.Schema({
