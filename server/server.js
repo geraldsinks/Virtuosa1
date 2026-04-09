@@ -2944,7 +2944,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         user.resetPasswordExpires = Date.now() + 3600000;
         await user.save();
 
-        const resetLink = `${process.env.FRONTEND_URL || 'https://virtuosazm.com'}/pages/login.html?token=${token}`;
+        const resetLink = `${process.env.FRONTEND_URL || 'https://virtuosazm.com'}/pages/reset-password.html?token=${token}`;
         
         // Handle Free Tier limitation
         if (isRenderFreeTier) {
