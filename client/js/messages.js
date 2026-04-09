@@ -188,6 +188,36 @@ function showToast(message, type = 'success', duration = 4000) {
     }, duration);
 }
 
+// Mobile header initialization function
+function initializeMobileHeader() {
+    console.log('Initializing mobile header for messages...');
+    
+    // Check if we're on mobile
+    if (window.innerWidth < 768) {
+        const mobileHeader = document.querySelector('.mobile-messages-header');
+        const chatArea = document.getElementById('chat-area');
+        
+        // Show mobile header by default (conversation list view)
+        if (mobileHeader) {
+            mobileHeader.classList.remove('hidden');
+        }
+        
+        // Hide chat area by default on mobile
+        if (chatArea && !window.location.search.includes('recipientId')) {
+            chatArea.classList.add('hidden');
+        }
+    }
+}
+
+// Mobile menu toggle function
+window.openMobileMenu = function() {
+    console.log('Opening mobile menu...');
+    // This will be handled by the unified header system
+    if (window.unifiedHeader && window.unifiedHeader.openSideMenu) {
+        window.unifiedHeader.openSideMenu();
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Messages page loading...');
     
@@ -325,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Handle mobile header transitions
             const mobileHeader = document.querySelector('.mobile-messages-header');
             const mobileTitle = document.getElementById('mobile-header-title');
-            const menuBtn = document.getElementById('mobile-menu-toggle-btn');
+            const menuBtn = document.getElementById('mobile-menu-toggle');
             const backBtn = document.getElementById('mobile-chat-back-button');
             
             if (mobileTitle) mobileTitle.textContent = recipientName || 'Chat';
@@ -385,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Restore mobile header state
             const mobileTitle = document.getElementById('mobile-header-title');
-            const menuBtn = document.getElementById('mobile-menu-toggle-btn');
+            const menuBtn = document.getElementById('mobile-menu-toggle');
             const backBtn = document.getElementById('mobile-chat-back-button');
             
             if (mobileTitle) mobileTitle.textContent = 'Messages';
@@ -595,24 +625,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     });
 
-    // Initialize mobile header visibility
-    if (window.innerWidth < 768) {
-        const mobileHeader = document.querySelector('.mobile-messages-header');
-        const chatArea = document.getElementById('chat-area');
-        
-        // Show mobile header by default (conversation list view)
-        if (mobileHeader) {
-            mobileHeader.classList.remove('hidden');
-        }
-        
-        // Hide chat area by default on mobile
-        if (chatArea && !currentRecipientId) {
-            chatArea.classList.add('hidden');
-        }
-    }
+    // Mobile header initialization is handled in initializeMobileHeader()
 
     // Load initial data
     loadConversations();
+    
+    // Update cart badge for mobile header
+    updateCartBadge();
 
     async function startChatAfterConversationsLoad(sellerId, orderId) {
         try {
@@ -1770,6 +1789,34 @@ document.addEventListener('DOMContentLoaded', () => {
         if (Math.abs(deltaY) > swipeThreshold) {
             // Allow natural scrolling behavior
             return;
+        }
+    }
+    
+    // Update cart badge function for mobile header
+    function updateCartBadge() {
+        const cartBadges = document.querySelectorAll('.cart-badge-count');
+        if (cartBadges.length === 0) return;
+        
+        try {
+            // Cart loading logic
+            let cart = [];
+            const cartItems = localStorage.getItem('virtuosa_cart');
+            if (cartItems) {
+                cart = JSON.parse(cartItems);
+            }
+            
+            const itemCount = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+            
+            cartBadges.forEach(badge => {
+                badge.textContent = itemCount;
+                if (itemCount > 0) {
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            });
+        } catch (error) {
+            console.error('Error updating cart badge:', error);
         }
     }
 
