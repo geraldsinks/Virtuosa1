@@ -151,6 +151,35 @@ class UnifiedHeader {
 
     ensureHorizontalNavigationExists() {
         if (this.isAuthPage()) return;
+        
+        const path = window.location.pathname.toLowerCase();
+        
+        // Comprehensive list of prefixes derived from the /pages directory. 
+        // /cart is intentionally omitted to retain contextual up-sells.
+        const nonShoppingPrefixes = [
+            '/about', '/admin', '/buyer-dashboard', '/dashboard',
+            '/contact', '/contact-support', '/create-product', '/edit-product',
+            '/disputes', '/faq', '/live-chat', '/login', '/signup', '/register', '/verify-email',
+            '/maintenance', '/marketing', '/messages', '/notifications',
+            '/order', '/privacy', '/terms', '/refund-policy', '/profile', '/settings',
+            '/reviews', '/seller', '/strategic-analytics', '/transactions'
+        ];
+
+        // Match against clean paths, sub-directories, and raw HTML files
+        const shouldHide = nonShoppingPrefixes.some(prefix => 
+            path === prefix || 
+            path.startsWith(`${prefix}/`) || 
+            path === `/pages${prefix}.html` ||
+            path.startsWith(`/pages${prefix}`)
+        );
+
+        if (shouldHide) {
+            // Remove the default injected wrapper container
+            const wrapper = document.getElementById('universal-category-scroller-wrapper');
+            if (wrapper) wrapper.remove();
+            return;
+        }
+
         this.initializeUniversalCategoryScroller();
     }
 
