@@ -399,7 +399,13 @@ class APIBatcher {
      */
     async executeIndividualRequest(id, request) {
         try {
-            const response = await fetch(request.url, request.options);
+            // Sanitize fetch options: 'cache' must be a string enum, not boolean
+            const fetchOptions = { ...request.options };
+            if (typeof fetchOptions.cache === 'boolean') {
+                delete fetchOptions.cache;
+            }
+            
+            const response = await fetch(request.url, fetchOptions);
             
             if (response.ok) {
                 const data = await response.clone().json();
@@ -521,7 +527,13 @@ class ParallelAPICaller {
         
         for (let attempt = 0; attempt <= this.retryAttempts; attempt++) {
             try {
-                const response = await fetch(url, options);
+                // Sanitize fetch options: 'cache' must be a string enum, not boolean
+                const fetchOptions = { ...options };
+                if (typeof fetchOptions.cache === 'boolean') {
+                    delete fetchOptions.cache;
+                }
+                
+                const response = await fetch(url, fetchOptions);
                 
                 if (response.ok) {
                     const data = await response.json();
