@@ -2754,6 +2754,46 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
+// Temporary password fix endpoint (for debugging only)
+app.post('/api/auth/fix-password', async (req, res) => {
+    const { email, newPassword } = req.body;
+    
+    if (!email || !newPassword) {
+        return res.status(400).json({ message: 'Email and new password are required' });
+    }
+
+    try {
+        console.log('Fixing password for email:', email);
+        
+        const user = await User.findOne({ email: email.toLowerCase() });
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        console.log('User found, updating password...');
+        
+        // Hash the new password with 12 salt rounds
+        const hashedPassword = await bcrypt.hash(newPassword, 12);
+        user.password = hashedPassword;
+        
+        await user.save();
+        
+        console.log('Password updated successfully');
+        console.log('New hash:', hashedPassword);
+        
+        res.json({ 
+            success: true, 
+            message: 'Password fixed successfully',
+            newHash: hashedPassword
+        });
+        
+    } catch (error) {
+        console.error('Password fix error:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
 // Test endpoint to check if email exists (temporary for debugging)
 app.post('/api/auth/check-email', async (req, res) => {
     const { email } = req.body;
