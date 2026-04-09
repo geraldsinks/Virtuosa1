@@ -4442,13 +4442,14 @@ app.get('/api/notifications/unread-count', authenticateToken, async (req, res) =
 // Get product recommendations
 app.get('/api/products/recommendations', authenticateToken, async (req, res) => {
     try {
+        console.log('🔍 Fetching recommendations...');
         const recommendations = await Product.find({ status: 'Active' })
             .sort({ isFeatured: -1, createdAt: -1 })
             .limit(4);
         res.json(recommendations || []);
     } catch (error) {
-        console.error('Recommendations error:', error);
-        res.json([]);
+        console.error('❌ Recommendations error:', error);
+        res.status(200).json([]); // Return empty array on error but 200 to keep UI clean
     }
 });
 
@@ -4561,7 +4562,7 @@ app.get('/api/buyer/dashboard', authenticateToken, checkDashboardAccess('buyer')
         const spending = await Transaction.aggregate([
             {
                 $match: {
-                    buyer: user._id,
+                    buyer: new mongoose.Types.ObjectId(req.user.userId),
                     status: { $in: ['completed', 'Completed'] },
                     createdAt: { $gte: sixMonthsAgo }
                 }

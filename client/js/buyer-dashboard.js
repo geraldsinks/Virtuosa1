@@ -11,6 +11,7 @@ window.fixServerUrl = fixServerUrl;
 
 // Use window object to avoid global conflicts
 window.currentDisputeId = null;
+let spendingChartInst = null; // Store chart instance
 
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
@@ -187,6 +188,9 @@ async function loadDashboardData() {
         loadOrders(dashboardData.recentOrders || [], dashboardData.orderStats || {});
         displayRecommendations(dashboardData.recommendations || []);
         createSpendingChart(dashboardData.spendingHistory || { labels: [], values: [] });
+        
+        // Update cart count
+        updateCartCount();
 
     } catch (error) {
         console.error('Dashboard loading error:', error);
@@ -507,7 +511,12 @@ function createSpendingChart(data) {
 
     const ctx = canvas.getContext('2d');
     
-    new Chart(ctx, {
+    // Destroy existing chart if it exists
+    if (spendingChartInst) {
+        spendingChartInst.destroy();
+    }
+    
+    spendingChartInst = new Chart(ctx, {
         type: 'line',
         data: {
             labels: data.labels || [],
@@ -610,8 +619,3 @@ function showNotification(message, type = 'info') {
         }
     }, 3000);
 }
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    updateCartCount();
-});
