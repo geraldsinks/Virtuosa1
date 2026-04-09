@@ -2759,10 +2759,10 @@ app.post('/api/auth/fix-password', async (req, res) => {
     console.log('Fix password - Request body received:', req.body);
     console.log('Fix password - Content-Type header:', req.get('Content-Type'));
     
-    // Use raw body if JSON parsing failed
+    // Always use raw body for fix-password endpoint due to Buffer issue
     let email, newPassword;
     
-    if (req.rawBody && (Buffer.isBuffer(req.body) || (req.body && typeof req.body.email === 'undefined'))) {
+    if (req.rawBody) {
         try {
             const parsedBody = JSON.parse(req.rawBody);
             email = parsedBody.email;
