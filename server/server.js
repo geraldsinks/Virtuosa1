@@ -1679,6 +1679,33 @@ const reviewSchema = new mongoose.Schema({
 const Review = mongoose.model('Review', reviewSchema);
 console.log('Review model created successfully');
 
+// Token Reward System Schema
+const tokenSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+    
+    // Token balances
+    currentBalance: { type: Number, default: 0, min: 0 },
+    totalEarned: { type: Number, default: 0, min: 0 },
+    totalSpent: { type: Number, default: 0, min: 0 },
+    
+    // Token history
+    transactions: [{
+        type: { type: String, enum: ['earned', 'spent', 'redeemed'], required: true },
+        amount: { type: Number, required: true, min: 0 },
+        reason: { type: String, required: true },
+        referenceId: { type: String }, // Related transaction, order, or activity ID
+        referenceType: { type: String, enum: ['purchase', 'review', 'signup', 'referral', 'redemption'] },
+        createdAt: { type: Date, default: Date.now }
+    }],
+    
+    // Token settings
+    isActive: { type: Boolean, default: true },
+    lastActivity: { type: Date, default: Date.now }
+}, { timestamps: true });
+
+const Token = mongoose.model('Token', tokenSchema);
+console.log('Token model created successfully');
+
 // Enhanced Notification Model
 const Notification = require('./models/Notification');
 console.log('Notification model loaded successfully');
@@ -2583,10 +2610,15 @@ app.post('/api/auth/login', async (req, res) => {
     const normalizedEmail = email.toLowerCase();
 
     try {
-        console.log('🔍 Login attempt for email:', normalizedEmail);
+        console.log('Login attempt for email:', normalizedEmail);
         
-        const user = await User.findOne({ email: normalizedEmail });
-        console.log('🔍 User query result:', user ? 'User found' : 'User not found');
+        const user = await User.findOne({ 
+            $or: [
+                { email: normalizedEmail },
+                { email: { $regex: new RegExp('^' + normalizedEmail + '$', 'i') } }
+            ]
+        });
+        console.log('User query result:', user ? 'User found' : 'User not found');
         
         if (!user) {
             console.log('❌ Login failed - User not found for email:', normalizedEmail);
@@ -8658,22 +8690,34 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
                 order.deliveryNotes = deliveryNotes;
                 
                 // Award 5 tokens to buyer for confirming delivery
-                await User.findByIdAndUpdate(req.user.userId, {
-                    $inc: { 
-                        tokenBalance: 5,
-                        totalTokensEarned: 5
-                    }
+                let buyerTokenAccount = await Token.findOne({ user: req.user.userId });
+                if (!buyerTokenAccount) {
+                    buyerTokenAccount = new Token({ user: req.user.userId });
+                }
+                
+                buyerTokenAccount.currentBalance += 5;
+                buyerTokenAccount.totalEarned += 5;
+                buyerTokenAccount.lastActivity = new Date();
+                buyerTokenAccount.transactions.push({
+                    type: 'earned',
+                    amount: 5,
+                    reason: 'Delivery confirmation',
+                    referenceId: order._id.toString(),
+                    referenceType: 'purchase',
+                    createdAt: new Date()
                 });
                 
-                // Create token transaction record
-                await new TokenTransaction({
-                    user: req.user.userId,
-                    amount: 5,
-                    type: 'earned',
-                    reason: 'Delivery confirmation',
-                    orderId: order._id,
-                    description: `Earned 5 tokens for confirming delivery of order #${order._id.toString().slice(-8)}`
-                }).save();
+                await buyerTokenAccount.save();
+                
+                // Send token notification to buyer
+                const buyerTokenNotification = new Notification({
+                    recipient: req.user.userId,
+                    title: 'Tokens Earned!',
+                    message: 'You earned 5 tokens for confirming delivery',
+                    type: 'token_earned',
+                    data: { actionUrl: '/pages/tokens.html' }
+                });
+                await buyerTokenNotification.save();
                 
                 // Release payment to seller for cash on delivery orders
                 if (order.paymentMethod === 'cash_on_delivery') {
@@ -8682,22 +8726,34 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
                     order.escrowReleasedAt = new Date();
                     
                     // Award 5 tokens to seller for completed delivery
-                    await User.findByIdAndUpdate(order.seller._id, {
-                        $inc: { 
-                            tokenBalance: 5,
-                            totalTokensEarned: 5
-                        }
+                    let sellerTokenAccount = await Token.findOne({ user: order.seller._id });
+                    if (!sellerTokenAccount) {
+                        sellerTokenAccount = new Token({ user: order.seller._id });
+                    }
+                    
+                    sellerTokenAccount.currentBalance += 5;
+                    sellerTokenAccount.totalEarned += 5;
+                    sellerTokenAccount.lastActivity = new Date();
+                    sellerTokenAccount.transactions.push({
+                        type: 'earned',
+                        amount: 5,
+                        reason: 'Order completed',
+                        referenceId: order._id.toString(),
+                        referenceType: 'purchase',
+                        createdAt: new Date()
                     });
                     
-                    // Create token transaction record for seller
-                    await new TokenTransaction({
-                        user: order.seller._id,
-                        amount: 5,
-                        type: 'earned',
-                        reason: 'Order completed',
-                        orderId: order._id,
-                        description: `Earned 5 tokens for completing order #${order._id.toString().slice(-8)}`
-                    }).save();
+                    await sellerTokenAccount.save();
+                    
+                    // Send token notification to seller
+                    const sellerTokenNotification = new Notification({
+                        recipient: order.seller._id,
+                        title: 'Tokens Earned!',
+                        message: 'You earned 5 tokens for completing an order',
+                        type: 'token_earned',
+                        data: { actionUrl: '/pages/tokens.html' }
+                    });
+                    await sellerTokenNotification.save();
                     
                     console.log('✅ Released payment to seller and awarded 5 tokens');
                 }
@@ -8992,18 +9048,34 @@ app.post('/api/reviews', authenticateToken, async (req, res) => {
         await updateSellerRating(product.seller);
 
         // Award tokens to buyer for leaving review
-        await User.findByIdAndUpdate(userId, {
-            $inc: { tokenBalance: 3 }
-        });
-
-        // Create token transaction record
-        const tokenTransaction = new TokenTransaction({
-            user: userId,
-            amount: 3,
+        let tokenAccount = await Token.findOne({ user: userId });
+        if (!tokenAccount) {
+            tokenAccount = new Token({ user: userId });
+        }
+        
+        tokenAccount.currentBalance += 3;
+        tokenAccount.totalEarned += 3;
+        tokenAccount.lastActivity = new Date();
+        tokenAccount.transactions.push({
             type: 'earned',
-            description: 'Review submitted - 3 tokens earned'
+            amount: 3,
+            reason: 'Review submitted',
+            referenceId: review._id.toString(),
+            referenceType: 'review',
+            createdAt: new Date()
         });
-        await tokenTransaction.save();
+        
+        await tokenAccount.save();
+        
+        // Send token notification
+        const tokenNotification = new Notification({
+            recipient: userId,
+            title: 'Tokens Earned!',
+            message: 'You earned 3 tokens for leaving a review',
+            type: 'token_earned',
+            data: { actionUrl: '/pages/tokens.html' }
+        });
+        await tokenNotification.save();
 
         res.status(201).json({
             message: 'Review submitted successfully',
@@ -9096,6 +9168,227 @@ async function updateSellerRating(sellerId) {
         console.error('Update seller rating error:', error);
     }
 }
+
+// ==================== TOKEN REWARD SYSTEM API ENDPOINTS ====================
+
+// Get user's token balance and history
+app.get('/api/tokens/balance', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        
+        let tokenAccount = await Token.findOne({ user: userId });
+        
+        // Create token account if it doesn't exist
+        if (!tokenAccount) {
+            tokenAccount = new Token({ user: userId });
+            await tokenAccount.save();
+        }
+        
+        res.json({
+            currentBalance: tokenAccount.currentBalance,
+            totalEarned: tokenAccount.totalEarned,
+            totalSpent: tokenAccount.totalSpent,
+            transactions: tokenAccount.transactions.slice(-10), // Last 10 transactions
+            lastActivity: tokenAccount.lastActivity
+        });
+    } catch (error) {
+        console.error('Get token balance error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Award tokens to user
+app.post('/api/tokens/earn', authenticateToken, async (req, res) => {
+    try {
+        const { amount, reason, referenceId, referenceType } = req.body;
+        const userId = req.user.userId;
+        
+        if (!amount || amount <= 0) {
+            return res.status(400).json({ message: 'Invalid token amount' });
+        }
+        
+        if (!reason) {
+            return res.status(400).json({ message: 'Reason is required' });
+        }
+        
+        // Validate referenceType
+        const validReferenceTypes = ['purchase', 'review', 'signup', 'referral', 'redemption', 'general'];
+        if (referenceType && !validReferenceTypes.includes(referenceType)) {
+            return res.status(400).json({ message: 'Invalid reference type' });
+        }
+        
+        let tokenAccount = await Token.findOne({ user: userId });
+        
+        // Create token account if it doesn't exist
+        if (!tokenAccount) {
+            tokenAccount = new Token({ user: userId });
+        }
+        
+        // Add tokens
+        tokenAccount.currentBalance += amount;
+        tokenAccount.totalEarned += amount;
+        tokenAccount.lastActivity = new Date();
+        
+        // Add transaction record
+        tokenAccount.transactions.push({
+            type: 'earned',
+            amount: amount,
+            reason: reason,
+            referenceId: referenceId,
+            referenceType: referenceType || 'general',
+            createdAt: new Date()
+        });
+        
+        // Save token account first
+        await tokenAccount.save();
+        
+        // Get the transaction ID from the newly added transaction
+        const newTransaction = tokenAccount.transactions[tokenAccount.transactions.length - 1];
+        const transactionId = newTransaction._id;
+        
+        try {
+            // Send notification
+            const notification = new Notification({
+                recipient: userId,
+                title: 'Tokens Earned!',
+                message: `You've earned ${amount} tokens for: ${reason}`,
+                type: 'token_earned',
+                data: { actionUrl: '/pages/tokens.html' }
+            });
+            await notification.save();
+        } catch (notificationError) {
+            // If notification fails, log error but don't rollback token transaction
+            console.error('Failed to send token notification:', notificationError);
+        }
+        
+        res.json({
+            message: `Successfully earned ${amount} tokens`,
+            newBalance: tokenAccount.currentBalance,
+            transactionId: transactionId
+        });
+    } catch (error) {
+        console.error('Earn tokens error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Redeem/spend tokens
+app.post('/api/tokens/spend', authenticateToken, async (req, res) => {
+    try {
+        const { amount, reason, referenceId, referenceType } = req.body;
+        const userId = req.user.userId;
+        
+        if (!amount || amount <= 0) {
+            return res.status(400).json({ message: 'Invalid token amount' });
+        }
+        
+        if (!reason) {
+            return res.status(400).json({ message: 'Reason is required' });
+        }
+        
+        // Validate referenceType
+        const validReferenceTypes = ['purchase', 'review', 'signup', 'referral', 'redemption', 'general'];
+        if (referenceType && !validReferenceTypes.includes(referenceType)) {
+            return res.status(400).json({ message: 'Invalid reference type' });
+        }
+        
+        const tokenAccount = await Token.findOne({ user: userId });
+        
+        if (!tokenAccount) {
+            return res.status(404).json({ message: 'Token account not found' });
+        }
+        
+        if (tokenAccount.currentBalance < amount) {
+            return res.status(400).json({ message: 'Insufficient token balance' });
+        }
+        
+        // Deduct tokens
+        tokenAccount.currentBalance -= amount;
+        tokenAccount.totalSpent += amount;
+        tokenAccount.lastActivity = new Date();
+        
+        // Add transaction record
+        tokenAccount.transactions.push({
+            type: 'spent',
+            amount: amount,
+            reason: reason,
+            referenceId: referenceId,
+            referenceType: referenceType || 'redemption',
+            createdAt: new Date()
+        });
+        
+        // Save token account first
+        await tokenAccount.save();
+        
+        // Get the transaction ID from the newly added transaction
+        const newTransaction = tokenAccount.transactions[tokenAccount.transactions.length - 1];
+        const transactionId = newTransaction._id;
+        
+        try {
+            // Send notification
+            const notification = new Notification({
+                recipient: userId,
+                title: 'Tokens Spent',
+                message: `You've spent ${amount} tokens for: ${reason}`,
+                type: 'token_spent',
+                data: { actionUrl: '/pages/tokens.html' }
+            });
+            await notification.save();
+        } catch (notificationError) {
+            // If notification fails, log error but don't rollback token transaction
+            console.error('Failed to send token notification:', notificationError);
+        }
+        
+        res.json({
+            message: `Successfully spent ${amount} tokens`,
+            newBalance: tokenAccount.currentBalance,
+            transactionId: transactionId
+        });
+    } catch (error) {
+        console.error('Spend tokens error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Get token transaction history
+app.get('/api/tokens/history', authenticateToken, async (req, res) => {
+    try {
+        const { page = 1, limit = 20, type } = req.query;
+        const userId = req.user.userId;
+        
+        const tokenAccount = await Token.findOne({ user: userId });
+        
+        if (!tokenAccount) {
+            return res.json({ transactions: [], totalPages: 0 });
+        }
+        
+        let query = { user: userId };
+        if (type) {
+            query['transactions.type'] = type;
+        }
+        
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        
+        // Get transactions with pagination
+        const filteredTransactions = tokenAccount.transactions
+            .filter(transaction => !type || transaction.type === type)
+            .sort((a, b) => b.createdAt - a.createdAt);
+        
+        const transactions = filteredTransactions.slice(skip, skip + parseInt(limit));
+        
+        const totalTransactions = filteredTransactions.length;
+        
+        res.json({
+            transactions: transactions,
+            totalPages: Math.ceil(totalTransactions / parseInt(limit)),
+            currentPage: parseInt(page),
+            totalTransactions: totalTransactions
+        });
+    } catch (error) {
+        console.error('Get token history error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 
 // Dispute Management Routes
 const disputeController = require('./controllers/disputeController');

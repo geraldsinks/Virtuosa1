@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa System Integration Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .test-controls {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #ddd;
+        }
+
+        .result-card.success {
+            border-left-color: #28a745;
+        }
+
+        .result-card.error {
+            border-left-color: #dc3545;
+        }
+
+        .result-card h3 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .result-card.success h3 {
+            color: #28a745;
+        }
+
+        .result-card.error h3 {
+            color: #dc3545;
+        }
+
+        .test-details {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .test-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .test-item.pass {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .test-item.fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .test-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .system-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .status-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .status-item.active {
+            border-left: 4px solid #28a745;
+        }
+
+        .status-item.inactive {
+            border-left: 4px solid #ffc107;
+        }
+
+        .status-item.error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .console-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Virtuosa System Integration Test</h1>
+            <p>Comprehensive testing of all system integrations and workflows</p>
+        </div>
+
+        <div class="content">
+            <div class="test-controls">
+                <button id="startTest" class="btn">Start Integration Tests</button>
+                <button id="stopTest" class="btn hidden">Stop Tests</button>
+                <button id="downloadReport" class="btn hidden">Download Report</button>
+            </div>
+
+            <div class="progress-bar hidden" id="progressBar">
+                <div class="progress-fill" id="progressFill">0%</div>
+            </div>
+
+            <div class="system-status">
+                <div class="status-item" id="auth-status">
+                    <div class="status-icon"></div>
+                    <h4>Authentication</h4>
+                    <p class="status-text">Ready</p>
+                </div>
+                <div class="status-item" id="products-status">
+                    <div class="status-icon"></div>
+                    <h4>Products</h4>
+                    <p class="status-text">Ready</p>
+                </div>
+                <div class="status-item" id="cart-status">
+                    <div class="status-icon"></div>
+                    <h4>Cart</h4>
+                    <p class="status-text">Ready</p>
+                </div>
+                <div class="status-item" id="orders-status">
+                    <div class="status-icon"></div>
+                    <h4>Orders</h4>
+                    <p class="status-text">Ready</p>
+                </div>
+                <div class="status-item" id="tokens-status">
+                    <div class="status-icon"></div>
+                    <h4>Tokens</h4>
+                    <p class="status-text">Ready</p>
+                </div>
+                <div class="status-item" id="notifications-status">
+                    <div class="status-icon"></div>
+                    <h4>Notifications</h4>
+                    <p class="status-text">Ready</p>
+                </div>
+                <div class="status-item" id="reviews-status">
+                    <div class="status-icon"></div>
+                    <h4>Reviews</h4>
+                    <p class="status-text">Ready</p>
+                </div>
+                <div class="status-item" id="analytics-status">
+                    <div class="status-icon"></div>
+                    <h4>Analytics</h4>
+                    <p class="status-text">Ready</p>
+                </div>
+            </div>
+
+            <div class="results-section hidden" id="resultsSection">
+                <div class="results-grid">
+                    <div class="result-card" id="totalCard">
+                        <h3 id="totalTests">0</h3>
+                        <p>Total Tests</p>
+                    </div>
+                    <div class="result-card success" id="passedCard">
+                        <h3 id="passedTests">0</h3>
+                        <p>Passed</p>
+                    </div>
+                    <div class="result-card error" id="failedCard">
+                        <h3 id="failedTests">0</h3>
+                        <p>Failed</p>
+                    </div>
+                    <div class="result-card" id="successRateCard">
+                        <h3 id="successRate">0%</h3>
+                        <p>Success Rate</p>
+                    </div>
+                </div>
+
+                <div class="test-details" id="testDetails">
+                    <h3>Test Results</h3>
+                    <div id="testList"></div>
+                </div>
+            </div>
+
+            <div class="console-output hidden" id="consoleOutput">
+                <div class="console-header">Console Output</div>
+                <div id="consoleContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load required scripts -->
+    <script src="../js/config.js"></script>
+    <script src="../js/integration-test.js"></script>
+
+    <script>
+        // Test UI Controller
+        const TestUI = {
+            isRunning: false,
+            currentTest: 0,
+            totalTests: 0,
+
+            init() {
+                this.bindEvents();
+                this.setupConsoleCapture();
+            },
+
+            bindEvents() {
+                document.getElementById('startTest').addEventListener('click', () => this.startTests());
+                document.getElementById('stopTest').addEventListener('click', () => this.stopTests());
+                document.getElementById('downloadReport').addEventListener('click', () => this.downloadReport());
+            },
+
+            setupConsoleCapture() {
+                // Capture console output for display
+                const originalLog = console.log;
+                const originalError = console.error;
+                const consoleContent = document.getElementById('consoleContent');
+
+                console.log = (...args) => {
+                    originalLog.apply(console, args);
+                    this.appendConsole(args.join(' '), 'log');
+                };
+
+                console.error = (...args) => {
+                    originalError.apply(console, args);
+                    this.appendConsole(args.join(' '), 'error');
+                };
+            },
+
+            appendConsole(message, type = 'log') {
+                const consoleContent = document.getElementById('consoleContent');
+                const timestamp = new Date().toLocaleTimeString();
+                const div = document.createElement('div');
+                div.style.color = type === 'error' ? '#ff6b6b' : '#d4d4d4';
+                div.textContent = `[${timestamp}] ${message}`;
+                consoleContent.appendChild(div);
+                consoleContent.scrollTop = consoleContent.scrollHeight;
+            },
+
+            async startTests() {
+                if (this.isRunning) return;
+
+                this.isRunning = true;
+                this.updateUI('running');
+                
+                // Show progress bar and console
+                document.getElementById('progressBar').classList.remove('hidden');
+                document.getElementById('consoleOutput').classList.remove('hidden');
+
+                // Override integration tester methods to update UI
+                const originalAssert = window.IntegrationTester.assert;
+                const originalMakeRequest = window.IntegrationTester.makeRequest;
+
+                window.IntegrationTester.assert = (condition, message) => {
+                    originalAssert.call(this, condition, message);
+                    this.updateProgress();
+                    this.updateTestItem(message, condition);
+                };
+
+                window.IntegrationTester.makeRequest = async function(endpoint, options = {}) {
+                    const statusId = this.getStatusId(endpoint);
+                    this.updateSystemStatus(statusId, 'active', 'Testing...');
+                    
+                    try {
+                        const result = await originalMakeRequest.call(this, endpoint, options);
+                        this.updateSystemStatus(statusId, result.ok ? 'active' : 'error', 
+                            result.ok ? 'Working' : 'Error');
+                        return result;
+                    } catch (error) {
+                        this.updateSystemStatus(statusId, 'error', 'Failed');
+                        throw error;
+                    }
+                }.bind(this);
+
+                // Run tests
+                try {
+                    await window.IntegrationTester.runAllTests();
+                    this.showResults();
+                } catch (error) {
+                    console.error('Test execution failed:', error);
+                } finally {
+                    this.isRunning = false;
+                    this.updateUI('completed');
+                }
+            },
+
+            stopTests() {
+                this.isRunning = false;
+                this.updateUI('stopped');
+            },
+
+            getStatusId(endpoint) {
+                if (endpoint.includes('/auth') || endpoint.includes('/user')) return 'auth-status';
+                if (endpoint.includes('/products')) return 'products-status';
+                if (endpoint.includes('/cart')) return 'cart-status';
+                if (endpoint.includes('/orders')) return 'orders-status';
+                if (endpoint.includes('/tokens')) return 'tokens-status';
+                if (endpoint.includes('/notifications')) return 'notifications-status';
+                if (endpoint.includes('/reviews')) return 'reviews-status';
+                if (endpoint.includes('/analytics')) return 'analytics-status';
+                return null;
+            },
+
+            updateSystemStatus(statusId, status, text) {
+                const element = document.getElementById(statusId);
+                if (!element) return;
+
+                element.className = `status-item ${status}`;
+                element.querySelector('.status-text').textContent = text;
+            },
+
+            updateProgress() {
+                const results = window.IntegrationTester.results;
+                const progress = (results.total / 50) * 100; // Estimate 50 total tests
+                const progressFill = document.getElementById('progressFill');
+                progressFill.style.width = `${Math.min(progress, 100)}%`;
+                progressFill.textContent = `${Math.round(Math.min(progress, 100))}%`;
+            },
+
+            updateTestItem(message, passed) {
+                const testList = document.getElementById('testList');
+                const testItem = document.createElement('div');
+                testItem.className = `test-item ${passed ? 'pass' : 'fail'}`;
+                testItem.innerHTML = `
+                    <span class="test-icon">${passed ? ' ' : ' '}</span>
+                    <span>${message}</span>
+                `;
+                testList.appendChild(testItem);
+            },
+
+            updateUI(state) {
+                const startBtn = document.getElementById('startTest');
+                const stopBtn = document.getElementById('stopTest');
+                const downloadBtn = document.getElementById('downloadReport');
+
+                switch(state) {
+                    case 'running':
+                        startBtn.disabled = true;
+                        stopBtn.classList.remove('hidden');
+                        break;
+                    case 'completed':
+                        startBtn.disabled = false;
+                        stopBtn.classList.add('hidden');
+                        downloadBtn.classList.remove('hidden');
+                        break;
+                    case 'stopped':
+                        startBtn.disabled = false;
+                        stopBtn.classList.add('hidden');
+                        break;
+                }
+            },
+
+            showResults() {
+                const results = window.IntegrationTester.results;
+                const resultsSection = document.getElementById('resultsSection');
+                
+                // Update result cards
+                document.getElementById('totalTests').textContent = results.total;
+                document.getElementById('passedTests').textContent = results.passed;
+                document.getElementById('failedTests').textContent = results.failed;
+                document.getElementById('successRate').textContent = 
+                    `${((results.passed / results.total) * 100).toFixed(1)}%`;
+
+                // Update card colors
+                const successRate = (results.passed / results.total) * 100;
+                const totalCard = document.getElementById('totalCard');
+                const successRateCard = document.getElementById('successRateCard');
+                
+                totalCard.className = `result-card ${successRate >= 80 ? 'success' : successRate >= 60 ? '' : 'error'}`;
+                successRateCard.className = `result-card ${successRate >= 80 ? 'success' : successRate >= 60 ? '' : 'error'}`;
+
+                resultsSection.classList.remove('hidden');
+            },
+
+            downloadReport() {
+                // This will be handled by the integration tester
+                console.log('Generating test report...');
+            }
+        };
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            TestUI.init();
+        });
+    </script>
+</body>
+</html>
