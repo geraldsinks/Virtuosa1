@@ -1488,46 +1488,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mobileHeader) mobileHeader.classList.remove('hidden');
         if (siteHeader) siteHeader.classList.add('hidden');
         
-        // Handle mobile menu button
-        const menuButton = document.getElementById('mobile-menu-button');
-        if (menuButton) {
-            menuButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Menu button clicked');
-                
-                if (mobileMenu) {
-                    const isActive = mobileMenu.classList.contains('active');
-                    console.log('Menu active state:', isActive);
-                    
-                    if (isActive) {
-                        mobileMenu.classList.remove('active');
-                        if (mobileMenuOverlay) {
-                            mobileMenuOverlay.classList.add('hidden');
-                        }
-                    } else {
-                        mobileMenu.classList.add('active');
-                        if (mobileMenuOverlay) {
-                            mobileMenuOverlay.classList.remove('hidden');
-                        }
-                    }
-                }
-            });
-        }
+        // Mobile menu functionality is now handled globally by unified-header-fixed.js
+        // via the navigation-bootstrap.js and navigation-coordinator.js system.
         
-        // Handle menu overlay click
-        if (mobileMenuOverlay) {
-            mobileMenuOverlay.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Overlay clicked');
-                
-                if (mobileMenu) {
-                    mobileMenu.classList.remove('active');
-                    mobileMenuOverlay.classList.add('hidden');
-                }
-            });
+        // Ensure chat-specific mobile containers are correctly positioned
+        if (messageContainer) {
+            messageContainer.scrollTop = messageContainer.scrollHeight;
         }
+
         
         // Fix scrolling behavior
         fixMobileScrolling();
@@ -1543,8 +1511,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (siteHeader) siteHeader.classList.remove('hidden');
                 document.body.style.overflow = '';
                 document.body.style.position = '';
-                if (mobileMenu) mobileMenu.classList.remove('active');
-                if (mobileMenuOverlay) mobileMenuOverlay.classList.add('hidden');
             } else {
                 // Mobile: show mobile header, hide site header
                 if (mobileHeader) mobileHeader.classList.remove('hidden');

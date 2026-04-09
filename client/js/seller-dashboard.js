@@ -3,49 +3,7 @@
 
 let salesChart = null; // Global variable to store chart instance
 
-// Initialize user menu
-function initializeUserMenu(token) {
-    // Show user menu and hide login link
-    const userMenu = document.getElementById('user-menu');
-    const loginLink = document.getElementById('login-link');
-    
-    if (userMenu) {
-        userMenu.classList.remove('hidden');
-    }
-    
-    if (loginLink) {
-        loginLink.classList.add('hidden');
-    }
-}
 
-// Toggle user menu dropdown
-window.toggleUserMenu = function() {
-    const dropdown = document.getElementById('user-dropdown');
-    if (dropdown) {
-        dropdown.classList.toggle('hidden');
-    }
-};
-
-// Close dropdown when clicking outside
-document.addEventListener('click', function(event) {
-    const userMenu = document.getElementById('user-menu');
-    const dropdown = document.getElementById('user-dropdown');
-    
-    if (userMenu && dropdown && !userMenu.contains(event.target)) {
-        dropdown.classList.add('hidden');
-    }
-});
-
-// Logout function
-window.logout = function() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    if (window.router) {
-        window.router.navigate('/login');
-    } else {
-        window.location.href = '/login';
-    }
-};
 
 // Check seller access and update UI
 async function checkSellerAccess(token) {
@@ -96,11 +54,7 @@ async function checkSellerAccess(token) {
             }
         }
 
-        // Update seller links in mobile menu
-        const mobileSellerSection = document.getElementById('mobile-seller-section');
-        if (mobileSellerSection && user.isSeller) {
-            mobileSellerSection.style.display = 'block';
-        }
+
 
         // Update seller links in desktop menu
         const sellerLinks = document.getElementById('seller-links');
@@ -169,8 +123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.lucide.createIcons();
     }
 
-    // Initialize user menu
-    initializeUserMenu(token);
+
 
     // Test API connectivity first
     try {

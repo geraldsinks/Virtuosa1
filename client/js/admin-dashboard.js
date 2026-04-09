@@ -1031,12 +1031,9 @@ function showSuccess(message) {
     }, 3000);
 }
 
-// Logout function
-function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = 'login.html';
-}
+
+// Redundant logout() function removed - handled globally by unified-header-fixed.js
+
 
 // Load retention statistics
 async function loadRetentionStats() {
