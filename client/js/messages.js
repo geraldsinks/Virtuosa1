@@ -225,42 +225,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     document.head.appendChild(tokenManagerScript);
     
-    // Fix userId if it's undefined - try to get from token
-    if (!userId && token) {
-        console.log('🔍 Attempting to extract user ID from token...');
-        
-        try {
-            const parts = token.split('.');
-            if (parts.length !== 3) {
-                throw new Error('Invalid JWT format - should have 3 parts');
-            }
-            
-            const base64Url = parts[1];
-            
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-            const decoded = JSON.parse(jsonPayload);
-            
-            // Try different possible userId field names
-            userId = decoded.userId || decoded.id || decoded._id || decoded.sub;
-            
-            if (userId) {
-                localStorage.setItem('userId', userId);
-                console.log('✅ User ID extracted and stored');
-            } else {
-                console.error('❌ No userId field found in token');
-            }
-            
-        } catch (e) {
-            console.error('❌ Error parsing token for userId:', e.message);
-            
-            // As a fallback, try to get userId from the first message sender
-            console.log('🔄 Attempting fallback method...');
-        }
-    } else if (userId && userId !== 'undefined') {
-        console.log('✅ Using stored userId');
+    // Ensure userId is available (should be set by login or token-manager)
+    if (!userId || userId === 'undefined') {
+        console.warn('⚠️ No userId available. Authenticated messaging requires a valid userId in localStorage.');
     } else {
-        console.error('❌ No userId available and no token to parse');
+        console.log('✅ Using stored userId:', userId);
     }
     
     // Get URL parameters immediately
@@ -617,14 +586,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Mobile keyboard handling is now handled primarily by CSS and browser defaults
     
-    // Handle orientation changes
+    // Handle orientation changes for better mobile view stability
     window.addEventListener('orientationchange', () => {
         setTimeout(() => {
-            if (window.innerWidth < 768) {
-                initializeMobileKeyboardHandling();
-            }
-            
-            // Scroll to bottom after orientation change
             if (messageContainer) {
                 messageContainer.scrollTop = messageContainer.scrollHeight;
             }
@@ -650,19 +614,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load initial data
     loadConversations();
 
-    // Helper function to start chat after conversations are loaded
     async function startChatAfterConversationsLoad(sellerId, orderId) {
         try {
-            // Wait for conversations to load
             await loadConversations();
-            console.log('Conversations loaded, starting chat...');
-            
-            // Now start the chat with proper context
             startChat(sellerId, 'Seller', '', orderId);
         } catch (error) {
             console.error('Error starting chat after conversations load:', error);
-            // Fallback: start chat anyway if conversations loading fails
-            startChat(sellerId, 'Seller', '', orderId);
         }
     }
 
@@ -965,56 +922,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function showDemoConversations() {
-        if (!conversationList) return;
-        
-        conversationList.innerHTML = `
-            <div class="p-8 text-center text-gray-400">
-                <p>✅ Conversations loaded!</p>
-                <p class="text-sm mt-2">Authentication: ${token ? 'Logged in' : 'Demo mode'}</p>
-                <p class="text-sm mt-2">User: ${userFullName || userEmail || 'Guest'}</p>
-                <p class="text-sm mt-2">User ID: ${userId || 'Not available'}</p>
-            </div>
-            <div class="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full bg-gold bg-opacity-10 flex items-center justify-center font-bold text-gold">
-                    JD
-                </div>
-                <div class="flex-grow min-w-0">
-                    <div class="flex justify-between items-center mb-1">
-                        <h4 class="font-bold text-navy truncate">John Doe</h4>
-                        <span class="text-[10px] text-gray-400">10:30 AM</span>
-                    </div>
-                    <p class="text-xs text-gray-500 truncate">Hello! I'm interested in this product.</p>
-                </div>
-                <span class="bg-gold text-navy text-[10px] font-bold px-2 py-0.5 rounded-full">1</span>
-            </div>
-            <div class="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full bg-gold bg-opacity-10 flex items-center justify-center font-bold text-gold">
-                    AS
-                </div>
-                <div class="flex-grow min-w-0">
-                    <div class="flex justify-between items-center mb-1">
-                        <h4 class="font-bold text-navy truncate">Alice Smith</h4>
-                        <span class="text-[10px] text-gray-400">Yesterday</span>
-                    </div>
-                    <p class="text-xs text-gray-500 truncate">Thanks for your help!</p>
-                </div>
-            </div>
-            <div class="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full bg-gold bg-opacity-10 flex items-center justify-center font-bold text-gold">
-                    BJ
-                </div>
-                <div class="flex-grow min-w-0">
-                    <div class="flex justify-between items-center mb-1">
-                        <h4 class="font-bold text-navy truncate">Bob Johnson</h4>
-                        <span class="text-[10px] text-gray-400">2 days ago</span>
-                    </div>
-                    <p class="text-xs text-gray-500 truncate">Is the book still available?</p>
-                </div>
-                <span class="bg-gold text-navy text-[10px] font-bold px-2 py-0.5 rounded-full">2</span>
-            </div>
-        `;
-    }
+
 
     // Load messages
     async function loadMessages() {
@@ -1881,96 +1789,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 100);
         });
         
-        // Listen for scroll events
+        // Optional: Listen for scroll events to update widget visibility
         messageContainer.addEventListener('scroll', updateInputWidget);
         
         // Initial check
         updateInputWidget();
-        
-        // Also add keyboard shortcut
-        document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + Down arrow triggers auto input
-            if ((e.ctrlKey || e.metaKey) && e.key === 'ArrowDown') {
-                e.preventDefault();
-                console.log('Keyboard shortcut triggered');
-                
-                // First scroll to bottom of message container
-                if (messageContainer) {
-                    messageContainer.scrollTop = messageContainer.scrollHeight;
-                }
-                
-                // Then scroll input area into view with better positioning
-                setTimeout(() => {
-                    if (inputArea) {
-                        const inputRect = inputArea.getBoundingClientRect();
-                        const viewportHeight = window.innerHeight;
-                        const targetScrollY = window.pageYOffset + inputRect.top - (viewportHeight - inputRect.height - 100);
-                        
-                        window.scrollTo({
-                            top: targetScrollY,
-                            behavior: 'smooth'
-                        });
-                    }
-                    
-                    // Focus input field and open keyboard after scrolling
-                    setTimeout(() => {
-                        const messageInput = document.getElementById('message-input');
-                        if (messageInput) {
-                            messageInput.focus();
-                            
-                            // Trigger keyboard on mobile
-                            if (messageInput.scrollIntoView) {
-                                messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            }
-                            
-                            // Force keyboard to show on mobile
-                            if ('virtualKeyboard' in navigator) {
-                                navigator.virtualKeyboard.show();
-                            }
-                            
-                            console.log('Input field focused and keyboard triggered via keyboard');
-                        }
-                    }, 500);
-                }, 100);
-            }
-        });
-        
-        // Auto-trigger when user scrolls up significantly
-        let scrollTimeout;
-        messageContainer.addEventListener('scroll', () => {
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                const scrollTop = messageContainer.scrollTop;
-                const scrollHeight = messageContainer.scrollHeight;
-                const clientHeight = messageContainer.clientHeight;
-                const scrollPercentage = scrollTop / (scrollHeight - clientHeight);
-                
-                // Auto-trigger input if user scrolls up more than 30%
-                if (scrollPercentage < 0.7) {
-                    console.log('Auto-triggering input due to scroll up');
-                    
-                    // Scroll to bottom and focus input
-                    messageContainer.scrollTop = messageContainer.scrollHeight;
-                    
-                    setTimeout(() => {
-                        const messageInput = document.getElementById('message-input');
-                        if (messageInput) {
-                            messageInput.focus();
-                            
-                            // Trigger keyboard on mobile
-                            if (messageInput.scrollIntoView) {
-                                messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            }
-                            
-                            // Force keyboard to show on mobile
-                            if ('virtualKeyboard' in navigator) {
-                                navigator.virtualKeyboard.show();
-                            }
-                        }
-                    }, 300);
-                }
-            }, 1000); // Wait 1 second after scroll stops
-        });
     }
     
     function handleSwipeGesture(startY, endY) {

@@ -238,10 +238,12 @@ app.use(express.json());
 const { checkMaintenance } = require('./middleware/maintenance');
 app.use('/api', checkMaintenance);
 
-// Mount Analytics and Cookie Tracking Routes
+// Mount Analytics, Support, and Chat Routes
 console.log('📊 Mounting analytics routes...');
 app.use('/api/analytics', require('./routes/analytics'));
-console.log('📊 Analytics routes mounted');
+app.use('/api/support', require('./routes/support'));
+app.use('/api/chat', require('./routes/chat'));
+console.log('📊 Analytics, Support, and Chat routes mounted');
 
 // Serve uploads from the correct directory based on environment
 const uploadsPath = path.join(basePath, 'uploads');
@@ -669,8 +671,9 @@ app.post('/api/admin/messages/send-mass', authenticateToken, checkRoleAccess('ma
             verifiedOnly,
             dateRange,
             scheduleTime, // optional - for scheduled sending
-            includeUnsubscribe = true
         } = req.body;
+
+        const Notification = require('./models/Notification');
 
         // Build recipient query
         let recipientQuery = {};
@@ -717,61 +720,31 @@ app.post('/api/admin/messages/send-mass', authenticateToken, checkRoleAccess('ma
 
         console.log(`Sending mass message to ${targetUsers.length} users`);
 
-        // Get retention configuration
-        const retentionConfig = await RetentionConfig.findOne({ isActive: true });
-        console.log('📋 Using retention config for mass messages');
-
-        // Create messages for each user with retention policies
-        const messages = [];
-        for (const user of targetUsers) {
-            const message = {
-                sender: adminUser._id,
-                receiver: user._id,
-                content: content,
-                messageType: 'promotion',
-                isMassMessage: true,
-                massMessageTitle: title,
-                massMessageTarget: targetType,
-                createdAt: scheduleTime ? new Date(scheduleTime) : new Date()
-            };
-
-            // Apply retention policy
-            if (retentionConfig) {
-                // Mass messages use the extended retention period
-                const expiresAt = new Date(message.createdAt);
-                expiresAt.setDate(expiresAt.getDate() + retentionConfig.massMessageRetention);
-
-                message.retentionPolicy = 'extended';
-                message.retentionExpiresAt = expiresAt;
-                message.importance = 'high'; // Mass messages are important
-            } else {
-                // Default 1-year retention for mass messages
-                const defaultExpiry = new Date(message.createdAt);
-                defaultExpiry.setDate(defaultExpiry.getDate() + 365);
-
-                message.retentionPolicy = 'extended';
-                message.retentionExpiresAt = defaultExpiry;
-                message.importance = 'high';
+        // Create notification records for each user
+        const notifications = targetUsers.map(user => ({
+            recipient: user._id,
+            sender: req.user.userId || req.user.id,
+            type: 'system',
+            title: title || 'System Update',
+            message: content,
+            priority: 'normal',
+            data: {
+                actionUrl: '/pages/notifications.html',
+                actionText: 'View Message',
+                metadata: {
+                    isMassMessage: true,
+                    massMessageTarget: targetType,
+                    scheduledFor: scheduleTime || null
+                }
             }
+        }));
 
-            messages.push(message);
-        }
-
-        // Bulk insert messages
-        const insertedMessages = await Message.insertMany(messages);
-        console.log(`✅ Created ${insertedMessages.length} mass messages with retention policies`);
-
-        // Send real-time notifications if not scheduled
-        if (!scheduleTime || new Date(scheduleTime) <= new Date()) {
-            insertedMessages.forEach(message => {
-                const recipientRoom = `user_${message.receiver}`;
-                io.to(recipientRoom).emit('new_message', message);
-            });
-        }
+        const insertedNotifications = await Notification.insertMany(notifications);
+        console.log(`✅ Created ${insertedNotifications.length} mass message notifications`);
 
         res.json({
             success: true,
-            messageCount: insertedMessages.length,
+            messageCount: insertedNotifications.length,
             targetType,
             title,
             scheduledFor: scheduleTime
@@ -787,20 +760,21 @@ app.post('/api/admin/messages/send-mass', authenticateToken, checkRoleAccess('ma
 app.get('/api/admin/messages/mass-history', authenticateToken, checkRoleAccess('mass_messaging'), async (req, res) => {
     try {
         const { page = 1, limit = 10 } = req.query;
+        const Notification = require('./models/Notification');
 
-        const massMessages = await Message.find({
-            isMassMessage: true,
+        const query = {
+            type: 'system',
+            'data.metadata.isMassMessage': true,
             sender: req.user.userId
-        })
-            .populate('receiver', 'fullName email isBuyer isSeller')
+        };
+
+        const massMessages = await Notification.find(query)
+            .populate('recipient', 'fullName email')
             .sort({ createdAt: -1 })
             .limit(limit * 1)
             .skip((page - 1) * limit);
 
-        const total = await Message.countDocuments({
-            isMassMessage: true,
-            sender: req.user.userId
-        });
+        const total = await Notification.countDocuments(query);
 
         res.json({
             messages: massMessages,
@@ -9767,6 +9741,59 @@ app.get('/api/analytics/strategic/insights', authenticateAdmin, async (req, res)
     } catch (error) {
         console.error('Get strategic insights error:', error);
         res.status(500).json({ message: 'Failed to get insights', error: error.message });
+    }
+});
+
+// ==================== SUPPORT & LIVE CHAT APIS ====================
+const supportController = require('./controllers/supportController');
+const chatController = require('./controllers/chatController');
+const Notification = require('./models/Notification');
+const User = require('./models/User');
+
+// Admin Support Routes
+app.get('/api/admin/support/stats', authenticateAdmin, supportController.getStats);
+app.get('/api/admin/support/tickets', authenticateAdmin, supportController.getAdminTickets);
+app.patch('/api/admin/support/tickets/:id', authenticateAdmin, supportController.updateTicketStatus);
+
+// Admin Live Chat Routes
+app.get('/api/admin/live-chat/stats', authenticateAdmin, chatController.getStats);
+app.get('/api/admin/live-chat/active', authenticateAdmin, chatController.getActiveSessions);
+app.get('/api/admin/live-chat/agents', authenticateAdmin, (req, res) => res.json([]));
+app.get('/api/admin/live-chat/:id', authenticateAdmin, chatController.getSessionDetails);
+app.post('/api/admin/live-chat/:id/status', authenticateAdmin, chatController.updateSessionStatus);
+
+// Admin Mass Messaging
+app.post('/api/admin/mass-message', authenticateAdmin, async (req, res) => {
+    try {
+        const { message, audience, priority, title } = req.body;
+        
+        let targetUsers = [];
+        if (audience === 'all') {
+            targetUsers = await User.find({ status: 'active' }).select('_id');
+        } else if (audience === 'buyers') {
+            targetUsers = await User.find({ role: 'buyer', status: 'active' }).select('_id');
+        } else if (audience === 'sellers') {
+            targetUsers = await User.find({ role: 'seller', status: 'active' }).select('_id');
+        } else if (audience === 'premium') {
+            targetUsers = await User.find({ isPremium: true, status: 'active' }).select('_id');
+        }
+        
+        if (targetUsers.length === 0) return res.status(400).json({ message: 'No users found for this audience' });
+        
+        const notifications = targetUsers.map(u => ({
+            recipient: u._id,
+            type: 'system',
+            title: title || 'System Update',
+            message: message,
+            priority: priority || 'normal'
+        }));
+        
+        await Notification.insertMany(notifications);
+        
+        res.json({ success: true, message: `Sent to ${targetUsers.length} users` });
+    } catch (error) {
+        console.error('Mass message error:', error);
+        res.status(500).json({ message: 'Failed to send mass message', error: error.message });
     }
 });
 

@@ -420,7 +420,7 @@
         });
 
             // Handle form submission
-            contactForm.addEventListener('submit', function(e) {
+            contactForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 // Get form data
@@ -434,29 +434,54 @@
                 }
 
                 // Validate email
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
                 if (!emailRegex.test(data.email)) {
                     alert('Please enter a valid email address.');
                     return;
                 }
 
-                // Simulate form submission (in real app, this would be an API call)
-                console.log('Form submitted:', data);
-                
-                // Show success message
-                successMessage.classList.remove('hidden');
-                
-                // Reset form
-                this.reset();
-                attachmentSection.classList.add('hidden');
-                
-                // Scroll to success message
-                successMessage.scrollIntoView({ behavior: 'smooth' });
-                
-                // Hide success message after 10 seconds
-                setTimeout(() => {
-                    successMessage.classList.add('hidden');
-                }, 10000);
+                try {
+                    const submitBtn = contactForm.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Submitting...';
+                    
+                    const token = window.TokenManager ? window.TokenManager.getToken() : null;
+                    const headers = {};
+                    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+                    const apiUrl = window.API_BASE ? `${window.API_BASE}/support/tickets` : 'http://localhost:5000/api/support/tickets';
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers,
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        successMessage.classList.remove('hidden');
+                        this.reset();
+                        attachmentSection.classList.add('hidden');
+                        successMessage.scrollIntoView({ behavior: 'smooth' });
+                        setTimeout(() => {
+                            successMessage.classList.add('hidden');
+                        }, 10000);
+                    } else {
+                        alert(result.message || 'Failed to submit ticket');
+                    }
+                    
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    alert('An error occurred. Please try again.');
+                    
+                    const submitBtn = contactForm.querySelector('button[type="submit"]');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Submit Request <i class="fas fa-paper-plane ml-2"></i>';
+                }
             });
         });
 

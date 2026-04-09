@@ -61,7 +61,7 @@ class AdminRetentionManagement {
             // First test the connection
             console.log('🧪 Testing connection...');
             try {
-                const testResponse = await window.authHelper.authenticatedFetch('/api/admin/retention/test');
+                const testResponse = await adminFetch(window.API_BASE + '/admin/retention/test');
                 if (testResponse.ok) {
                     const testData = await testResponse.json();
                     console.log('✅ Test successful:', testData);
@@ -76,7 +76,7 @@ class AdminRetentionManagement {
             
             console.log('📡 Making API call to /api/admin/retention/stats...');
             
-            const response = await window.authHelper.authenticatedFetch('/api/admin/retention/stats');
+            const response = await adminFetch(window.API_BASE + '/admin/retention/stats');
             
             console.log('📊 Response status:', response.status, response.statusText);
             console.log('📊 Response headers:', response.headers);
@@ -147,7 +147,7 @@ class AdminRetentionManagement {
         try {
             console.log('⚙️ Loading retention configuration...');
             
-            const response = await window.authHelper.authenticatedFetch('/api/admin/retention/config');
+            const response = await adminFetch(window.API_BASE + '/admin/retention/config');
             
             if (response.ok) {
                 const data = await response.json();
@@ -224,7 +224,7 @@ class AdminRetentionManagement {
                 autoArchiveEnabled: document.getElementById('auto-archive-enabled').checked
             };
             
-            const response = await window.authHelper.authenticatedFetch(`/api/admin/retention/config/${this.currentConfig._id}`, {
+            const response = await adminFetch(`${window.API_BASE}/admin/retention/config/${this.currentConfig._id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
@@ -266,7 +266,7 @@ class AdminRetentionManagement {
             button.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> <span>Running...</span>';
             button.disabled = true;
             
-            const response = await window.authHelper.authenticatedFetch('/api/admin/retention/cleanup', {
+            const response = await adminFetch(window.API_BASE + '/admin/retention/cleanup', {
                 method: 'POST'
             });
             
@@ -317,7 +317,7 @@ class AdminRetentionManagement {
             
             if (filter) params.set('reason', filter);
             
-            const response = await window.authHelper.authenticatedFetch(`/api/admin/retention/archive?${params}`);
+            const response = await adminFetch(`${window.API_BASE}/admin/retention/archive?${params}`);
             
             if (response.ok) {
                 const data = await response.json();
@@ -444,7 +444,7 @@ class AdminRetentionManagement {
         try {
             console.log('🔄 Restoring message from archive...');
             
-            const response = await window.authHelper.authenticatedFetch(`/api/admin/retention/restore/${archiveId}`, {
+            const response = await adminFetch(`${window.API_BASE}/admin/retention/restore/${archiveId}`, {
                 method: 'POST'
             });
             

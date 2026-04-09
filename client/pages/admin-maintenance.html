@@ -491,7 +491,11 @@
                     const data = await response.json();
                     allMaintenance = data.maintenance;
                     renderMaintenanceTable(data.maintenance);
-                    renderPagination(data.pagination);
+                    renderPagination({
+                        pages: data.pages || 0,
+                        current: data.currentPage || 1,
+                        total: data.total || 0
+                    });
                     updateStats(data.maintenance);
                 } else if (response.status === 401 || response.status === 403) {
                     localStorage.removeItem('token');

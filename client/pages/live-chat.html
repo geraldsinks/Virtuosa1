@@ -568,24 +568,72 @@
             const maxReconnectAttempts = 3;
 
             // Initialize chat session
-            function initializeChat() {
+            async function initializeChat() {
                 try {
-                    // Get or create session ID
-                    chatSessionId = localStorage.getItem('chatSessionId') || 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                    localStorage.setItem('chatSessionId', chatSessionId);
-
-                    // Add connection status
-                    addSystemMessage('Connecting to support agent...', 'info');
+                    addSystemMessage('Connecting to support...', 'info');
                     
-                    // Simulate agent joining
-                    setTimeout(() => {
-                        addSystemMessage('Support agent joined the chat', 'success');
-                        addAgentMessage('👋 Hello! I\'m here to help you with any questions about Virtuosa. What can I assist you with today?');
-                    }, 1500);
+                    const token = window.TokenManager ? window.TokenManager.getToken() : null;
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (token) headers['Authorization'] = `Bearer ${token}`;
 
+                    const res = await fetch(`${window.API_BASE}/chat/start`, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify({ message: "Started session" })
+                    });
+                    
+                    const result = await res.json();
+                    
+                    if (res.ok) {
+                        chatSessionId = result.session._id;
+                        addSystemMessage('Connected successfully', 'success');
+                        addAgentMessage('👋 Hello! I am your Virtuosa AI Assistant. A human agent will join shortly if needed. How can we help today?');
+                        
+                        // Start polling
+                        setInterval(pollMessages, 3000);
+                    } else {
+                        addSystemMessage('Failed to initialize session', 'error');
+                    }
                 } catch (error) {
-                    console.error('Chat initialization error:', error);
-                    addSystemMessage('Unable to connect to chat. Please refresh the page.', 'error');
+                    console.error('Chat error:', error);
+                    addSystemMessage('Unable to connect to chat', 'error');
+                }
+            }
+            
+            let lastMessageCount = 0;
+            async function pollMessages() {
+                if (!chatSessionId) return;
+                try {
+                    const token = window.TokenManager ? window.TokenManager.getToken() : null;
+                    const headers = {};
+                    if (token) headers['Authorization'] = `Bearer ${token}`;
+                    
+                    const res = await fetch(`${window.API_BASE}/chat/${chatSessionId}/messages`, { headers });
+                    if (!res.ok) return;
+                    
+                    const result = await res.json();
+                    if (result.messages.length > lastMessageCount) {
+                        // Render new messages
+                        for (let i = lastMessageCount; i < result.messages.length; i++) {
+                            const msg = result.messages[i];
+                            // Skip the initial 'Started session' message sent by user automatically
+                            if (i === 0 && msg.message === 'Started session') continue;
+                            
+                            // Don't render user's own immediate messages if we just sent them, but for safety: 
+                            // we can rely entirely on backend rendering or deduplicate. Better: render them all if senderType is agent
+                            if (msg.senderType === 'agent') {
+                                addAgentMessage(msg.message);
+                            }
+                        }
+                        lastMessageCount = result.messages.length;
+                    }
+                    
+                    if (result.status === 'ended') {
+                        addSystemMessage('Chat ended', 'info');
+                        chatSessionId = null;
+                    }
+                } catch (e) {
+                    // silent poll error
                 }
             }
 
@@ -683,202 +731,57 @@
                 isTyping = false;
             }
 
-            // Generate intelligent response
-            function generateAgentResponse(userMessage) {
-                const message = userMessage.toLowerCase();
-                
-                // Check for specific keywords and provide contextual responses
-                if (message.includes('hello') || message.includes('hi') || message.includes('hey')) {
-                    return 'Hello! How can I help you with Virtuosa today?';
-                }
-                
-                if (message.includes('payment') || message.includes('pay')) {
-                    return 'We accept Credit/Debit Cards, Mobile Money (MTN, Airtel, Zamtel), and Cash on Delivery. Mobile Money is recommended for Zambian users with low fees. Would you like more details about any payment method?';
-                }
-                
-                if (message.includes('mobile money') || message.includes('mtn') || message.includes('airtel') || message.includes('zamtel')) {
-                    return 'Mobile Money is our most popular payment method in Zambia! We support MTN Mobile Money, Airtel Money, and Zamtel Money with just 1-2% fees and instant processing. You can link your account in your profile settings.';
-                }
-                
-                if (message.includes('sell') || message.includes('selling') || message.includes('seller')) {
-                    return 'Great! To start selling on Virtuosa, you\'ll need to verify your student status and create your first listing. I recommend checking out our Seller Guide at /pages/seller-guide.html for best practices. What type of items are you planning to sell?';
-                }
-                
-                if (message.includes('buy') || message.includes('purchase') || message.includes('order')) {
-                    return 'For buying, you can browse our marketplace or search for specific items. We offer secure payment protection and most items deliver within 24 hours. Are you looking for something specific?';
-                }
-                
-                if (message.includes('refund') || message.includes('return')) {
-                    return 'Our refund policy allows returns within 30 days for most items, 14 days for electronics. The process is handled through your order history. You can read our full refund policy at /pages/refund-policy.html. What specific issue are you having?';
-                }
-                
-                if (message.includes('contact') || message.includes('phone') || message.includes('email')) {
-                    return 'You can reach us at virtuosa@gmail.com or call +260 767 547 457 during business hours (Mon-Fri, 9AM-6PM CAT). For urgent issues, I\'m here to help right now!';
-                }
-                
-                if (message.includes('account') || message.includes('login') || message.includes('sign')) {
-                    return 'For account issues, try resetting your password first. If that doesn\'t work, I can help you with verification or account recovery. What specific problem are you experiencing?';
-                }
-                
-                if (message.includes('delivery') || message.includes('shipping') || message.includes('pickup')) {
-                    return 'We offer local pickup on campus and delivery within Zambia. Most items are available for same-day pickup. Delivery times vary by location. Are you asking about a specific order?';
-                }
-                
-                if (message.includes('fees') || message.includes('commission') || message.includes('cost')) {
-                    return 'Virtuosa charges 5-8% commission on successful sales. Listing is always free! Mobile money has the lowest fees at 1-2%. Cash on delivery has no fees. Sellers get paid within 3-5 business days after delivery confirmation.';
-                }
-                
-                if (message.includes('security') || message.includes('safe') || message.includes('protect')) {
-                    return 'Security is our top priority! We use SSL encryption, verify all users with student emails, have secure payment escrow, and offer fraud protection. All transactions are monitored 24/7. Is there a specific security concern I can help with?';
-                }
-                
-                // Default responses
-                const defaultResponses = [
-                    "I understand. Let me help you with that. Could you provide more details about your question?",
-                    "That's a great question! Based on what you've told me, I'd recommend checking our FAQ section first, then I can help with specifics.",
-                    "I'm here to help! Could you tell me more about what you're looking for?",
-                    "Thanks for reaching out! Let me connect you with the right information. What specific aspect can I help with?",
-                    "I can definitely assist with that. Let me guide you through the process step by step."
-                ];
-                
-                return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
-            }
-
-            // Simulate agent typing and response
-            function simulateAgentResponse(userMessage) {
-                showTypingIndicator();
-                
-                // Variable response time to feel more natural
-                const responseTime = 2000 + Math.random() * 2000;
-                
-                setTimeout(() => {
-                    hideTypingIndicator();
-                    const response = generateAgentResponse(userMessage);
-                    addAgentMessage(response);
-                    
-                    // Store message for potential chat history
-                    storeChatMessage('agent', response);
-                }, responseTime);
-            }
-
-            // Store chat message in localStorage
-            function storeChatMessage(sender, message) {
-                try {
-                    const chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-                    chatHistory.push({
-                        sender: sender,
-                        message: message,
-                        timestamp: new Date().toISOString(),
-                        sessionId: chatSessionId
-                    });
-                    
-                    // Keep only last 50 messages
-                    if (chatHistory.length > 50) {
-                        chatHistory = chatHistory.slice(-50);
-                    }
-                    
-                    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-                } catch (error) {
-                    console.error('Error storing chat message:', error);
-                }
-            }
-
-            // Play notification sound
-            function playNotificationSound() {
-                try {
-                    // Create a simple beep sound using Web Audio API
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.frequency.value = 800;
-                    oscillator.type = 'sine';
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-                    
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.1);
-                } catch (error) {
-                    // Silently fail if audio is not supported
-                }
-            }
-
             // Handle form submission
-            chatForm.addEventListener('submit', function(e) {
+            chatForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const message = chatInput.value.trim();
                 
-                if (message) {
+                if (message && chatSessionId) {
                     addUserMessage(message);
-                    storeChatMessage('user', message);
                     chatInput.value = '';
+                    lastMessageCount++; // Increment immediately to avoid rendering our own message twice from poll
                     
-                    // Simulate agent response
-                    simulateAgentResponse(message);
+                    try {
+                        const token = window.TokenManager ? window.TokenManager.getToken() : null;
+                        const headers = { 'Content-Type': 'application/json' };
+                        if (token) headers['Authorization'] = `Bearer ${token}`;
+                        await fetch(`${window.API_BASE}/chat/${chatSessionId}/messages`, {
+                            method: 'POST',
+                            headers,
+                            body: JSON.stringify({ message, senderType: 'customer' })
+                        });
+                    } catch (e) {}
                 }
-            ;
-        });
+            });
 
             // Send quick reply
             window.sendQuickReply = function(message) {
-                addUserMessage(message);
-                storeChatMessage('user', message);
-                simulateAgentResponse(message);
+                chatInput.value = message;
+                chatForm.dispatchEvent(new Event('submit'));
             };
 
             // End chat function
-            window.endChat = function() {
-                if (confirm('Are you sure you want to end this chat session?')) {
-                    addAgentMessage('Thank you for chatting with Virtuosa Support! Have a great day! 😊');
-                    storeChatMessage('agent', 'Thank you for chatting with Virtuosa Support! Have a great day! 😊');
-                    
-                    setTimeout(() => {
-                        alert('Chat session ended. You can start a new chat anytime or email us at virtuosa@gmail.com');
-                        window.location.href = '/pages/contact-support.html';
-                    }, 2000);
+            window.endChat = async function() {
+                if (confirm('Are you sure you want to end this chat?')) {
+                    if (chatSessionId) {
+                        try {
+                            const token = window.TokenManager ? window.TokenManager.getToken() : null;
+                            const headers = { 'Content-Type': 'application/json' };
+                            if (token) headers['Authorization'] = `Bearer ${token}`;
+                            
+                            await fetch(`${window.API_BASE}/chat/${chatSessionId}/status`, { // Need endpoint for status updates
+                                method: 'POST',
+                                headers,
+                                body: JSON.stringify({ status: 'ended' })
+                            });
+                        } catch (e) {}
+                    }
+                    alert('Chat session ended.');
+                    window.location.href = '/pages/contact-support.html';
                 }
             };
-
-            // Handle connection issues
-            function handleConnectionError() {
-                if (reconnectAttempts < maxReconnectAttempts) {
-                    reconnectAttempts++;
-                    addSystemMessage(`Connection lost. Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`, 'error');
-                    
-                    setTimeout(() => {
-                        initializeChat();
-                    }, 3000);
-                } else {
-                    addSystemMessage('Unable to reconnect. Please refresh the page or contact us directly.', 'error');
-                }
-            }
-
-            // Check connection status periodically
-            setInterval(() => {
-                if (Math.random() < 0.05) { // 5% chance to simulate connection check
-                    // This would be a real connection check in production
-                    console.log('Chat connection status: Connected');
-                }
-            }, 30000);
-
-            // Handle page visibility change
-            document.addEventListener('visibilitychange', function() {
-                if (!document.hidden) {
-                    // User returned to the page
-                    addSystemMessage('Welcome back! I\'m still here to help you.', 'info');
-                }
-            });
-
-            // Handle window close
-            window.addEventListener('beforeunload', function() {
-                // Save current chat state
-                localStorage.setItem('chatActive', 'true');
-            });
-
-            // Initialize chat when page loads
+            
+            // Start chat
             initializeChat();
 
             // Auto-focus input

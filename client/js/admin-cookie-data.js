@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchData(timeframe = '24h') {
         try {
-            const url = window.URLHelper ? window.URLHelper.getApiUrl(`/api/analytics/admin/cookie-data?timeframe=${timeframe}`) : `/api/analytics/admin/cookie-data?timeframe=${timeframe}`;
+            const url = `${window.API_BASE}/analytics/admin/cookie-data?timeframe=${timeframe}`;
             const res = await fetch(url, {
                 headers: {
                     'Authorization': `Bearer ${token}`

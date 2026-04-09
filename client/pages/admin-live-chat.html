@@ -447,29 +447,55 @@
             return `${Math.floor(diff / 86400)}d ago`;
         }
 
-        function joinChat(chatId) {
-            console.log('Join chat:', chatId);
-            // Implementation for joining chat
+        async function joinChat(chatId) {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE}/admin/live-chat/${chatId}/status`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'active' })
+                });
+                if (response.ok) {
+                    alert('You have joined the chat');
+                    loadActiveChats();
+                    loadChatStats();
+                }
+            } catch (error) {
+                console.error('Join chat error:', error);
+            }
         }
 
         function transferChat(chatId) {
-            console.log('Transfer chat:', chatId);
-            // Implementation for transferring chat
+            const targetAgent = prompt('Enter agent ID to transfer to:');
+            if (targetAgent) {
+                alert('Transfer functionality will be available when agent roster is implemented');
+            }
         }
 
-        function endChat(chatId) {
-            console.log('End chat:', chatId);
-            // Implementation for ending chat
+        async function endChat(chatId) {
+            if (!confirm('End this chat session?')) return;
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE}/admin/live-chat/${chatId}/status`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'ended' })
+                });
+                if (response.ok) {
+                    loadActiveChats();
+                    loadChatStats();
+                }
+            } catch (error) {
+                console.error('End chat error:', error);
+            }
         }
 
         function messageAgent(agentId) {
             console.log('Message agent:', agentId);
-            // Implementation for messaging agent
         }
 
         function toggleAgentStatus(agentId) {
             console.log('Toggle agent status:', agentId);
-            // Implementation for toggling agent status
         }
 
         // Cleanup on page unload

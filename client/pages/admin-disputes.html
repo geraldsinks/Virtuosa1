@@ -366,7 +366,7 @@
 
         async function loadDisputeStats() {
             try {
-                const response = await fetch('/api/disputes/stats?timeframe=30d');
+                const response = await fetch(window.API_BASE + '/disputes/stats?timeframe=30d');
                 const data = await response.json();
                 
                 if (data.success) {
@@ -388,7 +388,7 @@
                     ...currentFilters
                 });
 
-                const response = await fetch(`/api/disputes/admin?${params}`);
+                const response = await fetch(`${window.API_BASE}/disputes/admin?${params}`);
                 const data = await response.json();
                 
                 if (data.success) {
@@ -488,7 +488,7 @@
 
         async function viewDispute(disputeId) {
             try {
-                const response = await fetch(`/api/disputes/${disputeId}`);
+                const response = await fetch(`${window.API_BASE}/disputes/${disputeId}`);
                 const data = await response.json();
                 
                 if (data.success) {
@@ -634,7 +634,7 @@
 
         async function assignToMe(disputeId) {
             try {
-                const response = await fetch(`/api/disputes/${disputeId}/assign`, {
+                const response = await fetch(`${window.API_BASE}/disputes/${disputeId}/assign`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -707,7 +707,7 @@
             };
             
             try {
-                const response = await fetch(`/api/disputes/${currentDispute._id}/resolve`, {
+                const response = await fetch(`${window.API_BASE}/disputes/${currentDispute._id}/resolve`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

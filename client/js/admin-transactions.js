@@ -57,7 +57,7 @@ class TransactionManager {
                 ...this.filters
             });
 
-            const response = await fetch(`/api/admin/transactions?${params}`);
+            const response = await fetch(`${window.API_BASE}/admin/transactions?${params}`);
             const data = await response.json();
 
             if (data.success) {
@@ -76,7 +76,7 @@ class TransactionManager {
 
     async loadStats() {
         try {
-            const response = await fetch('/api/admin/transactions/stats');
+            const response = await fetch(window.API_BASE + '/admin/transactions/stats');
             const data = await response.json();
 
             if (data.success) {
@@ -257,7 +257,7 @@ class TransactionManager {
 
     async viewTransaction(transactionId) {
         try {
-            const response = await fetch(`/api/admin/transactions/${transactionId}`);
+            const response = await fetch(`${window.API_BASE}/admin/transactions/${transactionId}`);
             const data = await response.json();
 
             if (data.success) {
@@ -405,7 +405,7 @@ class TransactionManager {
             const formData = new FormData(document.getElementById('createTransactionForm'));
             const data = Object.fromEntries(formData);
 
-            const response = await fetch('/api/admin/transactions', {
+            const response = await fetch(window.API_BASE + '/admin/transactions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -436,7 +436,7 @@ class TransactionManager {
             const status = document.getElementById('newStatus').value;
             const reason = document.getElementById('statusReason').value;
 
-            const response = await fetch(`/api/admin/transactions/${this.currentTransactionId}/status`, {
+            const response = await fetch(`${window.API_BASE}/admin/transactions/${this.currentTransactionId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -462,7 +462,7 @@ class TransactionManager {
 
     async confirmTransaction(transactionId, userType) {
         try {
-            const response = await fetch(`/api/admin/transactions/${transactionId}/confirm`, {
+            const response = await fetch(`${window.API_BASE}/admin/transactions/${transactionId}/confirm`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -492,7 +492,7 @@ class TransactionManager {
         try {
             const reason = prompt('Reason for releasing escrow (optional):') || 'Escrow released by administrator';
 
-            const response = await fetch(`/api/admin/transactions/${transactionId}/release-escrow`, {
+            const response = await fetch(`${window.API_BASE}/admin/transactions/${transactionId}/release-escrow`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -525,7 +525,7 @@ class TransactionManager {
         }
 
         try {
-            const response = await fetch(`/api/admin/transactions/${transactionId}/refund`, {
+            const response = await fetch(`${window.API_BASE}/admin/transactions/${transactionId}/refund`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -562,7 +562,7 @@ class TransactionManager {
         }
 
         try {
-            const response = await fetch(`/api/admin/transactions/${transactionId}/risk-flag`, {
+            const response = await fetch(`${window.API_BASE}/admin/transactions/${transactionId}/risk-flag`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -593,7 +593,7 @@ class TransactionManager {
         }
 
         try {
-            const response = await fetch(`/api/admin/transactions/${transactionId}/note`, {
+            const response = await fetch(`${window.API_BASE}/admin/transactions/${transactionId}/note`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -705,7 +705,7 @@ class TransactionManager {
         try {
             this.showLoading(true);
             
-            const response = await fetch('/api/admin/transactions/search', {
+            const response = await fetch(window.API_BASE + '/admin/transactions/search', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -737,7 +737,7 @@ class TransactionManager {
                 ...this.filters
             });
 
-            const response = await fetch(`/api/admin/transactions/export?${params}`);
+            const response = await fetch(`${window.API_BASE}/admin/transactions/export?${params}`);
             
             if (response.ok) {
                 const blob = await response.blob();
@@ -762,7 +762,7 @@ class TransactionManager {
     // Bulk operations
     async bulkUpdateStatus(transactionIds, newStatus, reason) {
         try {
-            const response = await fetch('/api/admin/transactions/bulk-status', {
+            const response = await fetch(window.API_BASE + '/admin/transactions/bulk-status', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -829,7 +829,7 @@ class TransactionManager {
         try {
             this.showLoading(true);
             
-            const response = await fetch('/api/admin/transactions/date-range', {
+            const response = await fetch(window.API_BASE + '/admin/transactions/date-range', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -889,7 +889,7 @@ class TransactionManager {
         try {
             this.showLoading(true);
             
-            const response = await fetch('/api/admin/transactions/high-risk');
+            const response = await fetch(window.API_BASE + '/admin/transactions/high-risk');
             const data = await response.json();
 
             if (data.success) {

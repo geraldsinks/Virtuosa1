@@ -340,14 +340,35 @@
             console.log('View ticket:', ticketId);
         }
 
-        function assignTicket(ticketId) {
-            // Implementation for assigning ticket
-            console.log('Assign ticket:', ticketId);
+        async function assignTicket(ticketId) {
+            const assignee = prompt('Enter admin ID to assign to:');
+            if (assignee) {
+                try {
+                    const response = await window.adminFetch(`${API_BASE}/admin/support/tickets/${ticketId}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({ status: 'pending', assignedTo: assignee })
+                    });
+                    if (response.ok) loadSupportTickets();
+                } catch (e) {}
+            }
         }
 
-        function resolveTicket(ticketId) {
-            // Implementation for resolving ticket
-            console.log('Resolve ticket:', ticketId);
+        async function resolveTicket(ticketId) {
+            if (!confirm('Resolve this ticket?')) return;
+            try {
+                const response = await window.adminFetch(`${API_BASE}/admin/support/tickets/${ticketId}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ status: 'resolved' })
+                });
+                if (response.ok) {
+                    loadSupportStats();
+                    loadSupportTickets();
+                } else {
+                    alert('Failed to resolve ticket');
+                }
+            } catch (error) {
+                console.error('Resolution error:', error);
+            }
         }
     </script>
     
