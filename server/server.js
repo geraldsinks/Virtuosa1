@@ -93,6 +93,9 @@ uploadDirs.forEach(dir => {
 
 const app = express();
 
+// Trust proxy for rate limiting (important for deployment on platforms like Render)
+app.set('trust proxy', 1);
+
 // Enable gzip compression for all responses
 app.use(compression({
   filter: (req, res) => {
@@ -2622,12 +2625,18 @@ app.post('/api/auth/login', async (req, res) => {
         console.log('Attempting password comparison for user:', normalizedEmail);
         console.log('Password hash length:', user.password.length);
         console.log('Password hash starts with:', user.password.substring(0, 10));
+        console.log('Input password length:', password.length);
         
         let isMatch = await bcrypt.compare(password, user.password);
+        
+        console.log('Password comparison result:', isMatch);
         
         if (!isMatch) {
             console.log('Password comparison failed for user:', normalizedEmail);
             console.log('Full password hash:', user.password);
+            // For debugging: let's try to hash the input password to see what happens
+            const testHash = await bcrypt.hash(password, 12);
+            console.log('Test hash of input password:', testHash.substring(0, 20) + '...');
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
@@ -3678,6 +3687,12 @@ app.get('/api/products/:id', cacheMiddleware(600), async (req, res) => {
     try {
         const productId = req.params.id;
         console.log(`🔍 Looking for product with ID: ${productId}`);
+        
+        // Validate ObjectId format to prevent CastError
+        if (productId === 'recommendations' || !mongoose.Types.ObjectId.isValid(productId)) {
+            console.log(`❌ Invalid product ID format: ${productId}`);
+            return res.status(400).json({ message: 'Invalid product ID format' });
+        }
         
         const product = await Product.findById(productId)
             .populate('seller', 'fullName email sellerRating totalSellerReviews storeName storeSlug');
