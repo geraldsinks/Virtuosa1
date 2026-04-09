@@ -14,7 +14,7 @@ const analyticsEventSchema = new mongoose.Schema({
   },
   eventType: {
     type: String,
-    enum: ['pageview', 'product_click', 'category_view', 'search', 'consent_update'],
+    enum: ['pageview', 'pageview_duration', 'product_click', 'category_view', 'search', 'consent_update'],
     required: true,
     index: true
   },
