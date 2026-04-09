@@ -239,7 +239,16 @@ app.use(cors( {
     allowedHeaders: ["Content-Type", "Authorization"],
     maxAge: 86400
 }));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+
+// Add raw body parser for debugging
+app.use(express.raw({ type: 'application/json', limit: '10mb' }), (req, res, next) => {
+    if (req.path === '/api/auth/login' && req.method === 'POST') {
+        console.log('🔍 RAW DEBUG - Raw body received:', req.body.toString());
+        console.log('🔍 RAW DEBUG - Raw body length:', req.body.length);
+    }
+    next();
+});
 
 // Maintenance middleware for API routes
 const { checkMaintenance } = require('./middleware/maintenance');
