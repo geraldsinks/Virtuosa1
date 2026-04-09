@@ -328,13 +328,19 @@ class UnifiedHeader {
         <div class="border-t border-gray-800 my-2 mx-5"></div>
 
         <!-- Account Section -->
-        <div class="mb-2">
+        <div id="side-menu-account-section" class="mb-2 hidden">
             <h3 class="px-5 py-2 font-bold text-gray-400 uppercase tracking-widest text-[11px]">Your Account</h3>
             <a href="/dashboard" class="flex flex-row items-center px-5 py-3 text-gray-200 hover:bg-gray-800 hover:text-gold transition-colors">
                 <span>Dashboard</span>
             </a>
             <a href="/orders" class="flex flex-row items-center px-5 py-3 text-gray-200 hover:bg-gray-800 hover:text-gold transition-colors">
                 <span>Your Orders</span>
+            </a>
+            <a href="/messages" class="flex flex-row items-center px-5 py-3 text-gray-200 hover:bg-gray-800 hover:text-gold transition-colors">
+                <span>Messages</span>
+            </a>
+            <a href="/transactions" class="flex flex-row items-center px-5 py-3 text-gray-200 hover:bg-gray-800 hover:text-gold transition-colors">
+                <span>Transactions</span>
             </a>
             <a href="/profile" class="flex flex-row items-center px-5 py-3 text-gray-200 hover:bg-gray-800 hover:text-gold transition-colors">
                 <span>Your Account Settings</span>
@@ -576,6 +582,10 @@ class UnifiedHeader {
                 this.handleLogout();
             };
         }
+
+        // Unhide Account Section
+        const sideMenuAccountSection = document.getElementById('side-menu-account-section');
+        if (sideMenuAccountSection) sideMenuAccountSection.classList.remove('hidden');
     }
 
     updateUIForLoggedOutUser() {
@@ -599,7 +609,7 @@ class UnifiedHeader {
         if (sideMenuSignOut) sideMenuSignOut.classList.add('hidden');
 
         // Hide special sections
-        ['side-menu-seller-section', 'side-menu-admin-section'].forEach(id => {
+        ['side-menu-account-section', 'side-menu-seller-section', 'side-menu-admin-section'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.classList.add('hidden');
         });
