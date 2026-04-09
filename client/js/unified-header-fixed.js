@@ -770,7 +770,10 @@ class UnifiedHeader {
         fetch(`${window.API_BASE}/notifications/unread-count`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error('Network response was not ok');
+            return res.json();
+        })
         .then(data => {
             const badge = document.getElementById('notification-badge');
             if (badge && data && data.count > 0) {
@@ -778,7 +781,7 @@ class UnifiedHeader {
                 badge.classList.remove('hidden');
             }
         })
-        .catch(err => console.log('Notification fetch skipped', err));
+        .catch(err => console.log('Notification fetch skipped:', err.message));
     }
 
     initializeUserDropdown() {

@@ -1204,24 +1204,47 @@
                     const cloudinaryBase = imageUrl.substring(0, uploadIndex + 8); // +8 for '/upload/'
                     const remainingPath = imageUrl.substring(uploadIndex + 8);
 
-                    let optimizedUrl;
-                    const newTransforms = `q_auto,f_auto,w_${width},h_${height},c_fill`;
+                    // Check if the first segment is a version string
+                    let existingTransforms = '';
+                    let cleanImagePath = remainingPath;
+                    let versionString = '';
 
-                    if (preserveExistingTransforms && remainingPath.includes('/')) {
-                        // Preserve existing transformations and add ours
-                        const pathIndex = remainingPath.indexOf('/');
-                        const existingTransforms = remainingPath.substring(0, pathIndex);
-                        const imagePath = remainingPath.substring(pathIndex);
-                        
-                        // Combine transformations, avoiding duplicates
-                        const combinedTransforms = existingTransforms ? `${existingTransforms},${newTransforms}` : newTransforms;
-                        optimizedUrl = cloudinaryBase + combinedTransforms + imagePath;
-                    } else {
-                        // Strip existing transformations and apply new ones
-                        const cleanImagePath = remainingPath.includes('/') ? 
-                            remainingPath.substring(remainingPath.indexOf('/') + 1) : remainingPath;
-                        optimizedUrl = cloudinaryBase + newTransforms + '/' + cleanImagePath;
+                    const pathIndex = remainingPath.indexOf('/');
+                    if (pathIndex !== -1) {
+                        const firstSegment = remainingPath.substring(0, pathIndex);
+                        if (firstSegment.match(/^v\d+$/)) {
+                            versionString = firstSegment;
+                            cleanImagePath = remainingPath.substring(pathIndex + 1);
+                        } else {
+                            existingTransforms = firstSegment;
+                            cleanImagePath = remainingPath.substring(pathIndex + 1);
+                            
+                            // Check if the NEXT segment is a version string
+                            const nextPathIndex = cleanImagePath.indexOf('/');
+                            if (nextPathIndex !== -1) {
+                                const secondSegment = cleanImagePath.substring(0, nextPathIndex);
+                                if (secondSegment.match(/^v\d+$/)) {
+                                    versionString = secondSegment;
+                                    cleanImagePath = cleanImagePath.substring(nextPathIndex + 1);
+                                }
+                            }
+                        }
+                    } else if (remainingPath.match(/^v\d+$/)) {
+                        versionString = remainingPath;
+                        cleanImagePath = '';
                     }
+
+                    // Assemble the optimized URL
+                    let finalTransforms = newTransforms;
+                    if (preserveExistingTransforms && existingTransforms) {
+                        finalTransforms = `${existingTransforms},${newTransforms}`;
+                    }
+
+                    let optimizedUrl = cloudinaryBase + finalTransforms + '/';
+                    if (versionString) {
+                         optimizedUrl += versionString + '/';
+                    }
+                    optimizedUrl += cleanImagePath;
 
                     return optimizedUrl;
                 } catch (error) {
@@ -1347,13 +1370,11 @@
                      onclick="window.location.href='${sanitizeUrl(ad.link)}'"
                      role="button" tabindex="0">
                      
-                     <picture>
-                        <!-- Fallback robust image loading object-fit -->
-                        <img src="${webpUrl}" 
-                             onerror="this.onerror=null; this.src='${imageUrl}';" 
-                             class="absolute inset-0 w-full h-full object-cover z-0" 
-                             alt="${encodeHtml(ad.title)}" />
-                     </picture>
+                     <!-- Fallback robust image loading object-fit -->
+                     <img src="${webpUrl}" 
+                          onerror="this.onerror=null; this.src='${imageUrl}';" 
+                          class="absolute inset-0 w-full h-full object-cover z-0" 
+                          alt="${encodeHtml(ad.title)}" />
                      
                      <div class="ad-card-overlay">
                          <div class="ad-card-content">

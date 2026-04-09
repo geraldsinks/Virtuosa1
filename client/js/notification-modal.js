@@ -150,12 +150,16 @@ class NotificationModal {
             });
 
             if (response.ok) {
-                this.notifications = await response.json();
+                const data = await response.json();
+                this.notifications = Array.isArray(data) ? data : [];
                 this.renderNotifications();
                 this.updateBadge();
+            } else {
+                this.notifications = [];
             }
         } catch (error) {
             console.error('Error loading notifications:', error);
+            this.notifications = [];
             this.content.innerHTML = `
                 <div class="text-center py-12">
                     <i class="fas fa-exclamation-triangle text-3xl text-red-500 mb-3"></i>
