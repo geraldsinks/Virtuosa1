@@ -2202,8 +2202,7 @@ const sellerApplicationSchema = new mongoose.Schema({
 sellerApplicationSchema.index({ user: 1, status: 1 });
 sellerApplicationSchema.index({ status: 1, submittedAt: -1 });
 
-const SellerApplication = mongoose.model('SellerApplication', sellerApplicationSchema);
-console.log('SellerApplication model created successfully');
+// SellerApplication model already loaded at line 70
 
 // Virtuosa Pro Subscription Schema
 const subscriptionSchema = new mongoose.Schema({

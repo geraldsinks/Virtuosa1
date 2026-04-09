@@ -92,7 +92,7 @@ try {
             'console.log(\'Reject request received',
             'console.log(\'Approve request received',
             'Error stack:',
-            'Server error: ' + error.message
+            'Server error: \' + error.message'
         ];
         
         let loggingFound = 0;
