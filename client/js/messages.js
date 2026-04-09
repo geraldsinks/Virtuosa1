@@ -212,9 +212,44 @@ function initializeMobileHeader() {
 // Mobile menu toggle function
 window.openMobileMenu = function() {
     console.log('Opening mobile menu...');
-    // This will be handled by the unified header system
+    
+    // Try to use unified header system first
     if (window.unifiedHeader && window.unifiedHeader.openSideMenu) {
         window.unifiedHeader.openSideMenu();
+        return;
+    }
+    
+    // Fallback: manually trigger the side menu
+    const toggle = document.getElementById('mobile-menu-toggle');
+    const overlay = document.getElementById('side-menu-overlay');
+    const content = document.getElementById('side-menu-content');
+    
+    if (overlay && content) {
+        overlay.classList.remove('hidden');
+        setTimeout(() => {
+            overlay.classList.add('active');
+            content.classList.add('active');
+        }, 10);
+        document.body.style.overflow = 'hidden';
+    }
+};
+
+// Global back button function
+window.goBack = function() {
+    console.log('Going back...');
+    
+    // If we're in chat view, go back to conversation list
+    if (document.body.classList.contains('mobile-chat-active')) {
+        window.backToConversations();
+        return;
+    }
+    
+    // Otherwise, go to previous page
+    if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        // If no history, go to home
+        window.location.href = '/';
     }
 };
 
@@ -434,11 +469,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // IMMEDIATELY show chat area if we have recipientId
-    if (currentRecipientId && chatArea) {
-        console.log('🚀 AUTO-OPENING CHAT for recipient:', currentRecipientId);
-        startChat(currentRecipientId, 'User', '');
-    }
+    // Don't auto-open chat - let users see conversation list first
+    // They can tap on a conversation to open it
+    console.log('Messages loaded - showing conversation list');
 
     // Initialize Socket.io if authenticated
     if (token) {

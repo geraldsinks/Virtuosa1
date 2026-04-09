@@ -543,29 +543,30 @@
             }
         }
 
+        /* Hide unified header completely on messages page */
+        #main-site-header {
+            display: none !important;
+        }
+        
+        /* Custom Messages Mobile Header - Always visible */
+        .mobile-messages-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            height: 60px;
+            padding-top: env(safe-area-inset-top);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background: #0A1128;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
         @media (max-width: 480px) {
-            /* Hide unified header on mobile in messages page - use custom mobile header */
-            #main-site-header {
-                display: none !important;
-            }
-            
-            /* Custom Messages Mobile Header */
-            .mobile-messages-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 0 16px;
-                height: 60px;
-                padding-top: env(safe-area-inset-top);
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 50;
-                background: #0A1128;
-                color: white;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
             
             /* Show menu toggle on list view, back button on chat view */
             #mobile-chat-back-button { display: none; }
@@ -579,6 +580,16 @@
             
             #sidebar {
                 padding-top: calc(60px + env(safe-area-inset-top));
+            }
+            
+            /* Chat area should account for mobile header */
+            #chat-area {
+                padding-top: calc(60px + env(safe-area-inset-top));
+            }
+            
+            /* Chat header should be sticky below mobile header */
+            #chat-area #chat-header {
+                top: calc(60px + env(safe-area-inset-top));
             }
             
             /* Main container - ensure it fills height without overflow issues */
@@ -902,17 +913,17 @@
     <header class="mobile-messages-header bg-navy text-white shadow-lg fixed top-0 left-0 right-0 z-50 safe-area-top">
         <!-- Left Side: Toggleable Button -->
         <div class="flex items-center w-12">
-            <!-- Hamburger Menu (List View) -->
-            <button id="mobile-menu-toggle" class="text-white hover:text-gold transition-colors p-2" onclick="window.openMobileMenu()">
+            <!-- Back Button (Always visible for navigation) -->
+            <button id="mobile-back-button" class="text-white hover:text-gold transition-colors p-2" onclick="window.goBack()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
             
-            <!-- Back Button (Chat View) -->
-            <button id="mobile-chat-back-button" class="text-white hover:text-gold transition-colors p-2 hidden" onclick="window.backToConversations()">
+            <!-- Hamburger Menu (Hidden by default) -->
+            <button id="mobile-menu-toggle" class="text-white hover:text-gold transition-colors p-2 hidden" onclick="window.openMobileMenu()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
         </div>
