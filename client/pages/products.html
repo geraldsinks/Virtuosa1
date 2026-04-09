@@ -189,7 +189,70 @@
             border-radius: 12px;
             height: 420px;
         }
+
+        /* Mobile Filter Drawer Styles */
+        #mobile-filter-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            max-width: 320px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            transform: translateX(101%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+        }
+
+        #mobile-filter-drawer.open {
+            transform: translateX(0);
+        }
+
+        .filter-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 17, 40, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .filter-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .drawer-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .drawer-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.25rem;
+        }
+
+        .drawer-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            background: white;
+        }
+
+        body.drawer-open {
+            overflow: hidden;
+        }
     </style>
+
 
     <!-- Unified Header System -->
     <script src="/js/config.js"></script>
@@ -444,6 +507,20 @@
             const filterBadge = document.getElementById('filter-count-badge');
             const mobileFilterBadge = document.getElementById('mobile-filter-count-badge');
             const activeFiltersContainer = document.getElementById('active-filters-container');
+            
+            // Mobile Drawer Elements
+            const mobileFilterToggle = document.getElementById('mobile-filter-toggle');
+            const mobileFilterDrawer = document.getElementById('mobile-filter-drawer');
+            const filterOverlay = document.getElementById('filter-overlay');
+            const closeMobileFiltersBtn = document.getElementById('close-mobile-filters');
+            const applyMobileFiltersBtn = document.getElementById('apply-mobile-filters');
+            const mobileResultsCountTag = document.getElementById('mobile-results-count-tag');
+            const mobileClearAllBtn = document.getElementById('mobile-clear-all');
+            const mobilePriceRadios = document.querySelectorAll('.mobile-price-radio');
+            const mobileConditionCheckboxes = document.querySelectorAll('.mobile-condition-checkbox');
+            const mobileCampusVerifiedCheckbox = document.getElementById('mobile-campus-verified-only');
+
+
 
             let allProducts = [];
             let filteredProducts = [];
@@ -457,6 +534,27 @@
                 campusVerifiedOnly: false,
                 sortBy: 'relevance'
             };
+
+            // Mobile Drawer Control
+            function openMobileFilters() {
+                mobileFilterDrawer.classList.add('open');
+                filterOverlay.classList.add('open');
+                document.body.classList.add('drawer-open');
+                updateMobileResultsCount();
+            }
+
+            function closeMobileFilters() {
+                mobileFilterDrawer.classList.remove('open');
+                filterOverlay.classList.remove('open');
+                document.body.classList.remove('drawer-open');
+            }
+
+            function updateMobileResultsCount() {
+                if (mobileResultsCountTag) {
+                    mobileResultsCountTag.textContent = filteredProducts.length;
+                }
+            }
+
 
             // Create debounced fetch function for search
             const debouncedFetchProducts = window.debounce(async () => {
@@ -835,7 +933,9 @@
             function applyFiltersAndRender() {
                 filteredProducts = sortProducts(allProducts.filter(productMatchesFilters));
                 renderProducts();
+                updateMobileResultsCount();
             }
+
 
             // Event listeners
             if (globalSearchInput) {
@@ -880,9 +980,13 @@
             priceRadios.forEach(radio => {
                 radio.addEventListener('change', (e) => {
                     filters.priceBracket = e.target.value;
+                    // Sync mobile
+                    const mobileRadio = document.querySelector(`.mobile-price-radio[value="${e.target.value}"]`);
+                    if (mobileRadio) mobileRadio.checked = true;
                     applyFiltersAndRender();
                 });
             });
+
 
             const conditionCheckboxes = document.querySelectorAll('.condition-checkbox');
             conditionCheckboxes.forEach(checkbox => {
@@ -892,17 +996,75 @@
                     } else {
                         filters.conditions.delete(e.target.value);
                     }
+                    // Sync mobile
+                    const mobileCheckbox = document.querySelector(`.mobile-condition-checkbox[value="${e.target.value}"]`);
+                    if (mobileCheckbox) mobileCheckbox.checked = e.target.checked;
                     applyFiltersAndRender();
                 });
             });
 
+
             const campusVerifiedCheckbox = document.getElementById('campus-verified-only');
+
             if (campusVerifiedCheckbox) {
+
                 campusVerifiedCheckbox.addEventListener('change', (e) => {
                     filters.campusVerifiedOnly = e.target.checked;
+                    if (mobileCampusVerifiedCheckbox) mobileCampusVerifiedCheckbox.checked = e.target.checked;
                     applyFiltersAndRender();
                 });
             }
+
+            if (mobileCampusVerifiedCheckbox) {
+                mobileCampusVerifiedCheckbox.addEventListener('change', (e) => {
+                    filters.campusVerifiedOnly = e.target.checked;
+                    if (campusVerifiedCheckbox) campusVerifiedCheckbox.checked = e.target.checked;
+                    applyFiltersAndRender();
+                });
+            }
+
+            // Mobile specific listeners
+            if (mobileFilterToggle) {
+                mobileFilterToggle.addEventListener('click', openMobileFilters);
+            }
+
+            if (closeMobileFiltersBtn) {
+                closeMobileFiltersBtn.addEventListener('click', closeMobileFilters);
+            }
+
+            if (filterOverlay) {
+                filterOverlay.addEventListener('click', closeMobileFilters);
+            }
+
+            if (applyMobileFiltersBtn) {
+                applyMobileFiltersBtn.addEventListener('click', closeMobileFilters);
+            }
+
+            mobilePriceRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    filters.priceBracket = e.target.value;
+                    // Sync desktop
+                    const desktopRadio = document.querySelector(`input[name="price-bracket"][value="${e.target.value}"]`);
+                    if (desktopRadio) desktopRadio.checked = true;
+                    applyFiltersAndRender();
+                });
+            });
+
+            mobileConditionCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        filters.conditions.add(e.target.value);
+                    } else {
+                        filters.conditions.delete(e.target.value);
+                    }
+                    // Sync desktop
+                    const desktopCheckbox = document.querySelector(`.condition-checkbox[value="${e.target.value}"]`);
+                    if (desktopCheckbox) desktopCheckbox.checked = e.target.checked;
+                    applyFiltersAndRender();
+                });
+            });
+
+
 
             // Clear filters
             const clearAllFiltersButton = document.getElementById('clear-all-filters');
@@ -920,11 +1082,24 @@
                     document.querySelector('input[name="price-bracket"][value="all"]').checked = true;
                     conditionCheckboxes.forEach(cb => cb.checked = false);
                     if (campusVerifiedCheckbox) campusVerifiedCheckbox.checked = false;
+                    
+                    // Reset Mobile UI
+                    document.querySelector('.mobile-price-radio[value="all"]').checked = true;
+                    mobileConditionCheckboxes.forEach(cb => cb.checked = false);
+                    if (mobileCampusVerifiedCheckbox) mobileCampusVerifiedCheckbox.checked = false;
+                    
                     if (sortSelect) sortSelect.value = 'relevance';
 
                     applyFiltersAndRender();
                 });
             }
+
+            if (mobileClearAllBtn) {
+                mobileClearAllBtn.addEventListener('click', () => {
+                    if (clearAllFiltersButton) clearAllFiltersButton.click();
+                });
+            }
+
 
             // Active filter chips
             if (activeFiltersContainer) {
@@ -1003,10 +1178,185 @@
         }
     </script>
     
+    <!-- Mobile Filter Drawer -->
+    <div id="filter-overlay" class="filter-overlay"></div>
+    <div id="mobile-filter-drawer" class="filter-drawer">
+        <div class="drawer-header">
+            <h2 class="text-lg font-bold text-navy">Filters</h2>
+            <button id="close-mobile-filters" class="p-2 text-gray-500 hover:text-navy transition-colors">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+        </div>
+        
+        <div class="drawer-content">
+            <!-- Price filter -->
+            <section class="mb-6">
+                <h3 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">Price (ZMW)</h3>
+                <div class="space-y-3">
+                    <label class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
+                        <input type="radio" name="mobile-price-bracket" value="all" class="mobile-price-radio w-4 h-4 text-gold border-gray-300 focus:ring-gold" checked>
+                        <span class="text-sm font-medium text-gray-700">Any price</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
+                        <input type="radio" name="mobile-price-bracket" value="under-100" class="mobile-price-radio w-4 h-4 text-gold border-gray-300 focus:ring-gold">
+                        <span class="text-sm font-medium text-gray-700">Under K100</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
+                        <input type="radio" name="mobile-price-bracket" value="100-500" class="mobile-price-radio w-4 h-4 text-gold border-gray-300 focus:ring-gold">
+                        <span class="text-sm font-medium text-gray-700">K100 - K500</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
+                        <input type="radio" name="mobile-price-bracket" value="500-1000" class="mobile-price-radio w-4 h-4 text-gold border-gray-300 focus:ring-gold">
+                        <span class="text-sm font-medium text-gray-700">K500 - K1,000</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
+                        <input type="radio" name="mobile-price-bracket" value="1000-plus" class="mobile-price-radio w-4 h-4 text-gold border-gray-300 focus:ring-gold">
+                        <span class="text-sm font-medium text-gray-700">K1,000+</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Condition filter -->
+            <section class="mb-6 pt-6 border-t border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">Condition</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
+                        <input type="checkbox" class="mobile-condition-checkbox w-4 h-4 text-gold rounded border-gray-300 focus:ring-gold" value="New">
+                        <span class="text-sm font-medium text-gray-700">New</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
+                        <input type="checkbox" class="mobile-condition-checkbox w-4 h-4 text-gold rounded border-gray-300 focus:ring-gold" value="Like New">
+                        <span class="text-sm font-medium text-gray-700">Like New</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
+                        <input type="checkbox" class="mobile-condition-checkbox w-4 h-4 text-gold rounded border-gray-300 focus:ring-gold" value="Good">
+                        <span class="text-sm font-medium text-gray-700">Good</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
+                        <input type="checkbox" class="mobile-condition-checkbox w-4 h-4 text-gold rounded border-gray-300 focus:ring-gold" value="Fair">
+                        <span class="text-sm font-medium text-gray-700">Fair</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Verified filter -->
+            <section class="mb-6 pt-6 border-t border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">Trust & Safety</h3>
+                <label class="flex items-center gap-3 p-4 rounded-xl bg-navy/5 border border-navy/10 hover:border-navy/20 transition-all cursor-pointer">
+                    <input type="checkbox" id="mobile-campus-verified-only" class="w-5 h-5 text-gold rounded border-navy/20 focus:ring-gold">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-navy">Campus Verified Only</span>
+                        <span class="text-xs text-navy/60">Show only student-verified sellers</span>
+                    </div>
+                </label>
+            </section>
+        </div>
+
+        <div class="drawer-footer">
+            <button id="apply-mobile-filters" class="w-full bg-navy text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-navy/90 active:scale-[0.98] transition-all">
+                <span>Show Results</span>
+                <span id="mobile-results-count-tag" class="bg-white/20 px-2 py-0.5 rounded text-xs">...</span>
+            </button>
+            <button id="mobile-clear-all" class="w-full mt-3 text-sm text-gray-500 font-medium py-2 hover:text-red-500 transition-colors">
+                Clear all filters
+            </button>
+        </div>
+    </div>
+
     <!-- Additional Scripts (unique to this page) -->
+
     <script src="../js/image-optimizer.js"></script>
     <script src="../js/debounce.js"></script>
     <script src="../js/api-batcher.js"></script>
+
+    <!-- Mobile Filter Drawer -->
+    <div id="mobile-filter-overlay" class="filter-overlay"></div>
+    <div id="mobile-filter-drawer">
+        <div class="drawer-header">
+            <h2 class="text-lg font-bold text-navy">Filter Products</h2>
+            <button id="close-mobile-filters" class="p-2 text-gray-500 hover:text-navy">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="drawer-content">
+            <!-- Price filter -->
+            <section class="mb-8">
+                <h3 class="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">Price (ZMW)</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center gap-2 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                        <input type="radio" name="mobile-price-bracket" value="all" class="text-gold" checked>
+                        <span class="text-sm">Any</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                        <input type="radio" name="mobile-price-bracket" value="under-100" class="text-gold">
+                        <span class="text-sm">Under K100</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                        <input type="radio" name="mobile-price-bracket" value="100-500" class="text-gold">
+                        <span class="text-sm">K100 - K500</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                        <input type="radio" name="mobile-price-bracket" value="500-1000" class="text-gold">
+                        <span class="text-sm">K500 - K1K</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors truncate">
+                        <input type="radio" name="mobile-price-bracket" value="1000-plus" class="text-gold">
+                        <span class="text-sm">K1,000+</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Condition filter -->
+            <section class="mb-8">
+                <h3 class="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">Condition</h3>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <label class="flex items-center gap-2 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                        <input type="checkbox" class="mobile-condition-checkbox" value="New">
+                        <span>New</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                        <input type="checkbox" class="mobile-condition-checkbox" value="Like New">
+                        <span>Like New</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                        <input type="checkbox" class="mobile-condition-checkbox" value="Good">
+                        <span>Good</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                        <input type="checkbox" class="mobile-condition-checkbox" value="Fair">
+                        <span>Fair</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Trust & safety -->
+            <section>
+                <h3 class="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">Trust & Safety</h3>
+                <label class="flex items-center justify-between p-4 bg-emerald-50 border border-emerald-100 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center text-white">
+                            <i class="fas fa-shield-check"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-emerald-900">Campus Verified</p>
+                            <p class="text-[10px] text-emerald-700">Show only verified sellers</p>
+                        </div>
+                    </div>
+                    <input type="checkbox" id="mobile-campus-verified-only" class="w-5 h-5 rounded border-emerald-300 text-emerald-500">
+                </label>
+            </section>
+        </div>
+
+        <div class="drawer-footer">
+            <button id="mobile-filters-clear" class="w-full py-3 px-4 text-sm font-semibold text-gray-500 hover:text-navy border border-gray-200 rounded-xl transition-colors">
+                Clear All
+            </button>
+            <button id="mobile-filters-apply" class="w-full py-3 px-4 text-sm font-bold text-white bg-button-gold hover:bg-gold rounded-xl transition-all shadow-lg shadow-gold/20">
+                Show Results
+            </button>
+        </div>
+    </div>
 
     <!-- Cookie Analytics & Consent -->
     <script src="/js/cookie-consent.js"></script>
