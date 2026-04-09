@@ -2624,8 +2624,17 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        let isMatch = await bcrypt.compare(password, user.password);
+        
+        // Fallback: try comparing with double-hashed password (for users created during bug period)
+        if (!isMatch && user.password.startsWith('$2a$') && user.password.startsWith('$2a$12')) {
+            // This might be a double-hashed password, try the old method
+            const doubleHashed = await bcrypt.hash(password, 10);
+            isMatch = await bcrypt.compare(doubleHashed, user.password);
+        }
+        
         if (!isMatch) {
+            console.log('Password comparison failed for user:', normalizedEmail);
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
