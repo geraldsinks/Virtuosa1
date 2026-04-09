@@ -2611,6 +2611,9 @@ app.post('/api/auth/login', async (req, res) => {
     const normalizedEmail = email.toLowerCase();
 
     try {
+        console.log('🔍 DEBUG - Raw email received:', JSON.stringify(email));
+        console.log('🔍 DEBUG - Email character codes:', Array.from(email).map(c => `${c}(${c.charCodeAt(0)})`));
+        console.log('🔍 DEBUG - Normalized email:', JSON.stringify(normalizedEmail));
         console.log('Login attempt for email:', normalizedEmail);
         
         const user = await User.findOne({ 

@@ -362,8 +362,8 @@ function getExpectedStudentEmail() {
 
 async function handleLogin(event) {
     event.preventDefault();
-    const email = document.getElementById('login-email')?.value;
-    const password = document.getElementById('login-password-input')?.value;
+    const email = document.getElementById('login-email')?.value?.trim();
+    const password = document.getElementById('login-password-input')?.value?.trim();
 
     if (!email || !password) {
         showMessage('Please fill in both email and password.', true);
@@ -375,6 +375,7 @@ async function handleLogin(event) {
         console.log('🔍 CLIENT DEBUG - Sending login request:', {
             url: `${BASE_API_URL}/login`,
             email: email,
+            emailChars: Array.from(email).map(c => `${c}(${c.charCodeAt(0)})`),
             password: password ? '[REDACTED]' : 'undefined',
             requestData: requestData
         });
