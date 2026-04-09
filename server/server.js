@@ -10040,7 +10040,6 @@ app.get('/api/analytics/strategic/insights', authenticateAdmin, async (req, res)
 // ==================== SUPPORT & LIVE CHAT APIS ====================
 const supportController = require('./controllers/supportController');
 const chatController = require('./controllers/chatController');
-const User = require('./models/User');
 
 // Admin Support Routes
 app.get('/api/admin/support/stats', authenticateAdmin, supportController.getStats);
