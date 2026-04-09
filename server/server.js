@@ -1627,9 +1627,7 @@ const tokenTransactionSchema = new mongoose.Schema({
 const TokenTransaction = mongoose.model('TokenTransaction', tokenTransactionSchema);
 console.log('TokenTransaction model created successfully');
 
-// Import Product model from models folder
-const Product = require('./models/Product');
-console.log('Product model loaded successfully');
+// Product model already loaded at line 68
 
 // Category Schema
 const categorySchema = new mongoose.Schema({
@@ -1703,9 +1701,7 @@ const tokenSchema = new mongoose.Schema({
 const Token = mongoose.model('Token', tokenSchema);
 console.log('Token model created successfully');
 
-// Enhanced Notification Model
-const Notification = require('./models/Notification');
-console.log('Notification model loaded successfully');
+// Notification model already loaded at line 69
 
 // Enhanced Message Schema with Data Retention
 const messageSchema = new mongoose.Schema({
@@ -1949,7 +1945,7 @@ const promotionSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-const Promotion = mongoose.model('Promotion', promotionSchema);
+// Promotion model already loaded at line 73
 
 // Banner/Hero Manager Schema
 const bannerSchema = new mongoose.Schema({
@@ -2031,7 +2027,7 @@ const adSliderSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-const AdSlider = mongoose.model('AdSlider', adSliderSchema);
+// AdSlider model already loaded at line 71
 
 // Category Card Management Schema
 const categoryCardSchema = new mongoose.Schema({
@@ -2049,7 +2045,7 @@ const categoryCardSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-const CategoryCard = mongoose.model('CategoryCard', categoryCardSchema);
+// CategoryCard model already loaded at line 72
 
 // Fallback Category Override Schema
 const fallbackCategorySchema = new mongoose.Schema({
@@ -5949,59 +5945,70 @@ app.get('/api/admin/seller-applications/:id', authenticateAdmin, async (req, res
 // Admin: Approve seller application
 app.post('/api/admin/seller-applications/:id/approve', authenticateAdmin, async (req, res) => {
     try {
+        console.log('Approve request received for application:', req.params.id);
+        console.log('Request body:', req.body);
+        console.log('User from token:', req.user);
+        
         const application = await SellerApplication.findById(req.params.id);
         if (!application) {
+            console.log('Application not found:', req.params.id);
             return res.status(404).json({ message: 'Application not found' });
         }
 
+        console.log('Application found:', application._id, 'status:', application.status);
+
         if (application.status !== 'Pending') {
+            console.log('Application already reviewed:', application.status);
             return res.status(400).json({ message: 'This application has already been reviewed.' });
         }
 
-        const adminUser = await User.findById(req.user.userId);
+        const { notes } = req.body;
 
+        console.log('Updating application with approved status');
+        
         application.status = 'Approved';
         application.reviewedBy = req.user.userId;
         application.reviewedAt = new Date();
-        application.adminReviewNotes = req.body.notes || '';
+        application.adminReviewNotes = notes || '';
         await application.save();
+        console.log('Application saved successfully');
 
-        // Update user
+        // Update user to be a seller
         const user = await User.findById(application.user);
         if (user) {
-            user.sellerApplicationStatus = 'Approved';
+            console.log('Updating user to seller status for user:', user._id);
             user.isSeller = true;
+            user.sellerApplicationStatus = 'Approved';
+            user.sellerVerified = true;
+            user.verificationStatus = 'verified';
             await user.save();
+            console.log('User updated to seller successfully');
 
             // Create notification
-            const notification = new Notification({
-                user: user._id,
-                title: 'Seller Application Approved! 🎉',
-                message: 'Congratulations! Your seller application has been approved. You can now list items on Virtuosa.',
-                type: 'Account',
-                link: '/pages/seller-verification.html'
-            });
-            await notification.save();
-
-            // Send email (non-blocking)
-            transporter.sendMail({
-                to: user.email,
-                subject: 'Virtuosa - Seller Application Approved!',
-                html: `
-                    <h2>Your Seller Application Has Been Approved!</h2>
-                    <p>Hi ${user.fullName},</p>
-                    <p>Congratulations! Your application to become a seller on Virtuosa has been approved.</p>
-                    <p>You can now start listing your items. Visit your seller dashboard to get started.</p>
-                    <p>Happy selling!</p>
-                    <p>The Virtuosa Team</p>
-                `
-            }).catch(err => console.warn('Approval email send failed (non-critical):', err.message));
+            try {
+                const notification = new Notification({
+                    user: user._id,
+                    title: 'Seller Application Approved! \ud83c\udf89',
+                    message: 'Congratulations! Your seller application has been approved. You can now start listing items for sale.',
+                    type: 'Account',
+                    link: '/pages/seller-dashboard.html'
+                });
+                await notification.save();
+                console.log('Notification created successfully');
+            } catch (notifError) {
+                console.error('Failed to create notification:', notifError);
+                // Continue even if notification fails
+            }
+        } else {
+            console.log('User not found for application:', application.user);
         }
 
+        console.log('Approval completed successfully');
         res.json({ message: 'Seller application approved successfully' });
     } catch (error) {
         console.error('Approve application error:', error);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ message: 'Server error: ' + error.message });
     }
 });
 
@@ -6058,48 +6065,73 @@ app.post('/api/admin/applications/:id/approve', authenticateAdmin, async (req, r
 // Admin: Reject seller application
 app.post('/api/admin/seller-applications/:id/reject', authenticateAdmin, async (req, res) => {
     try {
+        console.log('Reject request received for application:', req.params.id);
+        console.log('Request body:', req.body);
+        console.log('User from token:', req.user);
+        
         const application = await SellerApplication.findById(req.params.id);
         if (!application) {
+            console.log('Application not found:', req.params.id);
             return res.status(404).json({ message: 'Application not found' });
         }
 
+        console.log('Application found:', application._id, 'status:', application.status);
+
         if (application.status !== 'Pending') {
+            console.log('Application already reviewed:', application.status);
             return res.status(400).json({ message: 'This application has already been reviewed.' });
         }
 
         const { reason, notes } = req.body;
         if (!reason) {
+            console.log('No rejection reason provided');
             return res.status(400).json({ message: 'Please provide a rejection reason.' });
         }
 
+        console.log('Updating application with rejection reason:', reason);
+        
         application.status = 'Rejected';
         application.rejectionReason = reason;
         application.adminReviewNotes = notes || '';
         application.reviewedBy = req.user.userId;
         application.reviewedAt = new Date();
+        
         await application.save();
+        console.log('Application saved successfully');
 
         // Update user
         const user = await User.findById(application.user);
         if (user) {
+            console.log('Updating user seller application status for user:', user._id);
             user.sellerApplicationStatus = 'Rejected';
             await user.save();
+            console.log('User updated successfully');
 
             // Create notification
-            const notification = new Notification({
-                user: user._id,
-                title: 'Seller Application Update',
-                message: `Your seller application was not approved. Reason: ${reason}. You may update your information and reapply.`,
-                type: 'Account',
-                link: '/pages/seller.html'
-            });
-            await notification.save();
+            try {
+                const notification = new Notification({
+                    user: user._id,
+                    title: 'Seller Application Update',
+                    message: `Your seller application was not approved. Reason: ${reason}. You may update your information and reapply.`,
+                    type: 'Account',
+                    link: '/pages/seller.html'
+                });
+                await notification.save();
+                console.log('Notification created successfully');
+            } catch (notifError) {
+                console.error('Failed to create notification:', notifError);
+                // Continue even if notification fails
+            }
+        } else {
+            console.log('User not found for application:', application.user);
         }
 
+        console.log('Rejection completed successfully');
         res.json({ message: 'Application rejected successfully' });
     } catch (error) {
         console.error('Reject application error:', error);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ message: 'Server error: ' + error.message });
     }
 });
 

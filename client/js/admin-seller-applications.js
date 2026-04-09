@@ -265,7 +265,14 @@ window.approveApplication = async function (id) {
     if (!confirm('Approve this seller application? The user will be notified and granted seller access.')) return;
 
     const token = localStorage.getItem('token');
+    if (!token) {
+        showToast('Please log in to perform this action', 'error');
+        return;
+    }
+
     try {
+        console.log('Approving application:', id);
+        
         const response = await fetch(`${API_BASE}/admin/seller-applications/${id}/approve`, {
             method: 'POST',
             headers: {
@@ -275,9 +282,13 @@ window.approveApplication = async function (id) {
             body: JSON.stringify({ notes: '' })
         });
 
+        console.log('Approve response status:', response.status);
+        
         const result = await response.json();
+        console.log('Approve response:', result);
+        
         if (response.ok) {
-            showToast('Application approved successfully! ✅');
+            showToast('Application approved successfully! ');
             loadApplications();
             loadStats();
         } else {
@@ -285,7 +296,7 @@ window.approveApplication = async function (id) {
         }
     } catch (error) {
         console.error('Approve error:', error);
-        showToast('An error occurred', 'error');
+        showToast('Network error occurred while approving application', 'error');
     }
 };
 
@@ -302,7 +313,10 @@ window.closeRejectModal = function () {
 };
 
 window.confirmReject = async function () {
-    if (!rejectingAppId) return;
+    if (!rejectingAppId) {
+        console.error('No rejecting application ID set');
+        return;
+    }
 
     let reason = document.getElementById('reject-reason-select').value;
     const notes = document.getElementById('reject-reason-text').value.trim();
@@ -316,7 +330,14 @@ window.confirmReject = async function () {
     }
 
     const token = localStorage.getItem('token');
+    if (!token) {
+        showToast('Please log in to perform this action', 'error');
+        return;
+    }
+
     try {
+        console.log('Rejecting application:', rejectingAppId, 'with reason:', reason);
+        
         const response = await fetch(`${API_BASE}/admin/seller-applications/${rejectingAppId}/reject`, {
             method: 'POST',
             headers: {
@@ -326,18 +347,22 @@ window.confirmReject = async function () {
             body: JSON.stringify({ reason, notes })
         });
 
+        console.log('Reject response status:', response.status);
+        
         const result = await response.json();
+        console.log('Reject response:', result);
+        
         if (response.ok) {
-            showToast('Application rejected.');
+            showToast('Application rejected successfully.');
             closeRejectModal();
             loadApplications();
             loadStats();
         } else {
-            showToast(result.message || 'Failed to reject', 'error');
+            showToast(result.message || 'Failed to reject application', 'error');
         }
     } catch (error) {
         console.error('Reject error:', error);
-        showToast('An error occurred', 'error');
+        showToast('Network error occurred while rejecting application', 'error');
     }
 };
 
