@@ -106,12 +106,17 @@
                     <div class="mb-2">
                         <span id="product-category" class="text-sm font-semibold text-gold uppercase tracking-wider"></span>
                     </div>
-                    <h1 id="product-name" class="text-3xl md:text-4xl font-bold text-navy mb-4"></h1>
+                    <h1 id="product-name" class="text-3xl md:text-4xl font-bold text-navy mb-2"></h1>
+                    <p id="product-subcategory" class="text-sm text-gray-400 mb-4 hidden"></p>
                     
-                    <div class="flex items-center gap-4 mb-6">
+                    <div class="flex items-center gap-4 mb-3">
                         <span id="product-price" class="text-2xl font-bold text-gold"></span>
                         <span id="product-original-price" class="text-lg text-gray-400 line-through hidden"></span>
                         <span id="product-discount" class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full hidden"></span>
+                    </div>
+
+                    <div id="product-badges" class="flex flex-wrap gap-2 mb-6">
+                        <!-- Badges like Condition, Location, etc. -->
                     </div>
 
                     <div class="border-t border-gray-100 pt-6 mb-6">
@@ -136,6 +141,14 @@
                             </button>
                         </div>
 
+                        <div id="additional-specs" class="grid grid-cols-2 gap-4 py-4 border-t border-gray-100 mt-4">
+                            <!-- Course info, etc. -->
+                        </div>
+
+                        <div id="inventory-status" class="hidden py-4 border-t border-gray-100">
+                            <!-- Inventory status -->
+                        </div>
+
                         <div class="grid grid-cols-2 gap-4 py-6">
                             <div class="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
                                 <div class="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center text-gold">
@@ -143,16 +156,16 @@
                                 </div>
                                 <div>
                                     <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Quality</p>
-                                    <p class="text-xs font-semibold text-navy">Campus Verified</p>
+                                    <p id="product-condition-text" class="text-xs font-semibold text-navy">Campus Verified</p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
                                 <div class="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center text-gold">
-                                    <i data-lucide="truck" class="w-5 h-5"></i>
+                                    <i data-lucide="map-pin" class="w-5 h-5"></i>
                                 </div>
                                 <div>
-                                    <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Delivery</p>
-                                    <p class="text-xs font-semibold text-navy">Fast Pickup</p>
+                                    <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Location</p>
+                                    <p id="product-location-text" class="text-xs font-semibold text-navy truncate max-w-[100px]">Fast Pickup</p>
                                 </div>
                             </div>
                         </div>
@@ -359,7 +372,74 @@
         function renderProduct(product) {
             document.getElementById('product-name').textContent = product.name;
             document.getElementById('product-category').textContent = product.category || 'General';
+            
+            const subCategoryEl = document.getElementById('product-subcategory');
+            if (product.subcategory) {
+                subCategoryEl.textContent = product.subcategory;
+                subCategoryEl.classList.remove('hidden');
+            }
+
             document.getElementById('product-description').textContent = product.description || 'No description available for this item.';
+            
+            // Badges and Specs
+            const badgeContainer = document.getElementById('product-badges');
+            badgeContainer.innerHTML = '';
+            
+            if (product.condition) {
+                const badge = document.createElement('span');
+                badge.className = 'bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-1 rounded border border-blue-100 uppercase';
+                badge.innerHTML = `<i class="fas fa-tag mr-1"></i> ${product.condition}`;
+                badgeContainer.appendChild(badge);
+                document.getElementById('product-condition-text').textContent = product.condition;
+            }
+
+            if (product.campusLocation || product.location) {
+                const loc = product.campusLocation || product.location;
+                const badge = document.createElement('span');
+                badge.className = 'bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2 py-1 rounded border border-emerald-100 uppercase';
+                badge.innerHTML = `<i class="fas fa-map-pin mr-1"></i> ${loc}`;
+                badgeContainer.appendChild(badge);
+                document.getElementById('product-location-text').textContent = loc;
+            }
+
+            // Additional Specs
+            const specContainer = document.getElementById('additional-specs');
+            specContainer.innerHTML = '';
+            if (product.courseCode) {
+                specContainer.innerHTML += `<div><p class="text-[10px] text-gray-400 uppercase font-bold">Course Code</p><p class="text-xs font-semibold text-navy">${product.courseCode}</p></div>`;
+            }
+            if (product.author) {
+                specContainer.innerHTML += `<div><p class="text-[10px] text-gray-400 uppercase font-bold">Author/Brand</p><p class="text-xs font-semibold text-navy">${product.author}</p></div>`;
+            }
+            if (specContainer.innerHTML === '') specContainer.classList.add('hidden');
+
+            // Inventory Status
+            const invStatus = document.getElementById('inventory-status');
+            if (product.listingType === 'persistent') {
+                invStatus.classList.remove('hidden');
+                const stock = product.inventory || 0;
+                const isLow = product.inventoryTracking && stock <= (product.lowStockThreshold || 2);
+                const isOut = stock <= 0;
+                
+                invStatus.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full ${isOut ? 'bg-red-500' : isLow ? 'bg-orange-400' : 'bg-green-500'}"></span>
+                            <span class="text-sm font-bold ${isOut ? 'text-red-500' : 'text-navy'}">
+                                ${isOut ? 'Out of Stock' : isLow ? 'Limited Stock Remaining' : 'In Stock'}
+                            </span>
+                        </div>
+                        <span class="text-xs text-gray-500">${stock} items available</span>
+                    </div>
+                `;
+                
+                if (isOut) {
+                    const btn = document.getElementById('add-to-cart-btn');
+                    btn.disabled = true;
+                    btn.classList.replace('bg-navy', 'bg-gray-400');
+                    btn.innerHTML = 'Out of Stock';
+                }
+            }
             
             // Update page title and meta for SEO
             const productName = product.name;

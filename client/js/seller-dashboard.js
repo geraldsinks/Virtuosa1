@@ -418,40 +418,64 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function getOrderActionButtons(transaction) {
         switch (transaction.status) {
-            case 'Pending':
+            case 'pending_seller_confirmation':
                 return `
-                    <button onclick="updateOrderStatus('${transaction._id}', 'Processing')" 
-                        class="text-xs px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+                    <button onclick="updateOrderStatus('${transaction._id}', 'confirmed_by_seller')" 
+                        class="text-[10px] px-2 py-1 bg-green-600 text-white rounded font-bold hover:bg-green-700 transition-colors uppercase">
                         Accept
                     </button>
-                    <button onclick="updateOrderStatus('${transaction._id}', 'Cancelled')" 
-                        class="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
-                        Cancel
+                    <button onclick="updateOrderStatus('${transaction._id}', 'declined')" 
+                        class="text-[10px] px-2 py-1 bg-red-600 text-white rounded font-bold hover:bg-red-700 transition-colors uppercase">
+                        Decline
                     </button>
                 `;
-            case 'Processing':
+            case 'confirmed_by_seller':
                 return `
-                    <button onclick="updateOrderStatus('${transaction._id}', 'Shipped')" 
-                        class="text-xs px-2 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
+                    <button onclick="markAsShipped('${transaction._id}')" 
+                        class="text-[10px] px-2 py-1 bg-purple-600 text-white rounded font-bold hover:bg-purple-700 transition-colors uppercase">
                         Ship
                     </button>
                 `;
-            case 'Shipped':
+            case 'out_for_delivery':
                 return `
-                    <span class="text-xs text-gray-600">Awaiting delivery</span>
+                    <button onclick="updateOrderStatus('${transaction._id}', 'delivered_pending_confirmation')" 
+                        class="text-[10px] px-2 py-1 bg-blue-600 text-white rounded font-bold hover:bg-blue-700 transition-colors uppercase">
+                        Delivered
+                    </button>
                 `;
+            case 'delivered_pending_confirmation':
+            case 'delivered':
             case 'Delivered':
                 return `
-                    <span class="text-xs text-green-600">Completed</span>
+                    <span class="text-[10px] text-orange-600 font-bold uppercase">Awaiting Buyer</span>
                 `;
-            case 'Cancelled':
+            case 'Completed':
+            case 'completed':
                 return `
-                    <span class="text-xs text-red-600">Cancelled</span>
+                    <span class="text-[10px] text-green-600 font-bold uppercase">Completed</span>
+                `;
+            case 'declined':
+            case 'Cancelled':
+            case 'cancelled':
+                return `
+                    <span class="text-[10px] text-red-600 font-bold uppercase">Cancelled</span>
+                `;
+            case 'disputed':
+                return `
+                    <button onclick="window.location.href='/pages/dispute-details.html?id=${transaction._id}'" 
+                        class="text-[10px] px-2 py-1 bg-red-100 text-red-600 rounded font-bold hover:bg-red-200 transition-colors uppercase border border-red-200">
+                        View Dispute
+                    </button>
                 `;
             default:
                 return '';
         }
     }
+
+    window.markAsShipped = async (orderId) => {
+        const tracking = prompt("Enter tracking number (optional):");
+        await updateOrderStatus(orderId, 'out_for_delivery', tracking);
+    };
 
     // Update order status function
     window.updateOrderStatus = async (orderId, newStatus) => {
@@ -466,7 +490,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ status: newStatus })
+                body: JSON.stringify({ status: newStatus, trackingNumber: arguments[2] || null })
             });
 
             if (response.ok) {
@@ -715,11 +739,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function getStatusColor(status) {
         switch (status) {
-            case 'Completed': return 'bg-green-100 text-green-800';
-            case 'Pending': return 'bg-yellow-100 text-yellow-800';
-            case 'Confirmed': return 'bg-blue-100 text-blue-800';
-            case 'Shipped': return 'bg-purple-100 text-purple-800';
+            case 'pending_seller_confirmation': return 'bg-yellow-100 text-yellow-800';
+            case 'confirmed_by_seller': return 'bg-blue-100 text-blue-800';
+            case 'out_for_delivery': return 'bg-purple-100 text-purple-800';
+            case 'delivered_pending_confirmation': 
+            case 'delivered': 
+            case 'Delivered': return 'bg-orange-100 text-orange-800';
+            case 'Completed': 
+            case 'completed': return 'bg-green-100 text-green-800';
+            case 'disputed': 
             case 'Disputed': return 'bg-red-100 text-red-800';
+            case 'declined':
+            case 'Cancelled':
+            case 'cancelled': return 'bg-gray-100 text-gray-800';
             default: return 'bg-gray-100 text-gray-800';
         }
     }

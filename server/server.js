@@ -3573,7 +3573,7 @@ app.delete('/api/products/draft', authenticateToken, async (req, res) => {
 });
 
 // Update product
-app.put('/api/products/:id', authenticateToken, async (req, res) => {
+app.put('/api/products/:id', authenticateToken, upload.array('images', 5), async (req, res) => {
     try {
         const user = await User.findById(req.user.userId);
         if (!user || !user.isSeller) {
@@ -3585,16 +3585,73 @@ app.put('/api/products/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'Product not found' });
         }
 
-        if (product.seller.toString() !== user._id.toString()) {
+        if (product.seller.toString() !== user._id.toString() && !user.isAdmin) {
             return res.status(403).json({ message: 'Can only edit your own products' });
         }
 
-        const updates = req.body;
-        Object.assign(product, updates);
+        // Extract updates from req.body
+        const {
+            name, description, price, originalPrice, category, subcategory,
+            condition, courseCode, courseName, author, isbn,
+            campusLocation, location, pickupAvailable, deliveryAvailable,
+            listingType, inventory, inventoryTracking, lowStockThreshold,
+            removeImages // Array of image URLs to remove
+        } = req.body;
+
+        // Apply basic fields if provided
+        if (name) product.name = name.trim();
+        if (description) product.description = description.trim();
+        if (price) product.price = parseFloat(price);
+        if (originalPrice !== undefined) product.originalPrice = originalPrice ? parseFloat(originalPrice) : null;
+        if (category) product.category = category;
+        if (subcategory !== undefined) product.subcategory = subcategory || '';
+        if (condition) product.condition = condition;
+        if (courseCode !== undefined) product.courseCode = courseCode ? courseCode.trim() : '';
+        if (courseName !== undefined) product.courseName = courseName ? courseName.trim() : '';
+        if (author !== undefined) product.author = author ? author.trim() : '';
+        if (isbn !== undefined) product.isbn = isbn ? isbn.trim() : '';
+        
+        const loc = campusLocation || location;
+        if (loc) product.campusLocation = loc;
+
+        // Handle listing type and inventory
+        if (listingType) {
+            product.listingType = listingType === 'persistent' ? 'persistent' : 'one_time';
+            if (product.listingType === 'persistent') {
+                if (inventory !== undefined) product.inventory = Math.max(parseInt(inventory) || 0, 0);
+                if (inventoryTracking !== undefined) product.inventoryTracking = inventoryTracking === 'true' || inventoryTracking === true;
+                if (lowStockThreshold !== undefined) product.lowStockThreshold = Math.max(parseInt(lowStockThreshold) || 1, 1);
+            }
+        }
+
+        // Handle delivery options
+        if (pickupAvailable !== undefined || deliveryAvailable !== undefined) {
+            const options = [];
+            if (pickupAvailable === 'true' || pickupAvailable === true) options.push({ type: 'pickup' });
+            if (deliveryAvailable === 'true' || deliveryAvailable === true) options.push({ type: 'delivery' });
+            product.deliveryOptions = options;
+        }
+
+        // Handle image removal
+        if (removeImages) {
+            const imagesToRemove = Array.isArray(removeImages) ? removeImages : [removeImages];
+            product.images = product.images.filter(img => !imagesToRemove.includes(img));
+        }
+
+        // Handle new image uploads
+        if (req.files && req.files.length > 0) {
+            const newImages = req.files.map(file => file.secure_url || file.path);
+            product.images = [...product.images, ...newImages].slice(0, 5); // Limit to 5 images
+        }
+
         product.updatedAt = new Date();
         await product.save();
 
-        res.json(product);
+        res.json({
+            message: 'Product updated successfully',
+            success: true,
+            product
+        });
     } catch (error) {
         console.error('Update product error:', error);
         res.status(500).json({ message: 'Server error' });
@@ -8826,86 +8883,83 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
         const isSeller = order.seller._id.toString() === req.user.userId;
 
         // Validate status transitions based on user role and cash on delivery flow
-        if (isBuyer && status === 'Completed') {
             // Buyer confirms delivery - move to completed
-            if (order.status === 'delivered_pending_confirmation') {
+            if (['delivered_pending_confirmation', 'delivered', 'shipped', 'out_for_delivery', 'both_confirmed', 'confirmed_by_seller', 'seller_confirmed'].includes(order.status)) {
+                // Check if this order has already been completed/awarded
+                if (order.status === 'Completed' || order.status === 'completed' || order.tokensAwarded) {
+                    return res.status(400).json({ message: 'Order already completed and tokens awarded' });
+                }
+
+                // Check for active disputes
+                if (order.disputeStatus === 'Open') {
+                    return res.status(400).json({ message: 'Cannot complete order while a dispute is active' });
+                }
+
                 order.status = 'Completed';
                 order.deliveryConfirmedAt = new Date();
                 order.deliveryNotes = deliveryNotes;
+                order.tokensAwarded = true;
                 
-                // Award 5 tokens to buyer for confirming delivery
-                let buyerTokenAccount = await Token.findOne({ user: req.user.userId });
-                if (!buyerTokenAccount) {
-                    buyerTokenAccount = new Token({ user: req.user.userId });
+                // Award 5 tokens to BOTH buyer and seller
+                const parties = [
+                    { id: order.buyer._id, role: 'buyer', reason: 'Delivery confirmation' },
+                    { id: order.seller._id, role: 'seller', reason: 'Order completion' }
+                ];
+
+                for (const party of parties) {
+                    try {
+                        const userAccount = await User.findByIdAndUpdate(party.id, {
+                            $inc: { 
+                                tokenBalance: 5,
+                                totalTokensEarned: 5
+                            }
+                        });
+
+                        // Create transaction history record
+                        await new TokenTransaction({
+                            user: party.id,
+                            amount: 5,
+                            type: 'earned',
+                            reason: party.reason,
+                            orderId: order._id,
+                            description: `Earned 5 tokens for ${party.role === 'buyer' ? 'confirming' : 'completing'} order #${order._id.toString().slice(-8)}`
+                        }).save();
+
+                        // Send legacy Token model update for backward compatibility (optional but kept for internal stats)
+                        let tokenAcc = await Token.findOne({ user: party.id });
+                        if (!tokenAcc) tokenAcc = new Token({ user: party.id });
+                        tokenAcc.currentBalance += 5;
+                        tokenAcc.totalEarned += 5;
+                        tokenAcc.transactions.push({
+                            type: 'earned',
+                            amount: 5,
+                            reason: party.reason,
+                            referenceId: order._id.toString(),
+                            createdAt: new Date()
+                        });
+                        await tokenAcc.save();
+
+                        // Save notification
+                        await new Notification({
+                            recipient: party.id,
+                            title: 'Tokens Earned!',
+                            message: `You earned 5 tokens for ${party.role === 'buyer' ? 'confirming delivery' : 'completing an order'}`,
+                            type: 'token_earned',
+                            data: { actionUrl: '/pages/tokens.html' }
+                        }).save();
+                    } catch (awardError) {
+                        console.error(`Error awarding tokens to ${party.role}:`, awardError);
+                    }
                 }
-                
-                buyerTokenAccount.currentBalance += 5;
-                buyerTokenAccount.totalEarned += 5;
-                buyerTokenAccount.lastActivity = new Date();
-                buyerTokenAccount.transactions.push({
-                    type: 'earned',
-                    amount: 5,
-                    reason: 'Delivery confirmation',
-                    referenceId: order._id.toString(),
-                    referenceType: 'purchase',
-                    createdAt: new Date()
-                });
-                
-                await buyerTokenAccount.save();
-                
-                // Send token notification to buyer
-                const buyerTokenNotification = new Notification({
-                    recipient: req.user.userId,
-                    title: 'Tokens Earned!',
-                    message: 'You earned 5 tokens for confirming delivery',
-                    type: 'token_earned',
-                    data: { actionUrl: '/pages/tokens.html' }
-                });
-                await buyerTokenNotification.save();
                 
                 // Release payment to seller for cash on delivery orders
                 if (order.paymentMethod === 'cash_on_delivery') {
                     order.paymentStatus = 'Released';
                     order.escrowReleased = true;
                     order.escrowReleasedAt = new Date();
-                    
-                    // Award 5 tokens to seller for completed delivery
-                    let sellerTokenAccount = await Token.findOne({ user: order.seller._id });
-                    if (!sellerTokenAccount) {
-                        sellerTokenAccount = new Token({ user: order.seller._id });
-                    }
-                    
-                    sellerTokenAccount.currentBalance += 5;
-                    sellerTokenAccount.totalEarned += 5;
-                    sellerTokenAccount.lastActivity = new Date();
-                    sellerTokenAccount.transactions.push({
-                        type: 'earned',
-                        amount: 5,
-                        reason: 'Order completed',
-                        referenceId: order._id.toString(),
-                        referenceType: 'purchase',
-                        createdAt: new Date()
-                    });
-                    
-                    await sellerTokenAccount.save();
-                    
-                    // Send token notification to seller
-                    const sellerTokenNotification = new Notification({
-                        recipient: order.seller._id,
-                        title: 'Tokens Earned!',
-                        message: 'You earned 5 tokens for completing an order',
-                        type: 'token_earned',
-                        data: { actionUrl: '/pages/tokens.html' }
-                    });
-                    await sellerTokenNotification.save();
-                    
-                    console.log('✅ Released payment to seller and awarded 5 tokens');
                 }
                 
-                console.log('✅ Awarded 5 tokens to buyer for delivery confirmation');
-            } else {
-                return res.status(400).json({ message: 'Invalid status transition' });
-            }
+                console.log('✅ Completed order and awarded 5 tokens to both parties');
         } else if (isSeller) {
             // Seller actions for cash on delivery orders
             if (status === 'confirmed_by_seller' && order.status === 'pending_seller_confirmation') {
@@ -8956,31 +9010,7 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
             link: `/orders.html`
         }).save();
 
-        // Award 5 tokens to seller if buyer confirmed delivery (order completed)
-        if (isBuyer && status === 'Delivered') {
-            try {
-                await User.findByIdAndUpdate(order.seller._id, {
-                    $inc: { 
-                        tokenBalance: 5,
-                        totalTokensEarned: 5
-                    }
-                });
-                
-                // Create token transaction record for seller
-                await new TokenTransaction({
-                    user: order.seller._id,
-                    amount: 5,
-                    type: 'earned',
-                    reason: 'Order completion',
-                    orderId: order._id,
-                    description: `Earned 5 tokens for completing order #${order._id.toString().slice(-8)}`
-                }).save();
-                
-                console.log('✅ Awarded 5 tokens to seller for order completion');
-            } catch (tokenError) {
-                console.error('Error awarding tokens to seller:', tokenError);
-            }
-        }
+        // Award 5 tokens to seller if buyer confirmed delivery (order completed) handled above in consolidated logic
 
         res.json({ message: 'Order status updated successfully', order });
     } catch (error) {
@@ -9154,8 +9184,8 @@ app.post('/api/reviews', authenticateToken, async (req, res) => {
             return res.status(403).json({ message: 'Only buyers can leave reviews' });
         }
 
-        if (transaction.status !== 'Completed') {
-            return res.status(400).json({ message: 'Can only review completed transactions' });
+        if (!['Completed', 'completed', 'delivered', 'Delivered'].includes(transaction.status)) {
+            return res.status(400).json({ message: 'Can only review delivered or completed transactions' });
         }
 
         // Check if review already exists
@@ -9191,25 +9221,41 @@ app.post('/api/reviews', authenticateToken, async (req, res) => {
         // Update seller's average rating
         await updateSellerRating(product.seller);
 
-        // Award tokens to buyer for leaving review
-        let tokenAccount = await Token.findOne({ user: userId });
-        if (!tokenAccount) {
-            tokenAccount = new Token({ user: userId });
+        // Award 3 tokens to buyer for leaving review
+        try {
+            await User.findByIdAndUpdate(userId, {
+                $inc: { 
+                    tokenBalance: 3,
+                    totalTokensEarned: 3
+                }
+            });
+
+            // Create token transaction history record
+            await new TokenTransaction({
+                user: userId,
+                amount: 3,
+                type: 'earned',
+                reason: 'Review submitted',
+                orderId: orderId,
+                description: `Earned 3 tokens for leaving a review on product #${productId.slice(-6)}`
+            }).save();
+
+            // Notify legacy Token model
+            let tokenAcc = await Token.findOne({ user: userId });
+            if (!tokenAcc) tokenAcc = new Token({ user: userId });
+            tokenAcc.currentBalance += 3;
+            tokenAcc.totalEarned += 3;
+            tokenAcc.transactions.push({
+                type: 'earned',
+                amount: 3,
+                reason: 'Review submitted',
+                referenceId: review._id.toString(),
+                createdAt: new Date()
+            });
+            await tokenAcc.save();
+        } catch (tokenError) {
+            console.error('Error awarding tokens for review:', tokenError);
         }
-        
-        tokenAccount.currentBalance += 3;
-        tokenAccount.totalEarned += 3;
-        tokenAccount.lastActivity = new Date();
-        tokenAccount.transactions.push({
-            type: 'earned',
-            amount: 3,
-            reason: 'Review submitted',
-            referenceId: review._id.toString(),
-            referenceType: 'review',
-            createdAt: new Date()
-        });
-        
-        await tokenAccount.save();
         
         // Send token notification
         const tokenNotification = new Notification({

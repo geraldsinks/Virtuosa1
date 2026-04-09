@@ -256,7 +256,7 @@ function renderOrders(orders) {
                 
                 <!-- Action buttons based on order status and user role -->
                 <div class="mt-4 pt-4 border-t border-gray-200">
-                    <div class="flex flex-wrap gap-2">
+                    <div class="flex flex-wrap gap-2" id="actions-${order._id}">
                         ${getOrderActionButtons(order)}
                     </div>
                 </div>
@@ -272,52 +272,116 @@ function renderOrders(orders) {
 
 // Get appropriate action buttons based on order status and user role
 function getOrderActionButtons(order) {
-    // This would need to be implemented based on user role (buyer/seller)
-    // For now, return basic status update buttons
     const buttons = [];
-    
-    if (order.status === 'pending_seller_confirmation') {
-        buttons.push(`
-            <button onclick="updateOrderStatus('${order._id}', 'confirmed_by_seller')" 
-                    class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-                <i class="fas fa-check mr-2"></i>Confirm Order
-            </button>
-            <button onclick="updateOrderStatus('${order._id}', 'declined', null, 'Declined by seller')" 
-                    class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-                <i class="fas fa-times mr-2"></i>Decline Order
-            </button>
-        `);
+    const userId = localStorage.getItem('userId') || (window.user ? window.user.id : null);
+    const isBuyer = order.buyer === userId || (order.buyer?._id === userId);
+    const isSeller = order.seller === userId || (order.seller?._id === userId);
+
+    if (isSeller) {
+        if (order.status === 'pending_seller_confirmation') {
+            buttons.push(`
+                <button onclick="updateOrderStatus('${order._id}', 'confirmed_by_seller')" 
+                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-semibold">
+                    <i class="fas fa-check mr-2"></i>Confirm Order
+                </button>
+                <button onclick="updateOrderStatus('${order._id}', 'declined', null, 'Declined by seller')" 
+                        class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-semibold">
+                    <i class="fas fa-times mr-2"></i>Decline Order
+                </button>
+            `);
+        }
+        
+        if (order.status === 'confirmed_by_seller') {
+            buttons.push(`
+                <button onclick="showTrackingModal('${order._id}')" 
+                        class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-sm font-semibold">
+                    <i class="fas fa-truck mr-2"></i>Mark as Shipped
+                </button>
+            `);
+        }
+        
+        if (order.status === 'out_for_delivery') {
+            buttons.push(`
+                <button onclick="updateOrderStatus('${order._id}', 'delivered_pending_confirmation', null, 'Order delivered')" 
+                        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-semibold">
+                    <i class="fas fa-box mr-2"></i>Mark as Delivered
+                </button>
+            `);
+        }
     }
-    
-    if (order.status === 'confirmed_by_seller') {
-        buttons.push(`
-            <button onclick="showTrackingModal('${order._id}')" 
-                    class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
-                <i class="fas fa-truck mr-2"></i>Mark as Shipped
-            </button>
-        `);
+
+    if (isBuyer) {
+        if (['delivered_pending_confirmation', 'delivered', 'Delivered'].includes(order.status)) {
+            buttons.push(`
+                <button onclick="updateOrderStatus('${order._id}', 'Completed', null, 'Delivery confirmed by buyer')" 
+                        class="px-4 py-2 bg-gold text-navy rounded-lg hover:bg-yellow-500 transition-colors font-bold text-sm shadow-sm">
+                    <i class="fas fa-check-double mr-2"></i>Confirm Delivery
+                </button>
+            `);
+        }
+
+        // Allow dispute if shipped or delivered but not yet resolved/closed
+        if (['shipped', 'out_for_delivery', 'delivered_pending_confirmation', 'delivered', 'Delivered', 'Completed'].includes(order.status) && order.disputeStatus !== 'Open') {
+            buttons.push(`
+                <button onclick="initiateDispute('${order._id}')" 
+                        class="px-4 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors text-sm font-semibold">
+                    <i class="fas fa-exclamation-triangle mr-1"></i> File Dispute
+                </button>
+            `);
+        }
     }
-    
-    if (order.status === 'out_for_delivery') {
+
+    // Common actions
+    if (order.status === 'Completed' || order.status === 'completed') {
         buttons.push(`
-            <button onclick="updateOrderStatus('${order._id}', 'delivered_pending_confirmation', null, 'Order delivered')" 
-                    class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
-                <i class="fas fa-box mr-2"></i>Mark as Delivered
-            </button>
-        `);
-    }
-    
-    if (order.status === 'delivered_pending_confirmation') {
-        buttons.push(`
-            <button onclick="updateOrderStatus('${order._id}', 'Completed', null, 'Delivery confirmed by buyer')" 
-                    class="px-4 py-2 bg-gold text-navy rounded-lg hover:bg-yellow-500 transition-colors font-semibold">
-                <i class="fas fa-check-double mr-2"></i>Confirm Delivery
+            <button onclick="window.location.href='/pages/product-detail.html?id=${order.product?._id || order.product}'" 
+                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-semibold">
+                <i class="fas fa-redo mr-1"></i> Order Again
             </button>
         `);
     }
     
     return buttons.join('');
 }
+
+// Function to initiate a dispute
+async function initiateDispute(orderId) {
+    const title = prompt("Specify the main issue (e.g., Item not as described, Partial delivery):");
+    if (!title) return;
+
+    const description = prompt("Provide more details about your dispute:");
+    if (!description) return;
+
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE}/api/disputes`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                orderId,
+                title,
+                description,
+                type: 'product_issue', // Default type
+                severity: 'medium'
+            })
+        });
+
+        if (response.ok) {
+            showToast('Dispute filed successfully. An admin will review it.', 'success');
+            loadOrders(currentPage, currentFilter);
+        } else {
+            const data = await response.json();
+            showToast(data.message || 'Failed to file dispute', 'error');
+        }
+    } catch (error) {
+        console.error('Dispute error:', error);
+        showToast('An error occurred while filing the dispute', 'error');
+    }
+}
+window.initiateDispute = initiateDispute;
 
 // Attach event listeners to order action buttons
 function attachOrderActionListeners() {
@@ -376,9 +440,11 @@ function getStatusColor(status) {
         'confirmed_by_seller': 'bg-blue-100 text-blue-800',
         'out_for_delivery': 'bg-purple-100 text-purple-800',
         'delivered_pending_confirmation': 'bg-green-100 text-green-800',
+        'delivered': 'bg-green-100 text-green-800',
         'completed': 'bg-green-100 text-green-800',
-        'Completed': 'bg-green-100 text-green-800', // legacy capitalized variant
-        'declined': 'bg-red-100 text-red-800'
+        'Completed': 'bg-green-100 text-green-800',
+        'disputed': 'bg-red-100 text-red-800',
+        'declined': 'bg-gray-100 text-gray-800'
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
 }
@@ -389,7 +455,10 @@ function getStatusIcon(status) {
         'confirmed_by_seller': 'fas fa-check-circle',
         'out_for_delivery': 'fas fa-truck',
         'delivered_pending_confirmation': 'fas fa-box',
+        'delivered': 'fas fa-box-open',
         'completed': 'fas fa-check-double',
+        'Completed': 'fas fa-check-double',
+        'disputed': 'fas fa-exclamation-triangle',
         'declined': 'fas fa-times-circle'
     };
     return icons[status] || 'fas fa-question-circle';

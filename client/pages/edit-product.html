@@ -67,9 +67,19 @@
             color: #6B7280;
         }
 
+        .step-done {
+            background-color: #166534;
+            color: #ffffff;
+        }
+
         .drag-area {
             border: 2px dashed #C19A6B;
             transition: all 0.3s;
+        }
+
+        .drag-area:hover {
+            border-color: #FFD700;
+            background-color: rgba(255, 215, 0, 0.04);
         }
     </style>
 
@@ -79,8 +89,6 @@
     <script src="/js/auth-manager.js"></script>
     <script src="/js/cache-manager.js" defer></script>
     
-    
-
     <!-- Clean URL System -->
     <script src="/js/navigation-state-manager.js"></script>
     <script src="/js/unified-header-fixed.js" defer></script>
@@ -88,16 +96,13 @@
 </head>
 
 <body class="bg-gray-100 antialiased">
-    
-
-    <!-- Legacy mobile menu removed -->
-
 
     <main class="container mx-auto px-4 py-8 max-w-3xl">
+        <!-- Page Header -->
         <div class="mb-8 flex items-center justify-between">
             <div>
                 <h1 class="text-3xl font-bold text-navy">Edit Listing</h1>
-                <p class="text-gray-500 mt-1 text-sm">Update your product details</p>
+                <p class="text-gray-500 mt-1 text-sm">Update your product details on the marketplace</p>
             </div>
             <a href="/pages/seller-dashboard.html"
                 class="text-sm text-gold font-semibold hover:underline flex items-center gap-1">
@@ -105,34 +110,101 @@
             </a>
         </div>
 
-        <form id="editProductForm" class="space-y-6">
-            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+        <!-- Step Progress -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <div class="flex items-center">
+                <!-- Step 1 -->
+                <div class="flex items-center flex-1">
+                    <div id="step1-indicator"
+                        class="step-active w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                        1</div>
+                    <div class="ml-3 hidden sm:block">
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Step 1</p>
+                        <p class="text-sm font-bold text-navy">Basic Info</p>
+                    </div>
+                </div>
+                <div class="h-1 flex-1 mx-2 rounded bg-gray-200"></div>
+                <!-- Step 2 -->
+                <div class="flex items-center flex-1">
+                    <div id="step2-indicator"
+                        class="step-inactive w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                        2</div>
+                    <div class="ml-3 hidden sm:block">
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Step 2</p>
+                        <p class="text-sm font-bold text-gray-500">Details</p>
+                    </div>
+                </div>
+                <div class="h-1 flex-1 mx-2 rounded bg-gray-200"></div>
+                <!-- Step 3 -->
+                <div class="flex items-center">
+                    <div id="step3-indicator"
+                        class="step-inactive w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                        3</div>
+                    <div class="ml-3 hidden sm:block">
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Step 3</p>
+                        <p class="text-sm font-bold text-gray-500">Photos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form id="editProductForm" onsubmit="updateProduct(event)" class="space-y-6">
+
+            <!-- STEP 1: Basic Info -->
+            <div id="step1Content" class="step-content bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <div class="flex items-center mb-6 pb-4 border-b border-gray-100">
+                    <div class="bg-gold bg-opacity-10 p-2 rounded-lg mr-3">
+                        <i data-lucide="file-text" class="w-5 h-5 text-gold"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-navy">Basic Information</h3>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Product Name</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Product Name <span
+                                class="text-red-500">*</span></label>
                         <input type="text" id="productName" required
-                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm">
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm transition-all"
+                            placeholder="e.g., Introduction to Psychology Textbook">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Category</label>
-                        <select id="category" required
-                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm bg-white">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Category <span
+                                class="text-red-500">*</span></label>
+                        <select id="category" required onchange="updateSubcategories()"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm bg-white transition-all">
+                            <option value="">Select category</option>
                             <option value="Electronics">Electronics</option>
                             <option value="Computers & Software">Computers & Software</option>
                             <option value="Men's Clothing">Men's Clothing</option>
                             <option value="Women's Clothing">Women's Clothing</option>
                             <option value="Shoes">Shoes</option>
                             <option value="Accessories">Accessories</option>
+                            <option value="Personal Care & Beauty">Personal Care & Beauty</option>
                             <option value="Textbooks">Textbooks</option>
+                            <option value="Food & Beverages">Food & Beverages</option>
+                            <option value="Sports & Outdoors">Sports & Outdoors</option>
+                            <option value="Home & Living">Home & Living</option>
+                            <option value="Services">Services</option>
                             <option value="Other">Other</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Condition</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Subcategory</label>
+                        <select id="subcategory"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm bg-white transition-all">
+                            <option value="">Select subcategory</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Condition <span
+                                class="text-red-500">*</span></label>
                         <select id="condition" required
-                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm bg-white">
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm bg-white transition-all">
+                            <option value="">Select condition</option>
                             <option value="New">New</option>
                             <option value="Like New">Like New</option>
                             <option value="Good">Good</option>
@@ -141,109 +213,254 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Price (ZMW)</label>
-                        <input type="number" id="price" required min="0" step="0.01"
-                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Price (ZMW) <span
+                                class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <span
+                                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">ZMW</span>
+                            <input type="number" id="price" required min="0" step="0.01"
+                                class="w-full border border-gray-300 rounded-xl pl-14 pr-4 py-3 text-sm transition-all"
+                                placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Original Price (ZMW) <span
+                                class="text-xs text-gray-400 font-normal">— Optional</span></label>
+                        <div class="relative">
+                            <span
+                                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">ZMW</span>
+                            <input type="number" id="originalPrice" min="0" step="0.01"
+                                class="w-full border border-gray-300 rounded-xl pl-14 pr-4 py-3 text-sm transition-all"
+                                placeholder="0.00">
+                        </div>
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Description <span
+                                class="text-red-500">*</span></label>
                         <textarea id="description" required rows="4"
-                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm resize-none"></textarea>
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Current Photos</label>
-                        <div id="currentImages" class="flex flex-wrap gap-2 mb-4"></div>
-                        <p class="text-xs text-gray-500 italic">Editing photos is coming soon. For now, you can update
-                            text and price.</p>
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm resize-none transition-all"
+                            placeholder="Describe your item — include edition, any wear, included accessories, etc."></textarea>
                     </div>
                 </div>
 
-                <div class="flex justify-end mt-8 border-t pt-6">
+                <div class="flex justify-end mt-8">
+                    <button type="button" onclick="nextStep()"
+                        class="bg-navy text-gold font-bold px-8 py-3 rounded-xl hover:bg-opacity-90 transition-all flex items-center gap-2 shadow-lg">
+                        Next Step <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Additional Details -->
+            <div id="step2Content" class="step-content hidden bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <div class="flex items-center mb-6 pb-4 border-b border-gray-100">
+                    <div class="bg-blue-50 p-2 rounded-lg mr-3">
+                        <i data-lucide="info" class="w-5 h-5 text-blue-500"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-navy">Additional Details</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Listing Type Section -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Listing Type <span
+                                class="text-red-500">*</span></label>
+                        <div class="space-y-3">
+                            <label
+                                class="flex items-start gap-3 cursor-pointer bg-gray-50 hover:bg-yellow-50 p-4 rounded-xl border border-gray-200 hover:border-gold transition-all">
+                                <input type="radio" name="listingType" value="one_time" checked
+                                    class="w-4 h-4 accent-yellow-500 mt-1" onchange="toggleInventoryOptions()">
+                                <div class="flex-1">
+                                    <span class="text-sm font-semibold text-navy block">One-Time Sale</span>
+                                    <span class="text-xs text-gray-500">Perfect for unique items, used textbooks, or single products.</span>
+                                </div>
+                            </label>
+                            <label
+                                class="flex items-start gap-3 cursor-pointer bg-gray-50 hover:bg-yellow-50 p-4 rounded-xl border border-gray-200 hover:border-gold transition-all">
+                                <input type="radio" name="listingType" value="persistent"
+                                    class="w-4 h-4 accent-yellow-500 mt-1" onchange="toggleInventoryOptions()">
+                                <div class="flex-1">
+                                    <span class="text-sm font-semibold text-navy block">Persistent Listing</span>
+                                    <span class="text-xs text-gray-500">Ideal for items with multiple quantities. Remains active until you remove it.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Options (Hidden by default) -->
+                    <div id="inventoryOptions" class="md:col-span-2 hidden space-y-4">
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                            <div class="flex items-center mb-3">
+                                <i data-lucide="package" class="w-5 h-5 text-blue-600 mr-2"></i>
+                                <h4 class="text-sm font-semibold text-blue-900">Inventory Management</h4>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Current Quantity</label>
+                                    <input type="number" id="inventory" min="0" value="1"
+                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Low Stock Alert</label>
+                                    <input type="number" id="lowStockThreshold" min="1" value="1"
+                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="inventoryTracking" checked
+                                        class="w-4 h-4 accent-blue-500 mr-2">
+                                    <label for="inventoryTracking" class="text-sm text-gray-700">Enable tracking</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Course Code</label>
+                        <input type="text" id="courseCode"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm transition-all"
+                            placeholder="e.g., PSY101">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Course Name</label>
+                        <input type="text" id="courseName"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm transition-all"
+                            placeholder="e.g., Intro to Psychology">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Author / Brand</label>
+                        <input type="text" id="author"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm transition-all"
+                            placeholder="Author name or brand">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">ISBN / Model</label>
+                        <input type="text" id="isbn"
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm transition-all"
+                            placeholder="ISBN or model number">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Campus Location</label>
+                        <div class="relative">
+                            <i data-lucide="map-pin"
+                                class="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+                            <input type="text" id="location"
+                                class="w-full border border-gray-300 rounded-xl pl-10 pr-4 py-3 text-sm transition-all"
+                                placeholder="e.g., UNZA Great East Road Campus">
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Delivery Options</label>
+                        <div class="flex flex-wrap gap-3">
+                            <label
+                                class="flex items-center gap-2 cursor-pointer bg-gray-50 hover:bg-yellow-50 px-4 py-3 rounded-xl border border-gray-200 hover:border-gold transition-all">
+                                <input type="checkbox" id="pickupAvailable" class="w-4 h-4 accent-yellow-500">
+                                <div>
+                                    <span class="text-sm font-semibold text-navy block">Pickup Available</span>
+                                </div>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 cursor-pointer bg-gray-50 hover:bg-yellow-50 px-4 py-3 rounded-xl border border-gray-200 hover:border-gold transition-all">
+                                <input type="checkbox" id="deliveryAvailable" class="w-4 h-4 accent-yellow-500">
+                                <div>
+                                    <span class="text-sm font-semibold text-navy block">Delivery Available</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-8">
+                    <button type="button" onclick="previousStep()"
+                        class="border border-gray-300 text-gray-700 font-bold px-6 py-3 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+                    </button>
+                    <button type="button" onclick="nextStep()"
+                        class="bg-navy text-gold font-bold px-8 py-3 rounded-xl hover:bg-opacity-90 transition-all flex items-center gap-2 shadow-lg">
+                        Next Step <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Photos -->
+            <div id="step3Content" class="step-content hidden bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <div class="flex items-center mb-6 pb-4 border-b border-gray-100">
+                    <div class="bg-purple-50 p-2 rounded-lg mr-3">
+                        <i data-lucide="image" class="w-5 h-5 text-purple-500"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-navy">Product Photos</h3>
+                </div>
+
+                <p class="text-sm text-gray-500 mb-5">Manage your product photos. Current images can be removed by clicking the (x) on hover.</p>
+
+                <div id="imagePreview" class="grid grid-cols-3 md:grid-cols-5 gap-3 mb-5"></div>
+
+                <div class="drag-area rounded-2xl p-10 text-center cursor-pointer">
+                    <input type="file" id="imageInput" accept="image/*" multiple onchange="handleImageUpload()"
+                        class="hidden">
+                    <label for="imageInput" class="cursor-pointer flex flex-col items-center">
+                        <div class="bg-gold bg-opacity-10 p-4 rounded-full mb-4">
+                            <i data-lucide="upload-cloud" class="w-8 h-8 text-gold"></i>
+                        </div>
+                        <p class="text-navy font-semibold">Click to upload NEW images</p>
+                        <p class="text-gray-400 text-xs mt-1">Maximum 5 total images</p>
+                    </label>
+                </div>
+
+                <div class="flex justify-between mt-8">
+                    <button type="button" onclick="previousStep()"
+                        class="border border-gray-300 text-gray-700 font-bold px-6 py-3 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+                    </button>
                     <button type="submit"
-                        class="bg-navy text-gold font-bold px-10 py-3 rounded-xl hover:bg-opacity-90 transition-all shadow-lg flex items-center gap-2">
-                        <i data-lucide="save" class="w-4 h-4"></i> Save Changes
+                        class="bg-navy text-gold font-bold px-8 py-3 rounded-xl hover:opacity-90 transition-all flex items-center gap-2 shadow-lg">
+                        <i data-lucide="save" class="w-5 h-5"></i> Save Changes
                     </button>
                 </div>
             </div>
         </form>
     </main>
 
+    <!-- Success Modal -->
+    <div id="successModal"
+        class="fixed inset-0 bg-black bg-opacity-60 hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4 text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+                <i data-lucide="check-circle" class="w-9 h-9 text-green-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-navy mb-2">Update Successful!</h3>
+            <p class="text-gray-500 text-sm mb-6">Your product listing has been updated successfully.</p>
+            <div class="flex flex-col gap-3">
+                <button onclick="viewProduct()"
+                    class="w-full bg-navy text-gold font-bold py-3 rounded-xl hover:bg-opacity-90 transition-all">
+                    View My Listing
+                </button>
+                <a href="/pages/seller-dashboard.html"
+                    class="w-full border border-gray-200 text-center text-gray-600 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-all">
+                    Go to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-navy text-gray-400 p-8 shadow-inner mt-12">
+        <div class="container mx-auto text-center">
+            &copy; 2026 Virtuosa. All rights reserved.
+        </div>
+    </footer>
+
     <script src="../js/cart.js"></script>
+    <script src="../js/edit-product.js"></script>
     <script>
-        window.onPageReady(async () => {
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const productId = urlParams.get('id');
-            const token = localStorage.getItem('token');
-
-            if (!productId || !token) {
-                window.location.href = '/pages/seller-dashboard.html';
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/products/${productId}`);
-                const product = await response.json();
-
-                if (!response.ok) throw new Error('Failed to load product');
-
-                document.getElementById('productName').value = product.name;
-                document.getElementById('category').value = product.category;
-                document.getElementById('condition').value = product.condition;
-                document.getElementById('price').value = product.price;
-                document.getElementById('description').value = product.description;
-
-                const imgContainer = document.getElementById('currentImages');
-                if (product.images && product.images.length > 0) {
-                    imgContainer.innerHTML = product.images.map(img => `
-                        <img src="${img}" class="w-20 h-20 object-cover rounded-lg border border-gray-200">
-                    `).join('');
-                } else {
-                    imgContainer.innerHTML = '<p class="text-gray-400 text-sm">No images uploaded.</p>';
-                }
-
-                if (window.lucide) window.lucide.createIcons();
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to load product details');
-            }
-
-            document.getElementById('editProductForm').onsubmit = async (e) => {
-                e.preventDefault();
-
-                const updates = {
-                    name: document.getElementById('productName').value,
-                    category: document.getElementById('category').value,
-                    condition: document.getElementById('condition').value,
-                    price: parseFloat(document.getElementById('price').value),
-                    description: document.getElementById('description').value
-                };
-
-                try {
-                    const response = await fetch(`/api/products/${productId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify(updates)
-                    });
-
-                    if (response.ok) {
-                        alert('Product updated successfully!');
-                        window.location.href = '/pages/seller-dashboard.html';
-                    } else {
-                        const data = await response.json();
-                        alert(data.message || 'Update failed');
-                    }
-                } catch (error) {
-                    console.error('Update error:', error);
-                    alert('An error occurred');
-                }
-            };
-        ;
+        window.onPageReady(() => {
+            if (window.lucide) window.lucide.createIcons();
         });
     </script>
 

@@ -24,7 +24,7 @@ const upload = multer({ storage });
 const fileDispute = async (req, res) => {
     try {
         const { orderId, type, severity, title, description, buyerResolution, buyerRefundAmount, buyerExplanation } = req.body;
-        const userId = req.user.id;
+        const userId = req.user.userId;
         
         // Validate order exists and user is the buyer
         const order = await Transaction.findById(orderId).populate('product buyer seller');
@@ -125,7 +125,7 @@ const fileDispute = async (req, res) => {
 const uploadEvidence = async (req, res) => {
     try {
         const { disputeId } = req.params;
-        const userId = req.user.id;
+        const userId = req.user.userId;
         const { description } = req.body;
         
         const dispute = await Dispute.findById(disputeId);
@@ -179,7 +179,7 @@ const uploadEvidence = async (req, res) => {
 const getDispute = async (req, res) => {
     try {
         const { disputeId } = req.params;
-        const userId = req.user.id;
+        const userId = req.user.userId;
         
         const dispute = await Dispute.findById(disputeId)
             .populate('order', 'transactionId totalAmount status')
@@ -216,7 +216,7 @@ const getDispute = async (req, res) => {
 // Get user's disputes
 const getUserDisputes = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user.userId;
         const { role = 'all', page = 1, limit = 20, status = 'all' } = req.query;
         
         const result = await Dispute.getByUser(userId, role, parseInt(page), parseInt(limit), status);
@@ -234,7 +234,7 @@ const addMessage = async (req, res) => {
     try {
         const { disputeId } = req.params;
         const { content, isPrivate = false } = req.body;
-        const userId = req.user.id;
+        const userId = req.user.userId;
         
         const dispute = await Dispute.findById(disputeId);
         if (!dispute) {
@@ -280,7 +280,7 @@ const sellerRespond = async (req, res) => {
     try {
         const { disputeId } = req.params;
         const { response, offerType, offerAmount, offerExplanation } = req.body;
-        const userId = req.user.id;
+        const userId = req.user.userId;
         
         const dispute = await Dispute.findById(disputeId);
         if (!dispute) {
@@ -361,7 +361,7 @@ const assignDispute = async (req, res) => {
     try {
         const { disputeId } = req.params;
         const { adminId } = req.body;
-        const userId = req.user.id;
+        const userId = req.user.userId;
         
         const dispute = await Dispute.findById(disputeId);
         if (!dispute) {
@@ -394,7 +394,7 @@ const resolveDispute = async (req, res) => {
             returnRequired,
             returnInstructions
         } = req.body;
-        const userId = req.user.id;
+        const userId = req.user.userId;
         
         const dispute = await Dispute.findById(disputeId);
         if (!dispute) {

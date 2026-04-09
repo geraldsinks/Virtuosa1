@@ -92,6 +92,10 @@ const transactionSchema = new mongoose.Schema({
         enum: ['None', 'Open', 'Resolved', 'Rejected'],
         default: 'None'
     },
+    tokensAwarded: {
+        type: Boolean,
+        default: false
+    },
     
     // Payment information
     paymentMethod: {
