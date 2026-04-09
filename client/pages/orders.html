@@ -6,7 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Virtuosa - My Orders</title>
-    
+
+    <!-- QR Code Verification Modal -->
+    <div id="qr-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-8 text-center animate-scale-in">
+            <h3 class="text-2xl font-bold text-navy mb-2">Delivery Verification</h3>
+            <p class="text-gray-500 mb-6 font-medium">Have the buyer scan this code to confirm delivery instantly.</p>
+            
+            <div id="qrcode-container" class="bg-white p-4 rounded-xl shadow-inner border border-gray-100 flex justify-center mb-6"></div>
+            
+            <p id="qr-order-id" class="text-xs font-mono text-gray-400 mb-6 uppercase tracking-widest"></p>
+            
+            <button onclick="hideQRModal()" class="w-full py-4 bg-gray-100 text-navy rounded-xl font-bold hover:bg-gray-200 transition-all active:scale-95">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <link rel="icon" type="image/svg+xml" href="../favicon-16x16.svg" sizes="16x16">
@@ -24,7 +41,8 @@
     <!-- Performance Resource Hints -->
     <link rel="preconnect" href="https://api.virtuosazm.com">
     <link rel="preconnect" href="https://res.cloudinary.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
     <style>
@@ -366,10 +384,16 @@
                                             <i class="fas fa-truck mr-1"></i> Mark as Shipped
                                         </button>
                                     ` : ''}
-                                    ${isSeller && order.status === 'out_for_delivery' ? `
+                                    ${isSeller && (order.status === 'out_for_delivery' || order.status === 'Shipped') ? `
                                         <button onclick="markAsDelivered('${order._id}')" 
                                             class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
                                             <i class="fas fa-box mr-1"></i> Mark as Delivered
+                                        </button>
+                                    ` : ''}
+                                    ${isSeller && ['confirmed_by_seller', 'Shipped', 'out_for_delivery'].includes(order.status) ? `
+                                        <button onclick="showVerificationQR('${order._id}')" 
+                                            class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-900 transition-colors text-sm">
+                                            <i class="fas fa-qrcode mr-1"></i> QR Code
                                         </button>
                                     ` : ''}
                                 </div>
@@ -386,6 +410,7 @@
                 switch (status) {
                     case 'pending_seller_confirmation': return 'bg-yellow-100 text-yellow-800';
                     case 'confirmed_by_seller': return 'bg-blue-100 text-blue-800';
+                    case 'Shipped': return 'bg-purple-100 text-purple-800';
                     case 'out_for_delivery': return 'bg-purple-100 text-purple-800';
                     case 'delivered_pending_confirmation': return 'bg-orange-100 text-orange-800';
                     case 'completed': return 'bg-green-100 text-green-800';
@@ -400,6 +425,7 @@
                 switch (status) {
                     case 'pending_seller_confirmation': return 'fas fa-clock';
                     case 'confirmed_by_seller': return 'fas fa-check-circle';
+                    case 'Shipped': return 'fas fa-truck';
                     case 'out_for_delivery': return 'fas fa-truck';
                     case 'delivered_pending_confirmation': return 'fas fa-box';
                     case 'completed': return 'fas fa-check-double';
@@ -545,7 +571,8 @@
                             'Authorization': `Bearer ${token}`
                         },
                         body: JSON.stringify({
-                            status: 'out_for_delivery'
+                            status: 'Shipped',
+                            trackingNumber: prompt('Enter tracking number (optional):')
                         })
                     });
 
@@ -608,7 +635,7 @@
 Are you sure you have received this order?
 
 ✅ BENEFITS FOR CONFIRMING:
-• Earn 5 tokens for this delivery confirmation
+• Earn 2 tokens for this delivery confirmation
 • Move closer to next reward tier (25 tokens = 10% discount)
 • Help build trusted marketplace community
 
@@ -638,10 +665,10 @@ Confirm Delivery & Earn Tokens?
 
                     if (response.ok) {
                         // Show success message with token reward
-                        showToast('🎉 Delivery confirmed! You earned 5 tokens! Check your profile for rewards.', 'success');
+                        showToast('🎉 Delivery confirmed! You earned 2 tokens! Check your profile for rewards.', 'success');
                         
                         // Show token reward animation
-                        showTokenRewardAnimation(5);
+                        showTokenRewardAnimation(2);
                         
                         // Show review modal after a short delay
                         setTimeout(() => {
@@ -1053,6 +1080,37 @@ Confirm Delivery & Earn Tokens?
     <!-- Cookie Analytics & Consent -->
     <script src="/js/cookie-consent.js"></script>
     <script src="/js/cookie-tracker.js"></script>
+    <script>
+        // QR Code Logic
+        function showVerificationQR(orderId) {
+            const modal = document.getElementById('qr-modal');
+            const container = document.getElementById('qrcode-container');
+            const orderIdText = document.getElementById('qr-order-id');
+            
+            // Clear previous QR
+            container.innerHTML = '';
+            orderIdText.textContent = `Order Verification: ${orderId.slice(-8)}`;
+            
+            // Generate New QR
+            // The QR contains just the order ID, scanning it can ideally lead to a verification URL
+            const verificationUrl = `${window.location.origin}/pages/verify-delivery.html?id=${orderId}`;
+            
+            new QRCode(container, {
+                text: verificationUrl,
+                width: 256,
+                height: 256,
+                colorDark : "#001F3F",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+            
+            modal.classList.remove('hidden');
+        }
+
+        function hideQRModal() {
+            document.getElementById('qr-modal').classList.add('hidden');
+        }
+    </script>
 </body>
 
 </html>

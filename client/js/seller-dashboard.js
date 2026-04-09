@@ -436,13 +436,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                         Ship
                     </button>
                 `;
-            case 'out_for_delivery':
-                return `
                     <button onclick="updateOrderStatus('${transaction._id}', 'delivered_pending_confirmation')" 
                         class="text-[10px] px-2 py-1 bg-blue-600 text-white rounded font-bold hover:bg-blue-700 transition-colors uppercase">
                         Delivered
                     </button>
-                `;
             case 'delivered_pending_confirmation':
             case 'delivered':
             case 'Delivered':
@@ -474,11 +471,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.markAsShipped = async (orderId) => {
         const tracking = prompt("Enter tracking number (optional):");
-        await updateOrderStatus(orderId, 'out_for_delivery', tracking);
+        await updateOrderStatus(orderId, 'Shipped', tracking);
     };
 
     // Update order status function
-    window.updateOrderStatus = async (orderId, newStatus) => {
+    window.updateOrderStatus = async (orderId, newStatus, trackingNumber = null) => {
         if (!confirm(`Are you sure you want to ${newStatus.toLowerCase()} this order?`)) {
             return;
         }
@@ -490,7 +487,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ status: newStatus, trackingNumber: arguments[2] || null })
+                body: JSON.stringify({ status: newStatus, trackingNumber: trackingNumber })
             });
 
             if (response.ok) {
@@ -741,6 +738,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         switch (status) {
             case 'pending_seller_confirmation': return 'bg-yellow-100 text-yellow-800';
             case 'confirmed_by_seller': return 'bg-blue-100 text-blue-800';
+            case 'Shipped':
             case 'out_for_delivery': return 'bg-purple-100 text-purple-800';
             case 'delivered_pending_confirmation': 
             case 'delivered': 

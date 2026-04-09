@@ -80,9 +80,9 @@ class TransactionController {
                 buyer: req.body.buyerId,
                 seller: req.body.sellerId,
                 amount: req.body.amount,
-                currency: req.body.currency || 'USD',
-                platformFee: req.body.paymentMethod === 'cash_on_delivery' ? 0 : (req.body.platformFee || (req.body.amount * 0.05)), // No commission for cash on delivery
-                sellerAmount: req.body.paymentMethod === 'cash_on_delivery' ? req.body.amount : (req.body.sellerAmount || (req.body.amount - (req.body.amount * 0.05))),
+                currency: req.body.currency || 'ZMW',
+                platformFee: 0, // No commission for now as per user request
+                sellerAmount: req.body.amount, // Full amount to seller for now
                 paymentMethod: req.body.paymentMethod,
                 paymentGateway: req.body.paymentGateway,
                 delivery: req.body.delivery || {},
@@ -125,7 +125,7 @@ class TransactionController {
                 recipient: req.body.sellerId,
                 type: 'new_order',
                 title: 'New Transaction',
-                message: `You have a new transaction of ${req.body.amount} ${req.body.currency || 'USD'}.`,
+                message: `You have a new transaction of ${req.body.amount} ZMW`,
                 data: {
                     orderId: req.body.orderId,
                     productId: req.body.productId,

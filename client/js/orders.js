@@ -300,7 +300,7 @@ function getOrderActionButtons(order) {
             `);
         }
         
-        if (order.status === 'out_for_delivery') {
+        if (order.status === 'Shipped' || order.status === 'out_for_delivery') {
             buttons.push(`
                 <button onclick="updateOrderStatus('${order._id}', 'delivered_pending_confirmation', null, 'Order delivered')" 
                         class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-semibold">
@@ -321,7 +321,7 @@ function getOrderActionButtons(order) {
         }
 
         // Allow dispute if shipped or delivered but not yet resolved/closed
-        if (['shipped', 'out_for_delivery', 'delivered_pending_confirmation', 'delivered', 'Delivered', 'Completed'].includes(order.status) && order.disputeStatus !== 'Open') {
+        if (['shipped', 'Shipped', 'out_for_delivery', 'delivered_pending_confirmation', 'delivered', 'Delivered', 'Completed'].includes(order.status) && order.disputeStatus !== 'Open') {
             buttons.push(`
                 <button onclick="initiateDispute('${order._id}')" 
                         class="px-4 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors text-sm font-semibold">
@@ -393,7 +393,7 @@ function attachOrderActionListeners() {
 function showTrackingModal(orderId) {
     const trackingNumber = prompt('Enter tracking number:');
     if (trackingNumber) {
-        updateOrderStatus(orderId, 'out_for_delivery', trackingNumber, 'Order shipped with tracking');
+        updateOrderStatus(orderId, 'Shipped', trackingNumber, 'Order shipped with tracking');
     }
 }
 
@@ -438,6 +438,7 @@ function getStatusColor(status) {
     const colors = {
         'pending_seller_confirmation': 'bg-yellow-100 text-yellow-800',
         'confirmed_by_seller': 'bg-blue-100 text-blue-800',
+        'Shipped': 'bg-purple-100 text-purple-800',
         'out_for_delivery': 'bg-purple-100 text-purple-800',
         'delivered_pending_confirmation': 'bg-green-100 text-green-800',
         'delivered': 'bg-green-100 text-green-800',
@@ -453,6 +454,7 @@ function getStatusIcon(status) {
     const icons = {
         'pending_seller_confirmation': 'fas fa-clock',
         'confirmed_by_seller': 'fas fa-check-circle',
+        'Shipped': 'fas fa-truck',
         'out_for_delivery': 'fas fa-truck',
         'delivered_pending_confirmation': 'fas fa-box',
         'delivered': 'fas fa-box-open',
@@ -468,7 +470,8 @@ function getStatusText(status) {
     const texts = {
         'pending_seller_confirmation': 'Pending Confirmation',
         'confirmed_by_seller': 'Confirmed',
-        'out_for_delivery': 'Out for Delivery',
+        'Shipped': 'Shipped',
+        'out_for_delivery': 'Shipped',
         'delivered_pending_confirmation': 'Delivered',
         'completed': 'Completed',
         'Completed': 'Completed', // legacy capitalized variant

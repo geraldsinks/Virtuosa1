@@ -692,11 +692,10 @@ class TransactionManager {
         alert(`Error: ${message}`);
     }
 
-    // Utility Methods
     formatCurrency(amount) {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('en-ZM', {
             style: 'currency',
-            currency: 'USD'
+            currency: 'ZMW'
         }).format(amount);
     }
 

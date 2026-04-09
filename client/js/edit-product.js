@@ -72,7 +72,7 @@ async function loadProductData() {
     }
 
     try {
-        const response = await fetch(`${API_BASE}/api/products/${currentProductId}`);
+        const response = await fetch(`${API_BASE}/products/${currentProductId}`);
         if (!response.ok) throw new Error('Failed to load product');
         const product = await response.json();
 
@@ -265,7 +265,7 @@ async function updateProduct(event) {
     newImages.forEach(img => formData.append('images', img.file));
 
     try {
-        const response = await fetch(`${API_BASE}/api/products/${currentProductId}`, {
+        const response = await fetch(`${API_BASE}/products/${currentProductId}`, {
             method: 'PUT',
             headers: { 'Authorization': `Bearer ${token}` },
             body: formData

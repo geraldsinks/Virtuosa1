@@ -427,24 +427,15 @@ app.post('/api/products', authenticateToken, upload.array('images', 5), async (r
 
         // Create and save product
         const product = new Product(productData);
+        await product.save();
+
+        console.log('✅ Product created successfully:', product._id);
         
-        try {
-            await product.save();
-            console.log('✅ Product created successfully:', product._id);
-            
-            res.status(201).json({
-                message: 'Product created successfully',
-                success: true,
-                product: product
-            });
-        } catch (validationError) {
-            console.error('Validation error for product:', validationError);
-            return res.status(400).json({ 
-                message: 'Validation error',
-                details: validationError.message,
-                fields: validationError.errors ? Object.keys(validationError.errors) : []
-            });
-        }
+        res.status(201).json({
+            message: 'Product created successfully',
+            success: true,
+            product: product
+        });
 
     } catch (error) {
         console.error('❌ Error creating product:', error);
@@ -8453,95 +8444,13 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
             const { productId, quantity, price } = item;
 
             if (!productId || !quantity || !price) {
-                return res.status(400).json({ message: 'Invalid item data' });
+                return res.status(400).json({ message: 'Invalid item data: productId, quantity, and price are required' });
             }
 
             // Get product details
-            console.log(`🔍 Looking for product with ID: ${productId}`);
-            console.log(`🆔 Product ID type: ${typeof productId}, length: ${productId?.length}`);
-            
-            // Try ObjectId conversion for debugging
-            try {
-                const objectId = new mongoose.Types.ObjectId(productId);
-                console.log(`✅ Valid ObjectId: ${objectId}`);
-            } catch (error) {
-                console.log(`❌ Invalid ObjectId: ${error.message}`);
-            }
-            
             const product = await Product.findById(productId);
-            console.log(`📦 Product found:`, product ? `ID: ${product._id}, Name: ${product.name}, Status: ${product.status}` : 'NOT FOUND');
             
             if (!product) {
-                // Try searching for products with similar ID patterns
-                console.log(`🔍 Searching for products with similar IDs...`);
-                const allProducts = await Product.find({}).limit(5);
-                console.log(`📋 Recent products:`, allProducts.map(p => ({id: p._id.toString(), name: p.name})));
-                
-                // Try alternative lookup methods
-                console.log(`🔍 Trying alternative lookup methods...`);
-                
-                let regexProduct = null;
-                let stringProduct = null;
-                let objectIdProduct = null;
-                let nameProduct = null;
-                
-                // Method 1: Try with regex pattern (fixed)
-                try {
-                    regexProduct = await Product.findOne({
-                        _id: { $regex: `^${productId}$`, $options: 'i' }
-                    });
-                    console.log(`🔍 Regex lookup result:`, regexProduct ? `Found: ${regexProduct.name}` : 'Not found');
-                } catch (regexError) {
-                    console.log(`❌ Regex lookup error: ${regexError.message}`);
-                }
-                
-                // Method 2: Try exact string match
-                try {
-                    stringProduct = await Product.findOne({
-                        _id: productId
-                    });
-                    console.log(`🔍 String match result:`, stringProduct ? `Found: ${stringProduct.name}` : 'Not found');
-                } catch (stringError) {
-                    console.log(`❌ String match error: ${stringError.message}`);
-                }
-                
-                // Method 3: Try ObjectId conversion explicitly
-                try {
-                    const objectId = new mongoose.Types.ObjectId(productId);
-                    objectIdProduct = await Product.findOne({
-                        _id: objectId
-                    });
-                    console.log(`🔍 ObjectId lookup result:`, objectIdProduct ? `Found: ${objectIdProduct.name}` : 'Not found');
-                } catch (objectIdError) {
-                    console.log(`❌ ObjectId lookup error: ${objectIdError.message}`);
-                }
-                
-                // Method 4: Search by name pattern
-                nameProduct = await Product.findOne({
-                    name: { $regex: 'Samsung S26 Ultra', $options: 'i' }
-                });
-                console.log(`🔍 Name search result:`, nameProduct ? `Found: ${nameProduct.name} (ID: ${nameProduct._id})` : 'Not found');
-                
-                // If we found the product by name, provide the solution
-                if (nameProduct) {
-                    console.log(`✅ SOLUTION: Use product ID ${nameProduct._id.toString()} instead of ${productId}`);
-                    return res.status(404).json({ 
-                        message: `Product ${productId} not found`,
-                        solution: {
-                            issue: 'Product ID mismatch',
-                            correctProductId: nameProduct._id.toString(),
-                            productName: nameProduct.name,
-                            action: 'Update your cart with the correct product ID'
-                        },
-                        debugInfo: {
-                            requestedProductId: productId,
-                            foundProductId: nameProduct._id.toString(),
-                            productName: nameProduct.name,
-                            recentProducts: allProducts.map(p => ({id: p._id.toString(), name: p.name})).slice(0, 3)
-                        }
-                    });
-                }
-                
                 return res.status(404).json({ 
                     message: `Product ${productId} not found`,
                     debugInfo: {
@@ -8569,10 +8478,10 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
                 return res.status(400).json({ message: 'Cannot buy your own product' });
             }
 
-            // Calculate fees for this item
-            const commissionRate = 0.06; // 6% commission
-            const platformFee = paymentMethod === 'cash_on_delivery' ? 0 : price * commissionRate; // No commission for cash on delivery
-            const deliveryFee = paymentMethod === 'cash_on_delivery' ? 20 : 0; // K20 for cash on delivery
+            // Calculate fees for this item - SET TO 0 PER USER REQUEST
+            const commissionRate = 0; // 0% commission for now
+            const platformFee = 0; // No commission for now
+            const deliveryFee = 0; // No delivery fee for now
             const amount = price * quantity + deliveryFee;
             const sellerAmount = (price * quantity) - platformFee;
 
@@ -8890,23 +8799,12 @@ app.post('/api/orders/:orderId/decline', authenticateToken, async (req, res) => 
 // Update order status (for delivery confirmation and seller actions)
 app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
     try {
-        const { status, trackingNumber, deliveryNotes } = req.body;
-        
-        const order = await Transaction.findById(req.params.orderId)
-            .populate('seller', 'fullName')
-            .populate('buyer', 'fullName');
-
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found' });
-        }
-
-        const user = await User.findById(req.user.userId);
-        const isBuyer = order.buyer._id.toString() === req.user.userId;
-        const isSeller = order.seller._id.toString() === req.user.userId;
-
         // Validate status transitions based on user role and cash on delivery flow
+        if (isBuyer) {
             // Buyer confirms delivery - move to completed
-            if (['delivered_pending_confirmation', 'delivered', 'shipped', 'out_for_delivery', 'both_confirmed', 'confirmed_by_seller', 'seller_confirmed'].includes(order.status)) {
+            const completableStatuses = ['delivered_pending_confirmation', 'delivered', 'Shipped', 'out_for_delivery', 'both_confirmed'];
+            
+            if (completableStatuses.includes(order.status) || (order.status === 'confirmed_by_seller' && order.paymentMethod === 'cash_on_delivery')) {
                 // Check if this order has already been completed/awarded
                 if (order.status === 'Completed' || order.status === 'completed' || order.tokensAwarded) {
                     return res.status(400).json({ message: 'Order already completed and tokens awarded' });
@@ -8919,42 +8817,43 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
 
                 order.status = 'Completed';
                 order.deliveryConfirmedAt = new Date();
-                order.deliveryNotes = deliveryNotes;
+                order.deliveryNotes = deliveryNotes || 'Delivery confirmed by buyer';
                 order.tokensAwarded = true;
                 
-                // Award 5 tokens to BOTH buyer and seller
-                const parties = [
-                    { id: order.buyer._id, role: 'buyer', reason: 'Delivery confirmation' },
-                    { id: order.seller._id, role: 'seller', reason: 'Order completion' }
+                // Award tokens to BOTH buyer and seller
+                // 5 to seller, 2 to buyer (as per user request in conversation)
+                const partyRewards = [
+                    { id: order.buyer._id, role: 'buyer', amount: 2, reason: 'Delivery confirmation' },
+                    { id: order.seller._id, role: 'seller', amount: 5, reason: 'Order completion' }
                 ];
 
-                for (const party of parties) {
+                for (const party of partyRewards) {
                     try {
-                        const userAccount = await User.findByIdAndUpdate(party.id, {
+                        await User.findByIdAndUpdate(party.id, {
                             $inc: { 
-                                tokenBalance: 5,
-                                totalTokensEarned: 5
+                                tokenBalance: party.amount,
+                                totalTokensEarned: party.amount
                             }
                         });
 
                         // Create transaction history record
                         await new TokenTransaction({
                             user: party.id,
-                            amount: 5,
+                            amount: party.amount,
                             type: 'earned',
                             reason: party.reason,
                             orderId: order._id,
-                            description: `Earned 5 tokens for ${party.role === 'buyer' ? 'confirming' : 'completing'} order #${order._id.toString().slice(-8)}`
+                            description: `Earned ${party.amount} tokens for ${party.role === 'buyer' ? 'confirming' : 'completing'} order #${order._id.toString().slice(-8)}`
                         }).save();
 
-                        // Send legacy Token model update for backward compatibility (optional but kept for internal stats)
+                        // Send legacy Token model update for backward compatibility
                         let tokenAcc = await Token.findOne({ user: party.id });
                         if (!tokenAcc) tokenAcc = new Token({ user: party.id });
-                        tokenAcc.currentBalance += 5;
-                        tokenAcc.totalEarned += 5;
+                        tokenAcc.currentBalance += party.amount;
+                        tokenAcc.totalEarned += party.amount;
                         tokenAcc.transactions.push({
                             type: 'earned',
-                            amount: 5,
+                            amount: party.amount,
                             reason: party.reason,
                             referenceId: order._id.toString(),
                             createdAt: new Date()
@@ -8965,7 +8864,7 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
                         await new Notification({
                             recipient: party.id,
                             title: 'Tokens Earned!',
-                            message: `You earned 5 tokens for ${party.role === 'buyer' ? 'confirming delivery' : 'completing an order'}`,
+                            message: `You earned ${party.amount} tokens for ${party.role === 'buyer' ? 'confirming delivery' : 'completing an order'}`,
                             type: 'token_earned',
                             data: { actionUrl: '/pages/tokens.html' }
                         }).save();
@@ -8981,35 +8880,31 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
                     order.escrowReleasedAt = new Date();
                 }
                 
-                console.log('✅ Completed order and awarded 5 tokens to both parties');
+                console.log(`✅ Completed order and awarded tokens (S:5, B:2)`);
+            } else {
+                return res.status(400).json({ message: `Cannot confirm delivery while order is in ${order.status} status` });
+            }
         } else if (isSeller) {
-            // Seller actions for cash on delivery orders
+            // Seller actions
             if (status === 'confirmed_by_seller' && order.status === 'pending_seller_confirmation') {
-                // Seller confirms the order
                 order.status = 'confirmed_by_seller';
                 order.sellerConfirmedAt = new Date();
             } else if (status === 'declined' && order.status === 'pending_seller_confirmation') {
-                // Seller declines the order
                 order.status = 'declined';
                 order.declinedAt = new Date();
                 order.declineReason = deliveryNotes || 'Order declined by seller';
-            } else if (status === 'out_for_delivery' && order.status === 'confirmed_by_seller') {
-                // Seller marks order as out for delivery
-                order.status = 'out_for_delivery';
-                order.trackingNumber = trackingNumber;
-                order.shippedAt = new Date();
-            } else if (status === 'delivered_pending_confirmation' && order.status === 'out_for_delivery') {
-                // Seller marks order as delivered (waiting for buyer confirmation)
-                order.status = 'delivered_pending_confirmation';
-                order.deliveredAt = new Date();
-                order.deliveryNotes = deliveryNotes || 'Order delivered, awaiting buyer confirmation';
-            } else if (status === 'Shipped') {
-                // Legacy shipping status
+            } else if (status === 'Shipped' && (order.status === 'confirmed_by_seller' || order.status === 'Processing')) {
                 order.status = 'Shipped';
                 order.trackingNumber = trackingNumber;
                 order.shippedAt = new Date();
-            } else if (status === 'Processing') {
+            } else if (status === 'delivered_pending_confirmation' && (order.status === 'Shipped' || order.status === 'out_for_delivery' || order.status === 'confirmed_by_seller')) {
+                order.status = 'delivered_pending_confirmation';
+                order.deliveredAt = new Date();
+                order.deliveryNotes = deliveryNotes || 'Order delivered, awaiting buyer confirmation';
+            } else if (status === 'Processing' && order.status === 'confirmed_by_seller') {
                 order.status = 'Processing';
+            } else {
+                return res.status(400).json({ message: `Invalid status transition from ${order.status} to ${status}` });
             }
         } else {
             return res.status(403).json({ message: 'Invalid status update for this user' });
