@@ -2762,7 +2762,7 @@ app.post('/api/auth/fix-password', async (req, res) => {
     // Use raw body if JSON parsing failed
     let email, newPassword;
     
-    if (req.body && typeof req.body.email === 'undefined' && req.rawBody) {
+    if (req.rawBody && (Buffer.isBuffer(req.body) || (req.body && typeof req.body.email === 'undefined'))) {
         try {
             const parsedBody = JSON.parse(req.rawBody);
             email = parsedBody.email;
