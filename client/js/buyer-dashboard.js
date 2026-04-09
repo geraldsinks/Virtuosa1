@@ -73,7 +73,13 @@ function showLoadingStates() {
 
     Object.entries(elements).forEach(([id, placeholder]) => {
         const element = document.getElementById(id);
-        if (element) element.textContent = placeholder;
+        if (element) {
+            if (id === 'buyer-token-balance') {
+                element.textContent = '0';
+            } else {
+                element.textContent = placeholder;
+            }
+        }
     });
 }
 
@@ -153,25 +159,45 @@ async function loadDashboardData() {
         }
         
         // Update welcome message with fresh data
-        document.getElementById('buyer-name').textContent = userData.fullName || 'Buyer';
+        const buyerNameElement = document.getElementById('buyer-name');
+        if (buyerNameElement) buyerNameElement.textContent = userData.fullName || 'Buyer';
+        
+        // Fetch consolidated dashboard data
+        const dashboardResponse = await fetch(`${API_BASE}/buyer/dashboard`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!dashboardResponse.ok) {
+            throw new Error('Failed to fetch dashboard data');
+        }
+
+        const dashboardData = await dashboardResponse.json();
+        console.log('📊 Consolidated dashboard data:', dashboardData);
+
+        // Update Token Balance
+        const tokenBalanceElement = document.getElementById('buyer-token-balance');
+        if (tokenBalanceElement) {
+            tokenBalanceElement.textContent = dashboardData.buyer?.tokenBalance || 0;
+        }
         
         // Update role-based UI elements
         updateRoleBasedUI(userData, roleInfo);
         
-        // Load dashboard sections
-        await Promise.all([
-            loadOrders(),
-            loadRecommendations(),
-            loadSpendingChart()
-        ]);
+        // Populate dashboard sections using consolidated data
+        loadOrders(dashboardData.recentOrders || [], dashboardData.orderStats || {});
+        displayRecommendations(dashboardData.recommendations || []);
+        createSpendingChart(dashboardData.spendingHistory || { labels: [], values: [] });
 
     } catch (error) {
         console.error('Dashboard loading error:', error);
         // Show error state
-        const errorElements = ['buyer-name', 'total-orders', 'pending-orders', 'completed-orders', 'total-spent'];
+        const errorElements = ['buyer-name', 'total-orders', 'pending-orders', 'completed-orders', 'total-spent', 'buyer-token-balance'];
         errorElements.forEach(id => {
             const element = document.getElementById(id);
-            if (element) element.textContent = 'Error loading data';
+            if (element) {
+                if (id === 'buyer-token-balance') element.textContent = '0';
+                else element.textContent = 'Error';
+            }
         });
     }
 }
@@ -336,36 +362,32 @@ function updateNavigationForSeller() {
     }
 }
 
-// Load orders
-async function loadOrders() {
+// Load orders using provided data
+function loadOrders(orders, stats) {
     try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE}/buyer/orders`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        console.log('📦 Processing buyer orders:', orders);
+        
+        // Update order counts from stats
+        const totalOrders = stats.totalOrders || 0;
+        const pendingOrders = stats.pendingOrders || 0;
+        const completedOrders = stats.completedOrders || 0;
+        const totalSpent = stats.totalSpent || 0;
 
-        if (!response.ok) throw new Error('Failed to fetch orders');
-        
-        const orders = await response.json();
-        console.log('📦 Loaded buyer orders:', orders);
-        
-        // Update order counts
-        const totalOrders = orders.length;
-        const pendingOrders = orders.filter(order => order.status === 'pending').length;
-        const completedOrders = orders.filter(order => order.status === 'completed').length;
+        const totalEl = document.getElementById('total-orders');
+        const pendingEl = document.getElementById('pending-orders');
+        const completedEl = document.getElementById('completed-orders');
+        const spentEl = document.getElementById('total-spent');
 
-        document.getElementById('total-orders').textContent = totalOrders;
-        document.getElementById('pending-orders').textContent = pendingOrders;
-        document.getElementById('completed-orders').textContent = completedOrders;
+        if (totalEl) totalEl.textContent = totalOrders;
+        if (pendingEl) pendingEl.textContent = pendingOrders;
+        if (completedEl) completedEl.textContent = completedOrders;
+        if (spentEl) spentEl.textContent = `ZMW ${totalSpent.toLocaleString()}`;
         
-        // Load recent orders
+        // Load recent orders list
         loadRecentOrders(orders);
         
     } catch (error) {
-        console.error('Error loading orders:', error);
-        document.getElementById('total-orders').textContent = 'Error';
-        document.getElementById('pending-orders').textContent = 'Error';
-        document.getElementById('completed-orders').textContent = 'Error';
+        console.error('Error processing orders:', error);
     }
 }
 
@@ -381,50 +403,47 @@ function loadRecentOrders(orders) {
         return;
     }
 
-    recentOrdersContainer.innerHTML = recentOrders.map(order => `
-        <div class="border-l-4 border-blue-500 pl-4 py-2">
+    recentOrdersContainer.innerHTML = recentOrders.map(order => {
+        const productName = (order.product && order.product.name) ? order.product.name : (order.productName || 'Product');
+        const price = order.amount || order.totalAmount || order.price || 0;
+        const status = (order.status || 'pending').toLowerCase();
+        
+        return `
+        <div class="border-l-4 border-blue-500 pl-4 py-2 bg-gray-50/50 rounded-r-lg mb-2 activity-item">
             <div class="flex justify-between items-start">
                 <div>
-                    <p class="font-semibold">${order.productName || 'Product'}</p>
-                    <p class="text-sm text-gray-600">Order #${order._id}</p>
-                    <p class="text-sm text-gray-500">${new Date(order.createdAt).toLocaleDateString()}</p>
+                    <p class="font-semibold text-navy">${productName}</p>
+                    <p class="text-xs text-gray-500">Order #${order._id.toString().slice(-8).toUpperCase()}</p>
+                    <p class="text-xs text-gray-400">${new Date(order.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div class="text-right">
-                    <p class="font-semibold">$${order.totalAmount || order.price}</p>
-                    <span class="inline-block px-2 py-1 text-xs rounded-full ${
-                        order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-gray-100 text-gray-800'
+                    <p class="font-bold text-navy text-sm">ZMW ${price.toLocaleString()}</p>
+                    <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full uppercase ${
+                        status === 'completed' ? 'bg-green-100 text-green-700' :
+                        status === 'pending' || status.includes('pending') ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-blue-100 text-blue-700'
                     }">
-                        ${order.status}
+                        ${status.replace(/_/g, ' ')}
                     </span>
                 </div>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
-// Load recommendations
+// Legacy function kept for compatibility, now calls refresh
 async function loadRecommendations() {
+    // This function is kept for pages that might call it independently
     try {
         const token = localStorage.getItem('token');
         const response = await fetch(`${API_BASE}/products/recommendations`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-
-        if (!response.ok) throw new Error('Failed to load recommendations');
-        
-        const recommendations = await response.json();
-        displayRecommendations(recommendations);
-        
-    } catch (error) {
-        console.error('Error loading recommendations:', error);
-        // Show error state in recommendations section
-        const recommendationsContainer = document.getElementById('recommendations');
-        if (recommendationsContainer) {
-            recommendationsContainer.innerHTML = '<p class="text-gray-500">Unable to load recommendations</p>';
+        if (response.ok) {
+            const recommendations = await response.json();
+            displayRecommendations(recommendations);
         }
-    }
+    } catch (e) { console.error(e); }
 }
 
 // Display recommendations
@@ -437,44 +456,38 @@ function displayRecommendations(recommendations) {
         return;
     }
 
-    container.innerHTML = recommendations.map(product => `
-        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-            <img src="${product.image || 'https://placehold.co/300x200'}" alt="${product.name}" class="w-full h-48 object-cover">
-            <div class="p-4">
-                <h3 class="font-semibold text-lg mb-2">${product.name}</h3>
-                <p class="text-gray-600 text-sm mb-3">${product.description || 'No description available'}</p>
+    container.innerHTML = recommendations.map(product => {
+        const productImg = (product.images && product.images.length > 0) ? fixServerUrl(product.images[0]) : 'https://placehold.co/300x200?text=No+Image';
+        return `
+        <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+            <img src="${productImg}" alt="${product.name}" class="w-full h-40 object-cover">
+            <div class="p-3">
+                <h3 class="font-semibold text-navy text-sm mb-1 truncate">${product.name}</h3>
                 <div class="flex justify-between items-center">
-                    <span class="text-xl font-bold text-blue-600">$${product.price}</span>
-                    <button onclick="addToCart('${product._id}')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
-                        Add to Cart
+                    <span class="text-gold font-bold text-sm">ZMW ${product.price}</span>
+                    <button onclick="addToCart('${product._id}')" class="text-blue-600 hover:text-blue-800 p-1">
+                        <i class="fas fa-cart-plus"></i>
                     </button>
                 </div>
             </div>
         </div>
-    `).join('');
+    `}).join('');
+    
+    // Set fixed height for grid if needed or keep scrollable
 }
 
-// Load spending chart
+// Legacy function kept for compatibility
 async function loadSpendingChart() {
     try {
         const token = localStorage.getItem('token');
         const response = await fetch(`${API_BASE}/buyer/spending-chart`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-
-        if (!response.ok) throw new Error('Failed to load spending data');
-        
-        const spendingData = await response.json();
-        createSpendingChart(spendingData);
-        
-    } catch (error) {
-        console.error('Error loading spending chart:', error);
-        // Show error state
-        const chartContainer = document.getElementById('spending-chart');
-        if (chartContainer) {
-            chartContainer.innerHTML = '<p class="text-gray-500">Unable to load spending chart</p>';
+        if (response.ok) {
+            const spendingData = await response.json();
+            createSpendingChart(spendingData);
         }
-    }
+    } catch (e) { console.error(e); }
 }
 
 // Create spending chart

@@ -129,15 +129,27 @@
         <!-- Dashboard Content -->
         <div class="container mx-auto px-4 py-8">
             <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="stat-card bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-blue-100 text-sm">Active Orders</p>
-                            <p class="text-3xl font-bold" id="active-orders">0</p>
+                            <p class="text-blue-100 text-sm">Total Orders</p>
+                            <p class="text-3xl font-bold" id="total-orders">0</p>
                         </div>
                         <div class="bg-white/20 p-3 rounded-lg">
                             <i data-lucide="package" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-yellow-100 text-sm">Pending Orders</p>
+                            <p class="text-3xl font-bold" id="pending-orders">0</p>
+                        </div>
+                        <div class="bg-white/20 p-3 rounded-lg">
+                            <i data-lucide="clock" class="w-6 h-6"></i>
                         </div>
                     </div>
                 </div>
@@ -317,7 +329,7 @@
             <div class="mt-8 bg-white rounded-xl shadow-lg p-6">
                 <h2 class="text-xl font-bold text-navy mb-6">Spending Overview</h2>
                 <div class="h-64">
-                    <canvas id="spending-chart"></canvas>
+                    <canvas id="spending-chart-canvas"></canvas>
                 </div>
             </div>
         </div>

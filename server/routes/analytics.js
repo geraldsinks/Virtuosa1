@@ -47,7 +47,7 @@ router.post('/track', async (req, res) => {
 
       return {
         sessionId: event.sessionId,
-        userId: event.userId ? new mongoose.Types.ObjectId(event.userId) : null,
+        userId: (event.userId && mongoose.Types.ObjectId.isValid(event.userId)) ? new mongoose.Types.ObjectId(event.userId) : null,
         eventType: event.eventType,
         category: event.category,
         metadata: event.metadata || {},

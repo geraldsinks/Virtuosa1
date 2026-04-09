@@ -4377,6 +4377,93 @@ app.get('/api/user/role-info', authenticateToken, async (req, res) => {
     }
 });
 
+// Get unread notifications count
+app.get('/api/notifications/unread-count', authenticateToken, async (req, res) => {
+    try {
+        const unreadCount = await Notification.countDocuments({
+            recipient: req.user.userId,
+            read: false
+        });
+        res.json({ unreadCount });
+    } catch (error) {
+        console.error('Unread notifications count error:', error);
+        res.json({ unreadCount: 0 });
+    }
+});
+
+// Get product recommendations
+app.get('/api/products/recommendations', authenticateToken, async (req, res) => {
+    try {
+        const recommendations = await Product.find({ status: 'Active' })
+            .sort({ isFeatured: -1, createdAt: -1 })
+            .limit(4);
+        res.json(recommendations || []);
+    } catch (error) {
+        console.error('Recommendations error:', error);
+        res.json([]);
+    }
+});
+
+// Get buyer orders
+app.get('/api/buyer/orders', authenticateToken, checkDashboardAccess('buyer'), async (req, res) => {
+    try {
+        const orders = await Transaction.find({ buyer: req.user.userId })
+            .populate('seller', 'fullName email')
+            .populate('product', 'name price images')
+            .sort({ createdAt: -1 });
+        res.json(orders || []);
+    } catch (error) {
+        console.error('Buyer orders error:', error);
+        res.json([]);
+    }
+});
+
+// Get buyer spending history for chart
+app.get('/api/buyer/spending-chart', authenticateToken, checkDashboardAccess('buyer'), async (req, res) => {
+    try {
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+        sixMonthsAgo.setDate(1);
+        sixMonthsAgo.setHours(0, 0, 0, 0);
+
+        const spending = await Transaction.aggregate([
+            {
+                $match: {
+                    buyer: new mongoose.Types.ObjectId(req.user.userId),
+                    status: { $in: ['completed', 'Completed'] },
+                    createdAt: { $gte: sixMonthsAgo }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+                    total: { $sum: "$amount" }
+                }
+            },
+            { $sort: { "_id": 1 } }
+        ]);
+
+        const labels = [];
+        const values = [];
+        
+        for (let i = 0; i < 6; i++) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - (5 - i));
+            const label = date.toLocaleString('default', { month: 'short' });
+            const key = date.toISOString().slice(0, 7); 
+            
+            labels.push(label);
+            const dataPoint = spending.find(s => s._id === key);
+            values.push(dataPoint ? dataPoint.total : 0);
+        }
+
+        res.json({ labels, values });
+    } catch (error) {
+        console.error('Spending chart error:', error);
+        res.json({ labels: [], values: [] });
+    }
+});
+
 // Get buyer dashboard data
 app.get('/api/buyer/dashboard', authenticateToken, checkDashboardAccess('buyer'), async (req, res) => {
     try {
@@ -4417,6 +4504,47 @@ app.get('/api/buyer/dashboard', authenticateToken, checkDashboardAccess('buyer')
             orderStats
         });
 
+        // Get spending history for chart (last 6 months)
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+        sixMonthsAgo.setDate(1);
+        sixMonthsAgo.setHours(0, 0, 0, 0);
+
+        const spending = await Transaction.aggregate([
+            {
+                $match: {
+                    buyer: user._id,
+                    status: { $in: ['completed', 'Completed'] },
+                    createdAt: { $gte: sixMonthsAgo }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+                    total: { $sum: "$amount" }
+                }
+            },
+            { $sort: { "_id": 1 } }
+        ]);
+
+        const spendingLabels = [];
+        const spendingValues = [];
+        for (let i = 0; i < 6; i++) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - (5 - i));
+            const label = date.toLocaleString('default', { month: 'short' });
+            const key = date.toISOString().slice(0, 7);
+            
+            spendingLabels.push(label);
+            const dataPoint = spending.find(s => s._id === key);
+            spendingValues.push(dataPoint ? dataPoint.total : 0);
+        }
+
+        // Get recommendations
+        const recommendations = await Product.find({ status: 'Active' })
+            .sort({ isFeatured: -1, createdAt: -1 })
+            .limit(4);
+
         res.json({
             buyer: {
                 name: user.fullName,
@@ -4427,8 +4555,13 @@ app.get('/api/buyer/dashboard', authenticateToken, checkDashboardAccess('buyer')
                 totalTokensEarned: user.totalTokensEarned || 0,
                 totalTokensRedeemed: user.totalTokensRedeemed || 0
             },
-            recentOrders: transactions,
-            orderStats
+            recentOrders: transactions || [],
+            orderStats,
+            spendingHistory: {
+                labels: spendingLabels,
+                values: spendingValues
+            },
+            recommendations: recommendations || []
         });
     } catch (error) {
         console.error('Buyer dashboard error:', error);
