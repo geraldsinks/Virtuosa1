@@ -2419,14 +2419,13 @@ app.post('/api/auth/signup', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Email already exists' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
         const emailVerificationToken = crypto.randomBytes(20).toString('hex');
         const verificationToken = crypto.randomBytes(20).toString('hex');
 
         const user = new User({
             fullName,
             email: normalizedEmail,
-            password: hashedPassword,
+            password: password,
             gender,
             university,
             phoneNumber,
