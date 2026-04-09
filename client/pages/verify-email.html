@@ -148,12 +148,19 @@
 
     <script src="../js/config.js"></script>
     <script>
-        // Get token from URL
+        // Get token and verification status from URL
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
+        const verified = urlParams.get('verified');
+        const error = urlParams.get('verification');
 
-        // Auto-verify if token is present
-        if (token) {
+        // Show appropriate state based on URL parameters
+        if (verified === 'email') {
+            showSuccess();
+        } else if (error === 'error') {
+            showError();
+        } else if (token) {
+            // Auto-verify if token is present (fallback)
             verifyEmail(token);
         } else {
             showError();
