@@ -268,18 +268,19 @@
             background: linear-gradient(90deg, rgba(10, 17, 40, 0.95) 0%, rgba(10, 17, 40, 0.4) 50%, transparent 100%);
             display: flex;
             align-items: center;
-            z-index: 1;
+            z-index: 10;
             padding: 2rem;
             transition: opacity 0.3s ease;
         }
 
         .ad-card:hover .ad-card-overlay {
-            background: linear-gradient(90deg, rgba(10, 17, 40, 0.85) 0%, rgba(10, 17, 40, 0.5) 50%, transparent 100%);
+            background: linear-gradient(90deg, rgba(10, 17, 40, 0.95) 0%, rgba(10, 17, 40, 0.5) 50%, transparent 100%);
         }
 
         .ad-card-content {
             max-width: 600px;
-            z-index: 2;
+            z-index: 20;
+            position: relative;
             transform: translateY(0);
             transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -1233,6 +1234,8 @@
                         versionString = remainingPath;
                         cleanImagePath = '';
                     }
+
+                    const newTransforms = `q_auto,f_auto,w_${width},h_${height},c_fill`;
 
                     // Assemble the optimized URL
                     let finalTransforms = newTransforms;
