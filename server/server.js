@@ -242,7 +242,14 @@ app.use(cors( {
 // Add raw body parser BEFORE JSON parser to catch exact request data
 app.use(express.raw({ type: 'application/json', limit: '10mb' }), (req, res, next) => {
     if (req.path === '/api/auth/login' && req.method === 'POST') {
-        const rawBody = req.body.toString();
+        // Handle Buffer properly
+        let rawBody;
+        if (Buffer.isBuffer(req.body)) {
+            rawBody = req.body.toString('utf8');
+        } else {
+            rawBody = req.body;
+        }
+        
         console.log('🔍 RAW DEBUG - Raw body string:', rawBody);
         console.log('🔍 RAW DEBUG - Raw body length:', rawBody.length);
         console.log('🔍 RAW DEBUG - Raw body chars:', Array.from(rawBody).map(c => `${c}(${c.charCodeAt(0)})`));
@@ -2623,7 +2630,24 @@ app.get('/api/auth/verify-student/:token', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
     console.log('🔍 DEBUG - Request body received:', req.body);
     console.log('🔍 DEBUG - Content-Type header:', req.get('Content-Type'));
-    const { email, password } = req.body;
+    
+    // Use raw body if JSON parsing failed
+    let email, password;
+    
+    if (req.body && typeof req.body.email === 'undefined' && req.rawBody) {
+        try {
+            const parsedBody = JSON.parse(req.rawBody);
+            email = parsedBody.email;
+            password = parsedBody.password;
+            console.log('🔍 DEBUG - Using raw body for parsing');
+        } catch (e) {
+            console.log('❌ DEBUG - Raw body parsing failed:', e.message);
+        }
+    } else {
+        email = req.body.email;
+        password = req.body.password;
+    }
+    
     console.log('🔍 DEBUG - Extracted email:', email, 'password:', password ? '[REDACTED]' : 'undefined');
 
     if (!email || !password) {
@@ -2635,8 +2659,7 @@ app.post('/api/auth/login', async (req, res) => {
     const normalizedEmail = email.toLowerCase();
 
     try {
-        console.log('🔍 DEBUG - Raw email received:', JSON.stringify(email));
-        console.log('🔍 DEBUG - Email character codes:', Array.from(email).map(c => `${c}(${c.charCodeAt(0)})`));
+        console.log('🔍 DEBUG - Final email:', JSON.stringify(email));
         console.log('🔍 DEBUG - Normalized email:', JSON.stringify(normalizedEmail));
         console.log('Login attempt for email:', normalizedEmail);
         
