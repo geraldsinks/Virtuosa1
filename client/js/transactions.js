@@ -227,7 +227,7 @@ function displayTransactions(transactions) {
     container.innerHTML = '';
 
     if (transactions.length === 0) {
-        container.innerHTML = '<div class="p-8 text-center text-gray-500">No transactions found</div>';
+        container.innerHTML = '<div class="p-12 text-center text-gray-400"><i class="fas fa-receipt mb-4 text-4xl block opacity-20"></i>No transactions found</div>';
         return;
     }
 
@@ -242,7 +242,7 @@ function displayTransactions(transactions) {
 
     transactions.forEach(transaction => {
         const transactionCard = document.createElement('div');
-        transactionCard.className = 'p-6 hover:bg-gray-50 transition-colors';
+        transactionCard.className = 'p-6 hover:bg-gray-50 transition-all border-b border-gray-100 last:border-0';
         
         // Add null checks for buyer and seller
         const isBuyer = transaction.buyer && userData && userData.id && transaction.buyer._id === userData.id;
@@ -251,46 +251,48 @@ function displayTransactions(transactions) {
         transactionCard.innerHTML = `
             <div class="flex items-center justify-between">
                 <div class="flex-1">
-                    <div class="flex items-center space-x-4">
-                        <div class="bg-gray-200 h-12 w-12 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-box text-gray-500"></i>
+                    <div class="flex items-start space-x-4">
+                        <div class="bg-blue-50 h-14 w-14 rounded-xl flex items-center justify-center text-blue-600 shadow-sm border border-blue-100">
+                            <i class="fas fa-box-open text-xl"></i>
                         </div>
                         <div class="flex-1">
-                            <h4 class="text-lg font-medium text-gray-900">${transaction.product.name}</h4>
-                            <div class="flex items-center space-x-4 mt-1">
-                                <span class="text-sm text-gray-500">
-                                    <i class="fas fa-user mr-1"></i>
-                                    ${isBuyer ? 'Seller' : 'Buyer'}: ${otherParty.fullName}
+                            <h4 class="text-lg font-bold text-gray-900 leading-tight">${transaction.product.name}</h4>
+                            <div class="flex flex-wrap items-center gap-y-1 gap-x-4 mt-2">
+                                <span class="text-sm font-medium text-gray-600 flex items-center">
+                                    <i class="fas ${isBuyer ? 'fa-store' : 'fa-user-tag'} mr-2 text-gray-400"></i>
+                                    ${isBuyer ? 'Seller' : 'Buyer'}: <span class="text-gray-900 ml-1 font-semibold">${otherParty.fullName}</span>
                                 </span>
-                                <span class="text-sm text-gray-500">
-                                    <i class="fas fa-calendar mr-1"></i>
-                                    ${new Date(transaction.createdAt).toLocaleDateString()}
+                                <span class="text-sm font-medium text-gray-500 flex items-center">
+                                    <i class="fas fa-calendar-alt mr-2"></i>
+                                    ${new Date(transaction.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                 </span>
                                 ${transaction.trackingNumber ? `
-                                    <span class="text-sm text-gray-500">
-                                        <i class="fas fa-truck mr-1"></i>
-                                        Tracking: ${transaction.trackingNumber}
+                                    <span class="text-sm font-medium text-blue-600 flex items-center px-2 py-0.5 bg-blue-50 rounded-full">
+                                        <i class="fas fa-truck mr-2"></i>
+                                        ${transaction.trackingNumber}
                                     </span>
                                 ` : ''}
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="text-right">
-                        <p class="text-lg font-semibold text-gray-900">ZMW${transaction.totalAmount.toLocaleString()}</p>
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(transaction.status)}">
-                            ${transaction.status}
-                        </span>
-                        ${transaction.disputeStatus === 'Open' ? `
-                            <span class="ml-1 px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                                Dispute
+                <div class="flex items-center space-x-6">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-xl font-extrabold text-gray-900">ZMW${transaction.totalAmount.toLocaleString()}</p>
+                        <div class="flex items-center justify-end mt-1 space-x-2">
+                            <span class="px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm border ${getStatusStyles(transaction.status)}">
+                                ${transaction.status.replace(/_/g, ' ')}
                             </span>
-                        ` : ''}
+                            ${transaction.disputeStatus === 'Open' ? `
+                                <span class="px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-lg bg-red-50 text-red-600 border border-red-100 animate-pulse">
+                                    Dispute Open
+                                </span>
+                            ` : ''}
+                        </div>
                     </div>
                     <div class="flex flex-col space-y-2">
-                        <button onclick="viewTransactionDetails('${transaction._id}')" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">
-                            <i class="fas fa-eye mr-1"></i>View
+                        <button onclick="viewTransactionDetails('${transaction._id}')" class="bg-white border-2 border-blue-100 text-blue-600 px-4 py-2 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all font-bold text-sm shadow-sm flex items-center justify-center">
+                            <i class="fas fa-info-circle mr-2"></i>Details
                         </button>
                         ${getActionButton(transaction, isBuyer)}
                     </div>
@@ -299,6 +301,31 @@ function displayTransactions(transactions) {
         `;
         container.appendChild(transactionCard);
     });
+}
+
+// Updated Status Styles for modern look
+function getStatusStyles(status) {
+    const statusLower = status.toLowerCase();
+    
+    if (['completed', 'delivered'].includes(statusLower)) {
+        return 'bg-green-50 text-green-700 border-green-200';
+    }
+    if (['pending', 'processing', 'pending_seller_confirmation'].includes(statusLower)) {
+        return 'bg-amber-50 text-amber-700 border-amber-200';
+    }
+    if (['confirmed', 'confirmed_by_seller', 'both_confirmed'].includes(statusLower)) {
+        return 'bg-blue-50 text-blue-700 border-blue-200';
+    }
+    if (['shipped', 'out_for_delivery'].includes(statusLower)) {
+        return 'bg-purple-50 text-purple-700 border-purple-200';
+    }
+    if (['cancelled', 'declined', 'failed'].includes(statusLower)) {
+        return 'bg-red-50 text-red-700 border-red-200';
+    }
+    if (['disputed', 'frozen'].includes(statusLower)) {
+        return 'bg-red-500 text-white border-red-600';
+    }
+    return 'bg-gray-50 text-gray-700 border-gray-200';
 }
 
 // Get status color
@@ -365,7 +392,7 @@ async function viewTransactionDetails(transactionId) {
     }
 }
 
-// Display transaction details in modal
+// Display transaction details in modal with Journey Progress
 function displayTransactionDetails(transaction) {
     const container = document.getElementById('transactionDetails');
     
@@ -381,105 +408,208 @@ function displayTransactionDetails(transaction) {
     const isBuyer = transaction.buyer && userData && userData.id && transaction.buyer._id === userData.id;
     
     container.innerHTML = `
-        <div class="grid grid-cols-2 gap-6">
-            <div>
-                <h4 class="font-semibold text-gray-900 mb-3">Product Information</h4>
-                <div class="space-y-2">
-                    <div class="flex items-center space-x-2">
+        <!-- Order Journey Progress Bar -->
+        <div class="mb-10 px-4">
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 text-center">Order Journey</h4>
+            ${renderOrderJourney(transaction.status)}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100">
+                <h4 class="font-bold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-shopping-bag mr-2 text-blue-500"></i>
+                    Product Information
+                </h4>
+                <div class="space-y-4">
+                    <div class="flex items-start space-x-4">
                         <img src="${transaction.product.images?.[0] || '/assets/placeholder-product.jpg'}" 
                              alt="${transaction.product.name}" 
-                             class="w-16 h-16 object-cover rounded-lg">
+                             class="w-20 h-20 object-cover rounded-xl shadow-sm border border-white">
                         <div>
-                            <p class="font-medium text-gray-900">${transaction.product.name}</p>
-                            <p class="text-sm text-gray-500">${transaction.product.category}</p>
-                            <p class="text-sm text-gray-500">Condition: ${transaction.product.condition}</p>
+                            <p class="font-bold text-gray-900 text-lg leading-tight">${transaction.product.name}</p>
+                            <p class="text-sm text-gray-500 mt-1">${transaction.product.category}</p>
+                            <span class="inline-block mt-1 px-2 py-0.5 bg-white border border-gray-200 rounded text-xs font-medium text-gray-600">
+                                Condition: ${transaction.product.condition}
+                            </span>
                         </div>
                     </div>
-                    <div class="border-t pt-3">
-                        <p class="text-sm text-gray-600">Price: <span class="font-semibold text-gray-900">ZMW${transaction.product.price.toLocaleString()}</span></p>
-                        <p class="text-sm text-gray-600">Commission: <span class="font-semibold text-gray-900">ZMW${transaction.commissionAmount.toLocaleString()}</span></p>
-                        <p class="text-sm text-gray-600">Total: <span class="font-semibold text-gray-900">ZMW${transaction.totalAmount.toLocaleString()}</span></p>
+                    <div class="border-t border-dashed border-gray-200 pt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">Price</span>
+                            <span class="font-bold text-gray-900">ZMW${transaction.product.price.toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">Service Fee</span>
+                            <span class="font-bold text-gray-900">ZMW${transaction.commissionAmount.toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between text-lg pt-2 border-t border-gray-100">
+                            <span class="font-bold text-gray-900">Total</span>
+                            <span class="font-black text-blue-600">ZMW${transaction.totalAmount.toLocaleString()}</span>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div>
-                <h4 class="font-semibold text-gray-900 mb-3">Transaction Information</h4>
-                <div class="space-y-2">
-                    <div>
-                        <p class="text-sm text-gray-600">Transaction ID</p>
-                        <p class="font-medium text-gray-900">${transaction._id}</p>
+            <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100">
+                <h4 class="font-bold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-info-circle mr-2 text-blue-500"></i>
+                    Transaction Status
+                </h4>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-3 bg-white rounded-xl border border-gray-200">
+                        <span class="text-sm text-gray-500 font-medium">Order ID</span>
+                        <span class="font-mono text-sm font-bold text-gray-900 bg-gray-100 px-2 py-1 rounded">#${transaction.transactionId || transaction._id.slice(-8).toUpperCase()}</span>
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-600">Status</p>
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(transaction.status)}">
-                            ${transaction.status}
-                        </span>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-600">Payment Status</p>
-                        <p class="font-medium text-gray-900">${transaction.paymentStatus}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-600">Created</p>
-                        <p class="font-medium text-gray-900">${new Date(transaction.createdAt).toLocaleString()}</p>
-                    </div>
-                    ${transaction.shippedAt ? `
-                        <div>
-                            <p class="text-sm text-gray-600">Shipped</p>
-                            <p class="font-medium text-gray-900">${new Date(transaction.shippedAt).toLocaleString()}</p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-3 bg-white rounded-xl border border-gray-200">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Status</p>
+                            <span class="px-2 py-0.5 text-xs font-bold rounded-lg ${getStatusStyles(transaction.status)}">
+                                ${transaction.status.replace(/_/g, ' ')}
+                            </span>
                         </div>
-                    ` : ''}
-                    ${transaction.deliveredAt ? `
-                        <div>
-                            <p class="text-sm text-gray-600">Delivered</p>
-                            <p class="font-medium text-gray-900">${new Date(transaction.deliveredAt).toLocaleString()}</p>
+                        <div class="p-3 bg-white rounded-xl border border-gray-200">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Payment</p>
+                            <p class="text-xs font-bold text-gray-900 capitalize">${transaction.paymentStatus}</p>
                         </div>
-                    ` : ''}
+                    </div>
+
+                    <div class="space-y-3 pt-2">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="far fa-clock mr-3 text-gray-400"></i>
+                            <span class="flex-1">Created</span>
+                            <span class="font-semibold">${new Date(transaction.createdAt).toLocaleString()}</span>
+                        </div>
+                        ${transaction.shippedAt ? `
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-truck mr-3 text-blue-400"></i>
+                                <span class="flex-1">Shipped</span>
+                                <span class="font-semibold">${new Date(transaction.shippedAt).toLocaleString()}</span>
+                            </div>
+                        ` : ''}
+                        ${transaction.deliveredAt ? `
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-check-double mr-3 text-green-400"></i>
+                                <span class="flex-1">Delivered</span>
+                                <span class="font-semibold">${new Date(transaction.deliveredAt).toLocaleString()}</span>
+                            </div>
+                        ` : ''}
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="mt-6">
-            <h4 class="font-semibold text-gray-900 mb-3">Parties Involved</h4>
-            <div class="grid grid-cols-2 gap-6">
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <p class="text-sm font-medium text-gray-600 mb-2">Buyer</p>
-                    <p class="font-medium text-gray-900">${transaction.buyer.fullName}</p>
-                    <p class="text-sm text-gray-500">${transaction.buyer.email}</p>
-                    <p class="text-sm text-gray-500">${transaction.buyer.university || 'N/A'}</p>
+        <div class="mt-8">
+            <h4 class="font-bold text-gray-900 mb-4 px-1 flex items-center">
+                <i class="fas fa-users mr-2 text-blue-500"></i>
+                Order Participants
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex items-center">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mr-3">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-widest font-bold text-gray-400">Buyer</p>
+                        <p class="font-bold text-gray-900 leading-tight">${transaction.buyer.fullName}</p>
+                        <p class="text-xs text-gray-500 italic">${transaction.buyer.university || 'N/A'}</p>
+                    </div>
                 </div>
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <p class="text-sm font-medium text-gray-600 mb-2">Seller</p>
-                    <p class="font-medium text-gray-900">${transaction.seller.fullName}</p>
-                    <p class="text-sm text-gray-500">${transaction.seller.email}</p>
-                    <p class="text-sm text-gray-500">${transaction.seller.university || 'N/A'}</p>
+                <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex items-center">
+                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 mr-3">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-widest font-bold text-gray-400">Seller</p>
+                        <p class="font-bold text-gray-900 leading-tight">${transaction.seller.fullName}</p>
+                        <p class="text-xs text-gray-500 italic">${transaction.seller.university || 'N/A'}</p>
+                    </div>
                 </div>
             </div>
         </div>
         
         ${transaction.trackingNumber ? `
-            <div class="mt-6">
-                <h4 class="font-semibold text-gray-900 mb-3">Shipping Information</h4>
-                <div class="bg-blue-50 p-4 rounded-lg">
-                    <p class="text-sm text-gray-600">Tracking Number: <span class="font-medium text-gray-900">${transaction.trackingNumber}</span></p>
-                    <p class="text-sm text-gray-600">Delivery Method: <span class="font-medium text-gray-900">${transaction.deliveryMethod}</span></p>
+            <div class="mt-8 bg-blue-50 p-5 rounded-2xl border border-blue-100">
+                <h4 class="font-bold text-blue-900 mb-3 flex items-center">
+                    <i class="fas fa-truck-loading mr-2"></i>
+                    Tracking Details
+                </h4>
+                <div class="flex flex-wrap gap-6">
+                    <div>
+                        <p class="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">Number</p>
+                        <p class="font-bold text-blue-900 font-mono">${transaction.trackingNumber}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">Method</p>
+                        <p class="font-bold text-blue-900">${transaction.deliveryMethod || 'Standard Delivery'}</p>
+                    </div>
                 </div>
             </div>
         ` : ''}
         
         ${transaction.disputeStatus === 'Open' ? `
-            <div class="mt-6">
-                <h4 class="font-semibold text-gray-900 mb-3">Dispute Information</h4>
-                <div class="bg-red-50 p-4 rounded-lg">
-                    <p class="text-sm text-gray-600">Status: <span class="font-medium text-red-900">Open</span></p>
-                    <p class="text-sm text-gray-600">Reason: <span class="font-medium text-gray-900">${transaction.disputeReason}</span></p>
+            <div class="mt-8 bg-red-50 p-5 rounded-2xl border border-red-100 border-l-4">
+                <h4 class="font-bold text-red-900 mb-2 flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    Open Dispute
+                </h4>
+                <p class="text-sm text-red-700 italic border-l-2 border-red-200 pl-3 py-1 bg-white/50 rounded-r">
+                    "${transaction.disputeReason || 'No reason provided'}"
+                </p>
+                <div class="mt-3 flex items-center text-xs text-red-500 font-bold uppercase tracking-wide">
+                    <span class="flex h-2 w-2 rounded-full bg-red-600 mr-2 animate-ping"></span>
+                    Platform representative reviewing...
                 </div>
             </div>
         ` : ''}
     `;
     
     document.getElementById('transactionModal').classList.remove('hidden');
+}
+
+// Order Journey Visualization Helper
+function renderOrderJourney(currentStatus) {
+    const steps = [
+        { key: ['pending', 'processing', 'pending_seller_confirmation'], label: 'Payment', icon: 'fa-credit-card' },
+        { key: ['confirmed', 'confirmed_by_seller', 'both_confirmed'], label: 'Confirmed', icon: 'fa-check-circle' },
+        { key: ['shipped', 'out_for_delivery'], label: 'On Way', icon: 'fa-truck' },
+        { key: ['delivered', 'delivered_pending_confirmation'], label: 'Delivered', icon: 'fa-box-open' },
+        { key: ['completed', 'Completed'], label: 'Completed', icon: 'fa-star' }
+    ];
+
+    const currentIdx = steps.findIndex(step => step.key.includes(currentStatus.toLowerCase()) || step.key.includes(currentStatus));
+    
+    return `
+        <div class="relative flex items-center justify-between">
+            ${steps.map((step, idx) => {
+                const isCompleted = idx < currentIdx || currentStatus.toLowerCase() === 'completed' || currentStatus === 'Completed';
+                const isCurrent = idx === currentIdx;
+                const isPending = idx > currentIdx && currentStatus.toLowerCase() !== 'completed' && currentStatus !== 'Completed';
+
+                return `
+                    <div class="flex flex-col items-center flex-1 relative z-10">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 border-2
+                            ${isCompleted ? 'bg-green-500 border-green-500 text-white shadow-lg shadow-green-100' : 
+                              isCurrent ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100 scale-110' : 
+                              'bg-white border-gray-200 text-gray-300'}">
+                            <i class="fas ${step.icon} text-sm"></i>
+                        </div>
+                        <span class="mt-2 text-[10px] font-bold uppercase tracking-tight
+                            ${isCompleted ? 'text-green-600' : isCurrent ? 'text-blue-600' : 'text-gray-400'}">
+                            ${step.label}
+                        </span>
+                        
+                        <!-- Line between steps -->
+                        ${idx < steps.length - 1 ? `
+                            <div class="absolute top-5 left-[calc(50%+20px)] w-[calc(100%-40px)] h-0.5 bg-gray-100 -z-10">
+                                <div class="h-full bg-green-500 transition-all duration-700" style="width: ${isCompleted ? '100%' : '0%'}"></div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
 }
 
 // Close transaction modal

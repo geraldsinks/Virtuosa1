@@ -5053,16 +5053,29 @@ app.get('/api/transactions', authenticateToken, async (req, res) => {
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
+        // Security: Exclude sensitive fields from the result
         const transactions = await Transaction.find(filter)
-            .populate('buyer seller product')
+            .select('-protection -adminNotes -metadata -confirmations.buyer.ipAddress -confirmations.buyer.userAgent -confirmations.seller.ipAddress -confirmations.seller.userAgent')
+            .populate('buyer', 'fullName email university')
+            .populate('seller', 'fullName email university')
+            .populate('product', 'name images price category condition')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(parseInt(limit));
 
         const total = await Transaction.countDocuments(filter);
 
+        // Filter messages to exclude internal admin messages
+        const filteredTransactions = transactions.map(txn => {
+            const txnObj = txn.toObject();
+            if (txnObj.messages) {
+                txnObj.messages = txnObj.messages.filter(m => !m.isInternal);
+            }
+            return txnObj;
+        });
+
         res.json({
-            transactions,
+            transactions: filteredTransactions,
             pagination: {
                 currentPage: parseInt(page),
                 totalPages: Math.ceil(total / parseInt(limit)),
@@ -5080,7 +5093,10 @@ app.get('/api/transactions', authenticateToken, async (req, res) => {
 app.get('/api/transactions/:id', authenticateToken, async (req, res) => {
     try {
         const transaction = await Transaction.findById(req.params.id)
-            .populate('buyer seller product');
+            .select('-protection -adminNotes -metadata -confirmations.buyer.ipAddress -confirmations.buyer.userAgent -confirmations.seller.ipAddress -confirmations.seller.userAgent')
+            .populate('buyer', 'fullName email university campusLocation')
+            .populate('seller', 'fullName email university campusLocation')
+            .populate('product', 'name images price description category conditionListingType inventory tracking');
 
         if (!transaction) {
             return res.status(404).json({ message: 'Transaction not found' });
@@ -5092,7 +5108,13 @@ app.get('/api/transactions/:id', authenticateToken, async (req, res) => {
             return res.status(403).json({ message: 'Access denied' });
         }
 
-        res.json(transaction);
+        // Filter internal messages before sending response
+        const txnObj = transaction.toObject();
+        if (txnObj.messages) {
+            txnObj.messages = txnObj.messages.filter(m => !m.isInternal);
+        }
+
+        res.json(txnObj);
     } catch (error) {
         console.error('Get transaction details error:', error);
         res.status(500).json({ message: 'Server error' });

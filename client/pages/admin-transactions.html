@@ -581,6 +581,137 @@
                 margin: 10px;
             }
         }
+        /* Admin Safety & Risk Styles */
+        .detail-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #f0f0f0;
+            border-radius: 12px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .detail-section h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .note-item {
+            background: #fdf6e3;
+            border: 1px solid #eee8d5;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #657b83;
+            margin-bottom: 5px;
+        }
+
+        .risk-summary {
+            background: #fff5f5;
+            border: 1px solid #feb2b2;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .risk-score-pill {
+            background: #e53e3e;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 18px;
+        }
+
+        .flag-item {
+            display: flex;
+            gap: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background: #f7fafc;
+            border: 1px solid #edf2f7;
+        }
+
+        .flag-item.flag-high {
+            background: #fff5f5;
+            border-color: #feb2b2;
+        }
+
+        .flag-item i {
+            color: #e53e3e;
+            margin-top: 3px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 25px;
+            padding-bottom: 20px;
+            border-left: 2px solid #edf2f7;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -7px;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            background: #3182ce;
+            border: 2px solid white;
+            border-radius: 50%;
+        }
+
+        .timeline-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 10px;
+            color: #a0aec0;
+            margin-top: 5px;
+        }
+
+        .message-item {
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+        }
+
+        .message-item.is-internal {
+            background: #ebf8ff;
+            border-left: 4px solid #3182ce;
+        }
+
+        .internal-tag {
+            font-size: 9px;
+            background: #3182ce;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 800;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
     </style>
 
     <!-- Unified Header System -->

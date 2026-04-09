@@ -341,14 +341,50 @@ class TransactionManager {
                     </div>
                 </div>
 
+                ${transaction.adminNotes?.length > 0 ? `
+                    <div class="detail-section">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h3 style="margin: 0;"><i class="fas fa-sticky-note"></i> Admin Notes</h3>
+                            <button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="transactionManager.addAdminNote('${transaction._id}')">
+                                <i class="fas fa-plus"></i> Add Note
+                            </button>
+                        </div>
+                        <div class="notes-list" style="background: #fdf6e3; border-radius: 8px; padding: 10px; border: 1px solid #eee8d5;">
+                            ${transaction.adminNotes.map(note => `
+                                <div class="note-item" style="margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #eee8d5; last-child: border-bottom: 0;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: #657b83; margin-bottom: 3px;">
+                                        <strong>${note.admin?.fullName || 'Admin'}</strong>
+                                        <span>${this.formatDate(note.timestamp)}</span>
+                                    </div>
+                                    <div style="font-size: 13px; color: #073642;">${note.note}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : `
+                    <div class="detail-section">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h3 style="margin: 0;"><i class="fas fa-sticky-note"></i> Admin Notes</h3>
+                            <button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="transactionManager.addAdminNote('${transaction._id}')">
+                                <i class="fas fa-plus"></i> Add Note
+                            </button>
+                        </div>
+                        <p style="font-size: 12px; color: #7f8c8d; font-style: italic;">No administrative notes yet.</p>
+                    </div>
+                `}
+
                 ${transaction.protection?.flags?.length > 0 ? `
                     <div class="detail-section">
-                        <h3>Risk Flags</h3>
+                        <h3>Risk Flags & Assessment</h3>
+                        <div class="risk-summary" style="margin-bottom: 15px; padding: 10px; background: #f8d7da; border-radius: 8px; color: #721c24;">
+                            <div style="font-weight: 700; font-size: 14px;">Risk Score: ${transaction.protection.riskScore || '50'}/100</div>
+                            <div style="font-size: 12px;">Level: ${transaction.protection.riskLevel.toUpperCase()}</div>
+                        </div>
                         <div class="flags-list">
                             ${transaction.protection.flags.map(flag => `
                                 <div class="flag-item flag-${flag.severity}">
                                     <i class="fas fa-flag"></i>
-                                    <span>${flag.type}: ${flag.description || 'No description'}</span>
+                                    <span>${flag.type.replace(/_/g, ' ')}: ${flag.description || 'No description'}</span>
                                     <small>${this.formatDate(flag.detectedAt)}</small>
                                 </div>
                             `).join('')}
@@ -358,14 +394,18 @@ class TransactionManager {
 
                 ${transaction.timeline?.length > 0 ? `
                     <div class="detail-section">
-                        <h3>Timeline</h3>
+                        <h3>Technical Audit Timeline</h3>
                         <div class="timeline">
-                            ${transaction.timeline.slice(-10).reverse().map(entry => `
+                            ${transaction.timeline.slice(-15).reverse().map(entry => `
                                 <div class="timeline-item">
                                     <div class="timeline-time">${this.formatDate(entry.timestamp)}</div>
                                     <div class="timeline-content">
-                                        <strong>${entry.action}</strong> by ${entry.actorType}
-                                        ${entry.description ? `<div>${entry.description}</div>` : ''}
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <strong>${entry.action.replace(/_/g, ' ')}</strong>
+                                            <span style="font-size: 10px; background: #eee; padding: 2px 6px; border-radius: 4px;">${entry.actorType}</span>
+                                        </div>
+                                        ${entry.description ? `<div style="margin: 5px 0; font-size: 13px;">${entry.description}</div>` : ''}
+                                        ${entry.ipAddress ? `<div style="font-size: 10px; color: #7f8c8d;"><i class="fas fa-network-wired"></i> IP: ${entry.ipAddress}</div>` : ''}
                                     </div>
                                 </div>
                             `).join('')}
@@ -393,8 +433,14 @@ class TransactionManager {
         `;
 
         modalFooter.innerHTML = `
-            <button class="btn btn-secondary" onclick="transactionManager.closeModal('transactionModal')">Close</button>
-            <button class="btn btn-primary" onclick="transactionManager.showStatusModal('${transaction._id}')">Update Status</button>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; width: 100%;">
+                <button class="btn btn-secondary" onclick="transactionManager.closeModal('transactionModal')">Close</button>
+                <div style="flex-grow: 1;"></div>
+                <button class="btn btn-warning" onclick="transactionManager.addRiskFlag('${transaction._id}')"><i class="fas fa-flag"></i> Flag Risk</button>
+                <button class="btn btn-danger" onclick="transactionManager.processRefund('${transaction._id}')"><i class="fas fa-undo"></i> Refund</button>
+                <button class="btn btn-success" onclick="transactionManager.releaseEscrow('${transaction._id}')"><i class="fas fa-hand-holding-usd"></i> Release Escrow</button>
+                <button class="btn btn-primary" onclick="transactionManager.showStatusModal('${transaction._id}')">Update Status</button>
+            </div>
         `;
 
         this.openModal('transactionModal');
