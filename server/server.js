@@ -65,6 +65,12 @@ const NotificationService = require('./services/notificationService');
 const webpush = require('web-push');
 const { checkRoleAccess, checkAnyRoleAccess, getUserRoleInfo, isAdmin, checkDashboardAccess } = require('./middleware/roleBasedAccess');
 const User = require('./models/User');
+const Product = require('./models/Product');
+const Notification = require('./models/Notification');
+const SellerApplication = require('./models/SellerApplication');
+const AdSlider = require('./models/AdSlider');
+const CategoryCard = require('./models/CategoryCard');
+const Promotion = require('./models/Promotion');
 require('dotenv').config({ path: path.join(__dirname, 'config/.env') });
 
 // Ensure uploads directories exist on startup

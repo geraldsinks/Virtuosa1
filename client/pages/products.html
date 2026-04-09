@@ -1178,90 +1178,7 @@
         }
     </script>
     
-    <!-- Mobile Filter Drawer -->
-    <div id="filter-overlay" class="filter-overlay"></div>
-    <div id="mobile-filter-drawer" class="filter-drawer">
-        <div class="drawer-header">
-            <h2 class="text-lg font-bold text-navy">Filters</h2>
-            <button id="close-mobile-filters" class="p-2 text-gray-500 hover:text-navy transition-colors">
-                <i class="fas fa-times fa-lg"></i>
-            </button>
-        </div>
-        
-        <div class="drawer-content">
-            <!-- Price filter -->
-            <section class="mb-6">
-                <h3 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">Price (ZMW)</h3>
-                <div class="space-y-3">
-                    <label class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
-                        <input type="radio" name="mobile-price-bracket" value="all" class="mobile-price-radio w-4 h-4 text-gold border-gray-300 focus:ring-gold" checked>
-                        <span class="text-sm font-medium text-gray-700">Any price</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
-                        <input type="radio" name="mobile-price-bracket" value="under-100" class="mobile-price-radio w-4 h-4 text-gold border-gray-300 focus:ring-gold">
-                        <span class="text-sm font-medium text-gray-700">Under K100</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
-                        <input type="radio" name="mobile-price-bracket" value="100-500" class="mobile-price-radio w-4 h-4 text-gold border-gray-300 focus:ring-gold">
-                        <span class="text-sm font-medium text-gray-700">K100 - K500</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
-                        <input type="radio" name="mobile-price-bracket" value="500-1000" class="mobile-price-radio w-4 h-4 text-gold border-gray-300 focus:ring-gold">
-                        <span class="text-sm font-medium text-gray-700">K500 - K1,000</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
-                        <input type="radio" name="mobile-price-bracket" value="1000-plus" class="mobile-price-radio w-4 h-4 text-gold border-gray-300 focus:ring-gold">
-                        <span class="text-sm font-medium text-gray-700">K1,000+</span>
-                    </label>
-                </div>
-            </section>
 
-            <!-- Condition filter -->
-            <section class="mb-6 pt-6 border-t border-gray-100">
-                <h3 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">Condition</h3>
-                <div class="grid grid-cols-2 gap-3">
-                    <label class="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
-                        <input type="checkbox" class="mobile-condition-checkbox w-4 h-4 text-gold rounded border-gray-300 focus:ring-gold" value="New">
-                        <span class="text-sm font-medium text-gray-700">New</span>
-                    </label>
-                    <label class="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
-                        <input type="checkbox" class="mobile-condition-checkbox w-4 h-4 text-gold rounded border-gray-300 focus:ring-gold" value="Like New">
-                        <span class="text-sm font-medium text-gray-700">Like New</span>
-                    </label>
-                    <label class="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
-                        <input type="checkbox" class="mobile-condition-checkbox w-4 h-4 text-gold rounded border-gray-300 focus:ring-gold" value="Good">
-                        <span class="text-sm font-medium text-gray-700">Good</span>
-                    </label>
-                    <label class="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-gold/30 transition-all cursor-pointer">
-                        <input type="checkbox" class="mobile-condition-checkbox w-4 h-4 text-gold rounded border-gray-300 focus:ring-gold" value="Fair">
-                        <span class="text-sm font-medium text-gray-700">Fair</span>
-                    </label>
-                </div>
-            </section>
-
-            <!-- Verified filter -->
-            <section class="mb-6 pt-6 border-t border-gray-100">
-                <h3 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">Trust & Safety</h3>
-                <label class="flex items-center gap-3 p-4 rounded-xl bg-navy/5 border border-navy/10 hover:border-navy/20 transition-all cursor-pointer">
-                    <input type="checkbox" id="mobile-campus-verified-only" class="w-5 h-5 text-gold rounded border-navy/20 focus:ring-gold">
-                    <div class="flex flex-col">
-                        <span class="text-sm font-bold text-navy">Campus Verified Only</span>
-                        <span class="text-xs text-navy/60">Show only student-verified sellers</span>
-                    </div>
-                </label>
-            </section>
-        </div>
-
-        <div class="drawer-footer">
-            <button id="apply-mobile-filters" class="w-full bg-navy text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-navy/90 active:scale-[0.98] transition-all">
-                <span>Show Results</span>
-                <span id="mobile-results-count-tag" class="bg-white/20 px-2 py-0.5 rounded text-xs">...</span>
-            </button>
-            <button id="mobile-clear-all" class="w-full mt-3 text-sm text-gray-500 font-medium py-2 hover:text-red-500 transition-colors">
-                Clear all filters
-            </button>
-        </div>
-    </div>
 
     <!-- Additional Scripts (unique to this page) -->
 
@@ -1270,7 +1187,7 @@
     <script src="../js/api-batcher.js"></script>
 
     <!-- Mobile Filter Drawer -->
-    <div id="mobile-filter-overlay" class="filter-overlay"></div>
+    <div id="filter-overlay" class="filter-overlay"></div>
     <div id="mobile-filter-drawer">
         <div class="drawer-header">
             <h2 class="text-lg font-bold text-navy">Filter Products</h2>
@@ -1349,11 +1266,11 @@
         </div>
 
         <div class="drawer-footer">
-            <button id="mobile-filters-clear" class="w-full py-3 px-4 text-sm font-semibold text-gray-500 hover:text-navy border border-gray-200 rounded-xl transition-colors">
+            <button id="mobile-clear-all" class="w-full py-3 px-4 text-sm font-semibold text-gray-500 hover:text-navy border border-gray-200 rounded-xl transition-colors">
                 Clear All
             </button>
-            <button id="mobile-filters-apply" class="w-full py-3 px-4 text-sm font-bold text-white bg-button-gold hover:bg-gold rounded-xl transition-all shadow-lg shadow-gold/20">
-                Show Results
+            <button id="apply-mobile-filters" class="w-full py-3 px-4 text-sm font-bold text-white bg-button-gold hover:bg-gold rounded-xl transition-all shadow-lg shadow-gold/20">
+                Show <span id="mobile-results-count-tag">0</span> Results
             </button>
         </div>
     </div>
