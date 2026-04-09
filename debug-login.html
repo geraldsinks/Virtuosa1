@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .code { background: #f5f5f5; padding: 10px; border-radius: 4px; font-family: monospace; margin: 10px 0; }
+        .test-link { color: #007bff; text-decoration: underline; cursor: pointer; }
+        .warning { color: #856404; background: #fff3cd; padding: 10px; border: 1px solid #ffeeba; border-radius: 4px; margin: 10px 0; }
+        .info { color: #0c5460; background: #d1ecf1; padding: 10px; border: 1px solid #bee5eb; border-radius: 4px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Login Debug Test</h1>
+    
+    <div class="debug-section">
+        <h2>Debug Information Added</h2>
+        <p>I've added comprehensive debugging to both client and server sides to identify the login issue:</p>
+        
+        <h3>Server-side debugging (server.js)</h3>
+        <div class="code">
+🔍 DEBUG - Request body received: [req.body]
+🔍 DEBUG - Content-Type header: [req.get('Content-Type')]
+🔍 DEBUG - Extracted email: [email] password: [REDACTED/undefined]
+        </div>
+        
+        <h3>Client-side debugging (auth.js)</h3>
+        <div class="code">
+🔍 CLIENT DEBUG - Sending login request: {
+    url: [BASE_API_URL]/login,
+    email: [email],
+    password: [REDACTED/undefined],
+    requestData: { email, password }
+}
+🔍 CLIENT DEBUG - Server response: {
+    status: [response.status],
+    ok: [response.ok],
+    result: [result]
+}
+        </div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>How to Test</h2>
+        <div class="warning">
+            <strong>Important:</strong> Open browser developer tools (F12) and go to Console tab to see debug messages.
+        </div>
+        
+        <ol>
+            <li>Open <a href="/pages/login.html" class="test-link">Login Page</a></li>
+            <li>Open browser developer tools (F12) → Console tab</li>
+            <li>Try to login with email and password</li>
+            <li>Look for debug messages in console</li>
+            <li>Check what data is being sent and received</li>
+        </ol>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Possible Issues to Check</h2>
+        
+        <h3>1. Form Element IDs</h3>
+        <p>Check if the form elements have correct IDs:</p>
+        <ul>
+            <li>Email input: <code>id="login-email"</code></li>
+            <li>Password input: <code>id="login-password-input"</code></li>
+        </ul>
+        
+        <h3>2. Network Requests</h3>
+        <p>In developer tools Network tab, check:</p>
+        <ul>
+            <li>Request URL: Should be <code>https://api.virtuosazm.com/api/auth/login</code></li>
+            <li>Request Method: POST</li>
+            <li>Content-Type: <code>application/json</code></li>
+            <li>Request Body: Should contain email and password</li>
+        </ul>
+        
+        <h3>3. Server Response</h3>
+        <p>Check the server response:</p>
+        <ul>
+            <li>Status Code: 400 indicates client-side issue</li>
+            <li>Response Body: Should contain error message</li>
+        </ul>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Common Issues & Solutions</h2>
+        
+        <div class="info">
+            <strong>If you see "Email and password are required":</strong>
+            <ul>
+                <li>Form elements might not have correct IDs</li>
+                <li>JavaScript might not be getting values correctly</li>
+                <li>Request body might be empty or malformed</li>
+            </ul>
+        </div>
+        
+        <div class="info">
+            <strong>If you see network/CORS errors:</strong>
+            <ul>
+                <li>API endpoint might be incorrect</li>
+                <li>Server might not be running</li>
+                <li>CORS configuration issue</li>
+            </ul>
+        </div>
+        
+        <div class="info">
+            <strong>If you see validation errors:</strong>
+            <ul>
+                <li>Email or password format issues</li>
+                <li>Missing required fields</li>
+                <li>Database connection issues</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Quick Test</h2>
+        <p>Try this test sequence:</p>
+        <ol>
+            <li><a href="/pages/login.html" class="test-link">Go to Login Page</a></li>
+            <li>Open Developer Tools → Console</li>
+            <li>Enter test credentials</li>
+            <li>Submit form and watch console output</li>
+            <li>Share the debug output here</li>
+        </ol>
+    </div>
+    
+    <div class="debug-section">
+        <h2>What to Look For</h2>
+        <p>In the console, you should see:</p>
+        <div class="code">
+// CLIENT DEBUG (before request)
+🔍 CLIENT DEBUG - Sending login request: {
+    url: "https://api.virtuosazm.com/api/auth/login",
+    email: "your@email.com",
+    password: "[REDACTED]",
+    requestData: { email: "your@email.com", password: "yourpassword" }
+}
+
+// SERVER DEBUG (after request)
+🔍 DEBUG - Request body received: { email: "your@email.com", password: "yourpassword" }
+🔍 DEBUG - Content-Type header: "application/json"
+🔍 DEBUG - Extracted email: "your@email.com" password: "[REDACTED]"
+
+// CLIENT DEBUG (response)
+🔍 CLIENT DEBUG - Server response: {
+    status: 400,
+    ok: false,
+    result: { message: "Email and password are required" }
+}
+        </div>
+    </div>
+</body>
+</html>

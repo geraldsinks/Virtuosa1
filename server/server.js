@@ -2597,9 +2597,13 @@ app.get('/api/auth/verify-student/:token', async (req, res) => {
 
 // Login endpoint
 app.post('/api/auth/login', async (req, res) => {
+    console.log('🔍 DEBUG - Request body received:', req.body);
+    console.log('🔍 DEBUG - Content-Type header:', req.get('Content-Type'));
     const { email, password } = req.body;
+    console.log('🔍 DEBUG - Extracted email:', email, 'password:', password ? '[REDACTED]' : 'undefined');
 
     if (!email || !password) {
+        console.log('❌ DEBUG - Missing email or password');
         return res.status(400).json({ message: 'Email and password are required' });
     }
 

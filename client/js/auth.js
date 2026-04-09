@@ -371,13 +371,27 @@ async function handleLogin(event) {
     }
 
     try {
+        const requestData = { email, password };
+        console.log('🔍 CLIENT DEBUG - Sending login request:', {
+            url: `${BASE_API_URL}/login`,
+            email: email,
+            password: password ? '[REDACTED]' : 'undefined',
+            requestData: requestData
+        });
+        
         const response = await fetch(`${BASE_API_URL}/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify(requestData)
         });
 
         const result = await response.json();
+        
+        console.log('🔍 CLIENT DEBUG - Server response:', {
+            status: response.status,
+            ok: response.ok,
+            result: result
+        });
 
         if (response.ok) {
             showMessage('Login successful! Redirecting...');
