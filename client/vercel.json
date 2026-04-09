@@ -161,6 +161,42 @@
       "destination": "/pages/admin-asset-library.html"
     },
     {
+      "source": "/admin-account-deletions",
+      "destination": "/pages/admin-account-deletions.html"
+    },
+    {
+      "source": "/strategic-analytics",
+      "destination": "/pages/strategic-analytics.html"
+    },
+    {
+      "source": "/admin-cookie-data",
+      "destination": "/pages/admin-cookie-data.html"
+    },
+    {
+      "source": "/admin-maintenance",
+      "destination": "/pages/admin-maintenance.html"
+    },
+    {
+      "source": "/admin-transactions",
+      "destination": "/pages/admin-transactions.html"
+    },
+    {
+      "source": "/admin-disputes",
+      "destination": "/pages/admin-disputes.html"
+    },
+    {
+      "source": "/admin-support",
+      "destination": "/pages/admin-support.html"
+    },
+    {
+      "source": "/admin-live-chat",
+      "destination": "/pages/admin-live-chat.html"
+    },
+    {
+      "source": "/admin-test-dashboard",
+      "destination": "/pages/admin-test-dashboard.html"
+    },
+    {
       "source": "/marketing-dashboard",
       "destination": "/pages/marketing-dashboard.html"
     },

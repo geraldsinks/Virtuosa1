@@ -82,6 +82,7 @@
         'admin-disputes':           '/pages/admin-disputes.html',
         'admin-support':            '/pages/admin-support.html',
         'admin-live-chat':          '/pages/admin-live-chat.html',
+        'admin-test-dashboard':     '/pages/admin-test-dashboard.html',
         'admin-maintenance-reports':'/pages/admin-maintenance-reports.html',
         'admin-ui-queries':         '/pages/admin-ui-queries.html',
         'admin-transaction-reports':'/pages/admin-transaction-reports.html',

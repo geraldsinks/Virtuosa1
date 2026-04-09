@@ -169,8 +169,10 @@ class UnifiedHeader {
         const shouldHide = nonShoppingPrefixes.some(prefix => 
             path === prefix || 
             path.startsWith(`${prefix}/`) || 
+            path.startsWith(`${prefix}-`) ||
             path === `/pages${prefix}.html` ||
-            path.startsWith(`/pages${prefix}`)
+            path.startsWith(`/pages${prefix}/`) ||
+            path.startsWith(`/pages${prefix}-`)
         );
 
         if (shouldHide) {
