@@ -84,25 +84,36 @@ class SimpleAdSlider {
         console.log(`Simple ad slider initialized with ${this.totalCards} cards`);
     }
 
-    /**
-     * Update slider position with production-grade transition management
-     */
-    updateSlider() {
+    updateSlider(snap = false) {
         if (!this.cardsWrapper || this.totalCards === 0 || this.isTransitioning) return;
 
-        this.isTransitioning = true;
+        this.isTransitioning = !snap;
+
+        if (snap) {
+            this.cardsWrapper.style.transition = 'none';
+        } else {
+            this.cardsWrapper.style.transition = 'transform 0.7s cubic-bezier(0.25, 1, 0.5, 1)';
+        }
 
         // Transform the cards wrapper directly
         this.cardsWrapper.style.transform = `translateX(-${this.currentIndex * 100}%)`;
-        this.cardsWrapper.style.transition = 'transform 0.7s cubic-bezier(0.25, 1, 0.5, 1)';
 
         // Update dots
         this.updateDots();
 
-        // Reset transition flag after animation completes
-        setTimeout(() => {
-            this.isTransitioning = false;
-        }, 700);
+        if (!snap) {
+            // Reset transition flag after animation completes
+            setTimeout(() => {
+                this.isTransitioning = false;
+            }, 700);
+        } else {
+            // Restore transition class immediately after snap rendering
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    this.cardsWrapper.style.transition = 'transform 0.7s cubic-bezier(0.25, 1, 0.5, 1)';
+                });
+            });
+        }
     }
 
     /**
@@ -133,15 +144,9 @@ class SimpleAdSlider {
         if (this.totalCards === 0 || this.isTransitioning) return;
 
         if (this.currentIndex >= this.totalCards - 1) {
-            // Seamless loop back to first card
-            this.cardsWrapper.style.transition = 'none';
+            // Snap back to 0 instantly
             this.currentIndex = 0;
-            this.updateSlider();
-
-            // Re-enable transition after brief delay
-            setTimeout(() => {
-                this.cardsWrapper.style.transition = 'transform 0.7s cubic-bezier(0.25, 1, 0.5, 1)';
-            }, 50);
+            this.updateSlider(true);
         } else {
             this.currentIndex++;
             this.updateSlider();
@@ -150,22 +155,13 @@ class SimpleAdSlider {
         this.restartAutoSlide();
     }
 
-    /**
-     * Move to previous card with seamless looping
-     */
     prevCard() {
         if (this.totalCards === 0 || this.isTransitioning) return;
 
         if (this.currentIndex === 0) {
-            // Seamless loop to last card
-            this.cardsWrapper.style.transition = 'none';
+            // Snap to last card instantly
             this.currentIndex = this.totalCards - 1;
-            this.updateSlider();
-
-            // Re-enable transition after brief delay
-            setTimeout(() => {
-                this.cardsWrapper.style.transition = 'transform 0.7s cubic-bezier(0.25, 1, 0.5, 1)';
-            }, 50);
+            this.updateSlider(true);
         } else {
             this.currentIndex--;
             this.updateSlider();
