@@ -2486,7 +2486,7 @@ app.post('/api/auth/signup', async (req, res) => {
         });
         
         try {
-            const emailResult = await transporter.sendMail({
+            const emailResult = await productionTransporter.sendMail({
                 from: 'noreply@virtuosazm.com',
                 to: normalizedEmail,
                 subject: 'Virtuosa - Verify Your Email',
