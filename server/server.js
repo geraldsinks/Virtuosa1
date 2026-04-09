@@ -2756,9 +2756,30 @@ app.post('/api/auth/login', async (req, res) => {
 
 // Temporary password fix endpoint (for debugging only)
 app.post('/api/auth/fix-password', async (req, res) => {
-    const { email, newPassword } = req.body;
+    console.log('Fix password - Request body received:', req.body);
+    console.log('Fix password - Content-Type header:', req.get('Content-Type'));
+    
+    // Use raw body if JSON parsing failed
+    let email, newPassword;
+    
+    if (req.body && typeof req.body.email === 'undefined' && req.rawBody) {
+        try {
+            const parsedBody = JSON.parse(req.rawBody);
+            email = parsedBody.email;
+            newPassword = parsedBody.newPassword;
+            console.log('Fix password - Using raw body for parsing');
+        } catch (e) {
+            console.log('Fix password - Raw body parsing failed:', e.message);
+        }
+    } else {
+        email = req.body.email;
+        newPassword = req.body.newPassword;
+    }
+    
+    console.log('Fix password - Extracted email:', email, 'newPassword:', newPassword ? '[REDACTED]' : 'undefined');
     
     if (!email || !newPassword) {
+        console.log('Fix password - Missing email or new password');
         return res.status(400).json({ message: 'Email and new password are required' });
     }
 
