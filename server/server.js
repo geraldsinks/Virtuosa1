@@ -2468,6 +2468,11 @@ app.post('/api/auth/signup', async (req, res) => {
     }
 
         await user.save();
+        
+        // Debug: Check password after save
+        console.log('User saved successfully');
+        console.log('Password hash after save:', user.password.substring(0, 20) + '...');
+        console.log('Password hash length after save:', user.password.length);
 
         // Send email verification email
         const emailVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/pages/verify-email.html?token=${emailVerificationToken}`;
