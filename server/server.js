@@ -86,7 +86,7 @@ console.log('🚀 Server starting...');
 console.log('📍 Environment:', isRender ? 'Render' : 'Local');
 console.log('📁 Base path:', basePath);
 
-const uploadDirs = ['uploads', 'uploads/products', 'uploads/marketing', 'uploads/profiles', 'uploads/messages'];
+const uploadDirs = ['uploads', 'uploads/products', 'uploads/marketing', 'uploads/profiles', 'uploads/messages', 'uploads/support'];
 uploadDirs.forEach(dir => {
     const fullPath = path.join(basePath, dir);
     if (!fs.existsSync(fullPath)) {
