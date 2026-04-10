@@ -2719,12 +2719,20 @@ app.post('/api/auth/login', async (req, res) => {
             console.log('🔧 Hashes match after save:', user.password === freshAfterSave.password);
             
             // Test the final hash
+            console.log('🔧 Password before final test:', JSON.stringify(password));
+            console.log('🔧 Password chars before final test:', Array.from(password).map(c => `${c}(${c.charCodeAt(0)})`));
+            
             isMatch = await bcrypt.compare(password, user.password);
             console.log('🔧 Emergency fix result:', isMatch);
             
             // Test with fresh data too
+            console.log('🔧 Password before fresh test:', JSON.stringify(password));
             const freshTest = await bcrypt.compare(password, freshAfterSave.password);
             console.log('🔧 Fresh data test result:', freshTest);
+            
+            // Test with hardcoded password to isolate the issue
+            const hardcodedTest = await bcrypt.compare('123456879', freshAfterSave.password);
+            console.log('🔧 Hardcoded password test:', hardcodedTest);
         }
         
         if (!isMatch) {
