@@ -239,37 +239,33 @@ app.use(cors( {
     allowedHeaders: ["Content-Type", "Authorization"],
     maxAge: 86400
 }));
-// Add raw body parser BEFORE JSON parser to catch exact request data
-app.use(express.raw({ type: 'application/json', limit: '10mb' }), (req, res, next) => {
-    if (req.path === '/api/auth/login' && req.method === 'POST') {
-        // Handle Buffer properly
-        let rawBody;
-        if (Buffer.isBuffer(req.body)) {
-            rawBody = req.body.toString('utf8');
-        } else {
-            rawBody = req.body;
-        }
-        
-        console.log('🔍 RAW DEBUG - Raw body string:', rawBody);
-        console.log('🔍 RAW DEBUG - Raw body length:', rawBody.length);
-        console.log('🔍 RAW DEBUG - Raw body chars:', Array.from(rawBody).map(c => `${c}(${c.charCodeAt(0)})`));
-        
-        // Store raw body for later use
-        req.rawBody = rawBody;
-    }
-    next();
-});
-
-app.use(express.json({ limit: '10mb' }));
-
-// Add JSON parsing debug
+// Custom JSON parsing middleware with debugging
 app.use((req, res, next) => {
+    // Store raw body for debugging login requests
     if (req.path === '/api/auth/login' && req.method === 'POST') {
-        console.log('🔍 JSON DEBUG - Parsed body:', JSON.stringify(req.body));
-        console.log('🔍 JSON DEBUG - Email from parsed body:', req.body.email);
-        console.log('🔍 JSON DEBUG - Email chars from parsed body:', req.body.email ? Array.from(req.body.email).map(c => `${c}(${c.charCodeAt(0)})`) : 'undefined');
+        // Get the raw body before JSON parsing
+        let rawBody = '';
+        req.on('data', chunk => {
+            rawBody += chunk.toString();
+        });
+        
+        req.on('end', () => {
+            console.log('🔍 RAW DEBUG - Raw body string:', rawBody);
+            console.log('🔍 RAW DEBUG - Raw body length:', rawBody.length);
+            console.log('🔍 RAW DEBUG - Raw body chars:', Array.from(rawBody).map(c => `${c}(${c.charCodeAt(0)})`));
+            req.rawBody = rawBody;
+        });
     }
-    next();
+    
+    // Use Express JSON parser
+    express.json({ limit: '10mb' })(req, res, () => {
+        if (req.path === '/api/auth/login' && req.method === 'POST') {
+            console.log('🔍 JSON DEBUG - Parsed body:', JSON.stringify(req.body));
+            console.log('🔍 JSON DEBUG - Email from parsed body:', req.body.email);
+            console.log('🔍 JSON DEBUG - Email chars from parsed body:', req.body.email ? Array.from(req.body.email).map(c => `${c}(${c.charCodeAt(0)})`) : 'undefined');
+        }
+        next();
+    });
 });
 
 // Maintenance middleware for API routes
@@ -2629,7 +2625,24 @@ app.get('/api/auth/verify-student/:token', async (req, res) => {
 // Login endpoint
 app.post('/api/auth/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        // Handle case where body might be Buffer
+        let email, password;
+        
+        if (req.body && typeof req.body.email === 'undefined' && req.rawBody) {
+            try {
+                const parsedBody = JSON.parse(req.rawBody);
+                email = parsedBody.email;
+                password = parsedBody.password;
+                console.log('🔍 FALLBACK DEBUG - Using raw body for parsing');
+            } catch (e) {
+                console.log('❌ FALLBACK DEBUG - Raw body parsing failed:', e.message);
+            }
+        } else {
+            email = req.body.email;
+            password = req.body.password;
+        }
+        
+        console.log('🔍 FINAL DEBUG - Extracted email:', email, 'password:', password ? '[REDACTED]' : 'undefined');
 
         // Input validation
         if (!email || !password) {
