@@ -2674,6 +2674,9 @@ app.post('/api/auth/login', async (req, res) => {
         }
         
         console.log('Attempting password comparison for user:', normalizedEmail);
+        console.log('Password hash length:', user.password.length);
+        console.log('Password hash starts with:', user.password.substring(0, 10));
+        console.log('Input password length:', password.length);
         
         let isMatch = await bcrypt.compare(password, user.password);
         
@@ -2681,6 +2684,19 @@ app.post('/api/auth/login', async (req, res) => {
         
         if (!isMatch) {
             console.log('Password comparison failed for user:', normalizedEmail);
+            console.log('Input password:', JSON.stringify(password));
+            console.log('Input password length:', password.length);
+            
+            // For debugging: let's try to hash the input password to see what happens
+            const testHash = await bcrypt.hash(password, 12);
+            console.log('Test hash of input password:', testHash.substring(0, 30) + '...');
+            
+            // Let's also try to verify the stored hash format
+            console.log('Stored hash format check:', {
+                startsWith2a: user.password.startsWith('$2a$'),
+                length: user.password.length,
+                expectedLength: 60
+            });
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
