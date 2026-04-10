@@ -2749,6 +2749,93 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
+// Forgot password endpoint
+app.post('/api/auth/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+
+        // Basic email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Invalid email format' });
+        }
+
+        // Normalize email to lowercase and trim whitespace
+        const normalizedEmail = email.toLowerCase().trim();
+        
+        console.log('Password reset request for email:', normalizedEmail);
+        
+        // Find user by email
+        const user = await User.findOne({ email: normalizedEmail });
+        
+        if (!user) {
+            // Don't reveal if email exists or not for security
+            console.log('Password reset requested for non-existent email:', normalizedEmail);
+            return res.json({ message: 'If an account with that email exists, a password reset link has been sent.' });
+        }
+
+        // Generate reset token
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour
+
+        // Save reset token to user
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = resetTokenExpiry;
+        await user.save();
+
+        // Create reset URL
+        const resetUrl = `${process.env.CLIENT_URL || 'https://virtuosazm.com'}/pages/reset-password.html?token=${resetToken}`;
+
+        // Send email
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: normalizedEmail,
+            subject: 'Virtuosa - Password Reset Request',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #0A1128 0%, #060A18 100%); padding: 30px; text-align: center;">
+                        <h1 style="color: #FFD700; margin: 0; font-size: 32px;">Virtuosa</h1>
+                    </div>
+                    <div style="padding: 30px; background-color: #f9f9f9;">
+                        <h2 style="color: #333; margin-bottom: 20px;">Password Reset Request</h2>
+                        <p style="color: #666; line-height: 1.6;">Hello ${user.fullName || 'User'},</p>
+                        <p style="color: #666; line-height: 1.6;">You requested a password reset for your Virtuosa account. Click the button below to reset your password:</p>
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${resetUrl}" style="background: linear-gradient(135deg, #FFD700 0%, #C19A6B 100%); color: #0A1128; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block;">Reset Password</a>
+                        </div>
+                        <p style="color: #666; line-height: 1.6;">If you didn't request this password reset, you can safely ignore this email. The link will expire in 1 hour.</p>
+                        <p style="color: #666; line-height: 1.6;">Alternatively, you can copy and paste this link into your browser:</p>
+                        <p style="background-color: #eee; padding: 10px; word-break: break-all; color: #333;">${resetUrl}</p>
+                    </div>
+                    <div style="background-color: #0A1128; padding: 20px; text-align: center;">
+                        <p style="color: #999; margin: 0; font-size: 12px;">&copy; 2026 Virtuosa. All rights reserved.</p>
+                    </div>
+                </div>
+            `
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log('Password reset email sent to:', normalizedEmail);
+
+        res.json({ message: 'If an account with that email exists, a password reset link has been sent.' });
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // Temporary password fix endpoint (for debugging only)
 app.post('/api/auth/fix-password', async (req, res) => {
     console.log('Fix password - Request body received:', req.body);
