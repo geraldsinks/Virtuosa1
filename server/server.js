@@ -2699,14 +2699,32 @@ app.post('/api/auth/login', async (req, res) => {
             
             // Create new proper hash
             const emergencyHash = await bcrypt.hash('123456879', 12);
+            console.log('🔧 Emergency hash created:', emergencyHash);
+            console.log('🔧 Emergency hash length:', emergencyHash.length);
+            
+            // Test hash before saving
+            const beforeSaveTest = await bcrypt.compare('123456879', emergencyHash);
+            console.log('🔧 Before save test:', beforeSaveTest);
+            
             user.password = emergencyHash;
             await user.save();
             
-            console.log('🔧 Emergency hash applied:', emergencyHash.substring(0, 20) + '...');
+            console.log('🔧 Hash saved to database');
+            console.log('🔧 User password after save starts with:', user.password.substring(0, 20));
+            console.log('🔧 User password after save length:', user.password.length);
             
-            // Test the new hash
+            // Verify fresh data from DB
+            const freshAfterSave = await User.findOne({ email: normalizedEmail });
+            console.log('🔧 Fresh DB hash starts with:', freshAfterSave.password.substring(0, 20));
+            console.log('🔧 Hashes match after save:', user.password === freshAfterSave.password);
+            
+            // Test the final hash
             isMatch = await bcrypt.compare(password, user.password);
             console.log('🔧 Emergency fix result:', isMatch);
+            
+            // Test with fresh data too
+            const freshTest = await bcrypt.compare(password, freshAfterSave.password);
+            console.log('🔧 Fresh data test result:', freshTest);
         }
         
         if (!isMatch) {
