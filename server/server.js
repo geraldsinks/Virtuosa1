@@ -6084,7 +6084,7 @@ app.post('/api/seller/apply', authenticateToken, async (req, res) => {
         }
 
         // Agreements validation
-        if (!agreements.noProhibitedItems || !agreements.noScamming || !agreements.respectCommitment || !agreements.accurateDescriptions) {
+        if (!agreements.enrolledConfirm || !agreements.noProhibitedItems || !agreements.noScamming || !agreements.respectCommitment || !agreements.accurateDescriptions) {
             return res.status(400).json({ message: 'You must agree to all terms and commitments.' });
         }
 
@@ -6124,17 +6124,23 @@ app.post('/api/seller/apply', authenticateToken, async (req, res) => {
         user.sellerApplicationStatus = 'Pending';
         await user.save();
 
-        // Create notification
-        const notification = new Notification({
-            recipient: user._id,
-            title: 'Seller Application Submitted',
-            message: 'Your seller application has been submitted and is under review. We will notify you once it has been reviewed.',
-            type: 'system',
-            data: {
-                actionUrl: '/pages/seller-verification.html'
-            }
-        });
-        await notification.save();
+        // Create notification using notification service
+        try {
+            await notificationService.sendNotification({
+                recipientId: user._id,
+                type: 'system',
+                title: 'Seller Application Submitted',
+                message: 'Your seller application has been submitted and is under review. We will notify you once it has been reviewed.',
+                data: {
+                    actionUrl: '/pages/seller-verification.html'
+                },
+                channels: ['websocket', 'push']
+            });
+            console.log('Seller application notification sent successfully');
+        } catch (notifError) {
+            console.error('Failed to send seller application notification:', notifError);
+            // Continue even if notification fails
+        }
 
         res.json({
             message: 'Seller application submitted successfully! You will be notified when it is reviewed.',
@@ -6276,21 +6282,21 @@ app.post('/api/admin/seller-applications/:id/approve', authenticateAdmin, async 
             await user.save();
             console.log('User updated to seller successfully');
 
-            // Create notification
+            // Create notification using notification service
             try {
-                const notification = new Notification({
-                    recipient: user._id,
+                await notificationService.sendNotification({
+                    recipientId: user._id,
+                    type: 'account_verified',
                     title: 'Seller Application Approved! \ud83c\udf89',
                     message: 'Congratulations! Your seller application has been approved. You can now start listing items for sale.',
-                    type: 'account_verified',
                     data: {
                         actionUrl: '/pages/seller-dashboard.html'
-                    }
+                    },
+                    channels: ['websocket', 'push']
                 });
-                await notification.save();
-                console.log('Notification created successfully');
+                console.log('Seller approval notification sent successfully');
             } catch (notifError) {
-                console.error('Failed to create notification:', notifError);
+                console.error('Failed to send seller approval notification:', notifError);
                 // Continue even if notification fails
             }
         } else {
@@ -6327,16 +6333,23 @@ app.post('/api/admin/applications/:id/approve', authenticateAdmin, async (req, r
         user.isSeller = true;
         await user.save();
 
-        const notification = new Notification({
-            recipient: user._id,
-            title: 'Seller Application Approved! 🎉',
-            message: 'Congratulations! Your seller application has been approved. You can now list items on Virtuosa.',
-            type: 'account_verified',
-            data: {
-                actionUrl: '/pages/seller-verification.html'
-            }
-        });
-        await notification.save();
+        // Create notification using notification service
+        try {
+            await notificationService.sendNotification({
+                recipientId: user._id,
+                type: 'account_verified',
+                title: 'Seller Application Approved! 🎉',
+                message: 'Congratulations! Your seller application has been approved. You can now list items on Virtuosa.',
+                data: {
+                    actionUrl: '/pages/seller-verification.html'
+                },
+                channels: ['websocket', 'push']
+            });
+            console.log('Seller approval notification sent successfully');
+        } catch (notifError) {
+            console.error('Failed to send seller approval notification:', notifError);
+            // Continue even if notification fails
+        }
 
         transporter.sendMail({
             to: user.email,
@@ -6403,21 +6416,21 @@ app.post('/api/admin/seller-applications/:id/reject', authenticateAdmin, async (
             await user.save();
             console.log('User updated successfully');
 
-            // Create notification
+            // Create notification using notification service
             try {
-                const notification = new Notification({
-                    recipient: user._id,
+                await notificationService.sendNotification({
+                    recipientId: user._id,
+                    type: 'system',
                     title: 'Seller Application Update',
                     message: `Your seller application was not approved. Reason: ${reason}. You may update your information and reapply.`,
-                    type: 'system',
                     data: {
                         actionUrl: '/pages/seller.html'
-                    }
+                    },
+                    channels: ['websocket', 'push']
                 });
-                await notification.save();
-                console.log('Notification created successfully');
+                console.log('Seller rejection notification sent successfully');
             } catch (notifError) {
-                console.error('Failed to create notification:', notifError);
+                console.error('Failed to send seller rejection notification:', notifError);
                 // Continue even if notification fails
             }
         } else {
