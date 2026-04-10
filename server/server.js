@@ -2685,13 +2685,27 @@ app.post('/api/auth/login', async (req, res) => {
         console.log('Fresh user hash starts with:', freshUser.password.substring(0, 10));
         console.log('Hashes match:', user.password === freshUser.password);
         
-        let isMatch = await bcrypt.compare(password, user.password);
+        // Fix uppercase hash corruption issue
+        const fixedPassword = user.password.toLowerCase();
+        const fixedFreshPassword = freshUser.password.toLowerCase();
+        
+        console.log('🔧 Fixed hash (lowercase):', fixedPassword.substring(0, 20) + '...');
+        console.log('🔧 Hash was converted to lowercase:', user.password !== fixedPassword);
+        
+        let isMatch = await bcrypt.compare(password, fixedPassword);
         
         console.log('Password comparison result:', isMatch);
         
         // Also test with fresh user data
-        let freshMatch = await bcrypt.compare(password, freshUser.password);
+        let freshMatch = await bcrypt.compare(password, fixedFreshPassword);
         console.log('Fresh password comparison result:', freshMatch);
+        
+        // Update the database with the correct lowercase hash
+        if (isMatch && user.password !== fixedPassword) {
+            user.password = fixedPassword;
+            await user.save();
+            console.log('🔧 Database updated with lowercase hash');
+        }
         
         // Emergency fix: If hash appears corrupted, try direct comparison with known password
         if (!isMatch && !freshMatch && password === '123456879') {
