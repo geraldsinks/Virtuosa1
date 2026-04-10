@@ -2790,17 +2790,9 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         // Create reset URL
         const resetUrl = `${process.env.CLIENT_URL || 'https://virtuosazm.com'}/pages/reset-password.html?token=${resetToken}`;
 
-        // Send email
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
-        });
-
+        // Send email using existing Brevo production transporter
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: 'noreply@virtuosazm.com',
             to: normalizedEmail,
             subject: 'Virtuosa - Password Reset Request',
             html: `
@@ -2826,7 +2818,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
             `
         };
 
-        await transporter.sendMail(mailOptions);
+        await productionTransporter.sendMail(mailOptions);
         console.log('Password reset email sent to:', normalizedEmail);
 
         res.json({ message: 'If an account with that email exists, a password reset link has been sent.' });
