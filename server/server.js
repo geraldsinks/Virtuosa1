@@ -2676,11 +2676,22 @@ app.post('/api/auth/login', async (req, res) => {
         console.log('Attempting password comparison for user:', normalizedEmail);
         console.log('Password hash length:', user.password.length);
         console.log('Password hash starts with:', user.password.substring(0, 10));
+        console.log('Password hash ends with:', user.password.substring(-10));
         console.log('Input password length:', password.length);
+        console.log('Input password chars:', Array.from(password).map(c => `${c}(${c.charCodeAt(0)})`));
+        
+        // Double-check the user data is fresh from database
+        const freshUser = await User.findOne({ email: normalizedEmail });
+        console.log('Fresh user hash starts with:', freshUser.password.substring(0, 10));
+        console.log('Hashes match:', user.password === freshUser.password);
         
         let isMatch = await bcrypt.compare(password, user.password);
         
         console.log('Password comparison result:', isMatch);
+        
+        // Also test with fresh user data
+        let freshMatch = await bcrypt.compare(password, freshUser.password);
+        console.log('Fresh password comparison result:', freshMatch);
         
         if (!isMatch) {
             console.log('Password comparison failed for user:', normalizedEmail);
@@ -2697,6 +2708,14 @@ app.post('/api/auth/login', async (req, res) => {
                 length: user.password.length,
                 expectedLength: 60
             });
+            
+            // Test manual verification
+            try {
+                const manualTest = await bcrypt.compare('123456879', freshUser.password);
+                console.log('Manual test with exact password:', manualTest);
+            } catch (e) {
+                console.log('Manual test failed:', e.message);
+            }
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
