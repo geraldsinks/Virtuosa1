@@ -2733,6 +2733,23 @@ app.post('/api/auth/login', async (req, res) => {
             // Test with hardcoded password to isolate the issue
             const hardcodedTest = await bcrypt.compare('123456879', freshAfterSave.password);
             console.log('🔧 Hardcoded password test:', hardcodedTest);
+            
+            // Check hash integrity
+            console.log('🔧 Hash integrity check:');
+            console.log('  - Expected length: 60');
+            console.log('  - Actual length:', freshAfterSave.password.length);
+            console.log('  - Starts with $2a$12$:', freshAfterSave.password.startsWith('$2a$12$'));
+            console.log('  - Contains only valid chars:', /^[\.\/A-Za-z0-9]+$/.test(freshAfterSave.password));
+            console.log('  - Full hash:', freshAfterSave.password);
+            
+            // Test if we can manually recreate the comparison
+            try {
+                const testHash = '$2a$12$hjNLIuLI1XDg4K2w3XNVrOqXQq8QqQqQqQqQqQqQqQqQqQqQqQqQqQqQq';
+                const manualTest = await bcrypt.compare('123456879', testHash);
+                console.log('🔧 Manual hash test (should be false):', manualTest);
+            } catch (e) {
+                console.log('🔧 Manual hash test error:', e.message);
+            }
         }
         
         if (!isMatch) {
