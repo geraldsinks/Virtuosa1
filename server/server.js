@@ -3122,149 +3122,43 @@ app.post('/api/auth/migrate-email-verification', async (req, res) => {
     }
 });
 
-// Forgot Password endpoint
-app.post('/api/auth/forgot-password', async (req, res) => {
-    const { email } = req.body;
-
-    if (!email) {
-        return res.status(400).json({ message: 'Email is required' });
-    }
-
-    // Normalize email to lowercase
-    const normalizedEmail = email.toLowerCase();
-
-    try {
-        const user = await User.findOne({ email: normalizedEmail });
-        if (!user) {
-            return res.status(400).json({ message: 'No user found with this email' });
-        }
-
-        const token = crypto.randomBytes(20).toString('hex');
-        user.resetPasswordToken = token;
-        user.resetPasswordExpires = Date.now() + 3600000;
-        await user.save();
-
-        const resetLink = `${process.env.FRONTEND_URL || 'https://virtuosazm.com'}/pages/reset-password.html?token=${token}`;
-        
-        // Handle Free Tier limitation
-        if (isRenderFreeTier) {
-            console.log('📧 Render Free Tier detected - queuing password reset email for later delivery');
-            
-            // Queue the email for later sending
-            tempEmailStorage.add({
-                to: email,
-                subject: 'Virtuosa Password Reset',
-                html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; text-align: center;">
-                            <h1 style="color: white; margin: 0; font-size: 24px;">Virtuosa</h1>
-                            <p style="color: #f0f0f0; margin: 5px 0 0;">Zambia's Premier Student Marketplace</p>
-                        </div>
-                        <div style="background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                            <h2 style="color: #333; margin-top: 0;">Password Reset Request</h2>
-                            <p style="color: #666; line-height: 1.6;">You requested a password reset for your Virtuosa account.</p>
-                            <div style="text-align: center; margin: 30px 0;">
-                                <a href="${resetLink}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Reset Password</a>
-                            </div>
-                            <p style="color: #999; font-size: 14px;">This link will expire in 1 hour.</p>
-                            <p style="color: #999; font-size: 14px;">If you didn't request this, please ignore this email.</p>
-                        </div>
-                    </div>
-                `
-            });
-            
-            console.log('✅ Password reset email queued for later delivery');
-            res.json({ message: 'Password reset email queued for delivery' });
-            return;
-        }
-        
-        // Production tier - send email immediately using Brevo
-        try {
-            console.log(`📧 Sending password reset email using Brevo transporter to:`, normalizedEmail);
-            
-            const result = await productionTransporter.sendMail({
-                from: 'noreply@virtuosazm.com',
-                to: email,
-                subject: 'Virtuosa Password Reset',
-                html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; text-align: center;">
-                            <h1 style="color: white; margin: 0; font-size: 24px;">Virtuosa</h1>
-                            <p style="color: #f0f0f0; margin: 5px 0 0;">Zambia's Premier Student Marketplace</p>
-                        </div>
-                        <div style="background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                            <h2 style="color: #333; margin-top: 0;">Password Reset Request</h2>
-                            <p style="color: #666; line-height: 1.6;">You requested a password reset for your Virtuosa account.</p>
-                            <div style="text-align: center; margin: 30px 0;">
-                                <a href="${resetLink}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Reset Password</a>
-                            </div>
-                            <p style="color: #999; font-size: 14px;">This link will expire in 1 hour.</p>
-                            <p style="color: #999; font-size: 14px;">If you didn't request this, please ignore this email.</p>
-                        </div>
-                    </div>
-                `
-            });
-            
-            console.log('✅ Password reset email sent successfully to:', normalizedEmail);
-            res.json({ message: 'Password reset email sent' });
-        } catch (emailError) {
-            console.error('❌ Brevo transporter failed:', emailError);
-            
-            // Fallback: queue the email
-            tempEmailStorage.add({
-                to: email,
-                subject: 'Virtuosa Password Reset',
-                html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; text-align: center;">
-                            <h1 style="color: white; margin: 0; font-size: 24px;">Virtuosa</h1>
-                            <p style="color: #f0f0f0; margin: 5px 0 0;">Zambia's Premier Student Marketplace</p>
-                        </div>
-                        <div style="background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                            <h2 style="color: #333; margin-top: 0;">Password Reset Request</h2>
-                            <p style="color: #666; line-height: 1.6;">You requested a password reset for your Virtuosa account.</p>
-                            <div style="text-align: center; margin: 30px 0;">
-                                <a href="${resetLink}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Reset Password</a>
-                            </div>
-                            <p style="color: #999; font-size: 14px;">This link will expire in 1 hour.</p>
-                            <p style="color: #999; font-size: 14px;">If you didn't request this, please ignore this email.</p>
-                        </div>
-                    </div>
-                `
-            });
-            
-            console.log('📧 Password reset email queued due to transporter error');
-            res.json({ message: 'Password reset email queued for delivery' });
-        }
-    } catch (error) {
-        console.error('Forgot password error:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
-
 // Reset Password endpoint
 app.post('/api/auth/reset-password/:token', async (req, res) => {
     const { token } = req.params;
     const { password } = req.body;
 
-    if (!password) {
-        return res.status(400).json({ message: 'New password is required' });
+    console.log('🔍 RESET DEBUG - Token:', token);
+    console.log('🔍 RESET DEBUG - Password length:', password ? password.length : 'undefined');
+
+    if (!token || !password) {
+        return res.status(400).json({ message: 'Token and password are required' });
     }
 
     try {
+        console.log('🔍 RESET DEBUG - Looking for user with token...');
         const user = await User.findOne({
             resetPasswordToken: token,
             resetPasswordExpires: { $gt: Date.now() }
         });
 
         if (!user) {
+            console.log('❌ RESET DEBUG - User not found or token expired');
             return res.status(400).json({ message: 'Invalid or expired reset token' });
         }
 
-        user.password = await bcrypt.hash(password, 12);
+        console.log('✅ RESET DEBUG - User found:', user.email);
+        console.log('🔍 RESET DEBUG - Old password hash starts with:', user.password.substring(0, 10));
+
+        const newPasswordHash = await bcrypt.hash(password, 12);
+        console.log('🔍 RESET DEBUG - New password hash starts with:', newPasswordHash.substring(0, 10));
+
+        user.password = newPasswordHash;
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
+        
         await user.save();
+        console.log('✅ RESET DEBUG - Password updated successfully for:', user.email);
+        console.log('🔍 RESET DEBUG - New stored password hash starts with:', user.password.substring(0, 10));
 
         res.json({ message: 'Password reset successfully' });
     } catch (error) {
