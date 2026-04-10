@@ -957,7 +957,13 @@ function renderAuthComponent(type) {
     // Attach Event Listeners
     if (type === 'login') {
         document.getElementById('switch-to-signup')?.addEventListener('click', (e) => { e.preventDefault(); renderAuthComponent('signup'); });
-        document.getElementById('forgot-password-link')?.addEventListener('click', (e) => { e.preventDefault(); renderAuthComponent('forgot'); });
+        document.getElementById('forgot-password-link')?.addEventListener('click', (e) => { e.preventDefault(); 
+            if (typeof navigateToPage === 'function') {
+                navigateToPage('/pages/forgot-password.html');
+            } else {
+                window.location.href = '/pages/forgot-password.html';
+            }
+        });
         document.getElementById('login-form')?.addEventListener('submit', handleLogin);
     } else if (type === 'signup') {
         document.getElementById('switch-to-login')?.addEventListener('click', (e) => { e.preventDefault(); renderAuthComponent('login'); });

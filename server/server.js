@@ -2628,58 +2628,39 @@ app.get('/api/auth/verify-student/:token', async (req, res) => {
 
 // Login endpoint
 app.post('/api/auth/login', async (req, res) => {
-    console.log('🔍 DEBUG - Request body received:', req.body);
-    console.log('🔍 DEBUG - Content-Type header:', req.get('Content-Type'));
-    
-    // Use raw body if JSON parsing failed
-    let email, password;
-    
-    if (req.body && typeof req.body.email === 'undefined' && req.rawBody) {
-        try {
-            const parsedBody = JSON.parse(req.rawBody);
-            email = parsedBody.email;
-            password = parsedBody.password;
-            console.log('🔍 DEBUG - Using raw body for parsing');
-        } catch (e) {
-            console.log('❌ DEBUG - Raw body parsing failed:', e.message);
-        }
-    } else {
-        email = req.body.email;
-        password = req.body.password;
-    }
-    
-    console.log('🔍 DEBUG - Extracted email:', email, 'password:', password ? '[REDACTED]' : 'undefined');
-
-    if (!email || !password) {
-        console.log('❌ DEBUG - Missing email or password');
-        return res.status(400).json({ message: 'Email and password are required' });
-    }
-
-    // Normalize email to lowercase
-    const normalizedEmail = email.toLowerCase();
-
     try {
-        console.log('🔍 DEBUG - Final email:', JSON.stringify(email));
-        console.log('🔍 DEBUG - Normalized email:', JSON.stringify(normalizedEmail));
+        const { email, password } = req.body;
+
+        // Input validation
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+
+        // Basic email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Invalid email format' });
+        }
+
+        // Basic password validation
+        if (password.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+        }
+
+        // Normalize email to lowercase and trim whitespace
+        const normalizedEmail = email.toLowerCase().trim();
+        
         console.log('Login attempt for email:', normalizedEmail);
         
-        const user = await User.findOne({ 
-            $or: [
-                { email: normalizedEmail },
-                { email: { $regex: new RegExp('^' + normalizedEmail + '$', 'i') } }
-            ]
-        });
-        console.log('User query result:', user ? 'User found' : 'User not found');
+        // Simple, direct email lookup
+        const user = await User.findOne({ email: normalizedEmail });
         
         if (!user) {
             console.log('❌ Login failed - User not found for email:', normalizedEmail);
             return res.status(400).json({ message: 'Invalid email or password' });
         }
-
+        
         console.log('Attempting password comparison for user:', normalizedEmail);
-        console.log('Password hash length:', user.password.length);
-        console.log('Password hash starts with:', user.password.substring(0, 10));
-        console.log('Input password length:', password.length);
         
         let isMatch = await bcrypt.compare(password, user.password);
         
@@ -2687,28 +2668,13 @@ app.post('/api/auth/login', async (req, res) => {
         
         if (!isMatch) {
             console.log('Password comparison failed for user:', normalizedEmail);
-            console.log('Full password hash:', user.password);
-            console.log('Input password:', JSON.stringify(password));
-            console.log('Input password length:', password.length);
-            
-            // For debugging: let's try to hash the input password to see what happens
-            const testHash = await bcrypt.hash(password, 12);
-            console.log('Test hash of input password:', testHash.substring(0, 30) + '...');
-            
-            // Let's also try to verify the stored hash format
-            console.log('Stored hash format check:', {
-                startsWith2a: user.password.startsWith('$2a$'),
-                length: user.password.length,
-                expectedLength: 60
-            });
-            
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
         // Check if email is verified (handle missing fields gracefully)
         // For existing users without email verification fields, consider them verified
         // Special case: if the email is the same as EMAIL_USER, consider it verified
-        const isEmailVerified = user.isEmailVerified === undefined ? true : user.isEmailVerified;
+        const isEmailVerified = user.isEmailVerified === undefined ? true : Boolean(user.isEmailVerified);
         const isSystemEmail = normalizedEmail === process.env.EMAIL_USER?.toLowerCase();
         
         if (!isEmailVerified && !isSystemEmail) {

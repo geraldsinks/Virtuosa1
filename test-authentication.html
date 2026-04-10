@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuosa - Authentication Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #0A1128 0%, #060A18 100%);
+        }
+        .test-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .status-success { color: #10b981; }
+        .status-error { color: #ef4444; }
+        .status-pending { color: #f59e0b; }
+        .btn-test {
+            background: linear-gradient(135deg, #FFD700 0%, #C19A6B 100%);
+            color: #0A1128;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-test:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+        .log-entry {
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            padding: 0.5rem;
+            background: #f3f4f6;
+            border-radius: 0.25rem;
+            margin-bottom: 0.25rem;
+            border-left: 3px solid #3b82f6;
+        }
+        .log-entry.error {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        .log-entry.success {
+            border-left-color: #10b981;
+            background: #f0fdf4;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">Virtuosa Authentication Test</h1>
+            <p class="text-gray-300">Comprehensive testing of all authentication flows</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Test Controls -->
+            <div>
+                <div class="test-card">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">
+                        <i class="fas fa-flask mr-2"></i>Test Controls
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Test Email</label>
+                            <input type="email" id="testEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="test@example.com" value="test@unza.zm">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Test Password</label>
+                            <input type="password" id="testPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="password123" value="test123456">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="testSignup()" class="btn-test">
+                                <i class="fas fa-user-plus mr-2"></i>Test Signup
+                            </button>
+                            <button onclick="testLogin()" class="btn-test">
+                                <i class="fas fa-sign-in-alt mr-2"></i>Test Login
+                            </button>
+                            <button onclick="testForgotPassword()" class="btn-test">
+                                <i class="fas fa-key mr-2"></i>Test Forgot
+                            </button>
+                            <button onclick="testResendVerification()" class="btn-test">
+                                <i class="fas fa-envelope mr-2"></i>Resend Email
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-card">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">
+                        <i class="fas fa-cogs mr-2"></i>Configuration
+                    </h2>
+                    <div class="space-y-2 text-sm">
+                        <div><strong>API Base:</strong> <span id="apiBase">Loading...</span></div>
+                        <div><strong>Frontend URL:</strong> <span id="frontendUrl">Loading...</span></div>
+                        <div><strong>Environment:</strong> <span id="environment">Loading...</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Results -->
+            <div>
+                <div class="test-card">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">
+                        <i class="fas fa-clipboard-list mr-2"></i>Test Results
+                    </h2>
+                    <div id="testResults" class="space-y-2 max-h-96 overflow-y-auto">
+                        <div class="log-entry">Ready to run tests...</div>
+                    </div>
+                </div>
+
+                <div class="test-card">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">
+                        <i class="fas fa-tasks mr-2"></i>Test Status
+                    </h2>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span>Signup Flow</span>
+                            <span id="signupStatus" class="status-pending">Pending</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>Login Flow</span>
+                            <span id="loginStatus" class="status-pending">Pending</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>Forgot Password Flow</span>
+                            <span id="forgotStatus" class="status-pending">Pending</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>Email Verification</span>
+                            <span id="emailStatus" class="status-pending">Pending</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="test-card mt-6">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">
+                <i class="fas fa-link mr-2"></i>Quick Links
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <a href="/pages/login.html" class="btn-test text-center block">Login Page</a>
+                <a href="/pages/signup.html" class="btn-test text-center block">Signup Page</a>
+                <a href="/pages/forgot-password.html" class="btn-test text-center block">Forgot Password</a>
+                <a href="/pages/reset-password.html" class="btn-test text-center block">Reset Password</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = window.location.origin + '/api/auth';
+        
+        // Update configuration display
+        document.getElementById('apiBase').textContent = API_BASE;
+        document.getElementById('frontendUrl').textContent = window.location.origin;
+        document.getElementById('environment').textContent = window.location.hostname.includes('localhost') ? 'Development' : 'Production';
+
+        // Logging utility
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('testResults');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateStatus(testId, status) {
+            const element = document.getElementById(testId + 'Status');
+            element.className = `status-${status}`;
+            element.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        }
+
+        // Test functions
+        async function testSignup() {
+            log('Starting signup test...', 'info');
+            updateStatus('signup', 'pending');
+            
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fullName: 'Test User',
+                        email: email,
+                        password: password,
+                        university: 'University of Zambia',
+                        phoneNumber: '+260977123456',
+                        studentEmail: email,
+                        gender: 'Prefer not to say',
+                        agreedToTerms: true
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Signup successful: ${result.message}`, 'success');
+                    updateStatus('signup', 'success');
+                } else {
+                    log(`❌ Signup failed: ${result.message}`, 'error');
+                    updateStatus('signup', 'error');
+                }
+            } catch (error) {
+                log(`❌ Signup error: ${error.message}`, 'error');
+                updateStatus('signup', 'error');
+            }
+        }
+
+        async function testLogin() {
+            log('Starting login test...', 'info');
+            updateStatus('login', 'pending');
+            
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Login successful: User ${result.user.email} logged in`, 'success');
+                    updateStatus('login', 'success');
+                    
+                    // Store token for future tests
+                    localStorage.setItem('testToken', result.token);
+                } else {
+                    log(`❌ Login failed: ${result.message}`, 'error');
+                    updateStatus('login', 'error');
+                }
+            } catch (error) {
+                log(`❌ Login error: ${error.message}`, 'error');
+                updateStatus('login', 'error');
+            }
+        }
+
+        async function testForgotPassword() {
+            log('Starting forgot password test...', 'info');
+            updateStatus('forgot', 'pending');
+            
+            const email = document.getElementById('testEmail').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Forgot password successful: ${result.message}`, 'success');
+                    updateStatus('forgot', 'success');
+                } else {
+                    log(`❌ Forgot password failed: ${result.message}`, 'error');
+                    updateStatus('forgot', 'error');
+                }
+            } catch (error) {
+                log(`❌ Forgot password error: ${error.message}`, 'error');
+                updateStatus('forgot', 'error');
+            }
+        }
+
+        async function testResendVerification() {
+            log('Starting resend verification test...', 'info');
+            updateStatus('email', 'pending');
+            
+            const email = document.getElementById('testEmail').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/resend-verification`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Resend verification successful: ${result.message}`, 'success');
+                    updateStatus('email', 'success');
+                } else {
+                    log(`❌ Resend verification failed: ${result.message}`, 'error');
+                    updateStatus('email', 'error');
+                }
+            } catch (error) {
+                log(`❌ Resend verification error: ${error.message}`, 'error');
+                updateStatus('email', 'error');
+            }
+        }
+
+        // Run all tests
+        async function runAllTests() {
+            log('Starting comprehensive authentication test suite...', 'info');
+            
+            await testSignup();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testLogin();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testForgotPassword();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testResendVerification();
+            
+            log('Test suite completed!', 'success');
+        }
+
+        // Initialize
+        log('Authentication test page loaded successfully', 'success');
+    </script>
+</body>
+</html>
