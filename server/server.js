@@ -3329,11 +3329,14 @@ app.post('/api/auth/reset-password/:token', async (req, res) => {
         const testComparison = await bcrypt.compare(password, newPasswordHash);
         console.log('🔍 RESET DEBUG - Immediate hash comparison test:', testComparison);
 
-        user.password = newPasswordHash;
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpires = undefined;
-        
-        await user.save();
+        // Use updateOne to bypass Mongoose middleware that causes uppercase conversion
+        await User.updateOne(
+            { _id: user._id },
+            { 
+                $set: { password: newPasswordHash },
+                $unset: { resetPasswordToken: 1, resetPasswordExpires: 1 } 
+            }
+        );
         console.log('✅ RESET DEBUG - Password updated successfully for:', user.email);
         console.log('🔍 RESET DEBUG - New stored password hash starts with:', user.password.substring(0, 10));
         
