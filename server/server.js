@@ -2716,6 +2716,23 @@ app.post('/api/auth/login', async (req, res) => {
             } catch (e) {
                 console.log('Manual test failed:', e.message);
             }
+            
+            // Test bcrypt functionality with known values
+            try {
+                const testPassword = '123456879';
+                const knownHash = '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj6QJw/2Ej7W'; // Hash of '123456879'
+                const knownTest = await bcrypt.compare(testPassword, knownHash);
+                console.log('Known hash test:', knownTest);
+                
+                // Create fresh hash and test
+                const freshHash = await bcrypt.hash(testPassword, 12);
+                const freshTest = await bcrypt.compare(testPassword, freshHash);
+                console.log('Fresh hash test:', freshTest);
+                console.log('Fresh hash:', freshHash);
+                
+            } catch (e) {
+                console.log('Bcrypt functionality test failed:', e.message);
+            }
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
@@ -3170,6 +3187,12 @@ app.post('/api/auth/reset-password/:token', async (req, res) => {
 
         const newPasswordHash = await bcrypt.hash(password, 12);
         console.log('🔍 RESET DEBUG - New password hash starts with:', newPasswordHash.substring(0, 10));
+        console.log('🔍 RESET DEBUG - Original password being hashed:', JSON.stringify(password));
+        console.log('🔍 RESET DEBUG - Password chars being hashed:', Array.from(password).map(c => `${c}(${c.charCodeAt(0)})`));
+        
+        // Test the hash immediately
+        const testComparison = await bcrypt.compare(password, newPasswordHash);
+        console.log('🔍 RESET DEBUG - Immediate hash comparison test:', testComparison);
 
         user.password = newPasswordHash;
         user.resetPasswordToken = undefined;
@@ -3178,6 +3201,10 @@ app.post('/api/auth/reset-password/:token', async (req, res) => {
         await user.save();
         console.log('✅ RESET DEBUG - Password updated successfully for:', user.email);
         console.log('🔍 RESET DEBUG - New stored password hash starts with:', user.password.substring(0, 10));
+        
+        // Test after save
+        const afterSaveComparison = await bcrypt.compare(password, user.password);
+        console.log('🔍 RESET DEBUG - After save comparison test:', afterSaveComparison);
 
         res.json({ message: 'Password reset successfully' });
     } catch (error) {
