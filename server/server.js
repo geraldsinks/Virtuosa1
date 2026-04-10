@@ -60,13 +60,7 @@ const fs = require('fs');
 const http = require('http');
 const socketIo = require('socket.io');
 const cloudinary = require('./config/cloudinary');
-let CloudinaryStorage;
-try {
-  CloudinaryStorage = require('multer-storage-cloudinary');
-} catch (error) {
-  console.error('Failed to load CloudinaryStorage:', error.message);
-  CloudinaryStorage = null;
-}
+const CloudinaryStorage = require('multer-storage-cloudinary');
 const NotificationService = require('./services/notificationService');
 const webpush = require('web-push');
 const { checkRoleAccess, checkAnyRoleAccess, getUserRoleInfo, isAdmin, checkDashboardAccess } = require('./middleware/roleBasedAccess');
@@ -77,25 +71,6 @@ const SellerApplication = require('./models/SellerApplication');
 // AdSlider, CategoryCard, and Promotion models defined inline
 require('dotenv').config({ path: path.join(__dirname, 'config/.env') });
 
-// Ensure uploads directories exist on startup
-// Check if we're on Render and use persistent disk path
-const isRender = process.env.RENDER === 'true';
-const basePath = isRender ? '/opt/render/project/src/server' : __dirname;
-
-console.log('🚀 Server starting...');
-console.log('📍 Environment:', isRender ? 'Render' : 'Local');
-console.log('📁 Base path:', basePath);
-
-const uploadDirs = ['uploads', 'uploads/products', 'uploads/marketing', 'uploads/profiles', 'uploads/messages', 'uploads/support'];
-uploadDirs.forEach(dir => {
-    const fullPath = path.join(basePath, dir);
-    if (!fs.existsSync(fullPath)) {
-        fs.mkdirSync(fullPath, { recursive: true });
-        console.log(`Created directory: ${fullPath}`);
-    } else {
-        console.log(`Directory exists: ${fullPath}`);
-    }
-});
 
 const app = express();
 
@@ -152,13 +127,6 @@ app.get('/products/:category', (req, res) => {
     // Serve the products.html page for clean URLs with category
     res.sendFile(path.join(__dirname, '../client/pages/products.html'));
 });
-
-// Serve uploaded files (fallback when Cloudinary is not available)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
-  maxAge: process.env.NODE_ENV === 'production' ? '7d' : '0',
-  etag: true,
-  lastModified: true
-}));
 
 // Apply compression to static assets
 app.use(express.static(path.join(__dirname, '../client'), {
@@ -348,41 +316,14 @@ app.get('/api/user/role-info', authenticateToken, async (req, res) => {
 });
 
 // Configure Multer for product image uploads using Cloudinary
-let productStorage;
-if (CloudinaryStorage) {
-  productStorage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-      folder: 'virtuosa/products',
-      allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-      transformation: [{ width: 1200, height: 1200, crop: 'limit' }]
-    }
-  });
-} else {
-  // Fallback to local disk storage when Cloudinary is not available
-  const fs = require('fs');
-  const uploadsDir = path.join(__dirname, '../uploads');
-  
-  // Create uploads directory if it doesn't exist
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+const productStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'virtuosa/products',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    transformation: [{ width: 1200, height: 1200, crop: 'limit' }]
   }
-  
-  productStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      const productUploadDir = path.join(uploadsDir, 'products');
-      if (!fs.existsSync(productUploadDir)) {
-        fs.mkdirSync(productUploadDir, { recursive: true });
-      }
-      cb(null, productUploadDir);
-    },
-    filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-  });
-  console.log('Using local disk storage for product uploads (Cloudinary not available)');
-}
+});
 
 const upload = multer({
   storage: productStorage,
@@ -1251,40 +1192,14 @@ mongoose.connection.on('error', (err) => {
 });
 
 // Configure Multer for marketing assets using Cloudinary
-let marketingStorage;
-if (CloudinaryStorage) {
-  marketingStorage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-      folder: 'virtuosa/marketing',
-      allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'webm'],
-      resource_type: 'auto'
-    }
-  });
-} else {
-  // Fallback to local disk storage when Cloudinary is not available
-  const fs = require('fs');
-  const uploadsDir = path.join(__dirname, '../uploads');
-  
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+const marketingStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'virtuosa/marketing',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'webm'],
+    resource_type: 'auto'
   }
-  
-  marketingStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      const marketingUploadDir = path.join(uploadsDir, 'marketing');
-      if (!fs.existsSync(marketingUploadDir)) {
-        fs.mkdirSync(marketingUploadDir, { recursive: true });
-      }
-      cb(null, marketingUploadDir);
-    },
-    filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-  });
-  console.log('Using local disk storage for marketing uploads (Cloudinary not available)');
-}
+});
 
 const marketingUpload = multer({
   storage: marketingStorage,
@@ -1301,40 +1216,14 @@ const marketingUpload = multer({
 });
 
 // Configure Multer for profile picture uploads using Cloudinary
-let profilePictureStorage;
-if (CloudinaryStorage) {
-  profilePictureStorage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-      folder: 'virtuosa/profiles',
-      allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-      transformation: [{ width: 400, height: 400, crop: 'limit' }]
-    }
-  });
-} else {
-  // Fallback to local disk storage when Cloudinary is not available
-  const fs = require('fs');
-  const uploadsDir = path.join(__dirname, '../uploads');
-  
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+const profilePictureStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'virtuosa/profiles',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    transformation: [{ width: 400, height: 400, crop: 'limit' }]
   }
-  
-  profilePictureStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      const profileUploadDir = path.join(uploadsDir, 'profiles');
-      if (!fs.existsSync(profileUploadDir)) {
-        fs.mkdirSync(profileUploadDir, { recursive: true });
-      }
-      cb(null, profileUploadDir);
-    },
-    filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-  });
-  console.log('Using local disk storage for profile uploads (Cloudinary not available)');
-}
+});
 
 const profilePictureUpload = multer({
   storage: profilePictureStorage,

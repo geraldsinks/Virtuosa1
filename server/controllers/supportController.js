@@ -1,44 +1,17 @@
 const SupportTicket = require('../models/SupportTicket');
+const cloudinary = require('cloudinary').v2;
+const cloudinaryStorage = require('multer-storage-cloudinary');
 const multer = require('multer');
-const path = require('path');
 
-// Try to load Cloudinary, fallback to local storage if it fails
-let cloudinary, cloudinaryStorage, storage;
-
-try {
-    cloudinary = require('cloudinary').v2;
-    cloudinaryStorage = require('multer-storage-cloudinary');
-    
-    // Configure Cloudinary storage for support attachments
-    storage = cloudinaryStorage({
-        cloudinary: cloudinary,
-        params: {
-            folder: 'support-attachments',
-            allowed_formats: ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'],
-            public_id: (req, file) => `support-${Date.now()}-${file.originalname}`
-        }
-    });
-    console.log('Support attachments using Cloudinary storage');
-} catch (error) {
-    console.log('Cloudinary not available, using local storage for support attachments');
-    
-    // Fallback to local disk storage
-    const fs = require('fs');
-    const uploadsDir = path.join(__dirname, '../uploads/support');
-    
-    // Create uploads directory if it doesn't exist
-    if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
+// Configure Cloudinary storage for support attachments
+const storage = cloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'support-attachments',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'],
+        public_id: (req, file) => `support-${Date.now()}-${file.originalname}`
     }
-    
-    storage = multer.diskStorage({
-        destination: uploadsDir,
-        filename: (req, file, cb) => {
-            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-            cb(null, `support-${uniqueSuffix}${path.extname(file.originalname)}`);
-        }
-    });
-}
+});
 const upload = multer({ storage });
 
 const createTicket = async (req, res) => {
