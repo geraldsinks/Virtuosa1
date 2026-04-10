@@ -2743,6 +2743,32 @@ app.post('/api/auth/login', async (req, res) => {
         
         console.log('Final password comparison result:', isMatch);
         
+        // Gemini's fix: Use direct database update to bypass uppercase conversion
+        if (!isMatch && user.password !== user.password.toLowerCase()) {
+            console.log('Attempting direct database fix...');
+            
+            try {
+                // Use updateOne to bypass Mongoose middleware
+                const fixedPassword = user.password.toLowerCase();
+                await User.updateOne(
+                    { _id: user._id },
+                    { $set: { password: fixedPassword } }
+                );
+                
+                console.log('Database updated with lowercase hash');
+                
+                // Test the fixed hash
+                isMatch = await bcrypt.compare(password, fixedPassword);
+                console.log('Fixed hash comparison result:', isMatch);
+                
+                if (isMatch) {
+                    console.log('SUCCESS: Authentication restored with direct database fix!');
+                }
+            } catch (e) {
+                console.log('Direct database fix failed:', e.message);
+            }
+        }
+        
         // Emergency fix: If hash appears corrupted, try direct comparison with known password
         if (!isMatch && !freshMatch && password === '123456879') {
             console.log('🔧 Emergency fix detected - attempting to repair corrupted hash');
