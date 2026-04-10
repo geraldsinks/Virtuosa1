@@ -6126,11 +6126,13 @@ app.post('/api/seller/apply', authenticateToken, async (req, res) => {
 
         // Create notification
         const notification = new Notification({
-            user: user._id,
+            recipient: user._id,
             title: 'Seller Application Submitted',
             message: 'Your seller application has been submitted and is under review. We will notify you once it has been reviewed.',
-            type: 'System',
-            link: '/pages/seller-verification.html'
+            type: 'system',
+            data: {
+                actionUrl: '/pages/seller-verification.html'
+            }
         });
         await notification.save();
 
@@ -6277,11 +6279,13 @@ app.post('/api/admin/seller-applications/:id/approve', authenticateAdmin, async 
             // Create notification
             try {
                 const notification = new Notification({
-                    user: user._id,
+                    recipient: user._id,
                     title: 'Seller Application Approved! \ud83c\udf89',
                     message: 'Congratulations! Your seller application has been approved. You can now start listing items for sale.',
-                    type: 'Account',
-                    link: '/pages/seller-dashboard.html'
+                    type: 'account_verified',
+                    data: {
+                        actionUrl: '/pages/seller-dashboard.html'
+                    }
                 });
                 await notification.save();
                 console.log('Notification created successfully');
@@ -6324,11 +6328,13 @@ app.post('/api/admin/applications/:id/approve', authenticateAdmin, async (req, r
         await user.save();
 
         const notification = new Notification({
-            user: user._id,
+            recipient: user._id,
             title: 'Seller Application Approved! 🎉',
             message: 'Congratulations! Your seller application has been approved. You can now list items on Virtuosa.',
-            type: 'Account',
-            link: '/pages/seller-verification.html'
+            type: 'account_verified',
+            data: {
+                actionUrl: '/pages/seller-verification.html'
+            }
         });
         await notification.save();
 
@@ -6400,11 +6406,13 @@ app.post('/api/admin/seller-applications/:id/reject', authenticateAdmin, async (
             // Create notification
             try {
                 const notification = new Notification({
-                    user: user._id,
+                    recipient: user._id,
                     title: 'Seller Application Update',
                     message: `Your seller application was not approved. Reason: ${reason}. You may update your information and reapply.`,
-                    type: 'Account',
-                    link: '/pages/seller.html'
+                    type: 'system',
+                    data: {
+                        actionUrl: '/pages/seller.html'
+                    }
                 });
                 await notification.save();
                 console.log('Notification created successfully');
@@ -6583,10 +6591,10 @@ app.post('/api/admin/account-deletion-requests/:id/reject', authenticateToken, c
             const user = await User.findById(deletionRequest.user).session(session);
             if (user) {
                 const notification = new Notification({
-                    user: user._id,
+                    recipient: user._id,
                     title: 'Account Deletion Request Rejected',
                     message: 'Your account deletion request has been reviewed and rejected. If you have questions, please contact support.',
-                    type: 'Account'
+                    type: 'system'
                 });
                 await notification.save({ session });
             }
@@ -8700,11 +8708,15 @@ app.post('/api/checkout', authenticateToken, async (req, res) => {
 
             // Create notification for seller
             await new Notification({
-                user: cartItem.product.seller,
+                recipient: cartItem.product.seller,
+                type: 'new_order',
                 title: 'New Order Received',
                 message: `You have a new order for ${cartItem.quantity}x ${cartItem.product.name}`,
-                type: 'Transaction',
-                link: `/seller-dashboard.html?tab=orders`
+                data: {
+                    orderId: order._id,
+                    productId: cartItem.product._id,
+                    actionUrl: `/seller-dashboard.html?tab=orders`
+                }
             }).save();
         }
 
@@ -8713,11 +8725,14 @@ app.post('/api/checkout', authenticateToken, async (req, res) => {
 
         // Create notification for buyer
         await new Notification({
-            user: req.user.userId,
+            recipient: req.user.userId,
+            type: 'order_confirmed',
             title: 'Order Placed Successfully',
             message: `Your order for ${transactions.length} items has been placed successfully`,
-            type: 'Transaction',
-            link: `/orders.html`
+            data: {
+                orderId: order._id,
+                actionUrl: `/orders.html`
+            }
         }).save();
 
         res.json({
@@ -9249,11 +9264,13 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
             : `Order status updated to ${status}`;
 
         await new Notification({
-            user: notificationRecipient,
+            recipient: notificationRecipient,
             title: notificationTitle,
             message: notificationMessage,
-            type: 'Transaction',
-            link: `/orders.html`
+            type: isBuyer ? 'delivery_confirmed' : 'order_shipped',
+            data: {
+                actionUrl: `/orders.html`
+            }
         }).save();
 
         // Award 5 tokens to seller if buyer confirmed delivery (order completed) handled above in consolidated logic
