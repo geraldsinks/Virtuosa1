@@ -71,6 +71,11 @@ const SellerApplication = require('./models/SellerApplication');
 // AdSlider, CategoryCard, and Promotion models defined inline
 require('dotenv').config({ path: path.join(__dirname, 'config/.env') });
 
+// Environment and path configuration
+const isRender = process.env.RENDER === 'true' || !!process.env.RENDER;
+const basePath = __dirname;
+
+
 
 const app = express();
 
