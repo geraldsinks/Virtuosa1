@@ -131,7 +131,7 @@
     <script>
         window.onPageReady(async () => {
 
-            const API_BASE = 'https://api.virtuosazm.com/api';
+            const API_BASE = window.API_BASE || 'https://api.virtuosazm.com/api';
             const token = localStorage.getItem('token');
             
             if (!token) {
@@ -141,27 +141,35 @@
 
             // Check seller access
             try {
-                const response = await fetch(`${API_BASE}/user/profile`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Not authorized');
+                let user;
+                if (window.authManager) {
+                    user = await window.authManager.getUserData();
+                } else {
+                    const response = await fetch(`${API_BASE}/user/profile`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (!response.ok) throw new Error('Not authorized');
+                    user = await response.json();
                 }
 
-                const user = await response.json();
-                if (!user.isSeller) {
+                if (!user || (!user.isSeller && !user.isAdmin)) {
                     alert('Access denied. Seller privileges required.');
                     window.location.href = '/dashboard';
                     return;
                 }
 
-                // Update user greeting
-                document.getElementById('user-greeting').textContent = `Hello, ${user.fullName}`;
+                // Update user greeting if element exists
+                const greetingEl = document.getElementById('user-greeting');
+                if (greetingEl) {
+                    greetingEl.textContent = `Hello, ${user.fullName || user.email}`;
+                }
             } catch (error) {
                 console.error('Seller check failed:', error);
-                window.location.href = '/login';
-                return;
+                // Only redirect if it's truly an auth error, not a network error
+                if (error.message === 'Not authorized' || error.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
             }
 
             let currentPage = 1;

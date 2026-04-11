@@ -213,7 +213,7 @@
     <script>
         window.onPageReady(async () => {
 
-            const API_BASE = 'https://api.virtuosazm.com/api';
+            const API_BASE = window.API_BASE || 'https://api.virtuosazm.com/api';
             const loginLink = document.getElementById('login-link');
             const userGreeting = document.getElementById('user-greeting');
             
