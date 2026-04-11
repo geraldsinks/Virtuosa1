@@ -133,6 +133,99 @@ app.get('/products/:category', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/pages/products.html'));
 });
 
+// New Clean URL Routes
+app.get('/create-product', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/create-product.html'));
+});
+
+app.get('/edit-product/:id', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/edit-product.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/buyer-dashboard.html'));
+});
+
+app.get('/seller-dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/seller-dashboard.html'));
+});
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/admin-dashboard.html'));
+});
+
+app.get('/cart', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/cart.html'));
+});
+
+app.get('/orders', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/orders.html'));
+});
+
+app.get('/messages', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/messages.html'));
+});
+
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/profile.html'));
+});
+
+app.get('/settings', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/settings.html'));
+});
+
+app.get('/notifications', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/notifications.html'));
+});
+
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/login.html'));
+});
+
+app.get('/signup', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/signup.html'));
+});
+
+app.get('/my-products', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/my-products.html'));
+});
+
+app.get('/seller-verification', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/seller-verification.html'));
+});
+
+app.get('/transactions', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/transactions.html'));
+});
+
+app.get('/seller', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/seller.html'));
+});
+
+app.get('/order/:id', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/order-details.html'));
+});
+
+app.get('/about', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/about.html'));
+});
+
+app.get('/contact', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/contact-support.html'));
+});
+
+app.get('/faq', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/faq.html'));
+});
+
+app.get('/terms', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/terms.html'));
+});
+
+app.get('/privacy', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/privacy.html'));
+});
+
 // Apply compression to static assets
 app.use(express.static(path.join(__dirname, '../client'), {
   maxAge: process.env.NODE_ENV === 'production' ? '1d' : '0',
@@ -4708,12 +4801,12 @@ app.get('/api/notifications/unread-count', authenticateToken, async (req, res) =
     try {
         const unreadCount = await Notification.countDocuments({
             recipient: req.user.userId,
-            read: false
+            status: 'unread'
         });
-        res.json({ unreadCount });
+        res.json({ count: unreadCount });
     } catch (error) {
         console.error('Unread notifications count error:', error);
-        res.json({ unreadCount: 0 });
+        res.json({ count: 0 });
     }
 });
 

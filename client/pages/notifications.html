@@ -78,7 +78,12 @@
     <!-- Mobile Navigation Menu Overlay -->
     <main class="flex-grow py-8 px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl mx-auto">
-            <h1 class="text-3xl font-bold text-gray-900 mb-6">Notifications</h1>
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-900">Notifications</h1>
+                <button onclick="notificationManager.markAllAsRead()" class="text-sm bg-navy text-white px-4 py-2 rounded-lg hover:bg-dark-navy transition-colors">
+                    <i class="fas fa-check-double mr-2"></i>Mark All as Read
+                </button>
+            </div>
 
             <div id="notifications-container" class="bg-white shadow rounded-lg overflow-hidden">
                 <!-- Notifications list will be populated here -->

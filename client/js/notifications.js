@@ -344,7 +344,7 @@ class NotificationManager {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${this.token}`
                 },
-                body: JSON.stringify(subscription)
+                body: JSON.stringify({ subscription })
             });
         } catch (error) {
             console.error('Failed to send push subscription:', error);
@@ -640,12 +640,12 @@ class NotificationManager {
     }
 
     updateNotificationCounts(counts) {
-        this.unreadCount = counts.unread || 0;
+        this.unreadCount = counts.unreadCount || counts.unread || counts.count || 0;
         this.updateHeaderBadge(this.unreadCount);
     }
 
     updateHeaderBadge(unreadCount) {
-        const badges = document.querySelectorAll('.notification-badge, #notification-badge-count, #mobile-notification-badge');
+        const badges = document.querySelectorAll('.notification-badge, #notification-badge, #notification-badge-count, #mobile-notification-badge');
         badges.forEach(badge => {
             if (unreadCount > 0) {
                 badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
@@ -653,6 +653,7 @@ class NotificationManager {
                 badge.classList.add('animate-pulse');
                 setTimeout(() => badge.classList.remove('animate-pulse'), 2000);
             } else {
+                badge.textContent = '0';
                 badge.classList.add('hidden');
             }
         });
