@@ -537,7 +537,7 @@ class NotificationManager {
         this.loadNotificationCounts();
         
         // Show toast if not on notifications page
-        if (window.location.pathname !== '/pages/notifications.html') {
+        if (window.location.pathname !== '/notifications') {
             this.showNotificationToast(notification);
         }
 
@@ -553,7 +553,7 @@ class NotificationManager {
     handleOrderUpdate(data) {
         this.loadNotificationCounts();
         
-        if (window.location.pathname !== '/pages/notifications.html') {
+        if (window.location.pathname !== '/notifications') {
             this.showOrderUpdateToast(data);
         }
 
