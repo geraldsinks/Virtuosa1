@@ -9235,6 +9235,21 @@ app.post('/api/orders/:orderId/decline', authenticateToken, async (req, res) => 
 // Update order status (for delivery confirmation and seller actions)
 app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
     try {
+        const { orderId } = req.params;
+        const { status, trackingNumber, deliveryNotes } = req.body;
+
+        const order = await Transaction.findById(orderId)
+            .populate('buyer', 'fullName email phoneNumber')
+            .populate('seller', 'fullName email phoneNumber')
+            .populate('product', 'name price');
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const isBuyer = order.buyer._id.toString() === req.user.userId;
+        const isSeller = order.seller._id.toString() === req.user.userId;
+
         // Validate status transitions based on user role and cash on delivery flow
         if (isBuyer) {
             // Buyer confirms delivery - move to completed

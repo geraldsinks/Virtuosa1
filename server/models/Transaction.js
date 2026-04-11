@@ -405,7 +405,9 @@ const transactionSchema = new mongoose.Schema({
         maxRetries: { type: Number, default: 3 }
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
 // Indexes for better performance

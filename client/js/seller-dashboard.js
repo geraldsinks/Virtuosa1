@@ -404,7 +404,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
                 <div class="text-right">
-                    <p class="font-bold text-navy">ZMW ${transaction.totalAmount}</p>
+                    <p class="font-bold text-navy">ZMW ${transaction.totalAmount || transaction.amount || 0}</p>
                     <span class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${getStatusColor(transaction.status)}">
                         ${transaction.status}
                     </span>

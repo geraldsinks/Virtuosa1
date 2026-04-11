@@ -226,7 +226,7 @@ function renderOrders(orders) {
                     </div>
                     <div>
                         <p class="text-sm text-gray-500">Total</p>
-                        <p class="font-medium">K${order.totalAmount || order.total || 0}</p>
+                        <p class="font-medium">K${order.totalAmount || order.amount || order.total || 0}</p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-500">Quantity</p>

@@ -246,7 +246,7 @@ class OrderDetailsManager {
     updatePriceBreakdown() {
         const productPrice = this.order.product?.price || 0;
         const deliveryFee = this.order.deliveryFee || 0;
-        const totalAmount = this.order.totalAmount || (productPrice + deliveryFee);
+        const totalAmount = this.order.totalAmount || this.order.amount || (productPrice + deliveryFee);
         const commissionAmount = this.order.commissionAmount || (totalAmount * 0.06);
 
         // Update price breakdown
