@@ -436,10 +436,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                         Ship
                     </button>
                 `;
+            case 'Shipped':
+                return `
                     <button onclick="updateOrderStatus('${transaction._id}', 'delivered_pending_confirmation')" 
                         class="text-[10px] px-2 py-1 bg-blue-600 text-white rounded font-bold hover:bg-blue-700 transition-colors uppercase">
                         Delivered
                     </button>
+                `;
             case 'delivered_pending_confirmation':
             case 'delivered':
             case 'Delivered':
