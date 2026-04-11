@@ -79,14 +79,14 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-3">
-                    <button onclick="window.location.href='create-product.html'"
+                    <a href="/create-product"
                         class="bg-gold text-navy px-6 py-2 rounded-lg font-semibold hover:bg-yellow-400 transition-colors flex items-center">
                         <i data-lucide="plus" class="w-4 h-4 mr-2"></i>Add Product
-                    </button>
-                    <button onclick="window.location.href='my-products.html'"
+                    </a>
+                    <a href="/my-products"
                         class="bg-navy text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center">
                         <i data-lucide="package" class="w-4 h-4 mr-2"></i>My Products
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -105,10 +105,10 @@
                             full seller benefits and gain trust from buyers.</p>
                     </div>
                 </div>
-                <button onclick="window.location.href='seller-verification.html'"
+                <a href="/seller-verification"
                     class="bg-white text-orange-600 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition-colors shadow-lg whitespace-nowrap">
                     Verify Now
-                </button>
+                </a>
             </div>
         </div>
 
@@ -218,8 +218,8 @@
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-xl font-bold text-navy">Recent Orders</h2>
-                        <button onclick="window.location.href='seller-orders.html'"
-                            class="text-sm text-gold font-semibold hover:underline">View All Orders</button>
+                        <a href="/seller-orders"
+                            class="text-sm text-gold font-semibold hover:underline">View All Orders</a>
                     </div>
                     <div id="recent-transactions" class="space-y-4">
                         <!-- Transactions will be loaded here -->
@@ -234,8 +234,8 @@
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-xl font-bold text-navy">Active Listings</h2>
-                        <button onclick="window.location.href='create-product.html'"
-                            class="text-sm text-gold font-semibold hover:underline">+ New Listing</button>
+                        <a href="/create-product"
+                            class="text-sm text-gold font-semibold hover:underline">+ New Listing</a>
                     </div>
                     <div id="active-listings-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Products will be loaded here -->
@@ -300,34 +300,34 @@
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <h2 class="text-xl font-bold text-navy mb-6">Quick Actions</h2>
                     <div class="grid grid-cols-2 gap-4">
-                        <button onclick="window.location.href='create-product.html'"
+                        <a href="/create-product"
                             class="flex flex-col items-center justify-center p-4 rounded-xl bg-gray-50 hover:bg-orange-50 hover:text-orange-600 transition-all border border-transparent hover:border-orange-100 group">
                             <div class="bg-white p-3 rounded-lg shadow-sm mb-2 group-hover:shadow-md transition-shadow">
                                 <i data-lucide="plus-circle" class="w-6 h-6 text-gold"></i>
                             </div>
                             <span class="text-sm font-semibold">New Listing</span>
-                        </button>
-                        <button onclick="window.location.href='transactions.html?type=selling'"
+                        </a>
+                        <a href="/messages"
                             class="flex flex-col items-center justify-center p-4 rounded-xl bg-gray-50 hover:bg-blue-50 hover:text-blue-600 transition-all border border-transparent hover:border-blue-100 group">
                             <div class="bg-white p-3 rounded-lg shadow-sm mb-2 group-hover:shadow-md transition-shadow">
                                 <i data-lucide="message-square" class="w-6 h-6 text-blue-500"></i>
                             </div>
                             <span class="text-sm font-semibold">Messages</span>
-                        </button>
-                        <button onclick="window.location.href='profile.html'"
+                        </a>
+                        <a href="/profile"
                             class="flex flex-col items-center justify-center p-4 rounded-xl bg-gray-50 hover:bg-purple-50 hover:text-purple-600 transition-all border border-transparent hover:border-purple-100 group">
                             <div class="bg-white p-3 rounded-lg shadow-sm mb-2 group-hover:shadow-md transition-shadow">
                                 <i data-lucide="user" class="w-6 h-6 text-purple-500"></i>
                             </div>
                             <span class="text-sm font-semibold">Profile</span>
-                        </button>
-                        <button onclick="window.location.href='/pages/seller-analytics.html'"
+                        </a>
+                        <a href="/seller-analytics"
                             class="flex flex-col items-center justify-center p-4 rounded-xl bg-gray-50 hover:bg-green-50 hover:text-green-600 transition-all border border-transparent hover:border-green-100 group">
                             <div class="bg-white p-3 rounded-lg shadow-sm mb-2 group-hover:shadow-md transition-shadow">
                                 <i data-lucide="bar-chart-3" class="w-6 h-6 text-green-500"></i>
                             </div>
                             <span class="text-sm font-semibold">Analytics</span>
-                        </button>
+                        </a>
                     </div>
                 </div>
 
@@ -352,8 +352,8 @@
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-xl font-bold text-navy">Top Reviews</h2>
-                        <button onclick="window.location.href='reviews.html'"
-                            class="text-sm text-gold font-semibold hover:underline">View All</button>
+                        <a href="/reviews"
+                            class="text-sm text-gold font-semibold hover:underline">View All</a>
                     </div>
                     <div id="recent-reviews" class="space-y-4">
                         <!-- Reviews will be loaded here -->

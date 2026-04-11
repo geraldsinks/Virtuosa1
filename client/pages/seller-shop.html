@@ -124,11 +124,11 @@
                     <h3 class="text-2xl md:text-3xl font-bold text-navy mb-3">Explore More Products</h3>
                     <p class="text-gray-600 text-lg mb-6 leading-relaxed">Discover thousands of unique items from our diverse seller community across all categories</p>
                     <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                        <a href="../index.html" class="bg-navy text-white px-8 py-4 rounded-xl font-semibold hover:bg-opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-3">
+                        <a href="/" class="bg-navy text-white px-8 py-4 rounded-xl font-semibold hover:bg-opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-3">
                             <i data-lucide="store" class="w-5 h-5"></i>
                             Visit Marketplace
                         </a>
-                        <a href="products.html" class="bg-white text-navy border-2 border-navy px-8 py-4 rounded-xl font-semibold hover:bg-navy hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-3">
+                        <a href="/products" class="bg-white text-navy border-2 border-navy px-8 py-4 rounded-xl font-semibold hover:bg-navy hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-3">
                             <i data-lucide="grid-3x3" class="w-5 h-5"></i>
                             Browse Products
                         </a>
@@ -182,7 +182,7 @@
             const identifier = shopSlug || pathShopSlug || sellerId;
 
             if (!identifier) {
-                window.location.href = 'products.html';
+                window.location.href = '/products';
                 return;
             }
 
@@ -224,16 +224,16 @@
                 document.getElementById('message-seller-btn').onclick = () => {
                     const token = localStorage.getItem('token');
                     if (!token) {
-                        window.location.href = 'login.html';
+                        window.location.href = '/login';
                         return;
                     }
-                    window.location.href = `messages.html?recipientId=${seller.id}`;
+                    window.location.href = `/messages?recipientId=${seller.id}`;
                 };
 
                 const container = document.getElementById('seller-products');
                 if (products.length > 0) {
                     container.innerHTML = products.map(product => `
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all hover:-translate-y-1 group cursor-pointer" onclick="window.location.href='product-detail.html?id=${product._id}'">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all hover:-translate-y-1 group cursor-pointer" onclick="window.location.href='/product?id=${product._id}'">
                             <div class="aspect-square overflow-hidden relative">
                                 <img src="${fixServerUrl(product.images?.[0]) || 'https://placehold.co/400x400?text=No+Image'}" 
                                      alt="${product.name} - ${product.category} on ${seller.storeName || seller.fullName}'s Virtuosa Shop" 
@@ -274,12 +274,11 @@
                     <div class="col-span-full py-20 text-center">
                         <i data-lucide="alert-circle" class="w-16 h-16 text-red-200 mx-auto mb-4"></i>
                         <p class="text-gray-400">The requested shop could not be found or has been disabled.</p>
-                        <a href="products.html" class="inline-block mt-4 text-gold font-bold hover:underline">Browse All Products</a>
+                        <a href="/products" class="inline-block mt-4 text-gold font-bold hover:underline">Browse All Products</a>
                     </div>
                 `;
                 if (window.lucide) window.lucide.createIcons();
             }
-        ;
         });
     </script>
     <script src="../js/config.js"></script>

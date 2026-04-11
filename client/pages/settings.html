@@ -71,15 +71,15 @@
                     <div class="bg-white rounded-lg shadow-lg p-6">
                         <h3 class="text-lg font-bold text-navy mb-4">Menu</h3>
                         <nav class="space-y-3">
-                            <a href="profile.html"
+                            <a href="/profile"
                                 class="block px-4 py-2 text-navy hover:bg-gray-100 rounded-lg transition-colors">My
                                 Profile</a>
-                            <a href="orders.html"
+                            <a href="/orders"
                                 class="block px-4 py-2 text-navy hover:bg-gray-100 rounded-lg transition-colors">My
                                 Orders</a>
-                            <a href="settings.html"
+                            <a href="/settings"
                                 class="block px-4 py-2 bg-gold text-white rounded-lg font-semibold">Settings</a>
-                            <a href="../index.html"
+                            <a href="/"
                                 class="block px-4 py-2 text-navy hover:bg-gray-100 rounded-lg transition-colors">Back to
                                 Shopping</a>
                         </nav>
@@ -115,7 +115,7 @@
                                 <button type="submit"
                                     class="bg-button-gold text-white font-semibold py-2 px-6 rounded-full hover-bg-button-gold transition-colors">Save
                                     Settings</button>
-                                <a href="profile.html"
+                                <a href="/profile"
                                     class="bg-gray-200 text-navy font-semibold py-2 px-6 rounded-full hover:bg-gray-300 transition-colors">Cancel</a>
                             </div>
                         </form>
@@ -148,7 +148,7 @@
                     userGreeting.classList.add('hidden');
                     if(userGreeting.classList.contains('md:inline')) userGreeting.classList.remove('md:inline');
                     logoutButton.classList.add('hidden');
-                    window.location.href = '/pages/login.html';
+                    window.location.href = '/login';
                 }
             }
 
@@ -172,7 +172,7 @@
                     localStorage.removeItem('token');
                     localStorage.removeItem('userEmail');
                     localStorage.removeItem('userFullName');
-                    window.location.href = '/index.html';
+                    window.location.href = '/';
                 } catch (error) {
                     console.error('Logout error:', error);
                 }

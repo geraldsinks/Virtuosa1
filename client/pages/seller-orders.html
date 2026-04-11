@@ -135,7 +135,7 @@
             const token = localStorage.getItem('token');
             
             if (!token) {
-                window.location.href = '/pages/login.html';
+                window.location.href = '/login';
                 return;
             }
 
@@ -152,7 +152,7 @@
                 const user = await response.json();
                 if (!user.isSeller) {
                     alert('Access denied. Seller privileges required.');
-                    window.location.href = 'buyer-dashboard.html';
+                    window.location.href = '/dashboard';
                     return;
                 }
 
@@ -160,7 +160,7 @@
                 document.getElementById('user-greeting').textContent = `Hello, ${user.fullName}`;
             } catch (error) {
                 console.error('Seller check failed:', error);
-                window.location.href = '/pages/login.html';
+                window.location.href = '/login';
                 return;
             }
 
@@ -220,7 +220,7 @@
                             <i class="fas fa-box text-6xl text-gray-300 mb-4"></i>
                             <h3 class="text-xl font-semibold text-gray-600 mb-2">No orders found</h3>
                             <p class="text-gray-500 mb-6">You don't have any orders yet.</p>
-                            <a href="seller-dashboard.html" class="inline-flex items-center bg-button-gold text-white px-6 py-3 rounded-full hover-bg-button-gold transition-colors">
+                            <a href="/seller-dashboard" class="inline-flex items-center bg-button-gold text-white px-6 py-3 rounded-full hover-bg-button-gold transition-colors">
                                 <i class="fas fa-tachometer-alt mr-2"></i>
                                 Back to Dashboard
                             </a>
@@ -364,12 +364,12 @@
 
             // View order details
             window.viewOrderDetails = (orderId) => {
-                window.location.href = `order-details.html?id=${orderId}`;
+                window.location.href = `/order?id=${orderId}`;
             };
 
             // Message buyer
             window.messageBuyer = (buyerId, productName) => {
-                window.location.href = `messages.html?recipientId=${buyerId}&product=${encodeURIComponent(productName)}`;
+                window.location.href = `/messages?recipientId=${buyerId}&product=${encodeURIComponent(productName)}`;
             };
 
             // Render pagination
@@ -533,12 +533,12 @@
 
             // View order details
             window.viewOrderDetails = (orderId) => {
-                window.location.href = `order-details.html?id=${orderId}`;
+                window.navigateTo(`/order-details?id=${orderId}`);
             };
 
             // Message buyer
             window.messageBuyer = (buyerId, productName) => {
-                window.location.href = `messages.html?buyer=${buyerId}&product=${productName}`;
+                window.navigateTo(`/messages?buyer=${buyerId}&product=${productName}`);
             };
 
             // Toast notification

@@ -555,12 +555,12 @@ async function handleLogin(event) {
                 });
                 
                 if (effectiveRole === 'admin' || finalIsAdmin) {
-                    window.location.href = '/pages/admin-dashboard.html';
+                    window.location.href = '/admin';
                 } else if (effectiveRole === 'seller' || finalIsSeller) {
-                    window.location.href = '/pages/seller-dashboard.html';
+                    window.location.href = '/seller-dashboard';
                 } else {
                     // Default to buyer dashboard for all users (buyers, sellers, admins can all access it)
-                    window.location.href = '/pages/buyer-dashboard.html';
+                    window.location.href = '/dashboard';
                 }
             }, 1500);
         } else {
@@ -758,7 +758,7 @@ async function handleResetPassword(event) {
         if (response.ok) {
             showMessage('Password reset successfully! Redirecting to login...');
             setTimeout(() => {
-                window.location.href = '/pages/login.html';
+                window.location.href = '/login';
             }, 1500);
         } else {
             showMessage(result.message || 'Failed to reset password.', true);
