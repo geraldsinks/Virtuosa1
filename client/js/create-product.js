@@ -231,6 +231,12 @@ async function createProduct(event) {
         return;
     }
     
+    // Show loading state
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    const originalContent = submitButton.innerHTML;
+    submitButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Creating Listing...`;
+    submitButton.disabled = true;
+
     try {
         const token = localStorage.getItem('token');
         
@@ -307,6 +313,11 @@ async function createProduct(event) {
     } catch (error) {
         console.error('Error creating product:', error);
         showError(error.message || 'Failed to create product');
+    } finally {
+        if (submitButton) {
+            submitButton.innerHTML = originalContent;
+            submitButton.disabled = false;
+        }
     }
 }
 

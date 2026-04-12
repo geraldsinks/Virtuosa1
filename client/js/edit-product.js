@@ -264,6 +264,12 @@ async function updateProduct(event) {
     // New images
     newImages.forEach(img => formData.append('images', img.file));
 
+    // Show loading state
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    const originalContent = submitButton.innerHTML;
+    submitButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Saving Changes...`;
+    submitButton.disabled = true;
+
     try {
         const response = await fetch(`${API_BASE}/products/${currentProductId}`, {
             method: 'PUT',
@@ -280,6 +286,11 @@ async function updateProduct(event) {
     } catch (error) {
         console.error('Update error:', error);
         showError('An error occurred during update');
+    } finally {
+        if (submitButton) {
+            submitButton.innerHTML = originalContent;
+            submitButton.disabled = false;
+        }
     }
 }
 window.updateProduct = updateProduct;

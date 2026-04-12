@@ -370,6 +370,12 @@ async function handleLogin(event) {
         return;
     }
 
+    // Show loading state
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    const originalContent = submitButton.innerHTML;
+    submitButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Signing in...`;
+    submitButton.disabled = true;
+
     try {
         const requestData = { email, password };
         console.log('🔍 CLIENT DEBUG - Sending login request:', {
@@ -587,6 +593,11 @@ async function handleLogin(event) {
     } catch (error) {
         console.error('Error during login:', error);
         showMessage('An error occurred during login. Please try again later.', true);
+    } finally {
+        if (submitButton) {
+            submitButton.innerHTML = originalContent;
+            submitButton.disabled = false;
+        }
     }
 }
 
@@ -648,8 +659,8 @@ async function handleSignup(event) {
 
     // Show loading state
     const submitButton = document.querySelector('#signup-form button[type="submit"]');
-    const originalText = submitButton.textContent;
-    submitButton.textContent = 'Creating Account...';
+    const originalContent = submitButton.innerHTML;
+    submitButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Creating Account...`;
     submitButton.disabled = true;
 
     try {
@@ -703,8 +714,10 @@ async function handleSignup(event) {
         }
     } finally {
         // Restore button state
-        submitButton.textContent = originalText;
-        submitButton.disabled = false;
+        if (submitButton) {
+            submitButton.innerHTML = originalContent;
+            submitButton.disabled = false;
+        }
     }
 }
 
@@ -716,6 +729,12 @@ async function handleForgotPassword(event) {
         showMessage('Please enter your email address.', true);
         return;
     }
+
+    // Show loading state
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    const originalContent = submitButton.innerHTML;
+    submitButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Sending link...`;
+    submitButton.disabled = true;
 
     try {
         const response = await fetch(`${BASE_API_URL}/forgot-password`, {
@@ -737,6 +756,11 @@ async function handleForgotPassword(event) {
     } catch (error) {
         console.error('Error during reset request:', error);
         showMessage('An error occurred.', true);
+    } finally {
+        if (submitButton) {
+            submitButton.innerHTML = originalContent;
+            submitButton.disabled = false;
+        }
     }
 }
 
@@ -754,6 +778,12 @@ async function handleResetPassword(event) {
         showMessage('Passwords do not match.', true);
         return;
     }
+
+    // Show loading state
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    const originalContent = submitButton.innerHTML;
+    submitButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Resetting...`;
+    submitButton.disabled = true;
 
     try {
         const response = await fetch(`${BASE_API_URL}/reset-password/${token}`, {
@@ -775,6 +805,11 @@ async function handleResetPassword(event) {
     } catch (error) {
         console.error('Error during reset:', error);
         showMessage('An error occurred.', true);
+    } finally {
+        if (submitButton) {
+            submitButton.innerHTML = originalContent;
+            submitButton.disabled = false;
+        }
     }
 }
 
