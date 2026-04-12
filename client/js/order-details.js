@@ -347,18 +347,42 @@ class OrderDetailsManager {
                     text: `Message ${isSeller ? 'Buyer' : 'Seller'}`,
                     icon: 'fa-message',
                     color: 'gold',
+                    id: 'btn-message',
                     action: () => this.messageOtherParty()
+                });
+            }
+
+            // Buyer Cancellation (COD only, not shipped) - NOT IN PLAIN SIGHT (added as secondary)
+            if (!isSeller && 
+                this.order.paymentMethod === 'cash_on_delivery' && 
+                ['pending_seller_confirmation', 'confirmed_by_seller', 'Processing'].includes(this.order.status)) {
+                buttons.push({
+                    text: 'Cancel Order',
+                    icon: 'fa-ban',
+                    color: 'gray',
+                    id: 'btn-cancel',
+                    action: () => this.cancelOrder()
                 });
             }
         }
 
         actionButtons.innerHTML = buttons.map(btn => `
-            <button onclick="${btn.action.name}" 
-                    class="w-full bg-${btn.color}-600 text-white px-4 py-3 rounded-lg hover:bg-${btn.color}-700 transition-colors text-sm font-medium flex items-center justify-center">
+            <button id="${btn.id || ''}" 
+                    class="w-full bg-${btn.color === 'gray' ? 'gray-100 text-gray-600' : btn.color + '-600 text-white'} px-4 py-3 rounded-lg hover:bg-${btn.color === 'gray' ? 'gray-200' : btn.color + '-700'} transition-colors text-sm font-medium flex items-center justify-center ${btn.color === 'gray' ? 'mt-4 border border-gray-200' : ''}">
                 <i class="fas ${btn.icon} mr-2"></i>
                 ${btn.text}
             </button>
         `).join('');
+
+        // Attach event listeners manually since we are using anonymous functions
+        buttons.forEach(btn => {
+            if (btn.id) {
+                const element = document.getElementById(btn.id);
+                if (element) {
+                    element.addEventListener('click', btn.action);
+                }
+            }
+        });
     }
 
     // Action methods
@@ -391,8 +415,20 @@ class OrderDetailsManager {
     messageOtherParty() {
         const otherParty = this.currentUserRole === 'seller' ? this.order.buyer : this.order.seller;
         if (otherParty?._id) {
-            window.location.href = `/messages?${this.currentUserRole === 'seller' ? 'buyer' : 'seller'}=${otherParty._id}&order=${this.order._id}`;
+            window.navigateTo(`/messages?recipientId=${otherParty._id}&orderId=${this.order._id}`);
         }
+    }
+
+    async cancelOrder() {
+        if (!confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
+            return;
+        }
+
+        const reason = prompt('Please let us know why you are cancelling (optional):');
+        
+        await this.updateOrderStatus('cancelled', 'Order cancelled successfully', { 
+            deliveryNotes: reason || 'Cancelled by buyer' 
+        });
     }
 
     async updateOrderStatus(status, successMessage, additionalData = {}) {

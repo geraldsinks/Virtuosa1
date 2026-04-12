@@ -396,6 +396,22 @@
                                             <i class="fas fa-qrcode mr-1"></i> QR Code
                                         </button>
                                     ` : ''}
+                                    ${!isSeller && order.paymentMethod === 'cash_on_delivery' && ['pending_seller_confirmation', 'confirmed_by_seller', 'Processing'].includes(order.status) ? `
+                                        <div class="relative inline-block ml-2">
+                                            <button onclick="toggleOrderOptions('${order._id}', event)" class="px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors text-sm" title="Order Settings">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <div id="options-menu-${order._id}" class="hidden absolute right-0 bottom-full mb-2 w-48 rounded-xl shadow-2xl bg-white border border-gray-100 z-[100] overflow-hidden animate-fade-in">
+                                                <div class="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-50 bg-gray-50/50">Support & Options</div>
+                                                <button onclick="cancelOrder('${order._id}')" class="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 flex items-center transition-colors">
+                                                    <i class="fas fa-ban mr-2 w-4"></i> Cancel Order
+                                                </button>
+                                                <button onclick="window.navigateTo('/contact')" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center border-t border-gray-50 transition-colors">
+                                                    <i class="fas fa-question-circle mr-2 w-4"></i> Get Help
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ` : ''}
                                 </div>
                             </div>
                         </div>
@@ -610,8 +626,8 @@
                     });
 
                     if (response.ok) {
-                        showToast('Order marked as delivered! Waiting for buyer confirmation.', 'success');
-                        await loadOrders(1, ''); // Load all orders after marking as delivered
+                        showToast('Order marked as delivered!', 'success');
+                        await loadOrders(1, '');
                     } else {
                         const error = await response.json();
                         showToast(error.message || 'Failed to update order status', 'error');
@@ -619,6 +635,68 @@
                 } catch (error) {
                     console.error('Error marking as delivered:', error);
                     showToast('Error updating order status', 'error');
+                }
+            };
+
+            // Toggle Order Options Menu
+            window.toggleOrderOptions = (orderId, event) => {
+                if (event) event.stopPropagation();
+                
+                // Close all other menus first
+                document.querySelectorAll('[id^="options-menu-"]').forEach(menu => {
+                    if (menu.id !== `options-menu-${orderId}`) {
+                        menu.classList.add('hidden');
+                    }
+                });
+                
+                const menu = document.getElementById(`options-menu-${orderId}`);
+                if (menu) {
+                    menu.classList.toggle('hidden');
+                }
+            };
+
+            // Close menus on outside click
+            document.addEventListener('click', () => {
+                document.querySelectorAll('[id^="options-menu-"]').forEach(menu => {
+                    menu.classList.add('hidden');
+                });
+            });
+
+            // Cancel order (for buyers)
+            window.cancelOrder = async (orderId) => {
+                const token = localStorage.getItem('token');
+                
+                const confirmed = confirm('Are you sure you want to cancel this order? This action cannot be undone.');
+                
+                if (!confirmed) {
+                    return;
+                }
+
+                const reason = prompt('Please let us know why you are cancelling (optional):');
+
+                try {
+                    const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            status: 'cancelled',
+                            deliveryNotes: reason || 'Cancelled by buyer'
+                        })
+                    });
+
+                    if (response.ok) {
+                        showToast('Order cancelled successfully', 'info');
+                        await loadOrders(1, ''); // Reload orders
+                    } else {
+                        const error = await response.json();
+                        showToast(error.message || 'Failed to cancel order', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error cancelling order:', error);
+                    showToast('Error cancelling order', 'error');
                 }
             };
 

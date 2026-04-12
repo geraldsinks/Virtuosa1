@@ -275,6 +275,8 @@ const transactionSchema = new mongoose.Schema({
     deliveredAt: Date,
     deliveryConfirmedAt: Date,
     declinedAt: Date,
+    cancelledAt: Date,
+    cancelReason: String,
     
     // Cash on delivery support
     isCashOnDelivery: {

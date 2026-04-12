@@ -9241,7 +9241,7 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
         const order = await Transaction.findById(orderId)
             .populate('buyer', 'fullName email phoneNumber')
             .populate('seller', 'fullName email phoneNumber')
-            .populate('product', 'name price');
+            .populate('product', 'name price listingType inventoryTracking inventory');
 
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
@@ -9255,7 +9255,49 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
             // Buyer confirms delivery - move to completed
             const completableStatuses = ['delivered_pending_confirmation', 'delivered', 'Shipped', 'out_for_delivery', 'both_confirmed'];
             
-            if (completableStatuses.includes(order.status) || (order.status === 'confirmed_by_seller' && order.paymentMethod === 'cash_on_delivery')) {
+            if (status === 'cancelled') {
+                // Buyer initiates cancellation
+                // Restrictions: Only for COD orders not yet shipped/processing
+                if (order.paymentMethod !== 'cash_on_delivery') {
+                    return res.status(400).json({ message: 'Only Cash on Delivery orders can be cancelled by buyers' });
+                }
+
+                const cancellableStatuses = ['pending_seller_confirmation', 'confirmed_by_seller', 'Processing'];
+                if (!cancellableStatuses.includes(order.status)) {
+                    return res.status(400).json({ message: `Cannot cancel order in ${order.status} status` });
+                }
+
+                order.status = 'cancelled';
+                order.cancelledAt = new Date();
+                order.cancelReason = deliveryNotes || 'Cancelled by buyer';
+
+                // RESTORE INVENTORY / LISTING STATUS
+                if (order.product) {
+                    try {
+                        const product = await Product.findById(order.product._id);
+                        if (product) {
+                            if (product.listingType === 'one_time') {
+                                // Restore one-time sale to Active
+                                product.status = 'Active';
+                                product.soldAt = null;
+                                console.log(`🔄 Restored one-time product ${product._id} to Active status`);
+                            } else if (product.listingType === 'persistent' && product.inventoryTracking) {
+                                // Increment inventory for persistent products
+                                product.inventory += (order.quantity || 1);
+                                if (product.inventory > 0 && product.status === 'Out of Stock') {
+                                    product.status = 'Active';
+                                }
+                                console.log(`📦 Restored ${order.quantity || 1} items to inventory for product ${product._id}`);
+                            }
+                            await product.save();
+                        }
+                    } catch (restoreError) {
+                        console.error('Error restoring product status/inventory:', restoreError);
+                    }
+                }
+
+                console.log(`❌ Order #${order._id.toString().slice(-8)} cancelled by buyer`);
+            } else if (completableStatuses.includes(order.status) || (order.status === 'confirmed_by_seller' && order.paymentMethod === 'cash_on_delivery')) {
                 // Check if this order has already been completed/awarded
                 if (order.status === 'Completed' || order.status === 'completed' || order.tokensAwarded) {
                     return res.status(400).json({ message: 'Order already completed and tokens awarded' });
@@ -9365,18 +9407,33 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
 
         // Create notification for other party
         const notificationRecipient = isBuyer ? order.seller._id : order.buyer._id;
-        const notificationTitle = isBuyer ? 'Delivery Confirmed' : 'Order Status Updated';
-        const notificationMessage = isBuyer 
-            ? `${order.buyer.fullName} confirmed delivery of the order`
-            : `Order status updated to ${status}`;
+        
+        let notificationTitle, notificationMessage, notificationType;
+
+        if (isBuyer) {
+            if (status === 'cancelled') {
+                notificationTitle = 'Order Cancelled';
+                notificationMessage = `${order.buyer.fullName} cancelled the order for ${order.product.name}`;
+                notificationType = 'order_cancelled';
+            } else {
+                notificationTitle = 'Delivery Confirmed';
+                notificationMessage = `${order.buyer.fullName} confirmed delivery of the order`;
+                notificationType = 'delivery_confirmed';
+            }
+        } else {
+            notificationTitle = 'Order Status Updated';
+            notificationMessage = `Order status updated to ${status}`;
+            notificationType = 'order_shipped';
+        }
 
         await new Notification({
             recipient: notificationRecipient,
             title: notificationTitle,
             message: notificationMessage,
-            type: isBuyer ? 'delivery_confirmed' : 'order_shipped',
+            type: notificationType,
             data: {
-                actionUrl: `/orders.html`
+                actionUrl: `/orders.html`,
+                orderId: order._id
             }
         }).save();
 
