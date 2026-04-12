@@ -822,8 +822,7 @@
                                 </div>
                                 <div class="absolute top-2 right-2 z-10">
                                     <button class="js-wishlist-btn p-1.5 rounded-full bg-white/70 backdrop-blur-sm hover:bg-white transition-all shadow-sm group/wishlist" 
-                                            data-id="${product._id}" 
-                                            onclick="event.stopPropagation();">
+                                            data-id="${product._id}">
                                         <i class="${window.wishlistManager && window.wishlistManager.contains(product._id) ? 'fas' : 'far'} fa-heart ${window.wishlistManager && window.wishlistManager.contains(product._id) ? 'text-red-500' : 'text-gray-600'} group-hover/wishlist:text-red-500 transition-colors"></i>
                                     </button>
                                 </div>
@@ -860,8 +859,7 @@
                                         data-item-id="${product._id}"
                                         data-item-name="${product.name}"
                                         data-item-price="${product.price}"
-                                        data-item-image="${product.images?.[0] || ''}"
-                                        onclick="event.stopPropagation();">
+                                        data-item-image="${product.images?.[0] || ''}">
                                         ${isMobile ? '<i class="fas fa-cart-plus text-lg"></i>' : '<i class="fas fa-cart-plus mr-1.5"></i> Add to Cart'}
                                     </button>
                                     <a href="/product/${product._id}" 
@@ -1300,11 +1298,13 @@
     <script src="/js/cookie-consent.js"></script>
     <script src="/js/cookie-tracker.js"></script>
     <script src="/js/auth-manager.js"></script>
+    <script src="/js/cart.js"></script>
     <script src="/js/wishlist-manager.js"></script>
     
     <script>
-        // Wishlist click handler
+        // Use event delegation for dynamic product cards
         document.addEventListener('click', async (e) => {
+            // Wishlist click handler
             const wishlistBtn = e.target.closest('.js-wishlist-btn');
             if (wishlistBtn) {
                 e.preventDefault();
@@ -1313,16 +1313,42 @@
                 const productId = wishlistBtn.dataset.id;
                 const icon = wishlistBtn.querySelector('i');
                 
-                // Toggle wishlist status
-                const isAdded = await window.wishlistManager.toggle(productId);
+                if (window.wishlistManager) {
+                    // Toggle wishlist status
+                    const isAdded = await window.wishlistManager.toggle(productId);
+                    
+                    // Update icon appearance
+                    if (isAdded) {
+                        icon.classList.remove('far', 'text-gray-600');
+                        icon.classList.add('fas', 'text-red-500');
+                    } else {
+                        icon.classList.remove('fas', 'text-red-500');
+                        icon.classList.add('far', 'text-gray-600');
+                    }
+                }
+                return;
+            }
+
+            // Add to cart click handler
+            const addBtn = e.target.closest('.js-add-to-cart');
+            if (addBtn) {
+                e.preventDefault();
+                e.stopPropagation();
                 
-                // Update icon appearance
-                if (isAdded) {
-                    icon.classList.remove('far', 'text-gray-600');
-                    icon.classList.add('fas', 'text-red-500');
+                const productId = addBtn.dataset.itemId;
+                const productName = addBtn.dataset.itemName;
+                const productPrice = parseFloat(addBtn.dataset.itemPrice);
+                const productImage = addBtn.dataset.itemImage;
+                
+                if (window.addToCart) {
+                    window.addToCart({
+                        _id: productId,
+                        name: productName,
+                        price: productPrice,
+                        image: productImage
+                    });
                 } else {
-                    icon.classList.remove('fas', 'text-red-500');
-                    icon.classList.add('far', 'text-gray-600');
+                    console.error('addToCart function not found');
                 }
             }
         });

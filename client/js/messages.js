@@ -432,6 +432,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('📱 Back to conversations');
         
         if (window.innerWidth < 768) {
+            const sidebar = document.getElementById('sidebar');
+            const chatArea = document.getElementById('chat-area');
+            
             // Show sidebar and hide chat area
             if (sidebar) {
                 sidebar.classList.remove('hidden');
@@ -702,14 +705,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch(`${API_BASE}/users/${recipientId}/public`);
                 if (response.ok) {
                     const userData = await response.json();
-                    console.log('👤 Resolved name:', userData.fullName);
-                    startChat(recipientId, userData.fullName, userData.profilePicture || '', orderId || '');
+                    const displayName = userData.fullName || userData.username || 'Contact';
+                    console.log('👤 Resolved name:', displayName);
+                    startChat(recipientId, displayName, userData.profilePicture || '', orderId || '');
                 } else {
                     throw new Error('User info not found');
                 }
             } catch (fetchError) {
                 console.warn('⚠️ Could not resolve name, using placeholder:', fetchError);
-                startChat(recipientId, 'User', '', orderId || '');
+                startChat(recipientId, 'Contact', '', orderId || '');
             }
         } catch (error) {
             console.error('❌ Error in startChatAfterConversationsLoad:', error);
@@ -1420,9 +1424,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mobile navigation improvements
     function enhanceMobileNavigation() {
         // Add back button functionality for mobile
-        const backButton = document.querySelector('[onclick="showSidebar()"]');
+        const backButton = document.querySelector('[onclick="backToConversations()"], [onclick="window.backToConversations()"]');
         if (backButton && window.innerWidth < 768) {
-            backButton.addEventListener('click', function() {
+            backButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.backToConversations();
+                
                 // Add haptic feedback
                 if (navigator.vibrate) {
                     navigator.vibrate(30);

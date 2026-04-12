@@ -278,37 +278,39 @@
                             <p id="seller-action-description" class="text-sm text-gray-600">Start selling</p>
                         </div>
                     </a>
-
-                    <a id="admin-action-card" href="/admin-dashboard" class="quick-action-card bg-white rounded-xl p-6 shadow-lg hover:shadow-xl" style="display: none;">
-                        <div class="text-center">
-                            <div id="admin-action-icon" class="bg-red-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i data-lucide="shield" class="w-6 h-6 text-red-600"></i>
-                            </div>
-                            <h3 id="admin-action-title" class="font-semibold text-navy mb-2">Admin Panel</h3>
-                            <p id="admin-action-description" class="text-sm text-gray-600">System administration</p>
-                        </div>
-                    </a>
-
-                    <a href="/contact" class="quick-action-card bg-white rounded-xl p-6 shadow-lg hover:shadow-xl">
-                        <div class="text-center">
-                            <div class="bg-indigo-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i data-lucide="help-circle" class="w-6 h-6 text-indigo-600"></i>
-                            </div>
-                            <h3 class="font-semibold text-navy mb-2">Support & Help</h3>
-                            <p class="text-sm text-gray-600">Get assistance</p>
-                        </div>
-                    </a>
-
-                    <a href="/transactions" class="quick-action-card bg-white rounded-xl p-6 shadow-lg hover:shadow-xl">
-                        <div class="text-center">
-                            <div class="bg-orange-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i data-lucide="alert-triangle" class="w-6 h-6 text-orange-600"></i>
-                            </div>
-                            <h3 class="font-semibold text-navy mb-2">Disputes</h3>
-                            <p class="text-sm text-gray-600">Resolution center</p>
-                        </div>
-                    </a>
                 </div>
+            </div>
+
+            <!-- Help & Resolution Center -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-navy mb-6">Support & Resolution</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-indigo-500 flex items-start space-x-4">
+                        <div class="bg-indigo-100 p-3 rounded-lg">
+                            <i data-lucide="help-circle" class="w-8 h-8 text-indigo-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-navy text-lg mb-1">Help Center</h3>
+                            <p class="text-gray-600 text-sm mb-4">Browse our frequently asked questions or contact our support team for assistance with your account or orders.</p>
+                            <a href="/contact" class="inline-flex items-center text-indigo-600 font-semibold hover:underline">
+                                Get Support <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-orange-500 flex items-start space-x-4">
+                        <div class="bg-orange-100 p-3 rounded-lg">
+                            <i data-lucide="alert-triangle" class="w-8 h-8 text-orange-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-navy text-lg mb-1">Dispute Resolution</h3>
+                            <p class="text-gray-600 text-sm mb-4">Having issues with an order? Our resolution center helps you communicate with sellers to resolve problems or request mediation.</p>
+                            <a href="/transactions" class="inline-flex items-center text-orange-600 font-semibold hover:underline">
+                                Open Dispute <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
             </div>
 
             <!-- Recent Activity & Recommendations -->

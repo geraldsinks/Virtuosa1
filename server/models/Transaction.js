@@ -37,8 +37,8 @@ const transactionSchema = new mongoose.Schema({
     currency: {
         type: String,
         required: true,
-        default: 'USD',
-        enum: ['USD', 'EUR', 'GBP', 'NGN', 'KES', 'GHS', 'ZAR']
+        default: 'ZMW',
+        enum: ['ZMW', 'USD', 'EUR', 'GBP', 'NGN', 'KES', 'GHS', 'ZAR']
     },
     platformFee: {
         type: Number,

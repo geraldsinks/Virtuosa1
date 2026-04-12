@@ -529,6 +529,15 @@ async function handleLogin(event) {
             // Sync cart from localStorage to backend after login
             await syncCartToBackend();
             
+            // Sync wishlist from localStorage to backend after login
+            if (window.wishlistManager) {
+                try {
+                    await window.wishlistManager.syncOnLogin();
+                } catch (e) {
+                    console.warn('Failed to sync wishlist:', e);
+                }
+            }
+            
             // Redirect using the new role hierarchy system
             setTimeout(() => {
                 // Use consolidated role data

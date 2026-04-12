@@ -76,7 +76,8 @@
                 'marketing-dashboard':      '/pages/marketing-dashboard.html',
                 'marketing':                '/pages/marketing.html',
                 'seller-analytics':         '/pages/seller-analytics.html',
-                'seller-orders':            '/pages/seller-orders.html'
+                'seller-orders':            '/pages/seller-orders.html',
+                'wishlist':                 '/pages/wishlist.html'
             };
         }
 

@@ -834,7 +834,7 @@ app.post('/api/admin/messages/send-mass', authenticateToken, checkRoleAccess('ma
             message: content,
             priority: 'normal',
             data: {
-                actionUrl: '/pages/notifications.html',
+                actionUrl: '/notifications',
                 actionText: 'View Message',
                 metadata: {
                     isMassMessage: true,
@@ -5002,13 +5002,13 @@ app.get('/api/buyer/dashboard', authenticateToken, checkDashboardAccess('buyer')
         const orderStats = {
             totalOrders: allTransactions.length,
             pendingOrders: allTransactions.filter(t => 
-                ['pending_seller_confirmation', 'confirmed_by_seller', 'processing', 'Processing', 'shipped', 'Shipped'].includes(t.status)
+                ['pending', 'processing', 'awaiting_confirmation', 'seller_confirmed', 'buyer_confirmed', 'both_confirmed', 'payment_verified', 'in_escrow', 'shipped', 'delivered', 'out_for_delivery', 'delivered_pending_confirmation', 'Shipped', 'pending_seller_confirmation', 'confirmed_by_seller'].includes(t.status)
             ).length,
             completedOrders: allTransactions.filter(t => 
-                ['completed', 'Completed'].includes(t.status)
+                ['completed', 'Completed', 'delivery_confirmed'].includes(t.status)
             ).length,
             totalSpent: allTransactions
-                .filter(t => ['completed', 'Completed'].includes(t.status))
+                .filter(t => ['completed', 'Completed', 'delivery_confirmed'].includes(t.status))
                 .reduce((sum, t) => sum + (t.amount || 0), 0)
         };
 
@@ -5028,7 +5028,7 @@ app.get('/api/buyer/dashboard', authenticateToken, checkDashboardAccess('buyer')
             {
                 $match: {
                     buyer: new mongoose.Types.ObjectId(req.user.userId),
-                    status: { $in: ['completed', 'Completed'] },
+                    status: { $in: ['completed', 'Completed', 'delivery_confirmed'] },
                     createdAt: { $gte: sixMonthsAgo }
                 }
             },
@@ -5727,13 +5727,23 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
 app.get('/api/users/:id/public', async (req, res) => {
     try {
         const user = await User.findById(req.params.id)
-            .select('fullName profilePicture university campusLocation createdAt');
+            .select('fullName storeName profilePicture university campusLocation createdAt');
         
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
         
-        res.json(user);
+        // Return structured data with fallback
+        const publicInfo = {
+            id: user._id,
+            fullName: user.fullName || user.storeName || 'Virtuosa User',
+            profilePicture: user.profilePicture,
+            university: user.university,
+            campusLocation: user.campusLocation,
+            createdAt: user.createdAt
+        };
+        
+        res.json(publicInfo);
     } catch (error) {
         console.error('Get public user info error:', error);
         res.status(500).json({ message: 'Server error' });
@@ -6322,7 +6332,7 @@ app.post('/api/seller/apply', authenticateToken, async (req, res) => {
                 title: 'Seller Application Submitted',
                 message: 'Your seller application has been submitted and is under review. We will notify you once it has been reviewed.',
                 data: {
-                    actionUrl: '/pages/seller-verification.html'
+                    actionUrl: '/seller-verification'
                 },
                 channels: ['websocket', 'push']
             });
@@ -6480,7 +6490,7 @@ app.post('/api/admin/seller-applications/:id/approve', authenticateAdmin, async 
                     title: 'Seller Application Approved! \ud83c\udf89',
                     message: 'Congratulations! Your seller application has been approved. You can now start listing items for sale.',
                     data: {
-                        actionUrl: '/pages/seller-dashboard.html'
+                        actionUrl: '/seller-dashboard'
                     },
                     channels: ['websocket', 'push']
                 });
@@ -6531,7 +6541,7 @@ app.post('/api/admin/applications/:id/approve', authenticateAdmin, async (req, r
                 title: 'Seller Application Approved! 🎉',
                 message: 'Congratulations! Your seller application has been approved. You can now list items on Virtuosa.',
                 data: {
-                    actionUrl: '/pages/seller-verification.html'
+                    actionUrl: '/seller-verification'
                 },
                 channels: ['websocket', 'push']
             });
@@ -6614,7 +6624,7 @@ app.post('/api/admin/seller-applications/:id/reject', authenticateAdmin, async (
                     title: 'Seller Application Update',
                     message: `Your seller application was not approved. Reason: ${reason}. You may update your information and reapply.`,
                     data: {
-                        actionUrl: '/pages/seller.html'
+                        actionUrl: '/seller'
                     },
                     channels: ['websocket', 'push']
                 });
@@ -7871,7 +7881,7 @@ io.on('connection', (socket) => {
                 message: notificationMessage,
                 data: {
                     orderId: order._id,
-                    actionUrl: '/pages/orders.html',
+                    actionUrl: '/orders',
                     actionText: 'View Order'
                 },
                 priority: 'normal',
@@ -8918,7 +8928,7 @@ app.post('/api/checkout', authenticateToken, async (req, res) => {
                 data: {
                     orderId: order._id,
                     productId: cartItem.product._id,
-                    actionUrl: `/seller-dashboard.html?tab=orders`
+                    actionUrl: `/seller-dashboard?tab=orders`
                 }
             }).save();
         }
@@ -8934,7 +8944,7 @@ app.post('/api/checkout', authenticateToken, async (req, res) => {
             message: `Your order for ${transactions.length} items has been placed successfully`,
             data: {
                 orderId: order._id,
-                actionUrl: `/orders.html`
+                actionUrl: `/orders`
             }
         }).save();
 
@@ -9116,7 +9126,7 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
                 data: {
                     orderId: transaction._id,
                     productId: product._id,
-                    actionUrl: '/seller-dashboard.html?tab=orders',
+                    actionUrl: '/seller-dashboard?tab=orders',
                     actionText: 'View Order'
                 },
                 status: 'unread'
@@ -9130,7 +9140,7 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
             title: 'Order Placed Successfully',
             message: `Your order for ${transactions.length} items has been placed successfully`,
             data: {
-                actionUrl: '/orders.html',
+                actionUrl: '/orders',
                 actionText: 'View Orders'
             },
             status: 'unread'
@@ -9543,7 +9553,7 @@ app.put('/api/orders/:orderId/status', authenticateToken, async (req, res) => {
             message: notificationMessage,
             type: notificationType,
             data: {
-                actionUrl: `/orders.html`,
+                actionUrl: `/orders`,
                 orderId: order._id
             }
         }).save();

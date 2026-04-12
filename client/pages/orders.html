@@ -936,21 +936,24 @@ Confirm Delivery & Earn Tokens?
                         star.classList.add('text-yellow-400');
                     }
                 });
+                
+                // Store rating globally for submission
+                window.currentRating = rating;
             };
 
             // Submit review
             window.submitReview = async (orderId, productId) => {
-                // Get rating - find the highest highlighted star
-                let rating = 0;
-                const stars = document.querySelectorAll('.rating-star i.text-yellow-400, .rating-star i.text-yellow-500');
-                if (stars.length > 0) {
-                    // stars is a NodeList of i elements, we need the parent button's data-rating
-                    stars.forEach(s => {
-                        const r = parseInt(s.parentElement.dataset.rating);
-                        if (r > rating) rating = r;
-                    });
-                } else if (window.currentRating) {
-                    rating = window.currentRating;
+                // Get rating - use stored rating or check highlighted stars
+                let rating = window.currentRating || 0;
+                
+                if (!rating) {
+                    const stars = document.querySelectorAll('.rating-star.text-yellow-400');
+                    if (stars.length > 0) {
+                        stars.forEach(s => {
+                            const r = parseInt(s.dataset.rating);
+                            if (r > rating) rating = r;
+                        });
+                    }
                 }
 
                 const reviewText = document.getElementById('review-text')?.value.trim() || '';
