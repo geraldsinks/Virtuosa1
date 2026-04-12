@@ -229,6 +229,17 @@ class UnifiedHeader {
                 box-shadow: inset 0 0 0 2px #FFD700;
             }
 
+            .search-suggestion-item {
+                transition: all 0.2s ease;
+            }
+
+            .gold-gradient-text {
+                background: linear-gradient(135deg, #FFD700 0%, #FDB931 50%, #C19A6B 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                display: inline-block;
+            }
+
             /* Failsafe layout breakpoints for dynamic header injection */
             @media (min-width: 1024px) {
                 #main-site-header .lg\\:flex { display: flex !important; }
@@ -270,10 +281,10 @@ class UnifiedHeader {
                 <div class="relative flex w-full">
                     <input id="desktop-search-input" type="text" placeholder="Search for products, categories, or brands..." 
                            class="w-full pl-5 pr-14 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-gray-400 focus:bg-white/15 focus:border-[#FFD700] focus:outline-none focus:ring-1 focus:ring-[#FFD700]/50 transition-all shadow-inner">
-                    <button id="desktop-search-button" class="absolute right-1 top-1 bottom-1 bg-gradient-to-r from-gold to-yellow-500 px-5 rounded-lg text-navy hover:scale-105 transition-all flex items-center justify-center font-bold shadow-sm">
-                        <i class="fas fa-search text-lg"></i>
+                    <button id="desktop-search-button" class="absolute right-1 top-1 bottom-1 bg-navy/40 backdrop-blur-md border border-white/10 px-5 rounded-lg hover:bg-navy/60 transition-all flex items-center justify-center shadow-sm group">
+                        <i class="fas fa-search text-lg gold-gradient-text group-hover:scale-110 transition-transform"></i>
                     </button>
-                    <div id="desktop-search-suggestions" class="absolute top-full left-0 right-0 mt-2 bg-navy/95 backdrop-blur-xl border border-gray-700/50 rounded-xl shadow-2xl max-h-80 overflow-y-auto hidden z-50 text-white"></div>
+                    <div id="desktop-search-suggestions" class="absolute top-full left-0 right-0 mt-2 bg-navy border border-white/10 rounded-xl shadow-2xl max-h-80 overflow-y-auto hidden z-50 text-white"></div>
                 </div>
             </div>
 
@@ -307,10 +318,10 @@ class UnifiedHeader {
             <div class="relative flex w-full">
                 <input id="mobile-search-input" type="text" placeholder="Search..." 
                        class="w-full pl-5 pr-12 py-2.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gold transition-all shadow-inner">
-                <button id="mobile-search-button" class="absolute right-1 top-1 bottom-1 bg-gradient-to-r from-gold to-yellow-500 px-4 rounded-lg text-navy flex items-center justify-center shadow-sm">
-                    <i class="fas fa-search text-sm"></i>
+                <button id="mobile-search-button" class="absolute right-1 top-1 bottom-1 bg-navy/40 backdrop-blur-md border border-white/10 px-4 rounded-lg flex items-center justify-center shadow-sm group">
+                    <i class="fas fa-search text-sm gold-gradient-text group-hover:scale-110 transition-transform"></i>
                 </button>
-                <div id="mobile-search-suggestions" class="absolute top-full left-0 right-0 mt-2 bg-navy/95 backdrop-blur-xl border border-gray-700/50 rounded-xl shadow-2xl max-h-60 overflow-y-auto hidden z-50 text-white"></div>
+                <div id="mobile-search-suggestions" class="absolute top-full left-0 right-0 mt-2 bg-navy border border-white/10 rounded-xl shadow-2xl max-h-60 overflow-y-auto hidden z-50 text-white"></div>
             </div>
         </div>
     </div>
@@ -755,21 +766,21 @@ class UnifiedHeader {
                     (item.image.startsWith('/') ? `${window.API_BASE.replace('/api', '')}${item.image}` : item.image) : null;
                 
                 return `
-                    <div class="search-suggestion-item px-4 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0 flex items-center space-x-3"
+                    <div class="search-suggestion-item px-4 py-3 hover:bg-white/10 cursor-pointer border-b border-white/5 last:border-b-0 flex items-center space-x-3"
                          data-product-id="${item.id}"
                          data-product-name="${this.escapeHtmlAttribute(item.title)}">
                         ${imageUrl ? `
-                            <img src="${imageUrl}" alt="${item.title}" class="w-8 h-8 object-cover rounded">
+                            <img src="${imageUrl}" alt="${item.title}" class="w-8 h-8 object-cover rounded shadow-sm border border-white/10">
                         ` : `
-                            <div class="w-8 h-8 bg-gray-200 rounded flex items-center justify-center">
-                                <i class="fas fa-box text-gray-400 text-xs"></i>
+                            <div class="w-8 h-8 bg-white/5 rounded flex items-center justify-center border border-white/10">
+                                <i class="fas fa-box text-gray-500 text-xs"></i>
                             </div>
                         `}
                         <div class="flex-1">
-                            <div class="text-sm font-medium text-gray-800 line-clamp-1">${item.title}</div>
-                            <div class="text-xs text-gray-500">${item.category}</div>
+                            <div class="text-sm font-bold text-white line-clamp-1">${item.title}</div>
+                            <div class="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">${item.category}</div>
                         </div>
-                        <div class="text-navy text-sm font-bold">K${item.price ? item.price.toLocaleString() : '0'}</div>
+                        <div class="text-gold text-sm font-bold">K${item.price ? item.price.toLocaleString() : '0'}</div>
                     </div>
                 `;
             }).join('');
