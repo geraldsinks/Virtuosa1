@@ -167,10 +167,87 @@
         .hide-scrollbar {
             -ms-overflow-style: none;
             scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
         }
 
         .hide-scrollbar::-webkit-scrollbar {
             display: none;
+        }
+
+        .category-section {
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            padding-right: 0.5rem;
+        }
+
+        .category-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0A1128;
+            position: relative;
+            padding-left: 1rem;
+        }
+
+        .category-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 1.25rem;
+            background: #C19A6B;
+            border-radius: 2px;
+        }
+
+        .view-all-link {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #C19A6B;
+            transition: color 0.2s ease;
+        }
+
+        .view-all-link:hover {
+            color: #A98B68;
+            text-decoration: underline;
+        }
+
+        .category-row {
+            display: flex;
+            overflow-x: auto;
+            gap: 1.25rem;
+            padding: 0.5rem 0.25rem 1.5rem;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+        }
+
+        .product-card-horizontal {
+            flex: 0 0 280px;
+            scroll-snap-align: start;
+        }
+
+        @media (max-width: 640px) {
+            .category-section {
+                margin-bottom: 2rem;
+            }
+            .category-title {
+                font-size: 1.1rem;
+            }
+            .product-card-horizontal {
+                flex: 0 0 200px;
+                gap: 0.75rem;
+            }
+            .category-row {
+                gap: 0.75rem;
+                padding-bottom: 1rem;
+            }
         }
 
         /* Search suggestions positioning */
@@ -774,107 +851,177 @@
                 }
             }
 
+            function generateProductCard(product, extraClasses = '') {
+                const imageUrl = product.images && product.images[0]
+                    ? window.optimizeImageUrl ? window.optimizeImageUrl(fixServerUrl(product.images[0]), 400, 300) : fixServerUrl(product.images[0])
+                    : 'https://placehold.co/400x300?text=No+Image';
+
+                const isVerified = product.seller?.isStudentVerified || product.sellerVerified;
+                const isHotDeal = product.originalPrice && product.originalPrice > product.price;
+                const isOutOfStock = product.status === 'Out of Stock' || product.status === 'Sold';
+                const isMobile = window.innerWidth < 640;
+
+                return `
+                    <div class="product-card group ${isOutOfStock ? 'opacity-75' : ''} cursor-pointer ${extraClasses}" 
+                         onclick="if(!event.target.closest('button') && !event.target.closest('a')) window.navigateTo('/product/${product._id}')">
+                        <div class="product-image-container">
+                            <img src="${imageUrl}" 
+                                 alt="${product.name}" 
+                                 class="product-image"
+                                 width="300"
+                                 height="300"
+                                 loading="lazy" />
+                            <div class="absolute top-1.5 left-1.5 flex flex-col gap-1">
+                                ${isVerified ? `
+                                    <span class="bg-emerald-500 text-white px-1.5 py-0.5 rounded shadow-sm text-[8px] font-bold uppercase tracking-tighter flex items-center gap-0.5">
+                                        <i class="fas fa-check-circle"></i> ${isMobile ? 'V' : 'Verified'}
+                                    </span>
+                                ` : ''}
+                                ${isHotDeal ? `
+                                    <span class="bg-red-500 text-white px-1.5 py-0.5 rounded shadow-sm text-[8px] font-bold uppercase tracking-tighter flex items-center gap-0.5">
+                                        <i class="fas fa-fire"></i> ${isMobile ? 'H' : 'Hot'}
+                                    </span>
+                                ` : ''}
+                            </div>
+                            <div class="absolute top-2 right-2 z-10">
+                                <button class="js-wishlist-btn p-1.5 rounded-full bg-white/70 backdrop-blur-sm hover:bg-white transition-all shadow-sm group/wishlist" 
+                                        data-id="${product._id}">
+                                    <i class="${window.wishlistManager && window.wishlistManager.contains(product._id) ? 'fas' : 'far'} fa-heart ${window.wishlistManager && window.wishlistManager.contains(product._id) ? 'text-red-500' : 'text-gray-600'} group-hover/wishlist:text-red-500 transition-colors"></i>
+                                </button>
+                            </div>
+                            ${isOutOfStock ? `
+                                <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-2 text-center">
+                                    <span class="text-white text-[10px] font-bold uppercase tracking-widest border border-white/40 px-2 py-1 bg-black/20 rounded">
+                                        ${product.status === 'Sold' ? 'Sold Out' : 'Out of Stock'}
+                                    </span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="product-content">
+                            <div class="flex flex-col flex-1">
+                                <h3 class="product-title line-clamp-2">${product.name}</h3>
+                                ${!isMobile ? `<p class="product-description line-clamp-2 text-xs text-gray-500 mb-2">${product.description || ''}</p>` : ''}
+                                
+                                <div class="mt-auto flex items-end justify-between">
+                                    <div class="flex flex-col">
+                                        <span class="product-price">K${(product.price || 0).toLocaleString()}</span>
+                                        ${product.originalPrice && product.originalPrice > product.price ? `
+                                            <span class="text-[10px] text-gray-400 line-through">K${product.originalPrice.toLocaleString()}</span>
+                                        ` : ''}
+                                    </div>
+                                    <div class="product-meta-text text-[10px] font-semibold text-gray-500 uppercase tracking-tighter bg-gray-50 px-1.5 py-0.5 rounded">
+                                        ${product.condition || 'Used'}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="product-card-footer flex gap-2 pt-2 border-t border-gray-50">
+                                <button class="flex-1 bg-navy text-white font-bold rounded-lg transition-transform active:scale-95 flex items-center justify-center ${isMobile ? 'py-3' : 'py-2 px-4 text-xs'} ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'js-add-to-cart'}"
+                                    ${isOutOfStock ? 'disabled' : ''}
+                                    data-item-id="${product._id}"
+                                    data-item-name="${product.name}"
+                                    data-item-price="${product.price}"
+                                    data-item-image="${product.images?.[0] || ''}">
+                                    ${isMobile ? '<i class="fas fa-cart-plus text-lg"></i>' : '<i class="fas fa-cart-plus mr-1.5"></i> Add to Cart'}
+                                </button>
+                                <a href="/product/${product._id}" 
+                                   class="bg-gray-100 text-navy font-bold rounded-lg transition-transform active:scale-95 flex items-center justify-center ${isMobile ? 'w-12 py-3' : 'px-4 py-2 text-xs flex-shrink-0'}"
+                                   onclick="event.stopPropagation(); window.navigateTo('/product/${product._id}'); return false;">
+                                    ${isMobile ? '<i class="fas fa-eye text-lg"></i>' : 'Details'}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
             // Render products
             function renderProducts() {
                 if (!productGrid) return;
                 
+                // Determine view mode
+                const isFiltered = filters.searchQuery || currentCategory || 
+                                 filters.priceBracket !== 'all' || filters.conditions.size > 0 || 
+                                 filters.campusVerifiedOnly;
+
+                // Sync UI elements visibility
+                const sidebar = document.querySelector('aside.hidden.lg\\:block');
+                const sortContainer = sortSelect ? sortSelect.parentElement : null;
+                const mobileFilterBtn = document.getElementById('mobile-filter-toggle');
+                
+                if (isFiltered) {
+                    if (sidebar) sidebar.style.display = 'block';
+                    if (sortContainer) sortContainer.style.display = 'block';
+                    if (mobileFilterBtn) mobileFilterBtn.style.display = 'flex';
+                    if (activeFiltersContainer) activeFiltersContainer.style.display = 'block';
+                    
+                    productGrid.classList.add('grid', 'grid-cols-2', 'sm:grid-cols-2', 'lg:grid-cols-3', 'gap-3', 'sm:gap-6');
+                    productGrid.classList.remove('flex', 'flex-col', 'gap-10');
+                    renderGridProducts();
+                } else {
+                    if (sidebar) sidebar.style.display = 'none';
+                    if (sortContainer) sortContainer.style.display = 'none';
+                    if (mobileFilterBtn) mobileFilterBtn.style.display = 'none';
+                    if (activeFiltersContainer) activeFiltersContainer.style.display = 'none';
+                    
+                    productGrid.classList.remove('grid', 'grid-cols-2', 'sm:grid-cols-2', 'lg:grid-cols-3', 'gap-3', 'sm:gap-6');
+                    productGrid.classList.add('flex', 'flex-col', 'gap-10');
+                    renderCategoricalProducts();
+                }
+                
+                updateFilterBadges();
+                updateResultsSummary();
+            }
+
+            function renderGridProducts() {
                 if (filteredProducts.length === 0) {
                     productGrid.innerHTML = '<p class="text-center text-gray-600 col-span-full py-10">No items match your criteria. Try adjusting your filters.</p>';
-                    updateResultsSummary();
+                    return;
+                }
+                productGrid.innerHTML = filteredProducts.map(p => generateProductCard(p)).join('');
+            }
+
+            function renderCategoricalProducts() {
+                // Group products by category
+                const groups = {};
+                allProducts.forEach(product => {
+                    const cat = product.category || 'Other';
+                    if (!groups[cat]) groups[cat] = [];
+                    groups[cat].push(product);
+                });
+
+                // Get categories and sort them
+                const categories = Object.keys(groups).sort();
+                
+                if (categories.length === 0) {
+                    productGrid.innerHTML = '<p class="text-center text-gray-600 py-10">No products available yet.</p>';
                     return;
                 }
 
-                productGrid.innerHTML = filteredProducts.map(product => {
-                    const imageUrl = product.images && product.images[0]
-                        ? window.optimizeImageUrl ? window.optimizeImageUrl(fixServerUrl(product.images[0]), 400, 300) : fixServerUrl(product.images[0])
-                        : 'https://placehold.co/400x300?text=No+Image';
-
-                    const isVerified = product.seller?.isStudentVerified || product.sellerVerified;
-                    const isHotDeal = product.originalPrice && product.originalPrice > product.price;
-                    const isOutOfStock = product.status === 'Out of Stock' || product.status === 'Sold';
-                    const isPersistent = product.listingType === 'persistent';
-                    const showInventory = isPersistent && product.inventory !== undefined;
-                    const isLowStock = showInventory && product.inventoryTracking && product.inventory <= (product.lowStockThreshold || 1);
-
-                    const isMobile = window.innerWidth < 640;
+                productGrid.innerHTML = categories.map(cat => {
+                    // Pick 10 random products for this category
+                    const productsInCat = [...groups[cat]];
+                    const randomProducts = productsInCat
+                        .sort(() => Math.random() - 0.5)
+                        .slice(0, 10);
 
                     return `
-                        <div class="product-card group ${isOutOfStock ? 'opacity-75' : ''} cursor-pointer" 
-                             onclick="if(!event.target.closest('button') && !event.target.closest('a')) window.location.href='/product/${product._id}'">
-                            <div class="product-image-container">
-                                <img src="${imageUrl}" 
-                                     alt="${product.name}" 
-                                     class="product-image"
-                                     width="300"
-                                     height="300"
-                                     loading="lazy" />
-                                <div class="absolute top-1.5 left-1.5 flex flex-col gap-1">
-                                    ${isVerified ? `
-                                        <span class="bg-emerald-500 text-white px-1.5 py-0.5 rounded shadow-sm text-[8px] font-bold uppercase tracking-tighter flex items-center gap-0.5">
-                                            <i class="fas fa-check-circle"></i> ${isMobile ? 'V' : 'Verified'}
-                                        </span>
-                                    ` : ''}
-                                    ${isHotDeal ? `
-                                        <span class="bg-red-500 text-white px-1.5 py-0.5 rounded shadow-sm text-[8px] font-bold uppercase tracking-tighter flex items-center gap-0.5">
-                                            <i class="fas fa-fire"></i> ${isMobile ? 'H' : 'Hot'}
-                                        </span>
-                                    ` : ''}
-                                </div>
-                                <div class="absolute top-2 right-2 z-10">
-                                    <button class="js-wishlist-btn p-1.5 rounded-full bg-white/70 backdrop-blur-sm hover:bg-white transition-all shadow-sm group/wishlist" 
-                                            data-id="${product._id}">
-                                        <i class="${window.wishlistManager && window.wishlistManager.contains(product._id) ? 'fas' : 'far'} fa-heart ${window.wishlistManager && window.wishlistManager.contains(product._id) ? 'text-red-500' : 'text-gray-600'} group-hover/wishlist:text-red-500 transition-colors"></i>
-                                    </button>
-                                </div>
-                                ${isOutOfStock ? `
-                                    <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-2 text-center">
-                                        <span class="text-white text-[10px] font-bold uppercase tracking-widest border border-white/40 px-2 py-1 bg-black/20 rounded">
-                                            ${product.status === 'Sold' ? 'Sold Out' : 'Out of Stock'}
-                                        </span>
-                                    </div>
-                                ` : ''}
+                        <div class="category-section">
+                            <div class="category-header">
+                                <h2 class="category-title">${cat}</h2>
+                                <a href="/products?category=${encodeURIComponent(cat)}" 
+                                   class="view-all-link"
+                                   onclick="event.preventDefault(); window.navigateTo('/products?category=${encodeURIComponent(cat)}')">
+                                   View All <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
+                                </a>
                             </div>
-                            
-                            <div class="product-content">
-                                <div class="flex flex-col flex-1">
-                                    <h3 class="product-title line-clamp-2">${product.name}</h3>
-                                    ${!isMobile ? `<p class="product-description line-clamp-2 text-xs text-gray-500 mb-2">${product.description || ''}</p>` : ''}
-                                    
-                                    <div class="mt-auto flex items-end justify-between">
-                                        <div class="flex flex-col">
-                                            <span class="product-price">K${(product.price || 0).toLocaleString()}</span>
-                                            ${product.originalPrice && product.originalPrice > product.price ? `
-                                                <span class="text-[10px] text-gray-400 line-through">K${product.originalPrice.toLocaleString()}</span>
-                                            ` : ''}
-                                        </div>
-                                        <div class="product-meta-text text-[10px] font-semibold text-gray-500 uppercase tracking-tighter bg-gray-50 px-1.5 py-0.5 rounded">
-                                            ${product.condition || 'Used'}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="product-card-footer flex gap-2 pt-2 border-t border-gray-50">
-                                    <button class="flex-1 bg-navy text-white font-bold rounded-lg transition-transform active:scale-95 flex items-center justify-center ${isMobile ? 'py-3' : 'py-2 px-4 text-xs'} ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'js-add-to-cart'}"
-                                        ${isOutOfStock ? 'disabled' : ''}
-                                        data-item-id="${product._id}"
-                                        data-item-name="${product.name}"
-                                        data-item-price="${product.price}"
-                                        data-item-image="${product.images?.[0] || ''}">
-                                        ${isMobile ? '<i class="fas fa-cart-plus text-lg"></i>' : '<i class="fas fa-cart-plus mr-1.5"></i> Add to Cart'}
-                                    </button>
-                                    <a href="/product/${product._id}" 
-                                       class="bg-gray-100 text-navy font-bold rounded-lg transition-transform active:scale-95 flex items-center justify-center ${isMobile ? 'w-12 py-3' : 'px-4 py-2 text-xs flex-shrink-0'}"
-                                       onclick="event.stopPropagation();">
-                                        ${isMobile ? '<i class="fas fa-eye text-lg"></i>' : 'Details'}
-                                    </a>
-                                </div>
+                            <div class="category-row hide-scrollbar">
+                                ${randomProducts.map(p => generateProductCard(p, 'product-card-horizontal')).join('')}
                             </div>
                         </div>
                     `;
                 }).join('');
-                
-                updateFilterBadges();
-                updateResultsSummary();
             }
 
             function updateResultsSummary() {

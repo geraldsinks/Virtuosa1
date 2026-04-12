@@ -633,7 +633,7 @@ class NotificationService {
                     orderId: order._id,
                     productId: order.product,
                     amount: order.amount,
-                    actionUrl: `/pages/orders.html`,
+                    actionUrl: `/orders`,
                     actionText: 'View Order'
                 },
                 priority: 'high'
@@ -644,7 +644,7 @@ class NotificationService {
                 message: `Your order has been confirmed by the seller`,
                 data: {
                     orderId: order._id,
-                    actionUrl: `/pages/orders.html`,
+                    actionUrl: `/orders`,
                     actionText: 'Track Order'
                 },
                 priority: 'normal'
@@ -656,7 +656,7 @@ class NotificationService {
                 data: {
                     orderId: order._id,
                     trackingNumber: order.trackingNumber,
-                    actionUrl: `/pages/orders.html`,
+                    actionUrl: `/orders`,
                     actionText: 'Track Package'
                 },
                 priority: 'normal'
@@ -667,7 +667,7 @@ class NotificationService {
                 message: `Your order has been delivered. Please confirm receipt`,
                 data: {
                     orderId: order._id,
-                    actionUrl: `/pages/orders.html`,
+                    actionUrl: `/orders`,
                     actionText: 'Confirm Delivery'
                 },
                 priority: 'high'
@@ -679,7 +679,7 @@ class NotificationService {
                 data: {
                     orderId: order._id,
                     amount: order.amount,
-                    actionUrl: `/pages/orders.html`,
+                    actionUrl: `/orders`,
                     actionText: 'View Details'
                 },
                 priority: 'high'
@@ -713,7 +713,7 @@ class NotificationService {
                 message: `Your product "${product.name}" has been approved and is now live`,
                 data: {
                     productId: product._id,
-                    actionUrl: `/pages/product.html?id=${product._id}`,
+                    actionUrl: `/product/${product._id}`,
                     actionText: 'View Product'
                 },
                 priority: 'normal'
@@ -724,7 +724,7 @@ class NotificationService {
                 message: `Your product "${product.name}" needs some updates`,
                 data: {
                     productId: product._id,
-                    actionUrl: `/pages/seller.html`,
+                    actionUrl: `/seller`,
                     actionText: 'Update Product'
                 },
                 priority: 'normal'
@@ -758,7 +758,7 @@ class NotificationService {
             message: `You ${transactionType} ${amount} tokens for ${reason}`,
             data: {
                 tokenAmount: amount,
-                actionUrl: '/pages/profile.html',
+                actionUrl: '/profile',
                 actionText: 'View Balance'
             },
             priority: 'normal',

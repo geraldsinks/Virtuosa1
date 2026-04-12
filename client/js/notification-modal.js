@@ -218,13 +218,13 @@ class NotificationModal {
                                 </button>
                             </div>
                         </div>
-                        ${notification.link ? `
-                            <div class="mt-3">
-                                <a href="${notification.link}" class="inline-flex items-center text-gold hover:text-yellow-600 text-sm font-medium">
-                                    View Details <i class="fas fa-arrow-right ml-1"></i>
-                                </a>
-                            </div>
-                        ` : ''}
+                        ${(notification.link || notification.data?.actionUrl) ? `
+                             <div class="mt-3">
+                                 <a href="${notification.link || notification.data.actionUrl}" class="inline-flex items-center text-gold hover:text-yellow-600 text-sm font-medium">
+                                     View Details <i class="fas fa-arrow-right ml-1"></i>
+                                 </a>
+                             </div>
+                         ` : ''}
                     </div>
                 </div>
             </div>

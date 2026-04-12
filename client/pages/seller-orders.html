@@ -135,7 +135,7 @@
             const token = localStorage.getItem('token');
             
             if (!token) {
-                window.location.href = '/login';
+                window.navigateTo('/login');
                 return;
             }
 
@@ -154,7 +154,7 @@
 
                 if (!user || (!user.isSeller && !user.isAdmin)) {
                     alert('Access denied. Seller privileges required.');
-                    window.location.href = '/dashboard';
+                    window.navigateTo('/dashboard');
                     return;
                 }
 
@@ -372,12 +372,17 @@
 
             // View order details
             window.viewOrderDetails = (orderId) => {
-                window.location.href = `/order?id=${orderId}`;
+                window.navigateTo(`/order/${orderId}`);
             };
 
             // Message buyer
-            window.messageBuyer = (buyerId, productName) => {
-                window.location.href = `/messages?recipientId=${buyerId}&product=${encodeURIComponent(productName)}`;
+            window.messageBuyer = (buyerId, productName, orderId) => {
+                const query = new URLSearchParams({
+                    recipientId: buyerId,
+                    product: productName,
+                    orderId: orderId
+                });
+                window.navigateTo(`/messages?${query.toString()}`);
             };
 
             // Render pagination
@@ -540,15 +545,6 @@
                     console.error('Error marking as shipped:', error);
                     alert('Error updating order status');
                 }
-            };
-
-            // View order details
-            window.viewOrderDetails = (orderId) => {
-                window.navigateTo(`/order/${orderId}`);
-            };
-
-            window.messageBuyer = (buyerId, orderId) => {
-                window.navigateTo(`/messages?recipientId=${buyerId}&orderId=${orderId}`);
             };
 
             // Toast notification
