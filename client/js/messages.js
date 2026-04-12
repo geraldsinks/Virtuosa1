@@ -236,20 +236,22 @@ window.openMobileMenu = function() {
 
 // Global back button function
 window.goBack = function() {
-    console.log('Going back...');
+    console.log('🔙 window.goBack called');
     
-    // If we're in chat view, go back to conversation list
-    if (document.body.classList.contains('mobile-chat-active')) {
-        window.backToConversations();
-        return;
+    // If we're in chat view on mobile, go back to conversation list
+    if (document.body.classList.contains('mobile-chat-active') || window.innerWidth < 768) {
+        if (typeof window.backToConversations === 'function') {
+            window.backToConversations();
+            return;
+        }
     }
     
-    // Otherwise, go to previous page
+    // Otherwise, try to go back in history
     if (window.history.length > 1) {
         window.history.back();
     } else {
-        // If no history, go to home
-        window.location.href = '/';
+        // Fallback to home if no history
+        window.navigateTo('/');
     }
 };
 
@@ -611,14 +613,27 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             socket.on('new_message', (message) => {
-                console.log('New message received:', message);
-                if (currentRecipientId && 
-                    (message.sender === currentRecipientId || message.receiver === userId)) {
+                console.log('📥 New message received:', message);
+                
+                const senderId = (message.sender && typeof message.sender === 'object') ? message.sender._id : message.sender;
+                
+                // If this is the active chat, add it to the UI
+                if (currentRecipientId && (senderId === currentRecipientId || message.receiver === userId)) {
                     addMessageToUI(message);
-                    if (message.sender !== userId) {
+                    if (senderId !== userId) {
                         markMessageAsRead(message._id);
                     }
+                } else if (senderId !== userId) {
+                    // Show a global notification banner if we're not in the chat
+                    if (window.unifiedHeader && typeof window.unifiedHeader.showBanner === 'function') {
+                        const senderName = message.senderName || (message.sender && message.sender.fullName) || 'Someone';
+                        window.unifiedHeader.showBanner(`New message from ${senderName}`, 'info');
+                    } else {
+                        showToast(`New message from user`, 'info');
+                    }
                 }
+                
+                // Refresh the sidebar
                 loadConversations();
             });
 
@@ -665,11 +680,39 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartBadge();
 
     async function startChatAfterConversationsLoad(recipientId, orderId, productId) {
+        if (!recipientId) return;
+        
+        console.log('🔄 Starting chat after conversations load...', { recipientId, orderId, productId });
+        
         try {
+            // Load conversations first to check for existing contact
             await loadConversations();
-            startChat(recipientId, 'User', productId || '', orderId || '');
+            
+            // Check if user is already in the list to get their data
+            const existingContact = document.querySelector(`[data-user-id="${recipientId}"]`);
+            if (existingContact) {
+                console.log('✅ Found existing contact in sidebar');
+                existingContact.click();
+                return;
+            }
+            
+            // If not in list, fetch public user info to resolve identity
+            console.log('🔍 Fetching identity for new contact:', recipientId);
+            try {
+                const response = await fetch(`${API_BASE}/users/${recipientId}/public`);
+                if (response.ok) {
+                    const userData = await response.json();
+                    console.log('👤 Resolved name:', userData.fullName);
+                    startChat(recipientId, userData.fullName, userData.profilePicture || '', orderId || '');
+                } else {
+                    throw new Error('User info not found');
+                }
+            } catch (fetchError) {
+                console.warn('⚠️ Could not resolve name, using placeholder:', fetchError);
+                startChat(recipientId, 'User', '', orderId || '');
+            }
         } catch (error) {
-            console.error('Error starting chat after conversations load:', error);
+            console.error('❌ Error in startChatAfterConversationsLoad:', error);
         }
     }
 

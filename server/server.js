@@ -5709,6 +5709,23 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
     }
 });
 
+// Get public user info (for messaging/identity)
+app.get('/api/users/:id/public', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id)
+            .select('fullName profilePicture university campusLocation createdAt');
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        res.json(user);
+    } catch (error) {
+        console.error('Get public user info error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // Update user profile
 app.put('/api/user/profile', authenticateToken, async (req, res) => {
     try {

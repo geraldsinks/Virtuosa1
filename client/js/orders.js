@@ -329,6 +329,17 @@ function getOrderActionButtons(order) {
                 </button>
             `);
         }
+
+        // Allow cancellation for pending/confirmed but not yet shipped orders
+        const cancellableStatuses = ['pending', 'processing', 'Processing', 'confirmed_by_seller', 'pending_seller_confirmation'];
+        if (cancellableStatuses.includes(order.status)) {
+            buttons.push(`
+                <button onclick="cancelOrder('${order._id}')" 
+                        class="px-4 py-2 text-gray-500 hover:text-red-600 transition-colors text-xs font-medium mt-2 block w-full text-left">
+                    Cancel Order
+                </button>
+            `);
+        }
     }
 
     // Common actions
@@ -343,6 +354,38 @@ function getOrderActionButtons(order) {
     
     return buttons.join('');
 }
+
+async function cancelOrder(orderId) {
+    if (!confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
+        return;
+    }
+
+    const reason = prompt('Please provide a reason for cancellation (optional):');
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE}/transactions/${orderId}/cancel`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason: reason || 'Cancelled by buyer' })
+        });
+
+        if (response.ok) {
+            showToast('Order cancelled successfully', 'success');
+            loadOrders(currentPage, currentFilter);
+        } else {
+            const data = await response.json();
+            showToast(data.message || 'Failed to cancel order', 'error');
+        }
+    } catch (error) {
+        console.error('Cancel order error:', error);
+        showToast('An error occurred during cancellation', 'error');
+    }
+}
+window.cancelOrder = cancelOrder;
 
 // Function to initiate a dispute
 async function initiateDispute(orderId) {

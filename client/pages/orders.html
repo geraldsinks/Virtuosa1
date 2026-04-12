@@ -666,30 +666,28 @@
             window.cancelOrder = async (orderId) => {
                 const token = localStorage.getItem('token');
                 
-                const confirmed = confirm('Are you sure you want to cancel this order? This action cannot be undone.');
-                
-                if (!confirmed) {
+                if (!confirm('Are you sure you want to cancel this order? This action cannot be undone. For paid orders, a refund will be processed according to platform policy.')) {
                     return;
                 }
 
                 const reason = prompt('Please let us know why you are cancelling (optional):');
 
                 try {
-                    const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
-                        method: 'PUT',
+                    // Use the standardized cancellation endpoint which handles inventory reversal
+                    const response = await fetch(`${API_BASE}/transactions/${orderId}/cancel`, {
+                        method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
                         },
                         body: JSON.stringify({
-                            status: 'cancelled',
-                            deliveryNotes: reason || 'Cancelled by buyer'
+                            reason: reason || 'Cancelled by buyer'
                         })
                     });
 
                     if (response.ok) {
                         showToast('Order cancelled successfully', 'info');
-                        await loadOrders(1, ''); // Reload orders
+                        await loadOrders(currentPage, currentFilter); // Use current page/filter
                     } else {
                         const error = await response.json();
                         showToast(error.message || 'Failed to cancel order', 'error');
@@ -942,16 +940,39 @@ Confirm Delivery & Earn Tokens?
 
             // Submit review
             window.submitReview = async (orderId, productId) => {
-                const rating = document.querySelector('.rating-star.text-yellow-400, .rating-star.text-yellow-500')?.dataset.rating || 0;
+                // Get rating - find the highest highlighted star
+                let rating = 0;
+                const stars = document.querySelectorAll('.rating-star i.text-yellow-400, .rating-star i.text-yellow-500');
+                if (stars.length > 0) {
+                    // stars is a NodeList of i elements, we need the parent button's data-rating
+                    stars.forEach(s => {
+                        const r = parseInt(s.parentElement.dataset.rating);
+                        if (r > rating) rating = r;
+                    });
+                } else if (window.currentRating) {
+                    rating = window.currentRating;
+                }
+
                 const reviewText = document.getElementById('review-text')?.value.trim() || '';
 
                 if (!rating) {
                     showToast('Please select a star rating', 'error');
+                    const starsContainer = document.querySelector('.flex.justify-center.space-x-2');
+                    if (starsContainer) {
+                        starsContainer.classList.add('animate-shake', 'ring-2', 'ring-red-500', 'p-2', 'rounded-lg');
+                        setTimeout(() => starsContainer.classList.remove('animate-shake', 'ring-2', 'ring-red-500', 'p-2'), 1000);
+                    }
                     return;
                 }
 
                 try {
                     const token = localStorage.getItem('token');
+                    const submitBtn = document.querySelector('button[onclick*="submitReview"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+                    }
+
                     const response = await fetch(`${API_BASE}/reviews`, {
                         method: 'POST',
                         headers: {
@@ -969,13 +990,24 @@ Confirm Delivery & Earn Tokens?
                     if (response.ok) {
                         showToast('📝 Review submitted successfully! Thank you for your feedback.', 'success');
                         closeReviewModal();
+                        // Refresh display if needed
+                        if (typeof loadOrders === 'function') loadOrders(currentPage, currentFilter);
                     } else {
                         const error = await response.json();
                         showToast(error.message || 'Failed to submit review', 'error');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Submit Review';
+                        }
                     }
                 } catch (error) {
                     console.error('Error submitting review:', error);
                     showToast('Failed to submit review', 'error');
+                    const submitBtn = document.querySelector('button[onclick*="submitReview"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Submit Review';
+                    }
                 }
             };
             function showToast(message, type = 'success') {
@@ -1149,7 +1181,6 @@ Confirm Delivery & Earn Tokens?
             document.body.insertAdjacentHTML('beforeend', modalHtml);
         };
     </script>
-    <script src="../js/config.js"></script>
     <script src="../js/cart.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 
