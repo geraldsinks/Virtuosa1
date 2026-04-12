@@ -179,13 +179,13 @@
             // Load orders
             await loadOrders();
 
+
             // Event listeners
             document.getElementById('status-filter').addEventListener('change', (e) => {
                 currentFilter = e.target.value;
                 currentPage = 1;
                 loadOrders();
             });
-        });
 
             document.getElementById('refresh-orders').addEventListener('click', () => {
                 loadOrders();
