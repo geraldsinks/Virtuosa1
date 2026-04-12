@@ -13,11 +13,11 @@ if (typeof window.API_BASE === 'undefined') {
 }
 
 // Fallback image URLs for consistency
-if (typeof FALLBACK_IMAGES === 'undefined') {
-    const FALLBACK_IMAGES = {
-    HERO: 'https://placehold.co/1200x600/0A1128/FFFFFF?text=Virtuosa+Campus+Life',
-    TEAM_MEMBER: 'https://placehold.co/400x400/0A1128/FFFFFF?text=Team'
-};
+if (typeof window.FALLBACK_IMAGES === 'undefined') {
+    window.FALLBACK_IMAGES = {
+        HERO: 'https://placehold.co/1200x600/0A1128/FFFFFF?text=Virtuosa+Campus+Life',
+        TEAM_MEMBER: 'https://placehold.co/400x400/0A1128/FFFFFF?text=Team'
+    };
 }
 
 // Export for use in other scripts

@@ -1576,6 +1576,19 @@ app.get('/api/public/about', async (req, res) => {
     }
 });
 
+// Admin GET endpoint
+app.get('/api/admin/about', authenticateToken, checkRoleAccess('about_page_editing'), async (req, res) => {
+    try {
+        const aboutData = await AboutPage.findOne().populate('updatedBy', 'fullName');
+        if (!aboutData) {
+            return res.status(404).json({ message: 'About page data not found' });
+        }
+        res.json(aboutData);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching about page content' });
+    }
+});
+
 // Admin UPDATE endpoint
 app.put('/api/admin/about', authenticateToken, checkRoleAccess('about_page_editing'), async (req, res) => {
     try {

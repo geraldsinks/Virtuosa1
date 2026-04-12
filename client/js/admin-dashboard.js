@@ -1232,57 +1232,90 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// Track if currently loading to prevent race conditions
+let isAboutLoading = false;
+
 // Load About Page Data
 async function loadAboutData() {
+    if (isAboutLoading) return;
+    
+    const aboutTab = document.getElementById('aboutTab');
+    if (!aboutTab) {
+        console.error('About tab element not found');
+        return;
+    }
+
     try {
-        // Show loading state
-        const aboutTab = document.getElementById('aboutTab');
-        if (!aboutTab) {
-            console.error('About tab element not found');
-            return;
-        }
-        const originalContent = aboutTab.innerHTML;
-        aboutTab.innerHTML = `
-            <div class="flex items-center justify-center py-12">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-3"></div>
-                <span class="text-gray-600">Loading about page data...</span>
-            </div>
-        `;
+        isAboutLoading = true;
         
-        const response = await fetch(`${API_BASE}/public/about`);
+        // Show loading spinner without destroying the tab's static structure
+        // We'll add a temporary overlay or just change a specific loader element if it exists
+        let loader = document.getElementById('about-tab-loader');
+        if (!loader) {
+            loader = document.createElement('div');
+            loader.id = 'about-tab-loader';
+            loader.className = 'fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50';
+            loader.innerHTML = `
+                <div class="bg-white p-6 rounded-xl shadow-2xl flex items-center space-x-4">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <span class="text-gray-700 font-medium">Loading about page data...</span>
+                </div>
+            `;
+            aboutTab.style.position = 'relative';
+            aboutTab.appendChild(loader);
+        } else {
+            loader.classList.remove('hidden');
+        }
+        
+        const token = localStorage.getItem('token');
+        // Use admin endpoint for the dashboard
+        const response = await fetch(`${API_BASE}/admin/about`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            // Fallback to public endpoint if admin one fails (for compatibility)
+            const publicResponse = await fetch(`${API_BASE}/public/about`);
+            if (!publicResponse.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            const data = await publicResponse.json();
+            populateAboutForm(data);
+        } else {
+            const data = await response.json();
+            populateAboutForm(data);
         }
-        
-        const data = await response.json();
-
-        // Restore original content and populate data
-        aboutTab.innerHTML = originalContent;
-        document.getElementById('about-title-input').value = data.title || '';
-        document.getElementById('about-mission-input').value = data.mission || '';
-        document.getElementById('about-vision-input').value = data.vision || '';
-        document.getElementById('about-story-input').value = data.story || '';
-        document.getElementById('about-hero-input').value = data.heroImage || '';
-        
-        renderTeamInputs(data.team || []);
     } catch (error) {
         console.error('Error loading about data:', error);
-        
-        // Show user-friendly error message
-        const aboutTab = document.getElementById('aboutTab');
-        aboutTab.innerHTML = `
-            <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-                <div class="text-red-600 mb-3">
-                    <i class="fas fa-exclamation-triangle text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-red-900 mb-2">Failed to Load About Page Data</h3>
-                <p class="text-red-700 mb-4">${escapeHtml(error.message) || 'Unable to connect to the server. Please check your internet connection and try again.'}</p>
-                <button onclick="loadAboutData()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
-                    <i class="fas fa-redo mr-2"></i>Try Again
-                </button>
-            </div>
-        `;
+        showError('Failed to load about page data: ' + error.message);
+    } finally {
+        isAboutLoading = false;
+        const loader = document.getElementById('about-tab-loader');
+        if (loader) loader.classList.add('hidden');
+    }
+}
+
+// Helper to populate the form
+function populateAboutForm(data) {
+    if (!data) return;
+    
+    const elements = {
+        'about-title-input': data.title,
+        'about-mission-input': data.mission,
+        'about-vision-input': data.vision,
+        'about-story-input': data.story,
+        'about-hero-input': data.heroImage
+    };
+    
+    for (const [id, value] of Object.entries(elements)) {
+        const el = document.getElementById(id);
+        if (el) el.value = value || '';
+    }
+    
+    if (typeof renderTeamInputs === 'function') {
+        renderTeamInputs(data.team || []);
     }
 }
 
@@ -1506,7 +1539,8 @@ function previewAboutPage() {
     const mission = escapeHtml(document.getElementById('about-mission-input').value.trim() || 'Our mission statement');
     const vision = escapeHtml(document.getElementById('about-vision-input').value.trim() || 'Our vision statement');
     const story = escapeHtml(document.getElementById('about-story-input').value.trim() || 'Our company story');
-    const heroImage = escapeHtml(document.getElementById('about-hero-input').value.trim() || FALLBACK_IMAGES.HERO);
+    const heroImage = escapeHtml(document.getElementById('about-hero-input').value.trim() || (window.FALLBACK_IMAGES ? window.FALLBACK_IMAGES.HERO : ''));
+    
     
     // Gather team members with hierarchy logic
     const teamCards = document.querySelectorAll('#admin-team-list > div');
@@ -1522,7 +1556,7 @@ function previewAboutPage() {
         const image = card.querySelector('.team-image').value.trim();
         
         if (name && role) {
-            team.push({ name, role, bio, image: escapeHtml(image) || FALLBACK_IMAGES.TEAM_MEMBER });
+            team.push({ name, role, bio, image: escapeHtml(image) || (window.FALLBACK_IMAGES ? window.FALLBACK_IMAGES.TEAM_MEMBER : '') });
         }
     });
 
@@ -1551,7 +1585,7 @@ function previewAboutPage() {
                     <div class="flex justify-center">
                         <div class="relative group inline-block">
                             <div class="w-32 h-32 rounded-full overflow-hidden bg-gray-200 shadow-lg border-3 border-gold transform transition-all duration-500 hover:scale-105">
-                                <img src="${founder.image}" alt="${founder.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER.replace(/'/g, "\\'")}'">
+                                <img src="${founder.image}" alt="${founder.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" onerror="this.src='${(window.FALLBACK_IMAGES ? window.FALLBACK_IMAGES.TEAM_MEMBER : '').replace(/'/g, "\\'")}'">
                             </div>
                             <div class="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-gold text-navy font-bold py-1 px-4 rounded-full text-xs shadow-md">
                                 ${founder.role}
@@ -1573,7 +1607,7 @@ function previewAboutPage() {
                         ${otherMembers.map(member => `
                             <div class="relative group text-center">
                                 <div class="w-20 h-20 rounded-full overflow-hidden bg-gray-200 shadow-md border-2 border-gold/50 transform transition-all duration-500 hover:scale-105 hover:border-gold mx-auto">
-                                    <img src="${member.image}" alt="${member.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" onerror="this.src='${FALLBACK_IMAGES.TEAM_MEMBER.replace(/'/g, "\\'")}'">
+                                    <img src="${member.image}" alt="${member.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" onerror="this.src='${(window.FALLBACK_IMAGES ? window.FALLBACK_IMAGES.TEAM_MEMBER : '').replace(/'/g, "\\'")}'">
                                 </div>
                                 <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gold text-navy font-semibold py-0.5 px-2 rounded-full text-xs shadow-sm">
                                     ${member.role}
@@ -1607,7 +1641,7 @@ function previewAboutPage() {
                 <div class="p-6 max-h-[80vh] overflow-y-auto">
                     <!-- Hero Section Preview -->
                     <div class="relative h-64 bg-navy rounded-lg overflow-hidden mb-8">
-                        <img src="${heroImage}" alt="Hero" class="w-full h-full object-cover opacity-40" onerror="this.src='${FALLBACK_IMAGES.HERO.replace(/'/g, "\\'")}'">
+                        <img src="${heroImage}" alt="Hero" class="w-full h-full object-cover opacity-40" onerror="this.src='${(window.FALLBACK_IMAGES ? window.FALLBACK_IMAGES.HERO : '').replace(/'/g, "\\'")}'">
                         <div class="absolute inset-0 flex items-center justify-center text-center">
                             <div>
                                 <h1 class="text-4xl font-bold text-white mb-4">${title}</h1>
