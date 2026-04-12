@@ -80,7 +80,7 @@ class NotificationModal {
 
     setupSocketListeners() {
         // Initialize socket connection
-        this.socket = io();
+        this.socket = io(window.SOCKET_URL);
         
         // Authenticate socket
         const token = localStorage.getItem('token');

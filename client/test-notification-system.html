@@ -69,7 +69,7 @@
     </div>
 
     <script src="../js/config.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     
     <script>
         class NotificationTester {
@@ -127,7 +127,7 @@
 
             initSocket() {
                 try {
-                    this.socket = io();
+                    this.socket = io(window.SOCKET_URL);
                     
                     this.socket.on('connect', () => {
                         this.updateStatus('websocket-status', 'Connected');

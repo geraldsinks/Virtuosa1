@@ -76,7 +76,7 @@ class NotificationManager {
         }
 
         try {
-            this.socket = io({
+            this.socket = io(window.SOCKET_URL, {
                 transports: ['websocket', 'polling'],
                 upgrade: true,
                 rememberUpgrade: true,

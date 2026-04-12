@@ -9,7 +9,12 @@ if (typeof window.API_BASE === 'undefined') {
             // Use main domain for all API requests
             return `${protocol}//api.${hostname}/api`;
         })();
+    
+    // Derive SOCKET_URL from API_BASE (removes /api suffix)
+    window.SOCKET_URL = window.API_BASE.replace('/api', '');
+    
     console.log('🔌 API Base URL configured:', window.API_BASE);
+    console.log('🔌 Socket URL configured:', window.SOCKET_URL);
 }
 
 // Fallback image URLs for consistency

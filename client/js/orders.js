@@ -6,7 +6,7 @@ let socket = null;
 // Initialize socket connection for real-time updates
 function initializeSocket() {
     try {
-        socket = io();
+        socket = io(window.SOCKET_URL);
         
         // Listen for connection events
         socket.on('connect', () => {

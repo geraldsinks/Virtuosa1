@@ -72,7 +72,7 @@
     <!-- Load scripts -->
     <script src="js/config.js"></script>
     <script src="js/notification-modal.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     
     <script>
         let testSocket = null;
@@ -108,7 +108,7 @@
             const statusDiv = document.getElementById('socket-status');
             
             try {
-                testSocket = io();
+                testSocket = io(window.SOCKET_URL);
                 
                 testSocket.on('connect', () => {
                     statusDiv.innerHTML = '<span class="text-green-600"><i class="fas fa-check-circle mr-1"></i>Connected</span>';

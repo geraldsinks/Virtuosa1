@@ -480,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (token) {
         // Load Socket.io dynamically
         const script = document.createElement('script');
-        script.src = 'https://cdn.socket.io/4.7.2/socket.io.min.js';
+        script.src = 'https://cdn.socket.io/4.7.5/socket.io.min.js';
         script.onload = () => {
             console.log('Socket.io loaded, initializing...');
             initializeSocket();
@@ -515,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initializeSocket() {
         try {
-            socket = io();
+            socket = io(window.SOCKET_URL);
             
             // Register socket with token manager for automatic reconnection
             if (window.tokenManager) {
