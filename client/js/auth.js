@@ -184,9 +184,10 @@ function showMessage(message, isError = false) {
     showToast(message, isError ? 'error' : 'success', 5000);
 }
 
-function togglePassword(inputId) {
+function togglePassword(inputId, toggleId) {
     const input = document.getElementById(inputId);
-    const toggle = document.getElementById(inputId + '-toggle');
+    // Try provided toggleId, or fallback to inputId + '-toggle'
+    const toggle = document.getElementById(toggleId) || document.getElementById(inputId + '-toggle');
     
     if (input && toggle) {
         if (input.type === 'password') {
@@ -832,7 +833,7 @@ function renderAuthComponent(type) {
                         <input type="password" id="login-password-input" name="password" required 
                             class="auth-input block w-full px-4 py-3 rounded-lg text-sm bg-gray-50 placeholder-gray-400 pr-12" 
                             placeholder="Enter your password">
-                        <span class="password-toggle" onclick="togglePassword('login-password-input')">
+                        <span class="password-toggle" onclick="togglePassword('login-password-input', 'login-password-toggle')">
                             <i class="fas fa-eye" id="login-password-toggle"></i>
                         </span>
                     </div>
@@ -1048,7 +1049,21 @@ registerPageReady(() => {
     } else {
         const urlParams = new URLSearchParams(window.location.search);
         const resetToken = urlParams.get('token');
-        renderAuthComponent(resetToken ? 'reset' : 'login');
+        
+        if (resetToken) {
+            renderAuthComponent('reset');
+        } else {
+            const pathname = window.location.pathname.toLowerCase();
+            if (pathname.includes('signup')) {
+                renderAuthComponent('signup');
+            } else if (pathname.includes('forgot-password')) {
+                renderAuthComponent('forgot');
+            } else if (pathname.includes('reset-password')) {
+                renderAuthComponent('reset');
+            } else {
+                renderAuthComponent('login');
+            }
+        }
     }
 });
 
