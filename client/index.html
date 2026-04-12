@@ -758,6 +758,42 @@
                 display: none !important;
             }
         }
+
+        /* Category Card Visibility Rules */
+        /* Default: Mobile/Tablet show overlay, hide under-image titles */
+        .desktop-only-titles {
+            display: none;
+        }
+
+        .desktop-only-mobile {
+            display: block;
+        }
+
+        .desktop-title-hidden {
+            display: block;
+        }
+
+        /* Desktop Breakpoint (Over Tablet) */
+        @media (min-width: 1024px) {
+            /* Hide the overlay and its content */
+            .desktop-only-mobile {
+                display: none !important;
+            }
+
+            .desktop-title-hidden {
+                display: none !important;
+            }
+
+            /* Show the under-image titles */
+            .desktop-only-titles {
+                display: block !important;
+            }
+            
+            /* Defensive fix for the desktop-group-hover class used in JS */
+            .desktop-group-hover\:opacity-0 {
+                opacity: 0 !important;
+            }
+        }
     </style>
 
     <!-- Clean URL System -->
