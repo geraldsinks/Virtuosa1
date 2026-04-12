@@ -351,12 +351,13 @@ app.use((req, res, next) => {
 const { checkMaintenance } = require('./middleware/maintenance');
 app.use('/api', checkMaintenance);
 
-// Mount Analytics, Support, and Chat Routes
-console.log('📊 Mounting analytics routes...');
+// Mount Analytics, Support, Chat, and Wishlist Routes
+console.log('📊 Mounting analytics, support, chat, and wishlist routes...');
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/support', require('./routes/support'));
 app.use('/api/chat', require('./routes/chat'));
-console.log('📊 Analytics, Support, and Chat routes mounted');
+app.use('/api/wishlist', require('./routes/wishlist'));
+console.log('📊 Analytics, Support, Chat, and Wishlist routes mounted');
 
 // Serve uploads from the correct directory based on environment
 const uploadsPath = path.join(basePath, 'uploads');

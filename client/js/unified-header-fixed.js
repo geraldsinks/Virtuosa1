@@ -101,7 +101,8 @@ class UnifiedHeader {
             '/pages/create-product.html': '/create-product',
             '/pages/admin-dashboard.html': '/admin',
             '/pages/faq.html': '/faq',
-            '/pages/contact-support.html': '/contact'
+            '/pages/contact-support.html': '/contact',
+            '/pages/wishlist.html': '/wishlist'
         };
 
         const headerLinks = document.querySelectorAll('header a[href*=".html"], #side-menu-content a[href*=".html"]');
@@ -369,6 +370,9 @@ class UnifiedHeader {
             </a>
             <a href="/messages" class="flex flex-row items-center px-5 py-3 text-gray-200 hover:bg-gray-800 hover:text-gold transition-colors">
                 <span>Messages</span>
+            </a>
+            <a href="/wishlist" class="flex flex-row items-center px-5 py-3 text-gray-200 hover:bg-gray-800 hover:text-gold transition-colors">
+                <span>My Wishlist</span>
             </a>
             <a href="/transactions" class="flex flex-row items-center px-5 py-3 text-gray-200 hover:bg-gray-800 hover:text-gold transition-colors">
                 <span>Transactions</span>

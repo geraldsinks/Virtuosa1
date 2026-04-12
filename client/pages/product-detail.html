@@ -139,6 +139,9 @@
                                 <i data-lucide="shopping-cart" class="w-5 h-5"></i>
                                 Add to Cart
                             </button>
+                            <button id="wishlist-btn" class="w-14 h-14 bg-white border border-gray-200 text-gray-600 rounded-full flex items-center justify-center hover:bg-gray-50 hover:text-red-500 transition-all shadow-sm group">
+                                <i id="wishlist-icon" class="far fa-heart text-xl"></i>
+                            </button>
                         </div>
 
                         <div id="additional-specs" class="grid grid-cols-2 gap-4 py-4 border-t border-gray-100 mt-4">
@@ -270,6 +273,11 @@
                 
                 // Initialize Lucide icons after rendering
                 lucide.createIcons();
+                
+                // Initialize wishlist button
+                if (typeof initWishlistButton === 'function') {
+                    initWishlistButton(productId);
+                }
             } catch (error) {
                 console.error('Error fetching product:', error);
                 showError();
@@ -333,14 +341,22 @@
                     : null;
 
                 return `
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow cursor-pointer" 
-                         onclick="window.location.href='/product/${product._id}'">
-                        <div class="aspect-square overflow-hidden bg-gray-50">
+                    <div class="product-card group bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow cursor-pointer relative" 
+                         onclick="if(!event.target.closest('button')) window.location.href='/product/${product._id}'">
+                        <div class="aspect-square overflow-hidden bg-gray-50 relative">
                             <img src="${imageUrl}" 
                                  alt="${product.name}" 
-                                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                  loading="lazy"
                                  onerror="this.src='https://placehold.co/300x200?text=No+Image'">
+                            
+                            <div class="absolute top-2 right-2 z-10">
+                                <button class="js-wishlist-btn p-1.5 rounded-full bg-white/70 backdrop-blur-sm hover:bg-white transition-all shadow-sm group/wishlist" 
+                                        data-id="${product._id}" 
+                                        onclick="event.stopPropagation();">
+                                    <i class="${window.wishlistManager && window.wishlistManager.contains(product._id) ? 'fas' : 'far'} fa-heart ${window.wishlistManager && window.wishlistManager.contains(product._id) ? 'text-red-500' : 'text-gray-600'} group-hover/wishlist:text-red-500 transition-colors"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="p-4">
                             <h3 class="font-semibold text-gray-900 text-sm line-clamp-2 mb-2">${product.name}</h3>
@@ -592,6 +608,55 @@
         }
     </script>
     <script src="../js/config.js"></script>
+    <script src="../js/wishlist-manager.js"></script>
+    <script>
+        // Wishlist functionality for product detail page
+        async function initWishlistButton(productId) {
+            const wishlistBtn = document.getElementById('wishlist-btn');
+            const wishlistIcon = document.getElementById('wishlist-icon');
+            
+            if (!wishlistBtn || !wishlistIcon) return;
+            
+            // Initial state
+            const updateUI = () => {
+                const isInWishlist = window.wishlistManager.contains(productId);
+                if (isInWishlist) {
+                    wishlistIcon.classList.remove('far', 'text-gray-600');
+                    wishlistIcon.classList.add('fas', 'text-red-500');
+                } else {
+                    wishlistIcon.classList.remove('fas', 'text-red-500');
+                    wishlistIcon.classList.add('far', 'text-gray-600');
+                }
+            };
+            
+            updateUI();
+            
+            wishlistBtn.onclick = async () => {
+                const isAdded = await window.wishlistManager.toggle(productId);
+                updateUI();
+            };
+
+            // Also listen for event clicks on similar items
+            document.addEventListener('click', async (e) => {
+                const smWishlistBtn = e.target.closest('.js-wishlist-btn');
+                if (smWishlistBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const id = smWishlistBtn.dataset.id;
+                    const smIcon = smWishlistBtn.querySelector('i');
+                    const added = await window.wishlistManager.toggle(id);
+                    
+                    if (added) {
+                        smIcon.classList.remove('far', 'text-gray-600');
+                        smIcon.classList.add('fas', 'text-red-500');
+                    } else {
+                        smIcon.classList.remove('fas', 'text-red-500');
+                        smIcon.classList.add('far', 'text-gray-600');
+                    }
+                }
+            });
+        }
+    </script>
     <script>
         // Helper function to fix URLs to point to server
         function fixServerUrl(url) {

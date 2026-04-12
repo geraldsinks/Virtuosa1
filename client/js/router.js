@@ -95,7 +95,8 @@
         'seller-orders':            '/pages/seller-orders.html',
         'order-details':            '/pages/order-details.html',
         'about':                    '/pages/about.html',
-        'privacy':                  '/pages/privacy.html'
+        'privacy':                  '/pages/privacy.html',
+        'wishlist':                 '/pages/wishlist.html'
     };
 
     // Reverse map: file path → clean route (built once, used for URL conversion)

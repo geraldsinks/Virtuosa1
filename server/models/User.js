@@ -227,12 +227,17 @@ const userSchema = new mongoose.Schema({
         messages: { type: Boolean, default: true },
         system: { type: Boolean, default: true },
         push: { type: Boolean, default: true }
-    }
+    },
+
+    // Wishlist
+    wishlist: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
+    }]
 }, {
     timestamps: true
 });
 
-// Hash password before saving
 userSchema.pre('save', async function(next) {
     if (!this.isModified('password')) return next();
     
@@ -293,6 +298,7 @@ userSchema.methods.toPublicJSON = function() {
         totalTokensEarned: this.totalTokensEarned,
         totalTokensRedeemed: this.totalTokensRedeemed,
         pushSubscriptionEnabled: this.pushSubscriptionEnabled,
+        wishlist: this.wishlist,
         createdAt: this.createdAt,
         updatedAt: this.updatedAt
     };

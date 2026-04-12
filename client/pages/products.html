@@ -799,7 +799,8 @@
                     const isMobile = window.innerWidth < 640;
 
                     return `
-                        <div class="product-card group ${isOutOfStock ? 'opacity-75' : ''}">
+                        <div class="product-card group ${isOutOfStock ? 'opacity-75' : ''} cursor-pointer" 
+                             onclick="if(!event.target.closest('button') && !event.target.closest('a')) window.location.href='/product/${product._id}'">
                             <div class="product-image-container">
                                 <img src="${imageUrl}" 
                                      alt="${product.name}" 
@@ -818,6 +819,13 @@
                                             <i class="fas fa-fire"></i> ${isMobile ? 'H' : 'Hot'}
                                         </span>
                                     ` : ''}
+                                </div>
+                                <div class="absolute top-2 right-2 z-10">
+                                    <button class="js-wishlist-btn p-1.5 rounded-full bg-white/70 backdrop-blur-sm hover:bg-white transition-all shadow-sm group/wishlist" 
+                                            data-id="${product._id}" 
+                                            onclick="event.stopPropagation();">
+                                        <i class="${window.wishlistManager && window.wishlistManager.contains(product._id) ? 'fas' : 'far'} fa-heart ${window.wishlistManager && window.wishlistManager.contains(product._id) ? 'text-red-500' : 'text-gray-600'} group-hover/wishlist:text-red-500 transition-colors"></i>
+                                    </button>
                                 </div>
                                 ${isOutOfStock ? `
                                     <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-2 text-center">
@@ -852,11 +860,13 @@
                                         data-item-id="${product._id}"
                                         data-item-name="${product.name}"
                                         data-item-price="${product.price}"
-                                        data-item-image="${product.images?.[0] || ''}">
+                                        data-item-image="${product.images?.[0] || ''}"
+                                        onclick="event.stopPropagation();">
                                         ${isMobile ? '<i class="fas fa-cart-plus text-lg"></i>' : '<i class="fas fa-cart-plus mr-1.5"></i> Add to Cart'}
                                     </button>
                                     <a href="/product/${product._id}" 
-                                       class="bg-gray-100 text-navy font-bold rounded-lg transition-transform active:scale-95 flex items-center justify-center ${isMobile ? 'w-12 py-3' : 'px-4 py-2 text-xs flex-shrink-0'}">
+                                       class="bg-gray-100 text-navy font-bold rounded-lg transition-transform active:scale-95 flex items-center justify-center ${isMobile ? 'w-12 py-3' : 'px-4 py-2 text-xs flex-shrink-0'}"
+                                       onclick="event.stopPropagation();">
                                         ${isMobile ? '<i class="fas fa-eye text-lg"></i>' : 'Details'}
                                     </a>
                                 </div>
@@ -1289,6 +1299,34 @@
     <!-- Cookie Analytics & Consent -->
     <script src="/js/cookie-consent.js"></script>
     <script src="/js/cookie-tracker.js"></script>
+    <script src="/js/auth-manager.js"></script>
+    <script src="/js/wishlist-manager.js"></script>
+    
+    <script>
+        // Wishlist click handler
+        document.addEventListener('click', async (e) => {
+            const wishlistBtn = e.target.closest('.js-wishlist-btn');
+            if (wishlistBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const productId = wishlistBtn.dataset.id;
+                const icon = wishlistBtn.querySelector('i');
+                
+                // Toggle wishlist status
+                const isAdded = await window.wishlistManager.toggle(productId);
+                
+                // Update icon appearance
+                if (isAdded) {
+                    icon.classList.remove('far', 'text-gray-600');
+                    icon.classList.add('fas', 'text-red-500');
+                } else {
+                    icon.classList.remove('fas', 'text-red-500');
+                    icon.classList.add('far', 'text-gray-600');
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>
