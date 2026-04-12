@@ -510,8 +510,10 @@
                 }
             };
 
-            // Mark as shipped
             window.markAsShipped = async (orderId) => {
+                const trackingNumber = prompt('Enter tracking number (optional):');
+                if (trackingNumber === null) return; // User cancelled
+
                 if (!confirm('Are you sure you want to mark this order as shipped?')) return;
 
                 try {
@@ -522,7 +524,8 @@
                             'Authorization': `Bearer ${token}`
                         },
                         body: JSON.stringify({
-                            status: 'out_for_delivery'
+                            status: 'Shipped',
+                            trackingNumber: trackingNumber
                         })
                     });
 
@@ -541,12 +544,11 @@
 
             // View order details
             window.viewOrderDetails = (orderId) => {
-                window.navigateTo(`/order-details?id=${orderId}`);
+                window.navigateTo(`/order/${orderId}`);
             };
 
-            // Message buyer
-            window.messageBuyer = (buyerId, productName) => {
-                window.navigateTo(`/messages?buyer=${buyerId}&product=${productName}`);
+            window.messageBuyer = (buyerId, orderId) => {
+                window.navigateTo(`/messages?recipientId=${buyerId}&orderId=${orderId}`);
             };
 
             // Toast notification

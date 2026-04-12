@@ -474,20 +474,18 @@
 
             // View order details
             window.viewOrderDetails = async (orderId) => {
-                // You can implement a modal or redirect to order details page
-                window.location.href = `/pages/order-details.html?id=${orderId}`;
+                // Redirect to clean URL for order details
+                window.navigateTo(`/order/${orderId}`);
             };
 
-            // Message seller
             window.messageSeller = (sellerId, orderId) => {
-                // Redirect to messages page with pre-filled conversation
-                window.location.href = `messages.html?seller=${sellerId}&order=${orderId}`;
+                // Redirect to messages page with standardized clean URL
+                window.navigateTo(`/messages?recipientId=${sellerId}&orderId=${orderId}`);
             };
 
-            // Message buyer (for sellers)
             window.messageBuyer = (buyerId, orderId) => {
-                // Redirect to messages page with pre-filled conversation
-                window.location.href = `messages.html?buyer=${buyerId}&order=${orderId}`;
+                // Redirect to messages page with standardized clean URL
+                window.navigateTo(`/messages?recipientId=${buyerId}&orderId=${orderId}`);
             };
 
             // Confirm order (for sellers)

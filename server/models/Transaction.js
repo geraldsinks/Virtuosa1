@@ -71,6 +71,7 @@ const transactionSchema = new mongoose.Schema({
             'confirmed_by_seller',
             'out_for_delivery',
             'delivered_pending_confirmation',
+            'Shipped',          // Added for backend compatibility
             'Completed',        // Keep legacy capitalized variant used by some routes
             'declined',         // Transaction declined
             'cancelled',        // Transaction cancelled

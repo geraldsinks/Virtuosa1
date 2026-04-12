@@ -299,18 +299,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Get URL parameters immediately
     const urlParams = new URLSearchParams(window.location.search);
-    let currentRecipientId = urlParams.get('recipientId') || urlParams.get('seller');
-    const currentProductId = urlParams.get('productId');
-    const currentOrderId = urlParams.get('order');
+    let currentRecipientId = urlParams.get('recipientId') || urlParams.get('seller') || urlParams.get('buyer');
+    const currentProductId = urlParams.get('productId') || urlParams.get('product');
+    const currentOrderId = urlParams.get('orderId') || urlParams.get('order');
     
-    // If seller and order parameters are present, start chat with seller about order
-    if (urlParams.get('seller') && urlParams.get('order')) {
-        const sellerId = urlParams.get('seller');
-        const orderId = urlParams.get('order');
-        console.log('Starting chat with seller about order:', { sellerId, orderId });
+    // If recipientId is present, start chat immediately
+    if (currentRecipientId) {
+        console.log('Starting chat with:', { recipientId: currentRecipientId, orderId: currentOrderId, productId: currentProductId });
         
         // Wait for conversations to load before starting chat
-        startChatAfterConversationsLoad(sellerId, orderId);
+        startChatAfterConversationsLoad(currentRecipientId, currentOrderId, currentProductId);
     }
     
     console.log('URL parameters:', { currentRecipientId, currentProductId });
@@ -666,10 +664,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update cart badge for mobile header
     updateCartBadge();
 
-    async function startChatAfterConversationsLoad(sellerId, orderId) {
+    async function startChatAfterConversationsLoad(recipientId, orderId, productId) {
         try {
             await loadConversations();
-            startChat(sellerId, 'Seller', '', orderId);
+            startChat(recipientId, 'User', productId || '', orderId || '');
         } catch (error) {
             console.error('Error starting chat after conversations load:', error);
         }
