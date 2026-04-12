@@ -5854,6 +5854,34 @@ app.post('/api/user/request-account-deletion', deletionRequestRateLimit, authent
     }
 });
 
+// Upload profile picture
+app.post('/api/user/profile-picture', authenticateToken, profilePictureUpload.single('profilePicture'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update profile picture URL (Cloudinary URL)
+        user.profilePicture = req.file.path;
+        await user.save();
+
+        console.log(`📸 Profile picture updated for user ${user._id}: ${user.profilePicture}`);
+
+        res.json({ 
+            message: 'Profile picture updated successfully', 
+            profilePicture: user.profilePicture 
+        });
+    } catch (error) {
+        console.error('Profile picture upload error:', error);
+        res.status(500).json({ message: 'Failed to upload profile picture' });
+    }
+});
+
 // Remove profile picture
 app.delete('/api/user/profile-picture', authenticateToken, async (req, res) => {
     try {
@@ -5862,8 +5890,8 @@ app.delete('/api/user/profile-picture', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Remove file from disk if exists
-        if (user.profilePicture) {
+        // Remove file from disk only if it's a local relative path (not starting with http)
+        if (user.profilePicture && !user.profilePicture.startsWith('http')) {
             const filePath = path.join(__dirname, '../client', user.profilePicture);
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
