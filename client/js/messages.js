@@ -192,19 +192,42 @@ function showToast(message, type = 'success', duration = 4000) {
 function initializeMobileHeader() {
     console.log('Initializing mobile header for messages...');
     
-    // Check if we're on mobile
     if (window.innerWidth < 768) {
-        const mobileHeader = document.querySelector('.mobile-messages-header');
         const chatArea = document.getElementById('chat-area');
+        // Handle header buttons based on current state
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileBackBtn = document.getElementById('mobile-chat-back-button');
+        const mobileTitle = document.getElementById('mobile-header-title');
         
-        // Show mobile header by default (conversation list view)
-        if (mobileHeader) {
-            mobileHeader.classList.remove('hidden');
+        if (window.location.search.includes('recipientId')) {
+            // We are starting in a chat
+            if (mobileMenuToggle) mobileMenuToggle.classList.add('hidden');
+            if (mobileBackBtn) mobileBackBtn.classList.remove('hidden');
+            if (chatArea) {
+                chatArea.classList.remove('hidden');
+                chatArea.classList.add('mobile-full', 'flex');
+            }
+        } else {
+            // We are starting in the list view
+            if (mobileMenuToggle) mobileMenuToggle.classList.remove('hidden');
+            if (mobileBackBtn) mobileBackBtn.classList.add('hidden');
+            if (mobileTitle) mobileTitle.textContent = 'Messages';
+            if (chatArea) chatArea.classList.add('hidden');
         }
+    } else {
+        // Desktop behavior: If no recipient, show placeholder and hide input
+        const chatArea = document.getElementById('chat-area');
+        const inputArea = document.getElementById('input-area');
+        const urlParams = new URLSearchParams(window.location.search);
+        const recipientId = urlParams.get('recipientId') || urlParams.get('seller') || urlParams.get('buyer');
         
-        // Hide chat area by default on mobile
-        if (chatArea && !window.location.search.includes('recipientId')) {
-            chatArea.classList.add('hidden');
+        if (!recipientId && chatArea && inputArea) {
+            inputArea.classList.add('hidden');
+            // Ensure header reflects "Select a conversation"
+            const nameEl = document.getElementById('recipient-name');
+            if (nameEl) nameEl.textContent = 'Select a conversation';
+        } else if (recipientId && inputArea) {
+            inputArea.classList.remove('hidden');
         }
     }
 }
@@ -239,19 +262,21 @@ window.goBack = function() {
     console.log('🔙 window.goBack called');
     
     // If we're in chat view on mobile, go back to conversation list
-    if (document.body.classList.contains('mobile-chat-active') || window.innerWidth < 768) {
+    // Use body class AS THE RELIABLE SIGNAL that we are in a chat view
+    if (document.body.classList.contains('mobile-chat-active')) {
         if (typeof window.backToConversations === 'function') {
             window.backToConversations();
             return;
         }
     }
     
-    // Otherwise, try to go back in history
+    // Otherwise, we are in the list view or a non-mobile layout,
+    // so we should go back to the previous page (Home, Dashboard, etc.)
     if (window.history.length > 1) {
         window.history.back();
     } else {
         // Fallback to home if no history
-        window.navigateTo('/');
+        window.location.href = '/';
     }
 };
 
@@ -368,6 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Mobile UI handle - improved navigation
+        // Desktop vs Mobile specific handling
         if (window.innerWidth < 768) {
             console.log('📱 Mobile navigation - switching to chat view');
             
@@ -387,8 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Prevent body scroll when chat is active
             document.body.style.overflow = 'hidden';
             
-            // Handle mobile header transitions
-            const mobileHeader = document.querySelector('.mobile-messages-header');
+            // Handle mobile header transitions - correctly toggle menu/back
             const mobileTitle = document.getElementById('mobile-header-title');
             const menuBtn = document.getElementById('mobile-menu-toggle');
             const backBtn = document.getElementById('mobile-chat-back-button');
@@ -402,6 +427,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (chatArea) {
                 chatArea.classList.remove('hidden');
                 chatArea.classList.add('flex');
+                
+                // Unhide input area on desktop when chat starts
+                const inputArea = document.getElementById('input-area');
+                if (inputArea) inputArea.classList.remove('hidden');
             }
         }
 
@@ -431,7 +460,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.backToConversations = () => {
         console.log('📱 Back to conversations');
         
-        if (window.innerWidth < 768) {
+        // Use a more relaxed width check or just check for the class presence
+        if (document.body.classList.contains('mobile-chat-active') || window.innerWidth <= 768) {
             const sidebar = document.getElementById('sidebar');
             const chatArea = document.getElementById('chat-area');
             
@@ -451,7 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Restore body scroll
             document.body.style.overflow = '';
             
-            // Restore mobile header state
+            // Restore mobile header state - Show menu, Hide back
             const mobileTitle = document.getElementById('mobile-header-title');
             const menuBtn = document.getElementById('mobile-menu-toggle');
             const backBtn = document.getElementById('mobile-chat-back-button');

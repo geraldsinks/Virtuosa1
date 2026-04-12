@@ -913,15 +913,15 @@
     <header class="mobile-messages-header bg-navy text-white shadow-lg fixed top-0 left-0 right-0 z-50 safe-area-top">
         <!-- Left Side: Toggleable Button -->
         <div class="flex items-center w-12">
-            <!-- Back Button (Always visible for navigation) -->
-            <button id="mobile-chat-back-button" class="text-white hover:text-gold transition-colors p-2" onclick="window.goBack()">
+            <!-- Back Button (Hidden by default, shown when in chat) -->
+            <button id="mobile-chat-back-button" class="text-white hover:text-gold transition-colors p-2 hidden" onclick="window.goBack()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
             
-            <!-- Hamburger Menu (Hidden by default) -->
-            <button id="mobile-menu-toggle" class="text-white hover:text-gold transition-colors p-2 hidden" onclick="window.openMobileMenu()">
+            <!-- Hamburger Menu (Always visible for side nav access on list view) -->
+            <button id="mobile-menu-toggle" class="text-white hover:text-gold transition-colors p-2" onclick="window.openMobileMenu()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
