@@ -225,6 +225,10 @@
       "destination": "/pages/privacy.html"
     },
     {
+      "source": "/wishlist",
+      "destination": "/pages/wishlist.html"
+    },
+    {
       "source": "/google599540073f4a96fd.html",
       "destination": "/google599540073f4a96fd.html"
     },
