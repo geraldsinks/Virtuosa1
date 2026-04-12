@@ -371,7 +371,7 @@
     <main class="flex-1 v-container py-6">
         <div class="flex flex-col lg:flex-row gap-6">
             <!-- Filters Sidebar (Desktop) -->
-            <aside class="hidden lg:block w-64 flex-shrink-0">
+            <aside id="desktop-filters-sidebar" class="hidden w-64 flex-shrink-0">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sticky top-24">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Filters</h2>
@@ -466,7 +466,7 @@
                     </div>
                     
                     <!-- Sort Dropdown (Desktop) -->
-                    <div class="hidden sm:block">
+                    <div id="desktop-sort-container" class="hidden">
                         <select id="sort-select" class="px-4 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold">
                             <option value="relevance">Sort by: Relevance</option>
                             <option value="price-asc">Price: Low to High</option>
@@ -946,13 +946,13 @@
                                  filters.campusVerifiedOnly;
 
                 // Sync UI elements visibility
-                const sidebar = document.querySelector('aside.hidden.lg\\:block');
-                const sortContainer = sortSelect ? sortSelect.parentElement : null;
+                const sidebar = document.getElementById('desktop-filters-sidebar');
+                const sortContainer = document.getElementById('desktop-sort-container');
                 const mobileFilterBtn = document.getElementById('mobile-filter-toggle');
                 
                 if (isFiltered) {
-                    if (sidebar) sidebar.style.display = 'block';
-                    if (sortContainer) sortContainer.style.display = 'block';
+                    if (sidebar) sidebar.classList.add('lg:block');
+                    if (sortContainer) sortContainer.classList.add('sm:block');
                     if (mobileFilterBtn) mobileFilterBtn.style.display = 'flex';
                     if (activeFiltersContainer) activeFiltersContainer.style.display = 'block';
                     
@@ -960,8 +960,8 @@
                     productGrid.classList.remove('flex', 'flex-col', 'gap-10');
                     renderGridProducts();
                 } else {
-                    if (sidebar) sidebar.style.display = 'none';
-                    if (sortContainer) sortContainer.style.display = 'none';
+                    if (sidebar) sidebar.classList.remove('lg:block');
+                    if (sortContainer) sortContainer.classList.remove('sm:block');
                     if (mobileFilterBtn) mobileFilterBtn.style.display = 'none';
                     if (activeFiltersContainer) activeFiltersContainer.style.display = 'none';
                     
