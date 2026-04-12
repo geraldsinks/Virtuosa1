@@ -4612,6 +4612,86 @@ app.post('/api/transactions/:id/ship', authenticateToken, async (req, res) => {
     }
 });
 
+// Cancel order (Buyer)
+app.post('/api/transactions/:id/cancel', authenticateToken, async (req, res) => {
+    try {
+        const transaction = await Transaction.findById(req.params.id)
+            .populate('buyer seller product');
+
+        if (!transaction) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Only the buyer can cancel their own order
+        if (transaction.buyer._id.toString() !== req.user.userId) {
+            return res.status(403).json({ message: 'Unauthorized: Only the buyer can cancel this order' });
+        }
+
+        // Restrict cancellation to early stages
+        const nonCancellableStatuses = ['Shipped', 'shipped', 'Completed', 'completed', 'delivered', 'both_confirmed'];
+        if (nonCancellableStatuses.includes(transaction.status)) {
+            return res.status(400).json({ message: `Cannot cancel order at this stage (Status: ${transaction.status})` });
+        }
+
+        const { reason } = req.body;
+
+        // Update transaction
+        transaction.status = 'cancelled';
+        transaction.cancelledAt = new Date();
+        transaction.cancelReason = reason || 'Cancelled by buyer';
+        await transaction.save();
+
+        // Inventory Reversal: Return one-time items to stock
+        const product = await Product.findById(transaction.product._id);
+        if (product) {
+            if (product.listingType === 'one_time') {
+                product.status = 'Active';
+                await product.save();
+                console.log(`🔄 REVERSED: One-time product ${product.name} is now Active again after cancellation.`);
+            } else if (product.listingType === 'persistent') {
+                // Persistent listings: we don't automatically decrement inventory on creation for COD,
+                // but if we did, we'd increment it back here. 
+                // Currently, logic in server.js only decrements on 'Processed' or 'Confirmed'.
+            }
+        }
+
+        // Notify seller via email
+        try {
+            await transporter.sendMail({
+                to: transaction.seller.email,
+                subject: `Virtuosa - Order Cancelled: ${transaction.transactionId}`,
+                html: `
+                    <div style="font-family: Arial, sans-serif; color: #333;">
+                        <h2 style="color: #e53e3e;">Order Cancelled</h2>
+                        <p>The buyer has cancelled their order for <strong>${transaction.product.name}</strong>.</p>
+                        <p><strong>Transaction ID:</strong> ${transaction.transactionId}</p>
+                        <p><strong>Reason:</strong> ${transaction.cancelReason}</p>
+                        <p>If this was a one-time listing, it has been automatically set back to "Active" in your store.</p>
+                        <p>Thank you for using Virtuosa.</p>
+                    </div>
+                `
+            });
+        } catch (mailError) {
+            console.error('Mail notification failed for cancellation:', mailError);
+        }
+
+        // System notification for seller
+        try {
+            await notificationService.sendOrderNotification(transaction, 'order_cancelled', transaction.seller._id);
+        } catch (notifError) {
+            console.error('In-app notification failed for cancellation:', notifError);
+        }
+
+        res.json({
+            message: 'Order cancelled successfully',
+            transaction
+        });
+    } catch (error) {
+        console.error('Cancel order error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // Confirm delivery and release escrow
 app.post('/api/transactions/:id/confirm-delivery', authenticateToken, async (req, res) => {
     try {
@@ -4902,19 +4982,19 @@ app.get('/api/buyer/dashboard', authenticateToken, checkDashboardAccess('buyer')
             .sort({ createdAt: -1 })
             .limit(10);
 
-        // Calculate order statistics
+        // Calculate order statistics accurately across all user transactions
+        const allTransactions = await Transaction.find({ buyer: user._id });
+        
         const orderStats = {
-            totalOrders: await Transaction.countDocuments({ buyer: user._id }),
-            pendingOrders: await Transaction.countDocuments({ 
-                buyer: user._id, 
-                status: { $in: ['pending_seller_confirmation', 'confirmed_by_seller'] }
-            }),
-            completedOrders: await Transaction.countDocuments({ 
-                buyer: user._id, 
-                status: 'completed' 
-            }),
-            totalSpent: transactions
-                .filter(t => t.status === 'completed')
+            totalOrders: allTransactions.length,
+            pendingOrders: allTransactions.filter(t => 
+                ['pending_seller_confirmation', 'confirmed_by_seller', 'processing', 'Processing', 'shipped', 'Shipped'].includes(t.status)
+            ).length,
+            completedOrders: allTransactions.filter(t => 
+                ['completed', 'Completed'].includes(t.status)
+            ).length,
+            totalSpent: allTransactions
+                .filter(t => ['completed', 'Completed'].includes(t.status))
                 .reduce((sum, t) => sum + (t.amount || 0), 0)
         };
 

@@ -89,7 +89,13 @@
             aspect-ratio: 1/1;
             overflow: hidden;
             border-radius: 0.5rem;
-            height: 200px;
+            height: 180px;
+        }
+
+        @media (max-width: 640px) {
+            .product-image-container {
+                height: 150px;
+            }
         }
 
         .product-image {
@@ -104,10 +110,22 @@
         }
 
         .product-content {
-            padding: 1rem;
+            padding: 0.75rem;
             flex: 1;
             display: flex;
             flex-direction: column;
+        }
+
+        @media (max-width: 640px) {
+            .product-content {
+                padding: 0.5rem;
+            }
+            .product-title-section h3 {
+                font-size: 0.875rem !important;
+            }
+            .product-description {
+                display: none; /* Hide long description on mobile cards to save space */
+            }
         }
 
         .product-title-section {
@@ -385,7 +403,7 @@
 
                 <!-- Products Grid -->
                 <div class="flex-grow">
-                    <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                         <!-- Skeleton Placeholders -->
                         <div class="skeleton-product-card animate-pulse"></div>
                         <div class="skeleton-product-card animate-pulse"></div>

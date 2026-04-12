@@ -841,6 +841,68 @@ class UnifiedHeader {
         window.location.href = '/login';
     }
 
+    /**
+     * Show a global notification banner (toast)
+     * @param {string} message 
+     * @param {string} type - 'success', 'error', 'info', 'warning'
+     * @param {number} duration - ms
+     */
+    showBanner(message, type = 'info', duration = 5000) {
+        const containerId = 'virtuosa-global-banner-container';
+        let container = document.getElementById(containerId);
+        
+        if (!container) {
+            container = document.createElement('div');
+            container.id = containerId;
+            container.className = 'fixed top-4 right-4 z-[100] flex flex-col gap-3 pointer-events-none max-w-md w-full px-4 sm:px-0';
+            document.body.appendChild(container);
+
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes bannerIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+                @keyframes bannerOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+                .banner-animate-in { animation: bannerIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+                .banner-animate-out { animation: bannerOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        const banner = document.createElement('div');
+        const colors = {
+            success: 'bg-emerald-600 border-emerald-400',
+            error: 'bg-red-600 border-red-400',
+            info: 'bg-blue-600 border-blue-400',
+            warning: 'bg-amber-500 border-amber-300'
+        };
+        const icons = {
+            success: 'fa-check-circle',
+            error: 'fa-times-circle',
+            info: 'fa-info-circle',
+            warning: 'fa-exclamation-triangle'
+        };
+
+        banner.className = `${colors[type] || colors.info} text-white p-4 rounded-xl shadow-2xl border flex items-center gap-3 banner-animate-in pointer-events-auto`;
+        banner.innerHTML = `
+            <i class="fas ${icons[type] || icons.info} text-xl"></i>
+            <div class="flex-1 font-semibold text-sm">${message}</div>
+            <button class="hover:bg-white/20 p-1 rounded-lg transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+
+        const closeBanner = () => {
+            banner.classList.replace('banner-animate-in', 'banner-animate-out');
+            setTimeout(() => banner.remove(), 400);
+        };
+
+        banner.querySelector('button').onclick = closeBanner;
+        container.appendChild(banner);
+
+        if (duration > 0) {
+            setTimeout(closeBanner, duration);
+        }
+    }
+
     setupAuthStateObserver() {
         document.addEventListener('authStateChanged', () => this.initializeAuthState());
         window.addEventListener('cartUpdated', () => this.updateCartBadge());

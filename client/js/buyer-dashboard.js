@@ -541,7 +541,7 @@ function createSpendingChart(data) {
                     beginAtZero: true,
                     ticks: {
                         callback: function(value) {
-                            return '$' + value;
+                            return 'ZMW ' + value;
                         }
                     }
                 }
