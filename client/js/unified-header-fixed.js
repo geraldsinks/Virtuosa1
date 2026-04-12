@@ -355,6 +355,9 @@ class UnifiedHeader {
             <a href="/products?category=Hot%20Deals" class="flex flex-row items-center px-5 py-3 text-gray-200 hover:bg-gray-800 hover:text-gold transition-colors">
                 <span>Hot Deals</span>
             </a>
+            <a href="/wishlist" class="flex flex-row items-center px-5 py-3 text-gray-200 hover:bg-gray-800 hover:text-gold transition-colors">
+                <span>My Wishlist</span>
+            </a>
         </div>
 
         <div class="border-t border-gray-800 my-2 mx-5"></div>
@@ -370,9 +373,6 @@ class UnifiedHeader {
             </a>
             <a href="/messages" class="flex flex-row items-center px-5 py-3 text-gray-200 hover:bg-gray-800 hover:text-gold transition-colors">
                 <span>Messages</span>
-            </a>
-            <a href="/wishlist" class="flex flex-row items-center px-5 py-3 text-gray-200 hover:bg-gray-800 hover:text-gold transition-colors">
-                <span>My Wishlist</span>
             </a>
             <a href="/transactions" class="flex flex-row items-center px-5 py-3 text-gray-200 hover:bg-gray-800 hover:text-gold transition-colors">
                 <span>Transactions</span>
