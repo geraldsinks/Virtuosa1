@@ -6,27 +6,9 @@ let universityChart = null;
 // Load user analytics data
 async function loadUserAnalytics() {
     try {
-        const token = localStorage.getItem('token');
         const period = document.getElementById('periodSelector').value;
-
-        const response = await fetch(`${API_BASE}/admin/user-analytics?period=${period}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
-                // Token expired - clear and redirect
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                alert('Your session has expired. Please log in again.');
-                window.location.href = '/login';
-                return;
-            }
-            throw new Error('Failed to load user analytics');
-        }
-
+        const response = await adminFetch(`${API_BASE}/admin/user-analytics?period=${period}`);
+        if (!response) return;
         const data = await response.json();
         updateAnalyticsCards(data);
         updateAnalyticsCharts(data);
@@ -210,11 +192,7 @@ function updateAnalyticsCharts(data) {
 // Load users with filters
 async function loadUsers(page = 1) {
     try {
-        const token = localStorage.getItem('token');
-        const search = document.getElementById('userSearch')?.value || '';
-        const role = document.getElementById('userRoleFilter')?.value || '';
-        const verified = document.getElementById('userVerifiedFilter')?.value || '';
-
+        const university = document.getElementById('userVerifiedFilter')?.value || '';
         const params = new URLSearchParams({
             page,
             search,
@@ -222,24 +200,8 @@ async function loadUsers(page = 1) {
             verified
         });
 
-        const response = await fetch(`${API_BASE}/admin/users?${params}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
-                // Token expired - clear and redirect
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                alert('Your session has expired. Please log in again.');
-                window.location.href = '/login';
-                return;
-            }
-            throw new Error('Failed to load users');
-        }
-
+        const response = await adminFetch(`${API_BASE}/admin/users?${params}`);
+        if (!response) return;
         const data = await response.json();
         displayUsers(data.users);
         displayPagination(data.pagination);

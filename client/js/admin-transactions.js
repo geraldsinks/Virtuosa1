@@ -57,7 +57,8 @@ class TransactionManager {
                 ...this.filters
             });
 
-            const response = await fetch(`${window.API_BASE}/admin/transactions?${params}`);
+            const response = await adminFetch(`${window.API_BASE}/admin/transactions?${params}`);
+            if (!response) return;
             const data = await response.json();
 
             if (data.success) {
@@ -76,7 +77,8 @@ class TransactionManager {
 
     async loadStats() {
         try {
-            const response = await fetch(window.API_BASE + '/admin/transactions/stats');
+            const response = await adminFetch(window.API_BASE + '/admin/transactions/stats');
+            if (!response) return;
             const data = await response.json();
 
             if (data.success) {
@@ -257,7 +259,8 @@ class TransactionManager {
 
     async viewTransaction(transactionId) {
         try {
-            const response = await fetch(`${window.API_BASE}/admin/transactions/${transactionId}`);
+            const response = await adminFetch(`${window.API_BASE}/admin/transactions/${transactionId}`);
+            if (!response) return;
             const data = await response.json();
 
             if (data.success) {
@@ -451,14 +454,11 @@ class TransactionManager {
             const formData = new FormData(document.getElementById('createTransactionForm'));
             const data = Object.fromEntries(formData);
 
-            const response = await fetch(window.API_BASE + '/admin/transactions', {
+            const response = await adminFetch(window.API_BASE + '/admin/transactions', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify(data)
             });
-
+            if (!response) return;
             const result = await response.json();
 
             if (result.success) {
@@ -482,14 +482,11 @@ class TransactionManager {
             const status = document.getElementById('newStatus').value;
             const reason = document.getElementById('statusReason').value;
 
-            const response = await fetch(`${window.API_BASE}/admin/transactions/${this.currentTransactionId}/status`, {
+            const response = await adminFetch(`${window.API_BASE}/admin/transactions/${this.currentTransactionId}/status`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({ status, reason })
             });
-
+            if (!response) return;
             const result = await response.json();
 
             if (result.success) {
@@ -508,14 +505,11 @@ class TransactionManager {
 
     async confirmTransaction(transactionId, userType) {
         try {
-            const response = await fetch(`${window.API_BASE}/admin/transactions/${transactionId}/confirm`, {
+            const response = await adminFetch(`${window.API_BASE}/admin/transactions/${transactionId}/confirm`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({ userType })
             });
-
+            if (!response) return;
             const result = await response.json();
 
             if (result.success) {
@@ -538,14 +532,11 @@ class TransactionManager {
         try {
             const reason = prompt('Reason for releasing escrow (optional):') || 'Escrow released by administrator';
 
-            const response = await fetch(`${window.API_BASE}/admin/transactions/${transactionId}/release-escrow`, {
+            const response = await adminFetch(`${window.API_BASE}/admin/transactions/${transactionId}/release-escrow`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({ reason })
             });
-
+            if (!response) return;
             const result = await response.json();
 
             if (result.success) {
@@ -571,17 +562,14 @@ class TransactionManager {
         }
 
         try {
-            const response = await fetch(`${window.API_BASE}/admin/transactions/${transactionId}/refund`, {
+            const response = await adminFetch(`${window.API_BASE}/admin/transactions/${transactionId}/refund`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({ 
                     amount: amount ? parseFloat(amount) : null,
                     reason 
                 })
             });
-
+            if (!response) return;
             const result = await response.json();
 
             if (result.success) {
@@ -608,14 +596,11 @@ class TransactionManager {
         }
 
         try {
-            const response = await fetch(`${window.API_BASE}/admin/transactions/${transactionId}/risk-flag`, {
+            const response = await adminFetch(`${window.API_BASE}/admin/transactions/${transactionId}/risk-flag`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({ type, severity, description })
             });
-
+            if (!response) return;
             const result = await response.json();
 
             if (result.success) {
@@ -639,14 +624,11 @@ class TransactionManager {
         }
 
         try {
-            const response = await fetch(`${window.API_BASE}/admin/transactions/${transactionId}/note`, {
+            const response = await adminFetch(`${window.API_BASE}/admin/transactions/${transactionId}/note`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({ note })
             });
-
+            if (!response) return;
             const result = await response.json();
 
             if (result.success) {
@@ -750,14 +732,11 @@ class TransactionManager {
         try {
             this.showLoading(true);
             
-            const response = await fetch(window.API_BASE + '/admin/transactions/search', {
+            const response = await adminFetch(window.API_BASE + '/admin/transactions/search', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify(searchCriteria)
             });
-
+            if (!response) return;
             const data = await response.json();
 
             if (data.success) {
@@ -782,7 +761,8 @@ class TransactionManager {
                 ...this.filters
             });
 
-            const response = await fetch(`${window.API_BASE}/admin/transactions/export?${params}`);
+            const response = await adminFetch(`${window.API_BASE}/admin/transactions/export?${params}`);
+            if (!response) return;
             
             if (response.ok) {
                 const blob = await response.blob();
@@ -807,14 +787,11 @@ class TransactionManager {
     // Bulk operations
     async bulkUpdateStatus(transactionIds, newStatus, reason) {
         try {
-            const response = await fetch(window.API_BASE + '/admin/transactions/bulk-status', {
+            const response = await adminFetch(window.API_BASE + '/admin/transactions/bulk-status', {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({ transactionIds, newStatus, reason })
             });
-
+            if (!response) return;
             const data = await response.json();
 
             if (data.success) {
@@ -874,14 +851,11 @@ class TransactionManager {
         try {
             this.showLoading(true);
             
-            const response = await fetch(window.API_BASE + '/admin/transactions/date-range', {
+            const response = await adminFetch(window.API_BASE + '/admin/transactions/date-range', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({ startDate, endDate })
             });
-
+            if (!response) return;
             const data = await response.json();
 
             if (data.success) {
@@ -934,7 +908,8 @@ class TransactionManager {
         try {
             this.showLoading(true);
             
-            const response = await fetch(window.API_BASE + '/admin/transactions/high-risk');
+            const response = await adminFetch(window.API_BASE + '/admin/transactions/high-risk');
+            if (!response) return;
             const data = await response.json();
 
             if (data.success) {

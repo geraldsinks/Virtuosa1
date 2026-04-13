@@ -10,11 +10,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
     
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '/pages/login.html';
-        return;
-    }
     loadApplications();
     loadStats();
 });
@@ -24,7 +19,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ==============================
 
 async function loadApplications() {
-    const token = localStorage.getItem('token');
     const status = document.getElementById('filter-status').value;
     const sellerType = document.getElementById('filter-type').value;
     const university = document.getElementById('filter-university').value;
@@ -35,13 +29,8 @@ async function loadApplications() {
     if (university) params.append('university', university);
 
     try {
-        const response = await fetch(`${API_BASE}/admin/seller-applications?${params}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to load applications');
-        }
+        const response = await adminFetch(`${API_BASE}/admin/seller-applications?${params}`);
+        if (!response) return;
 
         const data = await response.json();
         renderApplications(data.applications);
@@ -58,13 +47,20 @@ async function loadApplications() {
 }
 
 async function loadStats() {
-    const token = localStorage.getItem('token');
     try {
         // Load counts for each status
+        const [pendingResp, approvedResp, rejectedResp] = await Promise.all([
+            adminFetch(`${API_BASE}/admin/seller-applications?status=Pending&limit=1`),
+            adminFetch(`${API_BASE}/admin/seller-applications?status=Approved&limit=1`),
+            adminFetch(`${API_BASE}/admin/seller-applications?status=Rejected&limit=1`)
+        ]);
+
+        if (!pendingResp || !approvedResp || !rejectedResp) return;
+
         const [pending, approved, rejected] = await Promise.all([
-            fetch(`${API_BASE}/admin/seller-applications?status=Pending&limit=1`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
-            fetch(`${API_BASE}/admin/seller-applications?status=Approved&limit=1`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
-            fetch(`${API_BASE}/admin/seller-applications?status=Rejected&limit=1`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json())
+            pendingResp.json(),
+            approvedResp.json(),
+            rejectedResp.json()
         ]);
 
         const p = pending.pagination?.total || 0;
@@ -264,23 +260,14 @@ window.toggleDetails = function (id) {
 window.approveApplication = async function (id) {
     if (!confirm('Approve this seller application? The user will be notified and granted seller access.')) return;
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-        showToast('Please log in to perform this action', 'error');
-        return;
-    }
-
     try {
         console.log('Approving application:', id);
         
-        const response = await fetch(`${API_BASE}/admin/seller-applications/${id}/approve`, {
+        const response = await adminFetch(`${API_BASE}/admin/seller-applications/${id}/approve`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
             body: JSON.stringify({ notes: '' })
         });
+        if (!response) return;
 
         console.log('Approve response status:', response.status);
         
@@ -329,23 +316,14 @@ window.confirmReject = async function () {
         return;
     }
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-        showToast('Please log in to perform this action', 'error');
-        return;
-    }
-
     try {
         console.log('Rejecting application:', rejectingAppId, 'with reason:', reason);
         
-        const response = await fetch(`${API_BASE}/admin/seller-applications/${rejectingAppId}/reject`, {
+        const response = await adminFetch(`${API_BASE}/admin/seller-applications/${rejectingAppId}/reject`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
             body: JSON.stringify({ reason, notes })
         });
+        if (!response) return;
 
         console.log('Reject response status:', response.status);
         
