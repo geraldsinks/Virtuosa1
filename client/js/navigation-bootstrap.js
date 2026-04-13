@@ -116,8 +116,6 @@
         // /index.html → /
         if (url === '/index.html') return '/' + suffix;
 
-        console.log('🔍 BOOTSTRAP - Normalizing path:', { original: href, url, suffix });
-
         // /pages/X.html → /X (with special case mapping)
         const pagesMatch = url.match(/^\/pages\/(.+?)\.html$/);
         if (pagesMatch) {
@@ -175,11 +173,9 @@
 
         // If router is loaded, use it (it handles auth checks, etc.)
         if (window.router && typeof window.router.navigate === 'function') {
-            console.log('🚀 BOOTSTRAP - Handoff to router:', cleanUrl);
             window.router.navigate(href);
         } else {
             // Router not yet loaded, navigate directly with clean URL
-            console.log('🚀 BOOTSTRAP - Fallback navigation:', cleanUrl);
             window.location.href = cleanUrl;
         }
     }

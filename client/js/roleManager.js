@@ -116,12 +116,21 @@ class RoleManager {
                 console.warn('⚠️ API role info failed, using fallback:', apiError);
                 
                 // If auth expired, clear token and redirect to login
+                // ONLY redirect if we're on a page that actually REQUIRES a role
                 if (apiError.message === 'Authentication expired') {
                     this.clearAllData();
-                    if (window.router) {
-                        window.router.navigate('/login');
-                    } else {
-                        window.location.href = '/login';
+                    
+                    const currentPath = window.location.pathname;
+                    const isPublic = ['', '/', '/index.html', '/login', '/signup', '/search', '/about', '/contact', '/privacy', '/terms'].includes(currentPath);
+                    const isProduct = currentPath.startsWith('/product/') || currentPath.startsWith('/category/');
+
+                    if (!isPublic && !isProduct) {
+                        console.log('🚪 Auth expired on protected page, redirecting to login');
+                        if (window.router) {
+                            window.router.navigate('/login');
+                        } else {
+                            window.location.href = '/login';
+                        }
                     }
                     throw apiError;
                 }
@@ -264,7 +273,6 @@ class RoleManager {
      * @returns {Promise<boolean>} True if user can access the route
      */
     async canAccessRoute(route) {
-        console.log('🔒 ROLE MANAGER - Check route access:', route);
         // Wait for initialization if not ready
         if (!this.isInitialized) {
             if (this.initializationLock) {
@@ -298,7 +306,7 @@ class RoleManager {
         const adminRoutes = [...sellerRoutes, 'admin', 'admin-users', 'admin-seller-applications', 'admin-account-deletions', 'admin-mass-messaging', 'admin-retention', 'admin-asset-library', 'marketing-dashboard', 'marketing', 'admin-transactions', 'admin-disputes', 'admin-support', 'admin-live-chat', 'admin-maintenance', 'admin-maintenance-reports', 'admin-ui-queries', 'admin-transaction-reports', 'admin-risk-management', 'admin-analytics-reports', 'admin-growth-metrics', 'admin-about'];
         
         // Check access based on role
-        const hasAccess = (() => {
+        return (() => {
             switch (this.currentRole) {
                 case 'admin':
                     return adminRoutes.includes(cleanRoute);
@@ -311,9 +319,6 @@ class RoleManager {
                     return publicRoutes.includes(cleanRoute);
             }
         })();
-
-        console.log('🔒 ROLE MANAGER - Route access result:', { route: cleanRoute, role: this.currentRole, hasAccess });
-        return hasAccess;
     }
 
     // Get user display title
@@ -432,10 +437,16 @@ class RoleManager {
                 } catch (error) {
                     console.error('❌ Failed to initialize for access check:', error);
                     this.accessCheckCache.set(cacheKey, false);
-                    if (window.router) {
-                        window.router.navigate('/login');
-                    } else {
-                        window.location.href = '/login';
+                    
+                    const currentPath = window.location.pathname;
+                    const isPublic = ['', '/', '/index.html', '/login', '/signup'].includes(currentPath);
+                    
+                    if (!isPublic && !currentPath.startsWith('/product/') && !currentPath.startsWith('/category/')) {
+                        if (window.router) {
+                            window.router.navigate('/login');
+                        } else {
+                            window.location.href = '/login';
+                        }
                     }
                     return false;
                 }
@@ -446,10 +457,16 @@ class RoleManager {
                 } catch (error) {
                     console.error('❌ Failed to initialize for access check:', error);
                     this.accessCheckCache.set(cacheKey, false);
-                    if (window.router) {
-                        window.router.navigate('/login');
-                    } else {
-                        window.location.href = '/login';
+
+                    const currentPath = window.location.pathname;
+                    const isPublic = ['', '/', '/index.html', '/login', '/signup'].includes(currentPath);
+
+                    if (!isPublic && !currentPath.startsWith('/product/') && !currentPath.startsWith('/category/')) {
+                        if (window.router) {
+                            window.router.navigate('/login');
+                        } else {
+                            window.location.href = '/login';
+                        }
                     }
                     return false;
                 } finally {
@@ -460,8 +477,6 @@ class RoleManager {
 
         const hasAccess = this.canAccessDashboard(dashboardType);
         this.accessCheckCache.set(cacheKey, hasAccess);
-
-        console.log('🔒 ROLE MANAGER - Dashboard access check:', { dashboardType, role: this.currentRole, hasAccess });
 
         if (!hasAccess) {
             console.warn(`🚫 Access denied: ${dashboardType} dashboard`);
@@ -486,16 +501,12 @@ class RoleManager {
         if (attempts >= 1) {
             console.error('🚫 Redirect loop detected, stopping redirects');
             if (window.router) {
-                console.log('🚨 ROLE MANAGER - Stopping loop, handoff to router index');
                 window.router.navigate('/');
             } else {
-                console.log('🚨 ROLE MANAGER - Stopping loop, direct to login');
                 window.location.href = '/login';
             }
             return;
         }
-        
-        console.log('🔄 ROLE MANAGER - Performing safe redirect:', { from: currentPath, dashboardType });
         
         this.redirectAttempts.set(attemptKey, attempts + 1);
         

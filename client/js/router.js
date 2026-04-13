@@ -244,11 +244,10 @@
          * @param {object} params - Optional query parameters
          */
         navigate(path, params = {}) {
-            console.log('🚀 CLEAN ROUTER - Navigate called:', { path, params, currentUrl: window.location.pathname });
-            
+            if (!path && path !== '') return;
+
             // Normalize path
             let cleanUrl = toCleanUrl(path);
-            console.log('🔍 CLEAN ROUTER - Path normalized:', { original: path, normalized: cleanUrl });
 
             // External URL or special protocol — use direct navigation
             if (cleanUrl === null) {
@@ -265,13 +264,10 @@
 
             // Check if protected route needs auth
             const routeKey = cleanUrl.replace(/^\//, '').split('?')[0].split('/')[0];
-            const isProtected = PROTECTED_ROUTES.has(routeKey);
-            console.log('🛡️ CLEAN ROUTER - Check access:', { routeKey, isProtected, hasToken: !!localStorage.getItem('token') });
-
-            if (isProtected) {
+            if (PROTECTED_ROUTES.has(routeKey)) {
                 const token = localStorage.getItem('token');
                 if (!token) {
-                    console.log('🚨 Protected route requires auth, redirecting to login');
+                    console.log('Protected route requires auth, redirecting to login');
                     window.location.href = '/login';
                     return;
                 }
