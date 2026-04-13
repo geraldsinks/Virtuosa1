@@ -571,6 +571,7 @@ class UnifiedHeader {
             try {
                 await this.fetchAndUpdateUserData();
             } catch (error) {
+                console.log('Unified Header: Auth check failed, using cached data:', error);
                 this.updateUIForLoggedInUser(userFullName);
             }
         } else {

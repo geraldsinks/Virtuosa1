@@ -22,20 +22,8 @@ class TokenManager {
 
     init() {
         if (this.token) {
-            // Only auto-refresh tokens on protected routes
-            const currentPath = window.location.pathname.replace(/^\/pages\//, '/').split('?')[0];
-            const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', '/search', '/about', '/contact', '/faq'];
-            const isPublicPath = publicPaths.includes(currentPath) || 
-                                 currentPath.startsWith('/product/') || 
-                                 currentPath.startsWith('/category/') ||
-                                 currentPath.startsWith('/seller/');
-            
-            if (!isPublicPath) {
-                this.scheduleTokenRefresh();
-                this.startTokenMonitoring();
-            } else {
-                console.log('Public path detected, skipping token auto-refresh');
-            }
+            this.scheduleTokenRefresh();
+            this.startTokenMonitoring();
         }
     }
 
@@ -157,23 +145,25 @@ class TokenManager {
     // Handle token refresh failure
     handleRefreshFailure(message) {
         console.log(' Token Manager: handleRefreshFailure called with message:', message);
-        console.log(' Token Manager: Current path:', window.location.pathname);
         
         // Auto-redirect if no specific action taken and simple failure
         if (message.includes('expired') || message.includes('invalid')) {
             setTimeout(() => {
-                if (window.location.pathname !== '/login') {
+                // Use stored path from initialization
+                const currentPath = this.currentPath || window.location.pathname;
+                console.log(' Token Manager: Current path for redirect decision:', currentPath);
+                
+                if (currentPath !== '/login') {
                     // Centralized check for public vs protected routes
                     let isProtected = true;
                     if (window.NavigationCoordinator && typeof window.NavigationCoordinator.getInstance === 'function') {
                         const nav = window.NavigationCoordinator.getInstance();
-                        const currentPath = window.location.pathname;
                         isProtected = nav.isProtectedRoute(currentPath);
                     } else {
                         // Minimal fallback if coordinator not available
-                        const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', '/search', '/about', '/contact', '/faq'];
-                        const currentPath = window.location.pathname.replace(/^\/pages\//, '/').split('?')[0];
-                        isProtected = !publicPaths.includes(currentPath) && 
+                        const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', 'search', '/about', '/contact', '/faq'];
+                        const normalizedPath = currentPath.replace(/^\/pages\//, '/').split('?')[0];
+                        isProtected = !publicPaths.includes(normalizedPath) && 
                                      !currentPath.startsWith('/product/') && 
                                      !currentPath.startsWith('/category/') &&
                                      !currentPath.startsWith('/seller/');
@@ -198,9 +188,10 @@ class TokenManager {
         }
 
         // Show user notification but only redirect if on protected route
-        const currentPath = window.location.pathname.replace(/^\/pages\//, '/').split('?')[0];
-        const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', '/search', '/about', '/contact', '/faq'];
-        const isPublicPath = publicPaths.includes(currentPath) || 
+        const currentPath = this.currentPath || window.location.pathname;
+        const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', 'search', '/about', '/contact', '/faq'];
+        const normalizedPath = currentPath.replace(/^\/pages\//, '/').split('?')[0];
+        const isPublicPath = publicPaths.includes(normalizedPath) || 
                              currentPath.startsWith('/product/') || 
                              currentPath.startsWith('/category/') ||
                              currentPath.startsWith('/seller/');
@@ -353,8 +344,10 @@ if (typeof window !== 'undefined') {
         console.log(' Token Manager: No token found in localStorage');
     }
     
+    // Always initialize token manager but store current path for redirect decisions
     window.tokenManager = new TokenManager();
-    console.log(' Token manager initialized globally');
+    window.tokenManager.currentPath = currentPath;
+    console.log(' Token Manager: Initialized with path tracking');
 }
 
 // Close conditional class declaration block
