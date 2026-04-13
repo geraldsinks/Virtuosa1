@@ -288,8 +288,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Define startChat function BEFORE calling it
-    window.startChat = async (recipientId, recipientName, recipientProfilePicture, orderId = '') => {
-        console.log('🚀 startChat called with:', { recipientId, recipientName, recipientProfilePicture, orderId });
+    window.startChat = async (recipientId, recipientName, recipientProfilePicture, orderId = '', productId = '') => {
+        console.log('🚀 startChat called with:', { recipientId, recipientName, recipientProfilePicture, orderId, productId });
         
         currentRecipientId = recipientId;
         activeConversationId = recipientId;
@@ -299,15 +299,22 @@ document.addEventListener('DOMContentLoaded', () => {
             socket.emit('join_conversation', recipientId);
         }
 
-        // If orderId is provided, send an initial message about the order
-        if (orderId) {
+        // If context is provided, send an initial message
+        if (orderId || productId) {
             setTimeout(async () => {
-                const initialMessage = `Hello! I'm messaging you about order #${orderId.slice(-8)}. I have some questions about this order.`;
+                let initialMessage = '';
                 
-                // Send the initial message
-                await sendMessage(initialMessage, orderId);
+                if (orderId) {
+                    initialMessage = `Hello! I'm messaging you about order #${orderId.slice(-8)}. I have some questions about this order.`;
+                } else if (productId) {
+                    initialMessage = `Hi! I'm interested in this product and would like to ask a few questions.`;
+                }
                 
-                console.log('📝 Sent initial order message:', initialMessage);
+                if (initialMessage) {
+                    // Send the initial message with full context to ensure picture renders
+                    await sendMessage(initialMessage, orderId, productId);
+                    console.log('📝 Sent initial context message:', initialMessage);
+                }
             }, 1500); // Wait a bit for the chat to fully load
         }
 
@@ -613,7 +620,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const existingContact = document.querySelector(`[data-user-id="${recipientId}"]`);
             if (existingContact) {
                 console.log('✅ Found existing contact in sidebar');
-                existingContact.click();
+                
+                // Extract existing name/pic from the DOM element to ensure smooth UI transition
+                const name = existingContact.querySelector('.mobile-conversation-name')?.textContent || 'Contact';
+                const picImg = existingContact.querySelector('img');
+                const pic = picImg ? picImg.src : '';
+                
+                // Call startChat directly with full context instead of triggering a generic click
+                startChat(recipientId, name, pic, orderId || '', productId || '');
                 return;
             }
             
@@ -625,13 +639,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     const userData = await response.json();
                     const displayName = userData.fullName || userData.username || 'Contact';
                     console.log('👤 Resolved name:', displayName);
-                    startChat(recipientId, displayName, userData.profilePicture || '', orderId || '');
+                    startChat(recipientId, displayName, userData.profilePicture || '', orderId || '', productId || '');
                 } else {
                     throw new Error('User info not found');
                 }
             } catch (fetchError) {
                 console.warn('⚠️ Could not resolve name, using placeholder:', fetchError);
-                startChat(recipientId, 'Contact', '', orderId || '');
+                startChat(recipientId, 'Contact', '', orderId || '', productId || '');
             }
         } catch (error) {
             console.error('❌ Error in startChatAfterConversationsLoad:', error);
@@ -1100,7 +1114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Send message function
-    async function sendMessage(content, orderId = null) {
+    async function sendMessage(content, orderId = null, productId = null) {
         if (!token || !currentRecipientId) {
             console.error('Cannot send message: missing authentication or recipient');
             return;
@@ -1116,7 +1130,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     receiverId: currentRecipientId,
                     content,
-                    productId: currentProductId || undefined,
+                    productId: productId || currentProductId || undefined,
                     orderId: orderId || currentOrderId || undefined
                 })
             });

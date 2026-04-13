@@ -357,7 +357,7 @@
                                         <i class="fas fa-eye mr-1"></i> View Details
                                     </button>
                                     ${otherParty?._id ? `
-                                        <button onclick="message${otherPartyLabel}('${otherParty._id}', '${order._id}')" 
+                                        <button onclick="message${otherPartyLabel}('${otherParty._id}', '${order._id}', '${order.product?._id || order.product}')" 
                                             class="px-4 py-2 bg-gold text-white rounded-lg hover:bg-gold transition-colors text-sm">
                                             <i class="fas fa-message mr-1"></i> Message ${otherPartyLabel}
                                         </button>
@@ -494,14 +494,14 @@
                 window.navigateTo(`/order/${orderId}`);
             };
 
-            window.messageSeller = (sellerId, orderId) => {
-                // Redirect to messages page with standardized clean URL
-                window.navigateTo(`/messages?recipientId=${sellerId}&orderId=${orderId}`);
+            window.messageSeller = (sellerId, orderId, productId) => {
+                // Redirect to messages page with standardized clean URL and product context for visual picture support
+                window.navigateTo(`/messages?recipientId=${sellerId}&orderId=${orderId}&productId=${productId}`);
             };
 
-            window.messageBuyer = (buyerId, orderId) => {
-                // Redirect to messages page with standardized clean URL
-                window.navigateTo(`/messages?recipientId=${buyerId}&orderId=${orderId}`);
+            window.messageBuyer = (buyerId, orderId, productId) => {
+                // Redirect to messages page with standardized clean URL and product context for visual picture support
+                window.navigateTo(`/messages?recipientId=${buyerId}&orderId=${orderId}&productId=${productId}`);
             };
 
             // Confirm order (for sellers)

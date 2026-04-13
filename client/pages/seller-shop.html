@@ -224,10 +224,10 @@
                 document.getElementById('message-seller-btn').onclick = () => {
                     const token = localStorage.getItem('token');
                     if (!token) {
-                        window.location.href = '/login';
+                        window.navigateTo('/login');
                         return;
                     }
-                    window.location.href = `/messages?recipientId=${seller.id}`;
+                    window.navigateTo(`/messages?recipientId=${seller.id}`);
                 };
 
                 const container = document.getElementById('seller-products');

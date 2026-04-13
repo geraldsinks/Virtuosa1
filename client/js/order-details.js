@@ -455,7 +455,8 @@ class OrderDetailsManager {
     messageOtherParty() {
         const otherParty = this.currentUserRole === 'seller' ? this.order.buyer : this.order.seller;
         if (otherParty?._id) {
-            window.navigateTo(`/messages?recipientId=${otherParty._id}&orderId=${this.order._id}`);
+            const productId = this.order.product?._id || this.order.product;
+            window.navigateTo(`/messages?recipientId=${otherParty._id}&orderId=${this.order._id}&productId=${productId}`);
         }
     }
 
