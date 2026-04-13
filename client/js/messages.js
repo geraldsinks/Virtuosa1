@@ -83,6 +83,39 @@ document.addEventListener('DOMContentLoaded', () => {
         return id;
     }
 
+    // Groups state variables at the top to avoid ReferenceErrors (TDZ)
+    let currentRecipientId = null;
+    let activeConversationId = null;
+    let socket = null;
+    let socketConnected = false;
+    let pollTimer = null;
+    let typingTimeout = null;
+    let isTyping = false;
+    let isCurrentlyLoadingMessages = false; 
+    let isCurrentlyLoadingConversations = false;
+    let loadConversationsTimeout = null;
+
+    // Get DOM elements early to avoid ReferenceErrors in init functions
+    const conversationList = document.getElementById('conversation-list');
+    const messageContainer = document.getElementById('message-container');
+    const messageForm = document.getElementById('message-form');
+    const messageInput = document.getElementById('message-input');
+    const chatArea = document.getElementById('chat-area');
+    const sidebar = document.getElementById('sidebar');
+    const searchInput = document.getElementById('search-input');
+    const emojiButton = document.getElementById('emoji-button');
+    const emojiPicker = document.getElementById('emoji-picker');
+    const typingIndicator = document.getElementById('typing-indicator');
+
+    console.log('DOM Elements found:', {
+        conversationList: !!conversationList,
+        messageContainer: !!messageContainer,
+        messageForm: !!messageForm,
+        messageInput: !!messageInput,
+        chatArea: !!chatArea,
+        sidebar: !!sidebar
+    });
+
     // Consolidated Messaging UI Initialization
     function initializeMessagingUI() {
         console.log('Initializing messaging UI...');
@@ -176,18 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const userEmail = localStorage.getItem('userEmail');
     const userFullName = localStorage.getItem('userFullName');
     let userId = localStorage.getItem('userId');
-    
-    // Groups state variables at the top to avoid ReferenceErrors (TDZ)
-    let currentRecipientId = null;
-    let activeConversationId = null;
-    let socket = null;
-    let socketConnected = false;
-    let pollTimer = null;
-    let typingTimeout = null;
-    let isTyping = false;
-    let isCurrentlyLoadingMessages = false; 
-    let isCurrentlyLoadingConversations = false;
-    let loadConversationsTimeout = null;
 
     // Clean up 'undefined' string if present
     if (userId === 'undefined' || userId === 'null') {
@@ -264,27 +285,6 @@ document.addEventListener('DOMContentLoaded', () => {
         recipientId: startRecipientId, 
         productId: currentProductId, 
         orderId: currentOrderId 
-    });
-
-    // Get DOM elements
-    const conversationList = document.getElementById('conversation-list');
-    const messageContainer = document.getElementById('message-container');
-    const messageForm = document.getElementById('message-form');
-    const messageInput = document.getElementById('message-input');
-    const chatArea = document.getElementById('chat-area');
-    const sidebar = document.getElementById('sidebar');
-    const searchInput = document.getElementById('search-input');
-    const emojiButton = document.getElementById('emoji-button');
-    const emojiPicker = document.getElementById('emoji-picker');
-    const typingIndicator = document.getElementById('typing-indicator');
-
-    console.log('DOM Elements found:', {
-        conversationList: !!conversationList,
-        messageContainer: !!messageContainer,
-        messageForm: !!messageForm,
-        messageInput: !!messageInput,
-        chatArea: !!chatArea,
-        sidebar: !!sidebar
     });
 
     // Define startChat function BEFORE calling it
@@ -1386,7 +1386,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             if (window.innerWidth < 768) {
                 initializeMobileGestures();
-                enhanceMobileNavigation();
             }
             
             // Adjust chat container height after orientation change
