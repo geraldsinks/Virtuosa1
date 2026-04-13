@@ -165,7 +165,6 @@ self.addEventListener('install', (event) => {
       })
       .then(() => {
         console.log('[SW] Precaching complete');
-        return self.skipWaiting();
       })
   );
 });

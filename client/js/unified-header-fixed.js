@@ -61,6 +61,7 @@ class UnifiedHeader {
             this.initializeSideMenu();
             this.initializeUserDropdown();
             this.initializeHideOnScroll();
+            this.initializeUpdateNotifier();
             
             // 3. Set up observers
             this.setupAuthStateObserver();
@@ -899,6 +900,58 @@ class UnifiedHeader {
     setupAuthStateObserver() {
         document.addEventListener('authStateChanged', () => this.initializeAuthState());
         window.addEventListener('cartUpdated', () => this.updateCartBadge());
+        window.addEventListener('virtuosaUpdateAvailable', () => this.showUpdateIndicator());
+    }
+
+    /**
+     * Initialize update notification system
+     */
+    initializeUpdateNotifier() {
+        if (window.virtuosaUpdateAvailable) {
+            this.showUpdateIndicator();
+        }
+    }
+
+    /**
+     * Show subtle update indicators in the header and side menu
+     */
+    showUpdateIndicator() {
+        // 1. Add dot to header "Account" link
+        const accountLink = document.getElementById('header-login-link');
+        if (accountLink && !document.getElementById('header-update-dot')) {
+            const dot = document.createElement('span');
+            dot.id = 'header-update-dot';
+            dot.style.cssText = `
+                position: absolute;
+                top: -2px;
+                right: -8px;
+                width: 8px;
+                height: 8px;
+                background: #FFD700;
+                border-radius: 50%;
+                box-shadow: 0 0 10px rgba(255,215,0,0.8);
+                border: 1px solid #0A1128;
+            `;
+            accountLink.style.position = 'relative';
+            accountLink.appendChild(dot);
+        }
+
+        // 2. Add "Update Available" item to side menu
+        const sideUserInfo = document.getElementById('side-menu-user-info');
+        if (sideUserInfo && !document.getElementById('side-menu-update-prompt')) {
+            const prompt = document.createElement('div');
+            prompt.id = 'side-menu-update-prompt';
+            prompt.className = 'mt-2';
+            prompt.innerHTML = `
+                <button onclick="window.location.reload()" class="flex items-center gap-2 px-3 py-1.5 bg-gold/10 border border-gold/30 rounded-lg group hover:bg-gold/20 transition-all">
+                    <i class="fas fa-arrow-alt-circle-up text-gold group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[11px] font-extrabold text-gold uppercase tracking-tighter">New Version Ready</span>
+                </button>
+            `;
+            sideUserInfo.appendChild(prompt);
+        }
+        
+        console.log('[Header] Update indicators active');
     }
 }
 
