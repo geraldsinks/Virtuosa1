@@ -136,18 +136,43 @@ class OrderDetailsManager {
         const trackingNumber = document.getElementById('tracking-number');
         const deliveryInstructionsSection = document.getElementById('delivery-instructions-section');
         const deliveryInstructions = document.getElementById('delivery-instructions');
+        
+        // New elements for recipient info
+        const recipientSection = document.getElementById('delivery-recipient-section');
+        const recipientName = document.getElementById('delivery-recipient-name');
+        const recipientPhone = document.getElementById('delivery-recipient-phone');
 
         // Update delivery method
         if (deliveryMethod) {
             deliveryMethod.textContent = this.formatDeliveryMethod(this.order.deliveryMethod);
         }
 
-        // Update delivery address if available
-        if (deliveryAddressSection && this.order.deliveryAddress) {
-            deliveryAddressSection.classList.remove('hidden');
-            const addressElement = document.getElementById('delivery-address');
-            if (addressElement) {
-                addressElement.textContent = this.order.deliveryAddress;
+        // Update delivery address and recipient info if available
+        if (this.order.deliveryAddress) {
+            const da = this.order.deliveryAddress;
+            
+            // Handle both object and string (backward compatibility)
+            const isObject = typeof da === 'object' && da !== null;
+            const addressText = isObject ? da.address : da;
+            
+            if (deliveryAddressSection && addressText) {
+                deliveryAddressSection.classList.remove('hidden');
+                document.getElementById('delivery-address').textContent = addressText;
+            }
+
+            if (isObject && recipientSection) {
+                if (da.name || da.phone) {
+                    recipientSection.classList.remove('hidden');
+                    if (recipientName) recipientName.textContent = da.name || 'N/A';
+                    if (recipientPhone) recipientPhone.textContent = da.phone || 'N/A';
+                }
+            }
+
+            // Update delivery instructions if available in deliveryAddress object
+            const instructions = isObject ? da.instructions : this.order.deliveryNotes;
+            if (deliveryInstructionsSection && deliveryInstructions && instructions) {
+                deliveryInstructionsSection.classList.remove('hidden');
+                deliveryInstructions.textContent = instructions;
             }
         }
 
@@ -157,10 +182,16 @@ class OrderDetailsManager {
             trackingNumber.textContent = this.order.trackingNumber;
         }
 
-        // Update delivery instructions if available
-        if (deliveryInstructionsSection && deliveryInstructions && this.order.deliveryNotes) {
-            deliveryInstructionsSection.classList.remove('hidden');
-            deliveryInstructions.textContent = this.order.deliveryNotes;
+        // Add Cancellation Reason display
+        const cancelSection = document.getElementById('cancellation-reason-section');
+        const cancelReasonElement = document.getElementById('cancellation-reason');
+        
+        if (cancelSection && (this.order.status === 'cancelled' || this.order.status === 'declined')) {
+            const reason = this.order.cancelReason || this.order.declineReason || 'No reason provided';
+            if (reason) {
+                cancelSection.classList.remove('hidden');
+                if (cancelReasonElement) cancelReasonElement.textContent = reason;
+            }
         }
     }
 
@@ -231,11 +262,20 @@ class OrderDetailsManager {
             });
         }
 
+        // Cancelled
+        if (this.order.cancelledAt || this.order.status === 'cancelled') {
+            events.push({
+                title: 'Order Cancelled',
+                date: this.formatDate(this.order.cancelledAt || this.order.updatedAt),
+                description: `Order was cancelled: ${this.order.cancelReason || 'No reason provided'}`
+            });
+        }
+
         // Declined
-        if (this.order.declinedAt) {
+        if (this.order.declinedAt || this.order.status === 'declined') {
             events.push({
                 title: 'Order Declined',
-                date: this.formatDate(this.order.declinedAt),
+                date: this.formatDate(this.order.declinedAt || this.order.updatedAt),
                 description: `Order was declined: ${this.order.declineReason || 'No reason provided'}`
             });
         }

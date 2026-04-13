@@ -490,7 +490,7 @@ transactionSchema.statics = {
         }
         
         const transactions = await this.find(query)
-            .populate('product', 'title images')
+            .populate('product', 'name images')
             .populate('buyer', 'fullName email')
             .populate('seller', 'fullName email')
             .sort({ createdAt: -1 })
@@ -531,7 +531,7 @@ transactionSchema.statics = {
         }
         
         const transactions = await this.find(query)
-            .populate('product', 'title images')
+            .populate('product', 'name images')
             .populate('buyer', 'fullName email')
             .populate('seller', 'fullName email')
             .sort({ createdAt: -1 })

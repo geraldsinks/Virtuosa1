@@ -164,6 +164,15 @@
                                 </div>
                             </div>
 
+                            <!-- Cancellation Reason (if applicable) -->
+                            <div id="cancellation-reason-section" class="hidden bg-red-500 bg-opacity-10 border border-red-500 border-opacity-30 rounded-lg p-6 mb-6">
+                                <h2 class="text-xl font-bold text-red-400 mb-2 flex items-center">
+                                    <i class="fas fa-ban mr-3"></i>
+                                    Cancellation Reason
+                                </h2>
+                                <p id="cancellation-reason" class="text-white italic"></p>
+                            </div>
+
                             <!-- Product Information -->
                             <div class="glass-card p-6 mb-6">
                                 <h2 class="text-xl font-bold text-navy mb-4 flex items-center">
@@ -211,6 +220,16 @@
                                     <div class="flex justify-between">
                                         <span class="text-sm text-gray-500">Delivery Method:</span>
                                         <span id="delivery-method" class="text-sm font-medium text-gray-900"></span>
+                                    </div>
+                                    <div id="delivery-recipient-section" class="hidden space-y-2">
+                                        <div class="flex justify-between">
+                                            <span class="text-sm text-gray-500">Recipient Name:</span>
+                                            <span id="delivery-recipient-name" class="text-sm font-medium text-gray-900"></span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-sm text-gray-500">Recipient Phone:</span>
+                                            <span id="delivery-recipient-phone" class="text-sm font-medium text-gray-900"></span>
+                                        </div>
                                     </div>
                                     <div id="delivery-address-section" class="hidden">
                                         <span class="text-sm text-gray-500">Delivery Address:</span>
