@@ -568,11 +568,25 @@ class UnifiedHeader {
         const userFullName = localStorage.getItem('userFullName');
 
         if (token) {
-            try {
-                await this.fetchAndUpdateUserData();
-            } catch (error) {
-                console.log('Unified Header: Auth check failed, using cached data:', error);
+            // Check if we're on a public page - if so, don't make API calls that might trigger redirects
+            const currentPath = window.location.pathname;
+            const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', '/search', '/about', '/contact', '/faq'];
+            const isPublicPath = publicPaths.includes(currentPath) || 
+                                 currentPath.startsWith('/product/') || 
+                                 currentPath.startsWith('/category/') ||
+                                 currentPath.startsWith('/seller/');
+            
+            if (isPublicPath) {
+                console.log('Unified Header: Public page detected, skipping API call to prevent redirects');
+                // Use cached data only on public pages
                 this.updateUIForLoggedInUser(userFullName);
+            } else {
+                try {
+                    await this.fetchAndUpdateUserData();
+                } catch (error) {
+                    console.log('Unified Header: Auth check failed, using cached data:', error);
+                    this.updateUIForLoggedInUser(userFullName);
+                }
             }
         } else {
             this.updateUIForLoggedOutUser();
