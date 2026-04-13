@@ -1,7 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+    <script>
+        console.log(' INDEX.HTML: Page load started');
+        console.log(' INDEX.HTML: Current URL:', window.location.href);
+        console.log(' INDEX.HTML: Path:', window.location.pathname);
+        
+        // Track any redirects
+        let originalLocation = window.location.href;
+        setTimeout(() => {
+            if (window.location.href !== originalLocation) {
+                console.error(' INDEX.HTML: REDIRECT DETECTED!');
+                console.error(' INDEX.HTML: From:', originalLocation);
+                console.error(' INDEX.HTML: To:', window.location.href);
+                console.error(' INDEX.HTML: Stack trace:', new Error().stack);
+            }
+        }, 100);
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Virtuosa - Student Trading Platform</title>
