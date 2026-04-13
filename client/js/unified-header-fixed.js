@@ -59,7 +59,6 @@ class UnifiedHeader {
                 this.initializeSearch();
             }
             this.initializeSideMenu();
-            this.initializeNotifications();
             this.initializeUserDropdown();
             this.initializeHideOnScroll();
             
@@ -818,27 +817,6 @@ class UnifiedHeader {
         return currentPath.includes('/login') || currentPath.includes('/signup');
     }
 
-    initializeNotifications() {
-        // Implement lightweight unread notifications count fetch
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        fetch(`${window.API_BASE}/notifications/unread-count`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        })
-        .then(res => {
-            if (!res.ok) throw new Error('Network response was not ok');
-            return res.json();
-        })
-        .then(data => {
-            const badge = document.getElementById('notification-badge');
-            if (badge && data && data.count > 0) {
-                badge.textContent = data.count > 9 ? '9+' : data.count;
-                badge.classList.remove('hidden');
-            }
-        })
-        .catch(err => console.log('Notification fetch skipped:', err.message));
-    }
 
     initializeUserDropdown() {
         // Unused in Amazon style, using Side Menu instead for full dashboard

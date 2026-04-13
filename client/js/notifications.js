@@ -61,9 +61,11 @@ class NotificationManager {
     }
 
     shouldShowNotifications() {
-        // Show notification badge on pages with user menu
+        // Show notification badge on pages with user menu/dropdown or any notification identifier
         return document.getElementById('user-menu') || 
+               document.getElementById('notification-badge') ||
                document.querySelector('.notification-badge') ||
+               document.getElementById('mobile-notification-badge') ||
                window.location.pathname.includes('notifications');
     }
 
