@@ -170,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const userEmail = localStorage.getItem('userEmail');
     const userFullName = localStorage.getItem('userFullName');
     let userId = localStorage.getItem('userId');
+    let currentRecipientId = null; // Track current chat partner
     
     console.log('Authentication status:', { 
         hasToken: !!token, 
@@ -215,7 +216,11 @@ document.addEventListener('DOMContentLoaded', () => {
         startChatAfterConversationsLoad(startRecipientId, currentOrderId, currentProductId);
     }
     
-    console.log('URL parameters:', { currentRecipientId, currentProductId });
+    console.log('URL parameters:', { 
+        recipientId: startRecipientId, 
+        productId: currentProductId, 
+        orderId: currentOrderId 
+    });
 
     // Get DOM elements
     const conversationList = document.getElementById('conversation-list');
