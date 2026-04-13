@@ -113,7 +113,9 @@ class TokenManager {
                     // Update user data if available
                     if (data.user) {
                         localStorage.setItem('user', JSON.stringify(data.user));
-                        localStorage.setItem('userId', data.user.id);
+                        if (data.user.id || data.user._id) {
+                            localStorage.setItem('userId', data.user.id || data.user._id);
+                        }
                     }
 
                     console.log('✅ Token refreshed successfully');

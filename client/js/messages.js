@@ -1,6 +1,12 @@
 // Messages JavaScript
 // API_BASE is provided by config.js
 
+// Global flag to prevent double initialization
+if (window.messagesJsInitialized) {
+    console.log('⚠️ messages.js already initialized, skipping...');
+} else {
+window.messagesJsInitialized = true;
+
 // HTML Sanitization function to prevent XSS
 function sanitizeHTML(str) {
     const div = document.createElement('div');
@@ -170,6 +176,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const userEmail = localStorage.getItem('userEmail');
     const userFullName = localStorage.getItem('userFullName');
     let userId = localStorage.getItem('userId');
+    
+    // Clean up 'undefined' string if present
+    if (userId === 'undefined' || userId === 'null') {
+        userId = null;
+        localStorage.removeItem('userId');
+    }
+    
     let currentRecipientId = null; // Track current chat partner
     
     console.log('Authentication status:', { 
@@ -179,12 +192,22 @@ document.addEventListener('DOMContentLoaded', () => {
         userFullName 
     });
     
-    // Load token manager for automatic refresh
-    const tokenManagerScript = document.createElement('script');
-    tokenManagerScript.src = '/js/token-manager.js';
-    tokenManagerScript.onload = () => {
-        console.log('Token manager loaded');
-        
+    // Load token manager for automatic refresh if not already present
+    if (!window.tokenManager) {
+        console.log('📦 Loading token manager script dynamicallly...');
+        const tokenManagerScript = document.createElement('script');
+        tokenManagerScript.src = '/js/token-manager.js';
+        tokenManagerScript.onload = () => {
+            console.log('Token manager loaded');
+            setupTokenSync();
+        };
+        document.head.appendChild(tokenManagerScript);
+    } else {
+        console.log('✅ Token manager already exists, skipping script load');
+        setupTokenSync();
+    }
+    
+    function setupTokenSync() {
         // Update token reference when token manager refreshes
         setInterval(() => {
             const currentToken = localStorage.getItem('token');
@@ -195,12 +218,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }, 30000); // Check every 30 seconds
-    };
-    document.head.appendChild(tokenManagerScript);
+    }
     
     // Ensure userId is available (should be set by login or token-manager)
-    if (!userId || userId === 'undefined') {
-        console.warn('⚠️ No userId available. Authenticated messaging requires a valid userId in localStorage.');
+    if (!userId) {
+        // Try to get from token manager if available
+        if (window.tokenManager && typeof window.tokenManager.parseToken === 'function') {
+            const tokenData = window.tokenManager.parseToken(token);
+            if (tokenData && tokenData.userId) {
+                userId = tokenData.userId;
+                localStorage.setItem('userId', userId);
+                console.log('✅ Recovered userId from token:', userId);
+            }
+        }
+        
+        if (!userId) {
+            console.warn('⚠️ No userId available. Authenticated messaging requires a valid userId in localStorage.');
+        }
     } else {
         console.log('✅ Using stored userId:', userId);
     }
@@ -933,11 +967,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+    let isCurrentlyLoadingMessages = false;
+
     // Load messages
     async function loadMessages() {
         if (!currentRecipientId) return;
+        if (isCurrentlyLoadingMessages) {
+            console.log('⏳ Already loading messages, skipping duplicate call');
+            return;
+        }
 
         console.log('Loading messages for recipient:', currentRecipientId);
+        isCurrentlyLoadingMessages = true;
 
         try {
             if (!token) {
@@ -957,14 +998,17 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (response.ok) {
                 const messages = await response.json();
-                console.log('Messages loaded:', messages);
+                console.log('Messages loaded:', messages.length);
                 displayMessages(messages);
             } else {
                 console.error('Failed to load messages:', response.status);
-                const errorText = await response.text();
-                console.error('Error details:', errorText);
+                // Handle 401 Unauthorized
+                if (response.status === 401) {
+                    console.log('Token expired or invalid, triggering refresh');
+                    if (window.tokenManager) window.tokenManager.refreshToken();
+                }
                 
-                if (messageContainer) {
+                if (messageContainer && messageContainer.children.length === 0) {
                     messageContainer.innerHTML = `
                         <div class="text-center text-gray-400">
                             <p>Failed to load messages</p>
@@ -977,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error loading messages:', error);
             
-            if (messageContainer) {
+            if (messageContainer && messageContainer.children.length === 0) {
                 messageContainer.innerHTML = `
                     <div class="text-center text-gray-400">
                         <p>Error loading messages</p>
@@ -986,6 +1030,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
             }
+        } finally {
+            isCurrentlyLoadingMessages = false;
         }
     }
 
@@ -1002,33 +1048,26 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Current recipientId:', currentRecipientId);
 
         // Fallback: If userId is still undefined, try to determine it from messages
-        if (!userId || userId === 'undefined') {
-            console.log('🔄 Using fallback method to determine userId...');
+        if (!userId) {
+            console.log('🔄 Using fallback method to determine userId from messages content...');
             
             // Count messages from each sender
             const senderCounts = {};
             messages.forEach(m => {
-                senderCounts[m.sender] = (senderCounts[m.sender] || 0) + 1;
+                const sId = (m.sender && typeof m.sender === 'object') ? m.sender._id : m.sender;
+                if (sId) senderCounts[sId] = (senderCounts[sId] || 0) + 1;
             });
             
-            console.log('Message sender counts:', senderCounts);
+            // The current user is likely the one who IS NOT the currentRecipientId
+            // OR if all messages are from recipient, we might have to wait for identity resolution
+            const possibleUserIds = Object.keys(senderCounts).filter(sId => sId !== currentRecipientId);
             
-            // The current user is likely the one who sent messages to the recipient
-            // or the one who received messages from the recipient
-            const possibleUserIds = Object.keys(senderCounts).filter(senderId => {
-                return senderId !== currentRecipientId;
-            });
-            
-            if (possibleUserIds.length === 1) {
+            if (possibleUserIds.length > 0) {
                 userId = possibleUserIds[0];
                 localStorage.setItem('userId', userId);
                 console.log('✅ Determined userId from message analysis:', userId);
             } else {
-                console.log('⚠️ Multiple possible userIds found:', possibleUserIds);
-                // Default to the first sender that's not the recipient
-                userId = possibleUserIds[0];
-                localStorage.setItem('userId', userId);
-                console.log('🔄 Defaulting to userId:', userId);
+                console.warn('⚠️ Could not determine userId from messages. All messages are from recipient.');
             }
         }
 
@@ -1726,3 +1765,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log('Messages initialization complete');
 });
+} // End messagesJsInitialized guard
