@@ -14,224 +14,6 @@ function fixServerUrl(url) {
     return url.startsWith('/') ? `${API_BASE}${url}` : url;
 }
 
-// Toast Notification System (shared with cart.js)
-const toastStyles = `
-#toast-container {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 9999;
-    pointer-events: none;
-}
-
-.toast {
-    background: rgba(0, 0, 0, 0.95);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    padding: 1rem;
-    margin-bottom: 0.5rem;
-    min-width: 300px;
-    max-width: 400px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    transform: translateX(100%);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.toast-content {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    gap: 0.75rem;
-}
-
-.toast-icon {
-    font-size: 1.25rem;
-    flex-shrink: 0;
-}
-
-.toast-message {
-    color: white;
-    font-size: 0.875rem;
-    font-weight: 500;
-    flex: 1;
-    line-height: 1.4;
-}
-
-.toast-close {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    border-radius: 50%;
-    width: 1.5rem;
-    height: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    color: rgba(255, 255, 255, 0.7);
-    flex-shrink: 0;
-}
-
-.toast-close:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-}
-
-/* Animations */
-.toast-enter {
-    opacity: 0;
-    transform: translateX(100%) scale(0.8);
-}
-
-.toast-show {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-}
-
-.toast-leave {
-    opacity: 0;
-    transform: translateX(100%) scale(0.9);
-}
-
-/* Type-specific colors */
-.toast.success {
-    border-left: 4px solid #10b981;
-}
-
-.toast.error {
-    border-left: 4px solid #ef4444;
-}
-
-.toast.info {
-    border-left: 4px solid #3b82f6;
-}
-`;
-
-// Inject toast styles once
-if (!document.getElementById('toast-notification-styles')) {
-    const styleSheet = document.createElement('style');
-    styleSheet.id = 'toast-notification-styles';
-    styleSheet.textContent = toastStyles;
-    document.head.appendChild(styleSheet);
-}
-
-/**
- * Show a modern toast notification with improved timing and user experience
- * @param {string} message 
- * @param {string} type - 'success', 'error', 'info'
- * @param {number} duration - Optional custom duration in milliseconds
- */
-function showToast(message, type = 'success', duration = 4000) {
-    let container = document.getElementById('toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toast-container';
-        container.className = 'fixed top-4 right-4 z-50 pointer-events-none';
-        document.body.appendChild(container);
-    }
-
-    // Remove any existing toasts to prevent stacking
-    const existingToasts = container.querySelectorAll('.toast');
-    existingToasts.forEach(toast => {
-        if (toast.parentNode) {
-            toast.parentNode.removeChild(toast);
-        }
-    });
-
-    const toast = document.createElement('div');
-    toast.className = `toast ${type} toast-enter`;
-    
-    // Choose icon based on type
-    let icon = 'fa-check-circle';
-    let iconColor = 'text-green-400';
-    if (type === 'error') {
-        icon = 'fa-exclamation-triangle';
-        iconColor = 'text-red-400';
-    } else if (type === 'info') {
-        icon = 'fa-info-circle';
-        iconColor = 'text-blue-400';
-    }
-    
-    toast.innerHTML = `
-        <div class="toast-content">
-            <div class="toast-icon ${iconColor}">
-                <i class="fas ${icon}"></i>
-            </div>
-            <div class="toast-message">${message}</div>
-            <div class="toast-close" onclick="this.parentElement.parentElement.remove()">
-                <i class="fas fa-times"></i>
-            </div>
-        </div>
-    `;
-
-    container.appendChild(toast);
-
-    // Trigger entrance animation
-    requestAnimationFrame(() => {
-        toast.classList.remove('toast-enter');
-        toast.classList.add('toast-show');
-    });
-
-    // Auto-remove after specified duration with smooth exit
-    setTimeout(() => {
-        toast.classList.add('toast-leave');
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300); // Wait for exit animation
-    }, duration);
-}
-
-// Mobile header initialization function
-function initializeMobileHeader() {
-    console.log('Initializing mobile header for messages...');
-    
-    if (window.innerWidth < 768) {
-        const chatArea = document.getElementById('chat-area');
-        // Handle header buttons based on current state
-        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-        const mobileBackBtn = document.getElementById('mobile-chat-back-button');
-        const mobileTitle = document.getElementById('mobile-header-title');
-        
-        if (window.location.search.includes('recipientId')) {
-            // We are starting in a chat
-            if (mobileMenuToggle) mobileMenuToggle.classList.add('hidden');
-            if (mobileBackBtn) mobileBackBtn.classList.remove('hidden');
-            if (chatArea) {
-                chatArea.classList.remove('hidden');
-                chatArea.classList.add('mobile-full', 'flex');
-            }
-        } else {
-            // We are starting in the list view
-            if (mobileMenuToggle) mobileMenuToggle.classList.remove('hidden');
-            if (mobileBackBtn) mobileBackBtn.classList.add('hidden');
-            if (mobileTitle) mobileTitle.textContent = 'Messages';
-            if (chatArea) chatArea.classList.add('hidden');
-        }
-    } else {
-        // Desktop behavior: If no recipient, show placeholder and hide input
-        const chatArea = document.getElementById('chat-area');
-        const inputArea = document.getElementById('input-area');
-        const urlParams = new URLSearchParams(window.location.search);
-        const recipientId = urlParams.get('recipientId') || urlParams.get('seller') || urlParams.get('buyer');
-        
-        if (!recipientId && chatArea && inputArea) {
-            inputArea.classList.add('hidden');
-            // Ensure header reflects "Select a conversation"
-            const nameEl = document.getElementById('recipient-name');
-            if (nameEl) nameEl.textContent = 'Select a conversation';
-        } else if (recipientId && inputArea) {
-            inputArea.classList.remove('hidden');
-        }
-    }
-}
-
 // Mobile menu toggle function
 window.openMobileMenu = function() {
     console.log('Opening mobile menu...');
@@ -283,8 +65,106 @@ window.goBack = function() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Messages page loading...');
     
-    // Initialize mobile header functionality
-    initializeMobileHeader();
+    // Helper to get a valid recipient ID from URL parameters
+    function getValidRecipientId() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('recipientId') || urlParams.get('seller') || urlParams.get('buyer');
+        
+        // Filter out invalid ID values
+        if (!id || id === 'null' || id === 'undefined' || id.trim() === '') {
+            return null;
+        }
+        return id;
+    }
+
+    // Consolidated Messaging UI Initialization
+    function initializeMessagingUI() {
+        console.log('Initializing messaging UI...');
+        
+        // Elements
+        const mobileHeader = document.querySelector('.mobile-messages-header');
+        const siteHeader = document.querySelector('.site-header');
+        const chatArea = document.getElementById('chat-area');
+        const inputArea = document.getElementById('input-area');
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileBackBtn = document.getElementById('mobile-chat-back-button');
+        const mobileTitle = document.getElementById('mobile-header-title');
+        const sidebar = document.getElementById('sidebar');
+        
+        const recipientId = getValidRecipientId();
+        const isMobile = window.innerWidth < 768;
+        
+        if (isMobile) {
+            // --- Mobile Visibility Logic ---
+            if (mobileHeader) mobileHeader.classList.remove('hidden');
+            if (siteHeader) siteHeader.classList.add('hidden');
+            
+            if (recipientId) {
+                // SHOW Chat View
+                document.body.classList.add('mobile-chat-active');
+                if (mobileMenuToggle) mobileMenuToggle.classList.add('hidden');
+                if (mobileBackBtn) mobileBackBtn.classList.remove('hidden');
+                if (sidebar) sidebar.classList.add('hidden');
+                if (chatArea) {
+                    chatArea.classList.remove('hidden');
+                    chatArea.classList.add('mobile-full', 'flex');
+                }
+            } else {
+                // SHOW Conversation List
+                document.body.classList.remove('mobile-chat-active');
+                if (mobileMenuToggle) mobileMenuToggle.classList.remove('hidden');
+                if (mobileBackBtn) mobileBackBtn.classList.add('hidden');
+                if (mobileTitle) mobileTitle.textContent = 'Messages';
+                if (sidebar) {
+                    sidebar.classList.remove('hidden');
+                    sidebar.classList.add('mobile-full');
+                }
+                if (chatArea) {
+                    chatArea.classList.add('hidden');
+                    chatArea.classList.remove('mobile-full', 'flex');
+                }
+            }
+            
+            // Mobile specific behavior setup
+            if (typeof fixMobileScrolling === 'function') fixMobileScrolling();
+            if (typeof observeNewMessages === 'function') observeNewMessages();
+            if (typeof initializeMobileGestures === 'function') initializeMobileGestures();
+            
+        } else {
+            // --- Desktop Visibility Logic ---
+            if (mobileHeader) mobileHeader.classList.add('hidden');
+            if (siteHeader) siteHeader.classList.remove('hidden');
+            document.body.classList.remove('mobile-chat-active');
+            
+            if (sidebar) {
+                sidebar.classList.remove('hidden');
+                sidebar.classList.remove('mobile-full');
+            }
+            
+            if (!recipientId && chatArea && inputArea) {
+                // Desktop Placeholder state
+                const inputAreaEl = document.getElementById('input-area');
+                if (inputAreaEl) inputAreaEl.classList.add('hidden');
+                const nameEl = document.getElementById('recipient-name');
+                if (nameEl) nameEl.textContent = 'Select a conversation';
+            } else if (recipientId && inputArea) {
+                const inputAreaEl = document.getElementById('input-area');
+                if (inputAreaEl) inputAreaEl.classList.remove('hidden');
+            }
+            
+            if (chatArea) {
+                chatArea.classList.remove('hidden');
+                chatArea.classList.add('flex');
+                chatArea.classList.remove('mobile-full');
+            }
+        }
+    }
+
+    // Support legacy calls
+    window.initializeMobileHeader = initializeMessagingUI;
+    
+    // Initialize messaging UI functionality
+    initializeMessagingUI();
     
     const token = localStorage.getItem('token');
     const userEmail = localStorage.getItem('userEmail');
@@ -324,18 +204,15 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('✅ Using stored userId:', userId);
     }
     
-    // Get URL parameters immediately
+    // If a valid recipient is targeted, start chat
     const urlParams = new URLSearchParams(window.location.search);
-    let currentRecipientId = urlParams.get('recipientId') || urlParams.get('seller') || urlParams.get('buyer');
+    const startRecipientId = getValidRecipientId();
     const currentProductId = urlParams.get('productId') || urlParams.get('product');
     const currentOrderId = urlParams.get('orderId') || urlParams.get('order');
     
-    // If recipientId is present, start chat immediately
-    if (currentRecipientId) {
-        console.log('Starting chat with:', { recipientId: currentRecipientId, orderId: currentOrderId, productId: currentProductId });
-        
-        // Wait for conversations to load before starting chat
-        startChatAfterConversationsLoad(currentRecipientId, currentOrderId, currentProductId);
+    if (startRecipientId) {
+        console.log('Target recipient found:', startRecipientId);
+        startChatAfterConversationsLoad(startRecipientId, currentOrderId, currentProductId);
     }
     
     console.log('URL parameters:', { currentRecipientId, currentProductId });
@@ -1451,39 +1328,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Mobile navigation improvements
-    function enhanceMobileNavigation() {
-        // Add back button functionality for mobile
-        const backButton = document.querySelector('[onclick="backToConversations()"], [onclick="window.backToConversations()"]');
-        if (backButton && window.innerWidth < 768) {
-            backButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                window.backToConversations();
-                
-                // Add haptic feedback
-                if (navigator.vibrate) {
-                    navigator.vibrate(30);
-                }
-            });
-        }
-        
-        // Optimize scrolling performance
-        if (messageContainer) {
-            messageContainer.style.overflowScrolling = 'touch';
-            messageContainer.style.webkitOverflowScrolling = 'touch';
-        }
-        
-        if (conversationList) {
-            conversationList.style.overflowScrolling = 'touch';
-            conversationList.style.webkitOverflowScrolling = 'touch';
-        }
-    }
-
-    // Initialize mobile enhancements
-    if (window.innerWidth < 768) {
-        initializeMobileGestures();
-        enhanceMobileNavigation();
-    }
 
     // Handle orientation changes
     window.addEventListener('orientationchange', function() {
@@ -1500,14 +1344,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     });
 
-    // Handle resize events
-    window.addEventListener('resize', function() {
-        // Re-initialize mobile features if crossing breakpoint
-        if (window.innerWidth < 768) {
-            initializeMobileGestures();
-            enhanceMobileNavigation();
-        }
-    });
 
     window.addReactionToInput = (emoji) => {
         if (messageInput) {
@@ -1602,53 +1438,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Mobile Header Initialization
-    function initializeMobileHeader() {
-        if (window.innerWidth >= 768) return; // Only on mobile
-        
-        const mobileHeader = document.querySelector('.mobile-messages-header');
-        const siteHeader = document.querySelector('.site-header');
-        const chatArea = document.getElementById('chat-area');
-        const sidebar = document.getElementById('sidebar');
-        const messageContainer = document.getElementById('message-container');
-        const mobileMenu = document.querySelector('.mobile-menu-content');
-        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-        
-        // Show mobile header, hide site header on mobile
-        if (mobileHeader) mobileHeader.classList.remove('hidden');
-        if (siteHeader) siteHeader.classList.add('hidden');
-        
-        // Mobile menu functionality is now handled globally by unified-header-fixed.js
-        // via the navigation-bootstrap.js and navigation-coordinator.js system.
-        
-        // Ensure chat-specific mobile containers are correctly positioned
-        if (messageContainer) {
-            messageContainer.scrollTop = messageContainer.scrollHeight;
-        }
-
-        
-        // Fix scrolling behavior
-        fixMobileScrolling();
-        
-        // Auto-scroll to bottom when new messages are added
-        observeNewMessages();
-        
-        // Handle resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 768) {
-                // Desktop: show site header, hide mobile header
-                if (mobileHeader) mobileHeader.classList.add('hidden');
-                if (siteHeader) siteHeader.classList.remove('hidden');
-                document.body.style.overflow = '';
-                document.body.style.position = '';
-            } else {
-                // Mobile: show mobile header, hide site header
-                if (mobileHeader) mobileHeader.classList.remove('hidden');
-                if (siteHeader) siteHeader.classList.add('hidden');
-                fixMobileScrolling();
-            }
-        });
-    }
     
     function observeNewMessages() {
         const messageContainer = document.getElementById('message-container');
@@ -1754,9 +1543,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Ensure input area is accessible
         if (inputArea && chatArea) {
-            // Make sure chat area layout allows input area to be visible
-            chatArea.style.display = 'flex';
-            chatArea.style.flexDirection = 'column';
+            // Do NOT force display: flex here as it overrides the hidden state for list view.
+            // Responsive display is handled by initializeMobileHeader and startChat.
             
             // Add scroll to input functionality
             const scrollToInput = () => {
