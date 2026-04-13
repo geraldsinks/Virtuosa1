@@ -29,17 +29,22 @@
         setTimeout(checkForRedirect, 500);
         setTimeout(checkForRedirect, 1000);
         
-        // Monitor window.location changes
-        let currentHref = window.location.href;
-        Object.defineProperty(window.location, 'href', {
-            get: function() { return currentHref; },
-            set: function(value) {
-                console.error(' INDEX.HTML: window.location.href CHANGED to:', value);
-                console.error(' INDEX.HTML: Stack trace:', new Error().stack);
-                currentHref = value;
-                window.location.assign(value);
-            }
-        });
+        // Monitor navigation methods that could cause redirects
+        const originalAssign = window.location.assign;
+        const originalReplace = window.location.replace;
+        const originalHref = window.location.href;
+        
+        window.location.assign = function(url) {
+            console.error(' INDEX.HTML: window.location.assign CALLED with:', url);
+            console.error(' INDEX.HTML: Stack trace:', new Error().stack);
+            return originalAssign.call(this, url);
+        };
+        
+        window.location.replace = function(url) {
+            console.error(' INDEX.HTML: window.location.replace CALLED with:', url);
+            console.error(' INDEX.HTML: Stack trace:', new Error().stack);
+            return originalReplace.call(this, url);
+        };
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
