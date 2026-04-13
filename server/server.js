@@ -323,34 +323,8 @@ app.use(cors( {
     allowedHeaders: ["Content-Type", "Authorization"],
     maxAge: 86400
 }));
-// Custom JSON parsing middleware with debugging
-app.use((req, res, next) => {
-    // Store raw body for debugging login requests
-    if (req.path === '/api/auth/login' && req.method === 'POST') {
-        // Get the raw body before JSON parsing
-        let rawBody = '';
-        req.on('data', chunk => {
-            rawBody += chunk.toString();
-        });
-        
-        req.on('end', () => {
-            console.log('🔍 RAW DEBUG - Raw body string:', rawBody);
-            console.log('🔍 RAW DEBUG - Raw body length:', rawBody.length);
-            console.log('🔍 RAW DEBUG - Raw body chars:', Array.from(rawBody).map(c => `${c}(${c.charCodeAt(0)})`));
-            req.rawBody = rawBody;
-        });
-    }
-    
-    // Use Express JSON parser
-    express.json({ limit: '10mb' })(req, res, () => {
-        if (req.path === '/api/auth/login' && req.method === 'POST') {
-            console.log('🔍 JSON DEBUG - Parsed body:', JSON.stringify(req.body));
-            console.log('🔍 JSON DEBUG - Email from parsed body:', req.body.email);
-            console.log('🔍 JSON DEBUG - Email chars from parsed body:', req.body.email ? Array.from(req.body.email).map(c => `${c}(${c.charCodeAt(0)})`) : 'undefined');
-        }
-        next();
-    });
-});
+// Use standard Express JSON parser
+app.use(express.json({ limit: '10mb' }));
 
 // Maintenance middleware for API routes
 const { checkMaintenance } = require('./middleware/maintenance');
@@ -2587,11 +2561,6 @@ app.post('/api/auth/signup', async (req, res) => {
 
         await user.save();
         
-        // Debug: Check password after save
-        console.log('User saved successfully');
-        console.log('Password hash after save:', user.password.substring(0, 20) + '...');
-        console.log('Password hash length after save:', user.password.length);
-
         // Send email verification email
         const emailVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosa1.vercel.app'}/pages/verify-email.html?token=${emailVerificationToken}`;
         
@@ -2723,24 +2692,7 @@ app.get('/api/auth/verify-student/:token', async (req, res) => {
 // Login endpoint
 app.post('/api/auth/login', async (req, res) => {
     try {
-        // Handle case where body might be Buffer
-        let email, password;
-        
-        if (req.body && typeof req.body.email === 'undefined' && req.rawBody) {
-            try {
-                const parsedBody = JSON.parse(req.rawBody);
-                email = parsedBody.email;
-                password = parsedBody.password;
-                console.log('🔍 FALLBACK DEBUG - Using raw body for parsing');
-            } catch (e) {
-                console.log('❌ FALLBACK DEBUG - Raw body parsing failed:', e.message);
-            }
-        } else {
-            email = req.body.email;
-            password = req.body.password;
-        }
-        
-        console.log('🔍 FINAL DEBUG - Extracted email:', email, 'password:', password ? '[REDACTED]' : 'undefined');
+        const { email, password } = req.body;
 
         // Input validation
         if (!email || !password) {
@@ -2753,17 +2705,10 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid email format' });
         }
 
-        // Basic password validation
-        if (password.length < 6) {
-            return res.status(400).json({ message: 'Password must be at least 6 characters long' });
-        }
-
         // Normalize email to lowercase and trim whitespace
         const normalizedEmail = email.toLowerCase().trim();
         
-        console.log('Login attempt for email:', normalizedEmail);
-        
-        // Simple, direct email lookup
+        // Find user
         const user = await User.findOne({ email: normalizedEmail });
         
         if (!user) {
@@ -2771,207 +2716,17 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
         
-        console.log('Attempting password comparison for user:', normalizedEmail);
-        console.log('Password hash length:', user.password.length);
-        console.log('Password hash starts with:', user.password.substring(0, 10));
-        console.log('Password hash ends with:', user.password.substring(-10));
-        console.log('Input password length:', password.length);
-        console.log('Input password chars:', Array.from(password).map(c => `${c}(${c.charCodeAt(0)})`));
-        
-        // Double-check the user data is fresh from database
-        const freshUser = await User.findOne({ email: normalizedEmail });
-        console.log('Fresh user hash starts with:', freshUser.password.substring(0, 10));
-        console.log('Hashes match:', user.password === freshUser.password);
-        
-        // Comprehensive fix for database hash corruption
-        let isMatch = false;
-        let freshMatch = false;
-        
-        console.log('🔧 Attempting comprehensive hash fix...');
-        
-        // Try multiple approaches to fix the corrupted hash
-        const approaches = [
-            { name: 'Direct lowercase', hash: user.password.toLowerCase() },
-            { name: 'Fresh lowercase', hash: freshUser.password.toLowerCase() },
-            { name: 'Known password hash', hash: '$2a$12$w7Iy4jB6AIIv5rE2yfkdkuG5QqQqQqQqQqQqQqQqQqQqQqQqQqQqQqQqQq' } // Will be created dynamically
-        ];
-        
-        // Create a proper hash for the known password
-        const knownPasswordHash = await bcrypt.hash('123456879', 12);
-        approaches[2].hash = knownPasswordHash;
-        
-        for (const approach of approaches) {
-            console.log(`🔧 Testing ${approach.name}:`, approach.hash.substring(0, 20) + '...');
-            
-            try {
-                const testResult = await bcrypt.compare(password, approach.hash);
-                console.log(`🔧 ${approach.name} result:`, testResult);
-                
-                if (testResult) {
-                    console.log(`🔧 SUCCESS with ${approach.name}!`);
-                    isMatch = true;
-                    
-                    // Update user with the working hash
-                    user.password = approach.hash;
-                    await user.save();
-                    console.log('🔧 User updated with working hash');
-                    break;
-                }
-            } catch (e) {
-                console.log(`🔧 ${approach.name} failed:`, e.message);
-            }
-        }
-        
-        // Final fallback: create new hash and force update
-        if (!isMatch) {
-            console.log('🔧 All approaches failed, creating fresh hash...');
-            const freshHash = await bcrypt.hash(password, 12);
-            
-            // Test the fresh hash
-            const freshTest = await bcrypt.compare(password, freshHash);
-            console.log('🔧 Fresh hash test:', freshTest);
-            
-            if (freshTest) {
-                user.password = freshHash;
-                await user.save();
-                console.log('🔧 User updated with fresh hash');
-                isMatch = true;
-            }
-        }
-        
-        console.log('Final password comparison result:', isMatch);
-        
-        // Gemini's fix: Use direct database update to bypass uppercase conversion
-        if (!isMatch && user.password !== user.password.toLowerCase()) {
-            console.log('Attempting direct database fix...');
-            
-            try {
-                // Use updateOne to bypass Mongoose middleware
-                const fixedPassword = user.password.toLowerCase();
-                await User.updateOne(
-                    { _id: user._id },
-                    { $set: { password: fixedPassword } }
-                );
-                
-                console.log('Database updated with lowercase hash');
-                
-                // Test the fixed hash
-                isMatch = await bcrypt.compare(password, fixedPassword);
-                console.log('Fixed hash comparison result:', isMatch);
-                
-                if (isMatch) {
-                    console.log('SUCCESS: Authentication restored with direct database fix!');
-                }
-            } catch (e) {
-                console.log('Direct database fix failed:', e.message);
-            }
-        }
-        
-        // Emergency fix: If hash appears corrupted, try direct comparison with known password
-        if (!isMatch && !freshMatch && password === '123456879') {
-            console.log('🔧 Emergency fix detected - attempting to repair corrupted hash');
-            
-            // Create new proper hash
-            const emergencyHash = await bcrypt.hash('123456879', 12);
-            console.log('🔧 Emergency hash created:', emergencyHash);
-            console.log('🔧 Emergency hash length:', emergencyHash.length);
-            
-            // Test hash before saving
-            const beforeSaveTest = await bcrypt.compare('123456879', emergencyHash);
-            console.log('🔧 Before save test:', beforeSaveTest);
-            
-            user.password = emergencyHash;
-            await user.save();
-            
-            console.log('🔧 Hash saved to database');
-            console.log('🔧 User password after save starts with:', user.password.substring(0, 20));
-            console.log('🔧 User password after save length:', user.password.length);
-            
-            // Verify fresh data from DB
-            const freshAfterSave = await User.findOne({ email: normalizedEmail });
-            console.log('🔧 Fresh DB hash starts with:', freshAfterSave.password.substring(0, 20));
-            console.log('🔧 Hashes match after save:', user.password === freshAfterSave.password);
-            
-            // Test the final hash
-            console.log('🔧 Password before final test:', JSON.stringify(password));
-            console.log('🔧 Password chars before final test:', Array.from(password).map(c => `${c}(${c.charCodeAt(0)})`));
-            
-            isMatch = await bcrypt.compare(password, user.password);
-            console.log('🔧 Emergency fix result:', isMatch);
-            
-            // Test with fresh data too
-            console.log('🔧 Password before fresh test:', JSON.stringify(password));
-            const freshTest = await bcrypt.compare(password, freshAfterSave.password);
-            console.log('🔧 Fresh data test result:', freshTest);
-            
-            // Test with hardcoded password to isolate the issue
-            const hardcodedTest = await bcrypt.compare('123456879', freshAfterSave.password);
-            console.log('🔧 Hardcoded password test:', hardcodedTest);
-            
-            // Check hash integrity
-            console.log('🔧 Hash integrity check:');
-            console.log('  - Expected length: 60');
-            console.log('  - Actual length:', freshAfterSave.password.length);
-            console.log('  - Starts with $2a$12$:', freshAfterSave.password.startsWith('$2a$12$'));
-            console.log('  - Contains only valid chars:', /^[\.\/A-Za-z0-9]+$/.test(freshAfterSave.password));
-            console.log('  - Full hash:', freshAfterSave.password);
-            
-            // Test if we can manually recreate the comparison
-            try {
-                const testHash = '$2a$12$hjNLIuLI1XDg4K2w3XNVrOqXQq8QqQqQqQqQqQqQqQqQqQqQqQqQqQqQq';
-                const manualTest = await bcrypt.compare('123456879', testHash);
-                console.log('🔧 Manual hash test (should be false):', manualTest);
-            } catch (e) {
-                console.log('🔧 Manual hash test error:', e.message);
-            }
-        }
+        // Standard password comparison
+        const isMatch = await user.comparePassword(password);
         
         if (!isMatch) {
-            console.log('Password comparison failed for user:', normalizedEmail);
-            console.log('Input password:', JSON.stringify(password));
-            console.log('Input password length:', password.length);
-            
-            // For debugging: let's try to hash the input password to see what happens
-            const testHash = await bcrypt.hash(password, 12);
-            console.log('Test hash of input password:', testHash.substring(0, 30) + '...');
-            
-            // Let's also try to verify the stored hash format
-            console.log('Stored hash format check:', {
-                startsWith2a: user.password.startsWith('$2a$'),
-                length: user.password.length,
-                expectedLength: 60
-            });
-            
-            // Test manual verification
-            try {
-                const manualTest = await bcrypt.compare('123456879', freshUser.password);
-                console.log('Manual test with exact password:', manualTest);
-            } catch (e) {
-                console.log('Manual test failed:', e.message);
-            }
-            
-            // Test bcrypt functionality with known values
-            try {
-                const testPassword = '123456879';
-                const knownHash = '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj6QJw/2Ej7W'; // Hash of '123456879'
-                const knownTest = await bcrypt.compare(testPassword, knownHash);
-                console.log('Known hash test:', knownTest);
-                
-                // Create fresh hash and test
-                const freshHash = await bcrypt.hash(testPassword, 12);
-                const freshTest = await bcrypt.compare(testPassword, freshHash);
-                console.log('Fresh hash test:', freshTest);
-                console.log('Fresh hash:', freshHash);
-                
-            } catch (e) {
-                console.log('Bcrypt functionality test failed:', e.message);
-            }
+            console.log('❌ Login failed - Invalid password for email:', normalizedEmail);
             return res.status(400).json({ message: 'Invalid email or password' });
         }
+        
+        console.log('✅ Login successful for:', normalizedEmail);
 
-        // Check if email is verified (handle missing fields gracefully)
-        // For existing users without email verification fields, consider them verified
-        // Special case: if the email is the same as EMAIL_USER, consider it verified
+        // Check if email is verified
         const isEmailVerified = user.isEmailVerified === undefined ? true : Boolean(user.isEmailVerified);
         const isSystemEmail = normalizedEmail === process.env.EMAIL_USER?.toLowerCase();
         
@@ -2982,19 +2737,11 @@ app.post('/api/auth/login', async (req, res) => {
             });
         }
 
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '24h' });
         
         // Get user role information using the new role system
         const { getEffectiveRole } = require('./middleware/roleBasedAccess');
         const effectiveRole = getEffectiveRole(user);
-        
-        console.log('🔐 Login successful:', {
-            userId: user._id,
-            email: user.email,
-            effectiveRole,
-            isAdmin: effectiveRole === 'admin',
-            isSeller: effectiveRole === 'seller' || effectiveRole === 'admin'
-        });
         
         res.json({
             token,
@@ -3003,12 +2750,10 @@ app.post('/api/auth/login', async (req, res) => {
                 fullName: user.fullName,
                 isEmailVerified: user.isEmailVerified,
                 isStudentVerified: user.isStudentVerified,
-                // Add role information for the new role system
                 role: user.role,
                 isAdmin: user.isAdmin,
                 isBuyer: user.isBuyer,
                 isSeller: user.isSeller,
-                // Add computed effective role for client-side use
                 effectiveRole: effectiveRole
             }
         });
@@ -3095,112 +2840,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         console.error('Forgot password error:', error);
         res.status(500).json({ message: 'Server error' });
     }
-});
 
-// Temporary password fix endpoint (for debugging only)
-app.post('/api/auth/fix-password', async (req, res) => {
-    console.log('Fix password - Request body received:', req.body);
-    console.log('Fix password - Content-Type header:', req.get('Content-Type'));
-    
-    // Always use raw body for fix-password endpoint due to Buffer issue
-    let email, newPassword;
-    
-    if (req.rawBody) {
-        try {
-            const parsedBody = JSON.parse(req.rawBody);
-            email = parsedBody.email;
-            newPassword = parsedBody.newPassword;
-            console.log('Fix password - Using raw body for parsing');
-        } catch (e) {
-            console.log('Fix password - Raw body parsing failed:', e.message);
-        }
-    } else {
-        email = req.body.email;
-        newPassword = req.body.newPassword;
-    }
-    
-    console.log('Fix password - Extracted email:', email, 'newPassword:', newPassword ? '[REDACTED]' : 'undefined');
-    
-    if (!email || !newPassword) {
-        console.log('Fix password - Missing email or new password');
-        return res.status(400).json({ message: 'Email and new password are required' });
-    }
-
-    try {
-        console.log('Fixing password for email:', email);
-        
-        const user = await User.findOne({ email: email.toLowerCase() });
-        
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        console.log('User found, updating password...');
-        
-        // Hash the new password with 12 salt rounds
-        const hashedPassword = await bcrypt.hash(newPassword, 12);
-        user.password = hashedPassword;
-        
-        await user.save();
-        
-        console.log('Password updated successfully');
-        console.log('New hash:', hashedPassword);
-        
-        res.json({ 
-            success: true, 
-            message: 'Password fixed successfully',
-            newHash: hashedPassword
-        });
-        
-    } catch (error) {
-        console.error('Password fix error:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
-});
-
-// Test endpoint to check if email exists (temporary for debugging)
-app.post('/api/auth/check-email', async (req, res) => {
-    const { email } = req.body;
-    
-    if (!email) {
-        return res.status(400).json({ message: 'Email is required' });
-    }
-
-    // Normalize email to lowercase
-    const normalizedEmail = email.toLowerCase();
-
-    try {
-        console.log('🔍 Checking email existence:', normalizedEmail);
-        
-        const user = await User.findOne({ email: normalizedEmail });
-        
-        if (user) {
-            console.log('✅ User found:', {
-                id: user._id,
-                email: user.email,
-                isEmailVerified: user.isEmailVerified,
-                isStudentVerified: user.isStudentVerified,
-                fullName: user.fullName
-            });
-            
-            res.json({ 
-                exists: true,
-                user: {
-                    id: user._id,
-                    email: user.email,
-                    isEmailVerified: user.isEmailVerified,
-                    isStudentVerified: user.isStudentVerified,
-                    fullName: user.fullName
-                }
-            });
-        } else {
-            console.log('❌ User not found for email:', normalizedEmail);
-            res.json({ exists: false, message: 'User not found' });
-        }
-    } catch (error) {
-        console.error('❌ Check email error:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
 });
 
 // Resend verification email endpoint
@@ -3396,51 +3036,28 @@ app.post('/api/auth/reset-password/:token', async (req, res) => {
     const { token } = req.params;
     const { password } = req.body;
 
-    console.log('🔍 RESET DEBUG - Token:', token);
-    console.log('🔍 RESET DEBUG - Password length:', password ? password.length : 'undefined');
-
     if (!token || !password) {
         return res.status(400).json({ message: 'Token and password are required' });
     }
 
     try {
-        console.log('🔍 RESET DEBUG - Looking for user with token...');
         const user = await User.findOne({
             resetPasswordToken: token,
             resetPasswordExpires: { $gt: Date.now() }
         });
 
         if (!user) {
-            console.log('❌ RESET DEBUG - User not found or token expired');
             return res.status(400).json({ message: 'Invalid or expired reset token' });
         }
 
-        console.log('✅ RESET DEBUG - User found:', user.email);
-        console.log('🔍 RESET DEBUG - Old password hash starts with:', user.password.substring(0, 10));
-
-        const newPasswordHash = await bcrypt.hash(password, 12);
-        console.log('🔍 RESET DEBUG - New password hash starts with:', newPasswordHash.substring(0, 10));
-        console.log('🔍 RESET DEBUG - Original password being hashed:', JSON.stringify(password));
-        console.log('🔍 RESET DEBUG - Password chars being hashed:', Array.from(password).map(c => `${c}(${c.charCodeAt(0)})`));
+        // Hash and save the new password
+        user.password = password; // The pre-save hook in User model will handle hashing if we call save()
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
         
-        // Test the hash immediately
-        const testComparison = await bcrypt.compare(password, newPasswordHash);
-        console.log('🔍 RESET DEBUG - Immediate hash comparison test:', testComparison);
-
-        // Use updateOne to bypass Mongoose middleware that causes uppercase conversion
-        await User.updateOne(
-            { _id: user._id },
-            { 
-                $set: { password: newPasswordHash },
-                $unset: { resetPasswordToken: 1, resetPasswordExpires: 1 } 
-            }
-        );
-        console.log('✅ RESET DEBUG - Password updated successfully for:', user.email);
-        console.log('🔍 RESET DEBUG - New stored password hash starts with:', user.password.substring(0, 10));
+        await user.save();
         
-        // Test after save
-        const afterSaveComparison = await bcrypt.compare(password, user.password);
-        console.log('🔍 RESET DEBUG - After save comparison test:', afterSaveComparison);
+        console.log('✅ Password reset successfully for:', user.email);
 
         res.json({ message: 'Password reset successfully' });
     } catch (error) {
