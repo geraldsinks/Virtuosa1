@@ -843,6 +843,10 @@ class UnifiedHeader {
     }
 
     handleLogout() {
+        console.error(' UNIFIED HEADER: handleLogout() CALLED!');
+        console.error(' UNIFIED HEADER: Stack trace:', new Error().stack);
+        console.error(' UNIFIED HEADER: Current URL:', window.location.href);
+        
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         localStorage.removeItem('userFullName');
