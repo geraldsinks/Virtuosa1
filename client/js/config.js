@@ -10,8 +10,14 @@ if (typeof window.API_BASE === 'undefined') {
             return `${protocol}//api.${hostname}/api`;
         })();
     
-    // Derive SOCKET_URL from API_BASE (removes /api suffix)
-    window.SOCKET_URL = window.API_BASE.replace('/api', '');
+    // Derive SOCKET_URL from API_BASE (removes only trailing /api suffix)
+    // We use a regex to ensure we don't accidentally match '/api' in subdomains (e.g. api.domain.com)
+    window.SOCKET_URL = window.API_BASE.replace(/\/api$/, '');
+    
+    // Allow explicit override (useful for specific Render/Vercel setups)
+    if (typeof window.SOCKET_URL_OVERRIDE !== 'undefined') {
+        window.SOCKET_URL = window.SOCKET_URL_OVERRIDE;
+    }
     
     console.log('🔌 API Base URL configured:', window.API_BASE);
     console.log('🔌 Socket URL configured:', window.SOCKET_URL);
