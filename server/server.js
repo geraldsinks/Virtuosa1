@@ -1,4 +1,6 @@
 const dns = require('node:dns');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, 'config/.env') });
 
 // Validate and configure DNS servers from environment or use Google DNS as fallback
 function validateDnsServers(servers) {
@@ -69,7 +71,7 @@ const Product = require('./models/Product');
 const Notification = require('./models/Notification');
 const SellerApplication = require('./models/SellerApplication');
 // AdSlider, CategoryCard, and Promotion models defined inline
-require('dotenv').config({ path: path.join(__dirname, 'config/.env') });
+// require('dotenv').config({ path: path.join(__dirname, 'config/.env') }); // Moved to top
 
 // Environment and path configuration
 const isRender = process.env.RENDER === 'true' || !!process.env.RENDER;
