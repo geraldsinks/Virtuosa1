@@ -575,29 +575,64 @@ transactionSchema.statics = {
                     total: { $sum: 1 },
                     totalAmount: { $sum: { $ifNull: ['$amount', 0] } },
                     completed: {
-                        $sum: { $cond: [{ $in: ['$status', ['completed', 'Completed']] }, 1, 0] }
+                        $sum: {
+                            $cond: [
+                                {
+                                    $or: [
+                                        { $eq: ['$status', 'completed'] },
+                                        { $eq: ['$status', 'Completed'] },
+                                        { $eq: ['$confirmations.buyer.confirmed', true] }
+                                    ]
+                                },
+                                1,
+                                0
+                            ]
+                        }
                     },
                     pending: {
-                        $sum: { $cond: [{ $in: ['$status', ['pending', 'awaiting_confirmation', 'Pending']] }, 1, 0] }
+                        $sum: {
+                            $cond: [
+                                {
+                                    $or: [
+                                        { $eq: ['$status', 'pending'] },
+                                        { $eq: ['$status', 'Pending'] },
+                                        { $eq: ['$status', 'pending_seller_confirmation'] },
+                                        { $eq: ['$status', 'confirmed_by_seller'] },
+                                        { $eq: ['$status', 'awaiting_confirmation'] },
+                                        { $eq: ['$status', 'processing'] },
+                                        { $eq: ['$status', 'shipped'] },
+                                        { $eq: ['$status', 'Shipped'] },
+                                        { $eq: ['$status', 'out_for_delivery'] },
+                                        { $eq: ['$status', 'delivered_pending_confirmation'] }
+                                    ]
+                                },
+                                1,
+                                0
+                            ]
+                        }
                     },
                     disputed: {
                         $sum: { $cond: [{ $eq: ['$status', 'disputed'] }, 1, 0] }
                     },
                     avgAmount: { $avg: { $ifNull: ['$amount', 0] } },
                     highRisk: {
-                        $sum: { $cond: [{ $in: [{ $ifNull: ['$protection.riskLevel', 'medium'] }, ['high', 'critical']] }, 1, 0] }
-                    },
-                    byPaymentMethod: {
-                        $push: {
-                            method: { $ifNull: ['$paymentMethod', 'unknown'] },
-                            amount: { $ifNull: ['$amount', 0] },
-                            status: { $ifNull: ['$status', 'unknown'] }
+                        $sum: {
+                            $cond: [
+                                {
+                                    $or: [
+                                        { $eq: [{ $ifNull: ['$protection.riskLevel', 'medium'] }, 'high'] },
+                                        { $eq: [{ $ifNull: ['$protection.riskLevel', 'medium'] }, 'critical'] }
+                                    ]
+                                },
+                                1,
+                                0
+                            ]
                         }
                     }
                 }
             }
         ]);
-        
+
         return stats[0] || {
             total: 0,
             totalAmount: 0,
@@ -605,8 +640,7 @@ transactionSchema.statics = {
             pending: 0,
             disputed: 0,
             avgAmount: 0,
-            highRisk: 0,
-            byPaymentMethod: []
+            highRisk: 0
         };
     }
 };

@@ -509,7 +509,7 @@ class TransactionController {
             console.error('Error fetching transaction stats:', error);
             res.status(500).json({
                 success: false,
-                message: 'Failed to fetch transaction statistics. This may be due to inconsistent data in recent orders.',
+                message: 'Failed to fetch transaction statistics. This may be due to inconsistent data in recent orders or an aggregation incompatibility.',
                 error: error.message
             });
         }

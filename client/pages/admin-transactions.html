@@ -778,57 +778,7 @@
             </div>
         </section>
 
-        <!-- Filters Section -->
-        <section class="filters-section">
-            <div class="filters-grid">
-                <div class="filter-group">
-                    <label for="statusFilter">Status</label>
-                    <select id="statusFilter" onchange="applyFilters()">
-                        <option value="all">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="processing">Processing</option>
-                        <option value="completed">Completed</option>
-                        <option value="disputed">Disputed</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="refunded">Refunded</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="riskFilter">Risk Level</label>
-                    <select id="riskFilter" onchange="applyFilters()">
-                        <option value="all">All Risk Levels</option>
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="critical">Critical</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="paymentFilter">Payment Method</label>
-                    <select id="paymentFilter" onchange="applyFilters()">
-                        <option value="all">All Methods</option>
-                        <option value="mobile_money">Mobile Money</option>
-                        <option value="campus_delivery">Campus Delivery</option>
-                        <option value="airtel_money">Airtel Money</option>
-                        <option value="mtn_money">MTN Money</option>
-                        <option value="bank_transfer">Bank Transfer</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                </div>
-                <div class="stat-card danger">
-                    <div class="stat-value" id="disputedTransactions">-</div>
-                    <div class="stat-label">Disputed</div>
-                </div>
-                <div class="stat-card info">
-                    <div class="stat-value" id="totalAmount">$-</div>
-                    <div class="stat-label">Total Amount</div>
-                </div>
-                <div class="stat-card danger">
-                    <div class="stat-value" id="highRiskTransactions">-</div>
-                    <div class="stat-label">High Risk</div>
-                </div>
-            </section>
+<br>
 
             <!-- Filters Section -->
             <section class="filters-section">
@@ -859,12 +809,11 @@
                         <label for="paymentFilter">Payment Method</label>
                         <select id="paymentFilter" onchange="applyFilters()">
                             <option value="all">All Methods</option>
-                            <option value="credit_card">Credit Card</option>
-                            <option value="paypal">PayPal</option>
-                            <option value="stripe">Stripe</option>
-                            <option value="bank_transfer">Bank Transfer</option>
                             <option value="mobile_money">Mobile Money</option>
-                            <option value="crypto">Cryptocurrency</option>
+                            <option value="airtel_money">Airtel Money</option>
+                            <option value="mtn_money">MTN Money</option>
+                            <option value="campus_delivery">Campus Delivery (COD)</option>
+                            <option value="bank_transfer">Bank Transfer</option>
                         </select>
                     </div>
                     <div class="filter-group">
