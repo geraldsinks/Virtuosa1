@@ -56,7 +56,6 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
 const http = require('http');
