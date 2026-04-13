@@ -21,9 +21,39 @@ class TokenManager {
     }
 
     init() {
+        console.log(' Token Manager: init() called');
+        console.log(' Token Manager: has token:', !!this.token);
+        
         if (this.token) {
-            this.scheduleTokenRefresh();
-            this.startTokenMonitoring();
+            console.log(' Token Manager: Checking token expiration...');
+            const timeUntilExpiration = this.getTimeUntilExpiration();
+            console.log(' Token Manager: Time until expiration:', timeUntilExpiration, 'ms');
+            
+            if (timeUntilExpiration <= 0) {
+                console.log(' Token Manager: Token is expired, will trigger refresh immediately');
+                // This might be causing the redirect - let's not auto-refresh expired tokens on public pages
+                const currentPath = this.currentPath || window.location.pathname;
+                const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', 'search', '/about', '/contact', '/faq'];
+                const isPublicPath = publicPaths.includes(currentPath) || 
+                                     currentPath.startsWith('/product/') || 
+                                     currentPath.startsWith('/category/') ||
+                                     currentPath.startsWith('/seller/');
+                
+                if (isPublicPath) {
+                    console.log(' Token Manager: Expired token on public page - skipping auto-refresh to prevent redirect');
+                    return;
+                } else {
+                    console.log(' Token Manager: Expired token on protected page - proceeding with refresh');
+                    this.scheduleTokenRefresh();
+                    this.startTokenMonitoring();
+                }
+            } else {
+                console.log(' Token Manager: Token is valid, scheduling refresh');
+                this.scheduleTokenRefresh();
+                this.startTokenMonitoring();
+            }
+        } else {
+            console.log(' Token Manager: No token found, skipping initialization');
         }
     }
 
@@ -55,25 +85,27 @@ class TokenManager {
 
     // Schedule automatic token refresh
     scheduleTokenRefresh() {
+        console.log(' Token Manager: scheduleTokenRefresh() called');
+        
         if (this.refreshTimeout) {
             clearTimeout(this.refreshTimeout);
         }
 
         const timeUntilExpiration = this.getTimeUntilExpiration();
-        console.log('⏰ Time until expiration:', Math.round(timeUntilExpiration / 1000), 'seconds');
+        console.log(' Token Manager: Time until expiration:', Math.round(timeUntilExpiration / 1000), 'seconds');
 
         if (timeUntilExpiration <= 0) {
-            console.log('🚨 Token already expired, refreshing immediately');
+            console.log(' Token Manager: Token already expired, refreshing immediately');
             this.refreshToken();
             return;
         }
 
         // Refresh 5 minutes before expiration
         const refreshTime = Math.max(timeUntilExpiration - this.REFRESH_BUFFER, 0);
-        console.log('⏰ Scheduling refresh in', Math.round(refreshTime / 1000), 'seconds');
+        console.log(' Token Manager: Scheduling refresh in', Math.round(refreshTime / 1000), 'seconds');
 
         this.refreshTimeout = setTimeout(() => {
-            console.log('⏰ Scheduled refresh triggered');
+            console.log(' Token Manager: Scheduled refresh triggered');
             this.refreshToken();
         }, refreshTime);
     }
