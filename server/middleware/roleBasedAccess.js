@@ -77,19 +77,29 @@ const ROLE_PERMISSIONS = {
             'growth_metrics'
         ],
         description: 'Strategy and Growth Lead'
+    },
+    'virtuosa_management': {
+        permissions: [
+            'seller_applications',
+            'view_analytics',
+            'user_analytics',
+            'transaction_system',
+            'strategic_analytics'
+        ],
+        description: 'Virtuosa Management - High level business oversight'
     }
 };
 
 // Get user's effective role based on all role fields
 const getEffectiveRole = (user) => {
     // Log unexpected role values for debugging
-    if (user.role && !['user', 'buyer', 'seller', 'admin', 'CEO', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'].includes(user.role)) {
+    if (user.role && !['user', 'buyer', 'seller', 'admin', 'CEO', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'virtuosa_management'].includes(user.role)) {
         console.warn('⚠️ Unexpected role value detected:', user.role, 'for user:', user._id);
     }
     
     // Check for admin first (highest priority)
     if (user.isAdmin === true || user.isAdmin === 'true' || 
-        user.role === 'admin' || user.role === 'CEO') {
+        user.role === 'admin' || user.role === 'CEO' || user.role === 'virtuosa_management') {
         return 'admin';
     }
     

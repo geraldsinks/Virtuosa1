@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const AnalyticsEvent = require('../models/AnalyticsEvent');
 const { protect, admin } = require('../middleware/auth');
+const { checkAnyRoleAccess } = require('../middleware/roleBasedAccess');
 
 console.log('📊 Analytics routes loaded');
 
@@ -76,7 +77,7 @@ router.post('/track', async (req, res) => {
  * @desc    Get aggregated cookie harvesting data for the admin dashboard
  * @access  Private/Admin
  */
-router.get('/admin/cookie-data', protect, admin, async (req, res) => {
+router.get('/admin/cookie-data', protect, checkAnyRoleAccess(['view_analytics', '*']), async (req, res) => {
   try {
     const timeframe = req.query.timeframe || '30d'; // 24h, 7d, 30d, all
     

@@ -6404,7 +6404,7 @@ app.get('/api/seller/application-status', authenticateToken, async (req, res) =>
 });
 
 // Admin: Get seller applications (with filtering & pagination)
-app.get('/api/admin/seller-applications', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/seller-applications', authenticateToken, checkAnyRoleAccess(['seller_applications', '*']), async (req, res) => {
     try {
         const { status, sellerType, university, page = 1, limit = 20 } = req.query;
 
@@ -6437,7 +6437,7 @@ app.get('/api/admin/seller-applications', authenticateAdmin, async (req, res) =>
 });
 
 // Keep backward compatibility — old admin endpoint
-app.get('/api/admin/applications', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/applications', authenticateToken, checkAnyRoleAccess(['seller_applications', '*']), async (req, res) => {
     try {
         const applications = await SellerApplication.find({ status: 'Pending' })
             .populate('user', 'fullName email university phoneNumber isStudentVerified createdAt')
@@ -6451,7 +6451,7 @@ app.get('/api/admin/applications', authenticateAdmin, async (req, res) => {
 });
 
 // Admin: Get single application details
-app.get('/api/admin/seller-applications/:id', authenticateAdmin, async (req, res) => {
+app.get('/api/admin/seller-applications/:id', authenticateToken, checkAnyRoleAccess(['seller_applications', '*']), async (req, res) => {
     try {
         const application = await SellerApplication.findById(req.params.id)
             .populate('user', 'fullName email university phoneNumber isStudentVerified profilePicture createdAt')
@@ -6469,7 +6469,7 @@ app.get('/api/admin/seller-applications/:id', authenticateAdmin, async (req, res
 });
 
 // Admin: Approve seller application
-app.post('/api/admin/seller-applications/:id/approve', authenticateAdmin, async (req, res) => {
+app.post('/api/admin/seller-applications/:id/approve', authenticateToken, checkAnyRoleAccess(['seller_applications', '*']), async (req, res) => {
     try {
         console.log('Approve request received for application:', req.params.id);
         console.log('Request body:', req.body);
@@ -6541,7 +6541,7 @@ app.post('/api/admin/seller-applications/:id/approve', authenticateAdmin, async 
 });
 
 // Backward compatibility for old approve endpoint
-app.post('/api/admin/applications/:id/approve', authenticateAdmin, async (req, res) => {
+app.post('/api/admin/applications/:id/approve', authenticateToken, checkAnyRoleAccess(['seller_applications', '*']), async (req, res) => {
     try {
         // Try SellerApplication first, then fall back to User-based approach
         const application = await SellerApplication.findOne({ user: req.params.id, status: 'Pending' });
@@ -6600,7 +6600,7 @@ app.post('/api/admin/applications/:id/approve', authenticateAdmin, async (req, r
 });
 
 // Admin: Reject seller application
-app.post('/api/admin/seller-applications/:id/reject', authenticateAdmin, async (req, res) => {
+app.post('/api/admin/seller-applications/:id/reject', authenticateToken, checkAnyRoleAccess(['seller_applications', '*']), async (req, res) => {
     try {
         console.log('Reject request received for application:', req.params.id);
         console.log('Request body:', req.body);

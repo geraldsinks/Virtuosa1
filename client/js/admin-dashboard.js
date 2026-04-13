@@ -65,6 +65,15 @@ const ROLE_NAVIGATION = {
             { href: 'admin-analytics-reports.html', title: 'Analytics Reports', desc: 'Generate analytical reports', icon: 'fas fa-file-chart', color: 'green' },
             { href: 'admin-growth-metrics.html', title: 'Growth Metrics', desc: 'Monitor growth indicators', icon: 'fas fa-rocket', color: 'purple' }
         ]
+    },
+    'virtuosa_management': {
+        cards: [
+            { href: 'admin-seller-applications.html', title: 'Seller Requests', desc: 'Review and approve applications', icon: 'fas fa-user-check', color: 'teal' },
+            { href: 'admin-cookie-data.html', title: 'Cookie Analytics', desc: 'View cookie and tracking data', icon: 'fas fa-cookie-bite', color: 'orange' },
+            { href: 'admin-users.html', title: 'User Analytics', desc: 'View user insights and analytics', icon: 'fas fa-users', color: 'blue' },
+            { href: 'admin-transactions.html', title: 'Transactions', desc: 'Manage transactions and escrow', icon: 'fas fa-exchange-alt', color: 'indigo' },
+            { href: 'strategic-analytics.html', title: 'Strategic Analytics', desc: 'View strategic insights', icon: 'fas fa-chart-line', color: 'gold' }
+        ]
     }
 };
 
@@ -138,6 +147,9 @@ function getUserRoleInfo() {
         // Update dashboard header with role information
         updateDashboardHeader(roleInfo);
         
+        // Configure UI sections based on role
+        configureDashboardUI(roleInfo.role);
+        
         // Load dashboard data
         loadDashboardData();
 
@@ -162,7 +174,10 @@ function updateDashboardHeader(roleInfo) {
     
     if (header && subtitle) {
         // Admin user may have CEO title for UI display
-        if (roleInfo.title === 'CEO') {
+        if (roleInfo.role === 'virtuosa_management') {
+            header.textContent = 'Virtuosa Management';
+            subtitle.textContent = 'High-level business oversight and analytics';
+        } else if (roleInfo.title === 'CEO') {
             header.textContent = 'CEO (Admin) Dashboard';
             subtitle.textContent = 'Full system access granted as Admin / CEO title';
         } else if (roleInfo.role === 'admin') {
@@ -172,6 +187,25 @@ function updateDashboardHeader(roleInfo) {
             header.textContent = `${roleInfo.description} Dashboard`;
             subtitle.textContent = `Manage ${roleInfo.description.toLowerCase()} functions for the Virtuosa platform`;
         }
+    }
+}
+
+// Configure UI sections based on role
+function configureDashboardUI(role) {
+    const adminActionsSection = document.getElementById('admin-actions-section');
+    const dangerousActionsSection = document.getElementById('dangerous-actions-section');
+    const managementSection = document.getElementById('management-section');
+
+    if (role === 'virtuosa_management') {
+        if (adminActionsSection) adminActionsSection.style.display = 'none';
+        if (dangerousActionsSection) dangerousActionsSection.style.display = 'none';
+        if (managementSection) managementSection.style.display = 'none';
+        console.log('🛡️ Dashboard UI restricted for Virtuosa Management role');
+    } else {
+        // Ensure visible for other roles (unless specialized roles also need hiding)
+        if (adminActionsSection) adminActionsSection.style.display = 'block';
+        if (dangerousActionsSection) dangerousActionsSection.style.display = (role === 'admin' || !role) ? 'block' : 'none';
+        if (managementSection) managementSection.style.display = 'block';
     }
 }
 
