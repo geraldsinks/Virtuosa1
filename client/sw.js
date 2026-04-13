@@ -3,6 +3,9 @@
 const CACHE_VERSION = 'v2.0.0';
 const CACHE_NAME = `virtuosa-${CACHE_VERSION}`;
 const MAX_CACHE_ENTRIES = 150;
+const API_BASE = new URL(self.location).searchParams.get('apiBase') || '';
+console.log('[SW] Initialized with API_BASE:', API_BASE);
+
 
 // ──────────────────────────────────────────
 // PRECACHE: Core app shell (install-time)
@@ -379,7 +382,8 @@ self.addEventListener('notificationclick', (event) => {
 self.addEventListener('notificationclose', (event) => {
   const data = event.notification.data;
   if (data?.notificationId) {
-    fetch('/api/notifications/analytics/dismiss', {
+    const analyticsUrl = API_BASE ? `${API_BASE}/notifications/analytics/dismiss` : '/api/notifications/analytics/dismiss';
+    fetch(analyticsUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

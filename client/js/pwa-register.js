@@ -15,7 +15,8 @@
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js', {
+      const swUrl = '/sw.js?apiBase=' + encodeURIComponent(window.API_BASE || '');
+      const registration = await navigator.serviceWorker.register(swUrl, {
         scope: '/'
       });
 

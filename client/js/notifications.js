@@ -268,7 +268,8 @@ class NotificationManager {
             // Register service worker
             let registration;
             try {
-                registration = await navigator.serviceWorker.register('/sw.js');
+                const swUrl = '/sw.js?apiBase=' + encodeURIComponent(window.API_BASE || '');
+                registration = await navigator.serviceWorker.register(swUrl);
                 console.log('Service Worker registered successfully');
             } catch (error) {
                 console.error('Service Worker registration failed:', error);
