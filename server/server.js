@@ -114,6 +114,12 @@ const cacheMiddleware = (maxAge = 300) => {
   };
 };
 
+// Root route handler for home page
+app.get('/', (req, res) => {
+    // Serve the index.html page for the root URL
+    res.sendFile(path.join(__dirname, '../client/index.html'));
+});
+
 // Clean URL route handler for product details
 app.get('/product/:id', (req, res) => {
     // Serve the product-detail.html page for clean URLs
