@@ -366,7 +366,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Start polling for new messages (fallback)
         if (pollInterval) clearInterval(pollInterval);
-        pollInterval = setInterval(loadMessages, 10000);
+        
+        // Define polling function that respects visibility
+        const pollMessages = () => {
+            if (document.visibilityState === 'visible') {
+                loadMessages();
+            }
+        };
+        
+        pollInterval = setInterval(pollMessages, 15000); // Poll every 15 seconds when visible
 
         // Highlight active conversation
         loadConversations();
@@ -524,42 +532,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            socket.on('auth_error', (data) => {
-                console.error('Authentication error:', data.message);
-                
-                // Let token manager handle authentication errors
-                if (window.tokenManager) {
-                    window.tokenManager.handleRefreshFailure(data.message);
-                } else {
-                    console.error('Token manager not available, showing manual error');
-                    // Show manual error notification as fallback
-                    const messageDiv = document.createElement('div');
-                    messageDiv.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg z-50';
-                    messageDiv.innerHTML = `
-                        <div class="flex">
-                            <div class="py-1">
-                                <svg class="fill-current h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-bold">Authentication Error</p>
-                                <p class="text-sm">${data.message}</p>
-                                <button onclick="location.href='/login'" class="mt-2 bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">
-                                    Login Again
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    document.body.appendChild(messageDiv);
-                    
-                    setTimeout(() => {
-                        if (messageDiv.parentNode) {
-                            messageDiv.parentNode.removeChild(messageDiv);
-                        }
-                    }, 10000);
-                }
+            socket.on('authenticated', (data) => {
+                console.log('✅ Socket authenticated fully:', data);
             });
+
+            // Debounce loadConversations to prevent rapid-fire updates
+            let loadConversationsTimeout = null;
+            function debouncedLoadConversations() {
+                if (loadConversationsTimeout) clearTimeout(loadConversationsTimeout);
+                loadConversationsTimeout = setTimeout(loadConversations, 500);
+            }
 
             socket.on('new_message', (message) => {
                 console.log('📥 New message received:', message);
@@ -567,13 +549,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const senderId = (message.sender && typeof message.sender === 'object') ? message.sender._id : message.sender;
                 
                 // If this is the active chat, add it to the UI
-                if (currentRecipientId && (senderId === currentRecipientId || message.receiver === userId)) {
+                if (currentRecipientId && (String(senderId) === String(currentRecipientId) || String(message.receiver) === String(userId))) {
                     addMessageToUI(message);
-                    if (senderId !== userId) {
+                    if (String(senderId) !== String(userId)) {
                         markMessageAsRead(message._id);
                     }
-                } else if (senderId !== userId) {
-                    // Show a global notification banner if we're not in the chat
+                } else if (String(senderId) !== String(userId)) {
+                    // Show a global notification banner
                     if (window.unifiedHeader && typeof window.unifiedHeader.showBanner === 'function') {
                         const senderName = message.senderName || (message.sender && message.sender.fullName) || 'Someone';
                         window.unifiedHeader.showBanner(`New message from ${senderName}`, 'info');
@@ -582,12 +564,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 
-                // Refresh the sidebar
-                loadConversations();
+                // Refresh the sidebar (debounced)
+                debouncedLoadConversations();
             });
 
             socket.on('conversation_updated', () => {
-                loadConversations();
+                debouncedLoadConversations();
             });
 
             socket.on('user_typing', (data) => {
@@ -669,7 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper functions for real-time updates
     function addMessageToUI(message) {
         const senderId = (message.sender && typeof message.sender === 'object') ? message.sender._id : message.sender;
-        const isMine = senderId === userId;
+        const isMine = String(senderId) === String(userId);
         const messageHtml = createMessageHTML(message, isMine);
         
         if (messageContainer) {
@@ -1073,7 +1055,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         messageContainer.innerHTML = messages.map(m => {
             const senderId = (m.sender && typeof m.sender === 'object') ? m.sender._id : m.sender;
-            const isMine = senderId === userId;
+            const isMine = String(senderId) === String(userId);
             console.log(`Message from ${senderId}, isMine: ${isMine}, userId: ${userId}`);
             return createMessageHTML(m, isMine);
         }).join('');

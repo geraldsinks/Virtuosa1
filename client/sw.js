@@ -208,7 +208,11 @@ self.addEventListener('fetch', (event) => {
 
   // Strategy routing
   if (API_PATTERN.test(url.pathname)) {
-    // API calls → Network-first with cache fallback
+    // CRITICAL: Skip caching for messages to ensure real-time accuracy
+    if (url.pathname.includes('/api/messages/')) {
+        return event.respondWith(fetch(request));
+    }
+    // Other API calls → Network-first with cache fallback
     event.respondWith(networkFirst(request));
   } else if (CDN_PATTERN.test(url.origin)) {
     // External CDN resources → Stale-while-revalidate
