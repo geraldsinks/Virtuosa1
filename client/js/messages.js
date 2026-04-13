@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeConversationId = null;
     let socket = null;
     let socketConnected = false;
-    let pollInterval = null;
+    let pollTimer = null;
     let typingTimeout = null;
     let isTyping = false;
     let isCurrentlyLoadingMessages = false; 
@@ -366,19 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         await loadMessages();
-
-        // Start polling for new messages (fallback)
-        if (pollInterval) clearInterval(pollInterval);
         
-        // Define polling function that respects visibility
-        const pollMessages = () => {
-            if (document.visibilityState === 'visible') {
-                loadMessages();
-            }
-        };
-        
-        pollInterval = setInterval(pollMessages, 30000); // Poll every 30 seconds when visible
-
         // Highlight active conversation
         loadConversations();
     };
@@ -422,9 +410,9 @@ document.addEventListener('DOMContentLoaded', () => {
             currentRecipientId = null;
             
             // Stop polling
-            if (pollInterval) {
-                clearInterval(pollInterval);
-                pollInterval = null;
+            if (pollTimer) {
+                clearTimeout(pollTimer);
+                pollTimer = null;
             }
         }
     };
@@ -452,9 +440,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cleanup function to prevent memory leaks
     function cleanup() {
-        if (pollInterval) {
-            clearInterval(pollInterval);
-            pollInterval = null;
+        if (pollTimer) {
+            clearTimeout(pollTimer);
+            pollTimer = null;
         }
         if (typingTimeout) {
             clearTimeout(typingTimeout);
@@ -966,7 +954,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         console.log('Loading messages for recipient:', currentRecipientId);
-        console.trace('Tracing loadMessages caller');
         isCurrentlyLoadingMessages = true;
 
         try {
@@ -1021,7 +1008,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } finally {
             isCurrentlyLoadingMessages = false;
+            // Schedule next poll - ONLY if we still have an active recipient
+            if (currentRecipientId) {
+                scheduleNextPoll();
+            }
         }
+    }
+
+    function scheduleNextPoll() {
+        if (pollTimer) clearTimeout(pollTimer);
+        
+        pollTimer = setTimeout(() => {
+            // Only poll if tab is visible
+            if (document.visibilityState === 'visible' && currentRecipientId) {
+                loadMessages();
+            } else if (currentRecipientId) {
+                // If not visible, try again in 10s
+                scheduleNextPoll();
+            }
+        }, 15000); // Check every 15 seconds
     }
 
     function displayMessages(messages) {
