@@ -22,8 +22,20 @@ class TokenManager {
 
     init() {
         if (this.token) {
-            this.scheduleTokenRefresh();
-            this.startTokenMonitoring();
+            // Only auto-refresh tokens on protected routes
+            const currentPath = window.location.pathname.replace(/^\/pages\//, '/').split('?')[0];
+            const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', '/search', '/about', '/contact', '/faq'];
+            const isPublicPath = publicPaths.includes(currentPath) || 
+                                 currentPath.startsWith('/product/') || 
+                                 currentPath.startsWith('/category/') ||
+                                 currentPath.startsWith('/seller/');
+            
+            if (!isPublicPath) {
+                this.scheduleTokenRefresh();
+                this.startTokenMonitoring();
+            } else {
+                console.log('Public path detected, skipping token auto-refresh');
+            }
         }
     }
 
@@ -144,6 +156,9 @@ class TokenManager {
 
     // Handle token refresh failure
     handleRefreshFailure(message) {
+        console.log(' Token Manager: handleRefreshFailure called with message:', message);
+        console.log(' Token Manager: Current path:', window.location.pathname);
+        
         // Auto-redirect if no specific action taken and simple failure
         if (message.includes('expired') || message.includes('invalid')) {
             setTimeout(() => {
@@ -162,22 +177,36 @@ class TokenManager {
                                      !currentPath.startsWith('/product/') && 
                                      !currentPath.startsWith('/category/') &&
                                      !currentPath.startsWith('/seller/');
+                        
+                        console.log(' Token Manager: Path detection - currentPath:', currentPath);
+                        console.log(' Token Manager: Path detection - publicPaths:', publicPaths);
+                        console.log(' Token Manager: Path detection - isProtected:', isProtected);
                     }
 
                     if (isProtected) {
+                        console.log(' Token Manager: Redirecting to login (protected route)');
                         if (window.router) {
                             window.router.navigate('/login');
                         } else {
                             window.location.href = '/login';
                         }
+                    } else {
+                        console.log(' Token Manager: NOT redirecting (public route)');
                     }
                 }
             }, 5000);
         }
 
-        // Show user notification
-        this.showNotification('Session Expired', message, 'error', () => {
-            // Redirect to login
+        // Show user notification but only redirect if on protected route
+        const currentPath = window.location.pathname.replace(/^\/pages\//, '/').split('?')[0];
+        const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', '/search', '/about', '/contact', '/faq'];
+        const isPublicPath = publicPaths.includes(currentPath) || 
+                             currentPath.startsWith('/product/') || 
+                             currentPath.startsWith('/category/') ||
+                             currentPath.startsWith('/seller/');
+
+        this.showNotification('Session Expired', message, 'error', isPublicPath ? null : () => {
+            // Redirect to login only if not on public path
             window.location.href = '/login';
         });
 
@@ -300,8 +329,32 @@ class TokenManager {
 
 // Global token manager instance
 if (typeof window !== 'undefined') {
+    const currentPath = window.location.pathname;
+    console.log(' Token Manager: Initializing on path:', currentPath);
+    
+    // Check if there's a token that might be invalid
+    const token = localStorage.getItem('token');
+    if (token) {
+        console.log(' Token Manager: Found token in localStorage, checking validity...');
+        try {
+            const parts = token.split('.');
+            if (parts.length === 3) {
+                const payload = JSON.parse(atob(parts[1]));
+                const currentTime = Math.floor(Date.now() / 1000);
+                const isExpired = payload.exp <= currentTime;
+                console.log(' Token Manager: Token expires at:', new Date(payload.exp * 1000), 'Expired:', isExpired);
+            } else {
+                console.log(' Token Manager: Invalid token format');
+            }
+        } catch (e) {
+            console.log(' Token Manager: Failed to parse token:', e.message);
+        }
+    } else {
+        console.log(' Token Manager: No token found in localStorage');
+    }
+    
     window.tokenManager = new TokenManager();
-    console.log('✅ Token manager initialized globally');
+    console.log(' Token manager initialized globally');
 }
 
 // Close conditional class declaration block
