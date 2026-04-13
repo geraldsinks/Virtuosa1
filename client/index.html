@@ -6,16 +6,40 @@
         console.log(' INDEX.HTML: Current URL:', window.location.href);
         console.log(' INDEX.HTML: Path:', window.location.pathname);
         
-        // Track any redirects
+        // Track any redirects - check multiple times
         let originalLocation = window.location.href;
-        setTimeout(() => {
+        let redirectCount = 0;
+        
+        function checkForRedirect() {
             if (window.location.href !== originalLocation) {
-                console.error(' INDEX.HTML: REDIRECT DETECTED!');
+                redirectCount++;
+                console.error(' INDEX.HTML: REDIRECT DETECTED #' + redirectCount + '!');
                 console.error(' INDEX.HTML: From:', originalLocation);
                 console.error(' INDEX.HTML: To:', window.location.href);
                 console.error(' INDEX.HTML: Stack trace:', new Error().stack);
+                console.error(' INDEX.HTML: Timestamp:', new Date().toISOString());
+                originalLocation = window.location.href;
             }
-        }, 100);
+        }
+        
+        // Check at different intervals
+        setTimeout(checkForRedirect, 50);
+        setTimeout(checkForRedirect, 100);
+        setTimeout(checkForRedirect, 200);
+        setTimeout(checkForRedirect, 500);
+        setTimeout(checkForRedirect, 1000);
+        
+        // Monitor window.location changes
+        let currentHref = window.location.href;
+        Object.defineProperty(window.location, 'href', {
+            get: function() { return currentHref; },
+            set: function(value) {
+                console.error(' INDEX.HTML: window.location.href CHANGED to:', value);
+                console.error(' INDEX.HTML: Stack trace:', new Error().stack);
+                currentHref = value;
+                window.location.assign(value);
+            }
+        });
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
