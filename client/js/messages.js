@@ -177,13 +177,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const userFullName = localStorage.getItem('userFullName');
     let userId = localStorage.getItem('userId');
     
+    // Groups state variables at the top to avoid ReferenceErrors (TDZ)
+    let currentRecipientId = null;
+    let activeConversationId = null;
+    let socket = null;
+    let socketConnected = false;
+    let pollInterval = null;
+    let typingTimeout = null;
+    let isTyping = false;
+    let isCurrentlyLoadingMessages = false; 
+    let loadConversationsTimeout = null;
+
     // Clean up 'undefined' string if present
     if (userId === 'undefined' || userId === 'null') {
         userId = null;
         localStorage.removeItem('userId');
     }
-    
-    let currentRecipientId = null; // Track current chat partner
     
     console.log('Authentication status:', { 
         hasToken: !!token, 
@@ -267,13 +276,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const emojiButton = document.getElementById('emoji-button');
     const emojiPicker = document.getElementById('emoji-picker');
     const typingIndicator = document.getElementById('typing-indicator');
-
-    let activeConversationId = null;
-    let pollInterval = null;
-    let typingTimeout = null;
-    let isTyping = false;
-    let socket = null;
-    let socketConnected = false;
 
     console.log('DOM Elements found:', {
         conversationList: !!conversationList,
@@ -537,7 +539,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Debounce loadConversations to prevent rapid-fire updates
-            let loadConversationsTimeout = null;
             function debouncedLoadConversations() {
                 if (loadConversationsTimeout) clearTimeout(loadConversationsTimeout);
                 loadConversationsTimeout = setTimeout(loadConversations, 500);
@@ -949,7 +950,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    let isCurrentlyLoadingMessages = false;
+
 
     // Load messages
     async function loadMessages() {
