@@ -264,6 +264,7 @@ class RoleManager {
      * @returns {Promise<boolean>} True if user can access the route
      */
     async canAccessRoute(route) {
+        console.log('🔒 ROLE MANAGER - Check route access:', route);
         // Wait for initialization if not ready
         if (!this.isInitialized) {
             if (this.initializationLock) {
@@ -297,17 +298,22 @@ class RoleManager {
         const adminRoutes = [...sellerRoutes, 'admin', 'admin-users', 'admin-seller-applications', 'admin-account-deletions', 'admin-mass-messaging', 'admin-retention', 'admin-asset-library', 'marketing-dashboard', 'marketing', 'admin-transactions', 'admin-disputes', 'admin-support', 'admin-live-chat', 'admin-maintenance', 'admin-maintenance-reports', 'admin-ui-queries', 'admin-transaction-reports', 'admin-risk-management', 'admin-analytics-reports', 'admin-growth-metrics', 'admin-about'];
         
         // Check access based on role
-        switch (this.currentRole) {
-            case 'admin':
-                return adminRoutes.includes(cleanRoute);
-            case 'seller':
-                return sellerRoutes.includes(cleanRoute);
-            case 'buyer':
-                return buyerRoutes.includes(cleanRoute);
-            default:
-                // Not logged in, only public routes accessible
-                return publicRoutes.includes(cleanRoute);
-        }
+        const hasAccess = (() => {
+            switch (this.currentRole) {
+                case 'admin':
+                    return adminRoutes.includes(cleanRoute);
+                case 'seller':
+                    return sellerRoutes.includes(cleanRoute);
+                case 'buyer':
+                    return buyerRoutes.includes(cleanRoute);
+                default:
+                    // Not logged in, only public routes accessible
+                    return publicRoutes.includes(cleanRoute);
+            }
+        })();
+
+        console.log('🔒 ROLE MANAGER - Route access result:', { route: cleanRoute, role: this.currentRole, hasAccess });
+        return hasAccess;
     }
 
     // Get user display title
@@ -455,6 +461,8 @@ class RoleManager {
         const hasAccess = this.canAccessDashboard(dashboardType);
         this.accessCheckCache.set(cacheKey, hasAccess);
 
+        console.log('🔒 ROLE MANAGER - Dashboard access check:', { dashboardType, role: this.currentRole, hasAccess });
+
         if (!hasAccess) {
             console.warn(`🚫 Access denied: ${dashboardType} dashboard`);
             this._performSafeRedirect(dashboardType);
@@ -478,12 +486,16 @@ class RoleManager {
         if (attempts >= 1) {
             console.error('🚫 Redirect loop detected, stopping redirects');
             if (window.router) {
-                window.router.navigate('/login');
+                console.log('🚨 ROLE MANAGER - Stopping loop, handoff to router index');
+                window.router.navigate('/');
             } else {
+                console.log('🚨 ROLE MANAGER - Stopping loop, direct to login');
                 window.location.href = '/login';
             }
             return;
         }
+        
+        console.log('🔄 ROLE MANAGER - Performing safe redirect:', { from: currentPath, dashboardType });
         
         this.redirectAttempts.set(attemptKey, attempts + 1);
         
