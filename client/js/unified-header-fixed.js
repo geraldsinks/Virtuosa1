@@ -568,34 +568,11 @@ class UnifiedHeader {
         const userFullName = localStorage.getItem('userFullName');
 
         if (token) {
-            // Check if we're on a public page - if so, don't make API calls that might trigger redirects
-            const currentPath = window.location.pathname;
-            let isPublicPath = true;
-            
-            if (window.NavigationCoordinator && typeof window.NavigationCoordinator.getInstance === 'function') {
-                const nav = window.NavigationCoordinator.getInstance();
-                isPublicPath = !nav.isProtectedRoute(currentPath);
-            } else {
-                // Fallback list for mixed environments
-                const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', '/search', '/about', '/contact', '/faq', '/privacy', '/terms', '/refund-policy', '/reviews', '/seller-shop'];
-                const normalizedPath = currentPath.replace(/^\/pages\//, '/').split('?')[0];
-                isPublicPath = publicPaths.includes(normalizedPath) || 
-                              currentPath.startsWith('/product/') || 
-                              currentPath.startsWith('/category/') ||
-                              currentPath.startsWith('/seller/');
-            }
-            
-            if (isPublicPath) {
-                console.log('Unified Header: Public page detected, skipping API call to prevent auth redirects');
-                // Use cached data only on public pages
+            try {
+                await this.fetchAndUpdateUserData();
+            } catch (error) {
+                console.log('Unified Header: Auth check failed, using cached data:', error);
                 this.updateUIForLoggedInUser(userFullName);
-            } else {
-                try {
-                    await this.fetchAndUpdateUserData();
-                } catch (error) {
-                    console.log('Unified Header: Auth check failed, using cached data:', error);
-                    this.updateUIForLoggedInUser(userFullName);
-                }
             }
         } else {
             this.updateUIForLoggedOutUser();
