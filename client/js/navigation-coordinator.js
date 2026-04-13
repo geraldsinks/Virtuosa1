@@ -199,7 +199,9 @@
                 'dashboard', 'seller-dashboard', 'admin', 'profile', 'settings',
                 'orders', 'order', 'messages', 'notifications', 'transactions',
                 'cart', 'checkout', 'create-product', 'edit-product', 'my-products',
-                'seller-analytics', 'seller-orders', 'wishlist'
+                'seller-analytics', 'seller-orders', 'wishlist', 'cash-on-delivery',
+                'payment-options', 'live-chat', 'admin-users', 'admin-seller-applications',
+                'admin-mass-messaging', 'marketing-dashboard', 'marketing', 'seller-verification'
             ];
         }
 

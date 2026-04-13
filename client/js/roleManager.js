@@ -601,6 +601,7 @@ class RoleManager {
             window.removeEventListener('beforeunload', this._beforeUnloadHandler);
             this._beforeUnloadHandler = null;
         }
+    }
     /**
      * Check if a route is public and should not cause an auth redirect
      */
@@ -615,7 +616,7 @@ class RoleManager {
 
         // Fallback list
         const publicRoutes = ['', '/', '/index.html', '/login', '/signup', '/products', '/search', 
-                             '/about', '/contact', '/privacy', '/terms', '/faq', '/reviews', '/seller-shop'];
+                             '/about', '/contact', '/privacy', '/terms', '/refund-policy', '/faq', '/reviews', '/seller-shop', '/seller-verification'];
         
         // Normalize path: remove /pages/ prefix, remove query params, ensure leading slash
         const normalizedPath = path.replace(/^\/pages\//, '/').split('?')[0];

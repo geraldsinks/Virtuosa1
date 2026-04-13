@@ -193,16 +193,12 @@ class TokenManager {
                         isProtected = nav.isProtectedRoute(currentPath);
                     } else {
                         // Minimal fallback if coordinator not available
-                        const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', 'search', '/about', '/contact', '/faq'];
+                        const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', '/search', '/about', '/contact', '/faq', '/privacy', '/terms', '/refund-policy', '/seller-shop', '/reviews'];
                         const normalizedPath = currentPath.replace(/^\/pages\//, '/').split('?')[0];
                         isProtected = !publicPaths.includes(normalizedPath) && 
                                      !currentPath.startsWith('/product/') && 
                                      !currentPath.startsWith('/category/') &&
                                      !currentPath.startsWith('/seller/');
-                        
-                        console.log(' Token Manager: Path detection - currentPath:', currentPath);
-                        console.log(' Token Manager: Path detection - publicPaths:', publicPaths);
-                        console.log(' Token Manager: Path detection - isProtected:', isProtected);
                     }
 
                     if (isProtected) {
@@ -221,7 +217,7 @@ class TokenManager {
 
         // Show user notification but only redirect if on protected route
         const currentPath = this.currentPath || window.location.pathname;
-        const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', 'search', '/about', '/contact', '/faq'];
+        const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', '/search', '/about', '/contact', '/faq', '/privacy', '/terms', '/refund-policy', '/seller-shop', '/reviews', '/seller-verification'];
         const normalizedPath = currentPath.replace(/^\/pages\//, '/').split('?')[0];
         const isPublicPath = publicPaths.includes(normalizedPath) || 
                              currentPath.startsWith('/product/') || 

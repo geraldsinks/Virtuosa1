@@ -29,19 +29,25 @@ class NotificationManager {
 
         if (!this.token) {
             const pathname = window.location.pathname || '';
-            const isPublicPage =
-                pathname === '/login' ||
-                pathname === '/signup' ||
-                pathname.startsWith('/product/') ||      // public product details
-                pathname === '/product' ||              // in case of non-clean fallback
-                pathname.startsWith('/products') ||    // products listing/search
-                pathname.startsWith('/seller/') ||      // public seller pages/shops
-                pathname.startsWith('/seller-shop') ||  // legacy seller shop route
-                pathname.includes('terms') ||
-                pathname.includes('faq') ||
-                pathname.includes('refund-policy');
+            // Check if route is public or protected
+            let isProtected = false;
+            
+            if (window.NavigationCoordinator && typeof window.NavigationCoordinator.getInstance === 'function') {
+                const nav = window.NavigationCoordinator.getInstance();
+                isProtected = nav.isProtectedRoute(pathname);
+            } else {
+                // Fallback list of public paths if coordinator not available
+                const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', '/search', '/about', '/contact', '/faq', '/privacy', '/terms', '/refund-policy', '/seller-shop', '/reviews'];
+                const normalizedPath = pathname.replace(/^\/pages\//, '/').split('?')[0];
+                
+                isProtected = !publicPaths.includes(normalizedPath) && 
+                             !pathname.startsWith('/product/') && 
+                             !pathname.startsWith('/category/') &&
+                             !pathname.startsWith('/seller/');
+            }
 
-            if (!isPublicPage) {
+            if (isProtected) {
+                console.log('NotificationManager: Redirecting unauthenticated user from protected route:', pathname);
                 window.location.href = '/login';
             }
             return;
