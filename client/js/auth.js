@@ -1034,7 +1034,10 @@ registerPageReady(() => {
     window.authSystemInitialized = true;
     
     const token = localStorage.getItem('token');
-    if (token) {
+    const pathname = window.location.pathname.toLowerCase();
+    const isAuthPage = pathname.includes('login') || pathname.includes('signup') || pathname.includes('forgot-password');
+
+    if (token && isAuthPage) {
         // Redirect to role-specific dashboard based on stored user data
         const isAdmin = localStorage.getItem('isAdmin') === 'true';
         const isSeller = localStorage.getItem('isSeller') === 'true';
@@ -1046,7 +1049,7 @@ registerPageReady(() => {
         } else {
             window.location.href = '/dashboard';
         }
-    } else {
+    } else if (!token) {
         const urlParams = new URLSearchParams(window.location.search);
         const resetToken = urlParams.get('token');
         

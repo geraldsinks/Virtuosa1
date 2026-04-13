@@ -90,14 +90,6 @@ class RoleManager {
                     this.currentRole = this.roleInfo.effectiveRole;
                     this.isInitialized = true;
                     
-                    console.log('🔐 Role Manager initialized from API:', {
-                        effectiveRole: this.currentRole,
-                        title: this.roleInfo.title,
-                        level: this.roleInfo.level,
-                        isSeller: this.roleInfo.isSeller,
-                        isAdmin: this.roleInfo.isAdmin
-                    });
-
                     // Clear access cache when role changes
                     this.clearAccessCache();
 
@@ -120,12 +112,7 @@ class RoleManager {
                 if (apiError.message === 'Authentication expired') {
                     this.clearAllData();
                     
-                    const currentPath = window.location.pathname;
-                    const isPublic = ['', '/', '/index.html', '/login', '/signup', '/search', '/about', '/contact', '/privacy', '/terms'].includes(currentPath);
-                    const isProduct = currentPath.startsWith('/product/') || currentPath.startsWith('/category/');
-
-                    if (!isPublic && !isProduct) {
-                        console.log('🚪 Auth expired on protected page, redirecting to login');
+                    if (!this.isPublicRoute(window.location.pathname)) {
                         if (window.router) {
                             window.router.navigate('/login');
                         } else {
@@ -429,19 +416,19 @@ class RoleManager {
         }
 
         // Wait for initialization if not ready, with proper locking
+        // Wait for initialization if not ready, with proper locking
         if (!this.isInitialized) {
             if (this.initializationLock) {
                 // Wait for existing initialization to complete
                 try {
-                    await this.initializationPromise;
+                    if (this.initializationPromise) {
+                        await this.initializationPromise;
+                    }
                 } catch (error) {
                     console.error('❌ Failed to initialize for access check:', error);
                     this.accessCheckCache.set(cacheKey, false);
                     
-                    const currentPath = window.location.pathname;
-                    const isPublic = ['', '/', '/index.html', '/login', '/signup'].includes(currentPath);
-                    
-                    if (!isPublic && !currentPath.startsWith('/product/') && !currentPath.startsWith('/category/')) {
+                    if (!this.isPublicRoute(window.location.pathname)) {
                         if (window.router) {
                             window.router.navigate('/login');
                         } else {
@@ -452,16 +439,12 @@ class RoleManager {
                 }
             } else {
                 try {
-                    this.initializationLock = true;
                     await this.initialize();
                 } catch (error) {
                     console.error('❌ Failed to initialize for access check:', error);
                     this.accessCheckCache.set(cacheKey, false);
-
-                    const currentPath = window.location.pathname;
-                    const isPublic = ['', '/', '/index.html', '/login', '/signup'].includes(currentPath);
-
-                    if (!isPublic && !currentPath.startsWith('/product/') && !currentPath.startsWith('/category/')) {
+                    
+                    if (!this.isPublicRoute(window.location.pathname)) {
                         if (window.router) {
                             window.router.navigate('/login');
                         } else {
@@ -469,8 +452,6 @@ class RoleManager {
                         }
                     }
                     return false;
-                } finally {
-                    this.initializationLock = false;
                 }
             }
         }
@@ -620,6 +601,34 @@ class RoleManager {
             window.removeEventListener('beforeunload', this._beforeUnloadHandler);
             this._beforeUnloadHandler = null;
         }
+    /**
+     * Check if a route is public and should not cause an auth redirect
+     */
+    isPublicRoute(path) {
+        if (!path) return true;
+        
+        // Use NavigationCoordinator if available
+        if (window.NavigationCoordinator && typeof window.NavigationCoordinator.getInstance === 'function') {
+            const nav = window.NavigationCoordinator.getInstance();
+            return !nav.isProtectedRoute(path);
+        }
+
+        // Fallback list
+        const publicRoutes = ['', '/', '/index.html', '/login', '/signup', '/products', '/search', 
+                             '/about', '/contact', '/privacy', '/terms', '/faq', '/reviews', '/seller-shop'];
+        
+        // Normalize path: remove /pages/ prefix, remove query params, ensure leading slash
+        const normalizedPath = path.replace(/^\/pages\//, '/').split('?')[0];
+        
+        if (publicRoutes.includes(normalizedPath)) return true;
+        
+        // Prefix matches
+        if (normalizedPath.startsWith('/product/')) return true;
+        if (normalizedPath.startsWith('/category/')) return true;
+        if (normalizedPath.startsWith('/seller/')) return true;
+        if (normalizedPath.startsWith('/search')) return true;
+
+        return false;
     }
 }
 

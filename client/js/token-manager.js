@@ -21,14 +21,9 @@ class TokenManager {
     }
 
     init() {
-        console.log('🔧 Token manager init called, token present:', !!this.token);
         if (this.token) {
-            console.log('🔧 Scheduling token refresh and monitoring...');
             this.scheduleTokenRefresh();
             this.startTokenMonitoring();
-            console.log('✅ Token manager initialization complete');
-        } else {
-            console.log('⚠️ No token found during initialization');
         }
     }
 
@@ -118,8 +113,6 @@ class TokenManager {
                         }
                     }
 
-                    console.log('✅ Token refreshed successfully');
-
                     // Reconnect socket if available
                     if (this.socket) {
                         this.reconnectSocket();
@@ -131,7 +124,6 @@ class TokenManager {
                     resolve(data);
                 } else {
                     const errorData = await response.json().catch(() => ({}));
-                    console.error('Token refresh failed:', errorData.message || 'Unknown error');
 
                     // If refresh fails, redirect to login
                     this.handleRefreshFailure(errorData.message || 'Token refresh failed');
@@ -139,7 +131,6 @@ class TokenManager {
                     reject(new Error(errorData.message || 'Token refresh failed'));
                 }
             } catch (error) {
-                console.error('Token refresh error:', error);
                 this.handleRefreshFailure('Network error during token refresh');
                 reject(error);
             } finally {
@@ -153,7 +144,36 @@ class TokenManager {
 
     // Handle token refresh failure
     handleRefreshFailure(message) {
-        console.error('Token refresh failed:', message);
+        // Auto-redirect if no specific action taken and simple failure
+        if (message.includes('expired') || message.includes('invalid')) {
+            setTimeout(() => {
+                if (window.location.pathname !== '/login') {
+                    // Centralized check for public vs protected routes
+                    let isProtected = true;
+                    if (window.NavigationCoordinator && typeof window.NavigationCoordinator.getInstance === 'function') {
+                        const nav = window.NavigationCoordinator.getInstance();
+                        const currentPath = window.location.pathname;
+                        isProtected = nav.isProtectedRoute(currentPath);
+                    } else {
+                        // Minimal fallback if coordinator not available
+                        const publicPaths = ['', '/', '/index.html', '/login', '/signup', '/products', '/search', '/about', '/contact', '/faq'];
+                        const currentPath = window.location.pathname.replace(/^\/pages\//, '/').split('?')[0];
+                        isProtected = !publicPaths.includes(currentPath) && 
+                                     !currentPath.startsWith('/product/') && 
+                                     !currentPath.startsWith('/category/') &&
+                                     !currentPath.startsWith('/seller/');
+                    }
+
+                    if (isProtected) {
+                        if (window.router) {
+                            window.router.navigate('/login');
+                        } else {
+                            window.location.href = '/login';
+                        }
+                    }
+                }
+            }, 5000);
+        }
 
         // Show user notification
         this.showNotification('Session Expired', message, 'error', () => {

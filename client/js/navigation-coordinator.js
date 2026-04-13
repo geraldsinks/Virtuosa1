@@ -199,7 +199,7 @@
                 'dashboard', 'seller-dashboard', 'admin', 'profile', 'settings',
                 'orders', 'order', 'messages', 'notifications', 'transactions',
                 'cart', 'checkout', 'create-product', 'edit-product', 'my-products',
-                'seller-analytics', 'seller-orders'
+                'seller-analytics', 'seller-orders', 'wishlist'
             ];
         }
 
