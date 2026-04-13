@@ -76,6 +76,12 @@ class NotificationManager {
     }
 
     async initSocketConnection() {
+        // Defensive check: ensure io is defined
+        if (typeof io === 'undefined') {
+            console.warn('🔌 NotificationManager: Socket.IO (io) is not defined. Real-time notifications will be disabled for this session.');
+            return;
+        }
+
         // Clean up existing socket if any
         if (this.socket) {
             this.socket.removeAllListeners();
