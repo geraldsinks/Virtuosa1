@@ -186,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let typingTimeout = null;
     let isTyping = false;
     let isCurrentlyLoadingMessages = false; 
+    let isCurrentlyLoadingConversations = false;
     let loadConversationsTimeout = null;
 
     // Clean up 'undefined' string if present
@@ -376,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
         
-        pollInterval = setInterval(pollMessages, 15000); // Poll every 15 seconds when visible
+        pollInterval = setInterval(pollMessages, 30000); // Poll every 30 seconds when visible
 
         // Highlight active conversation
         loadConversations();
@@ -797,7 +798,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load conversations
     async function loadConversations() {
+        if (isCurrentlyLoadingConversations) {
+            console.log('⏳ Already loading conversations, skipping...');
+            return;
+        }
+        
         console.log('Loading conversations...');
+        isCurrentlyLoadingConversations = true;
         try {
             if (!token) {
                 console.log('No token - cannot load conversations');
@@ -820,9 +827,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 displayConversations(conversations);
             } else {
                 console.error('Failed to load conversations:', response.status);
-                const errorText = await response.text();
-                console.error('Error details:', errorText);
-                
                 if (conversationList) {
                     conversationList.innerHTML = `
                         <div class="p-8 text-center text-gray-400">
@@ -835,7 +839,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Error loading conversations:', error);
-            
             if (conversationList) {
                 conversationList.innerHTML = `
                     <div class="p-8 text-center text-gray-400">
@@ -845,6 +848,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
             }
+        } finally {
+            isCurrentlyLoadingConversations = false;
         }
     }
 
@@ -961,6 +966,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         console.log('Loading messages for recipient:', currentRecipientId);
+        console.trace('Tracing loadMessages caller');
         isCurrentlyLoadingMessages = true;
 
         try {
