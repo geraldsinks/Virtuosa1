@@ -573,25 +573,25 @@ transactionSchema.statics = {
                 $group: {
                     _id: null,
                     total: { $sum: 1 },
-                    totalAmount: { $sum: '$amount' },
+                    totalAmount: { $sum: { $ifNull: ['$amount', 0] } },
                     completed: {
-                        $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
+                        $sum: { $cond: [{ $in: ['$status', ['completed', 'Completed']] }, 1, 0] }
                     },
                     pending: {
-                        $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] }
+                        $sum: { $cond: [{ $in: ['$status', ['pending', 'awaiting_confirmation', 'Pending']] }, 1, 0] }
                     },
                     disputed: {
                         $sum: { $cond: [{ $eq: ['$status', 'disputed'] }, 1, 0] }
                     },
-                    avgAmount: { $avg: '$amount' },
+                    avgAmount: { $avg: { $ifNull: ['$amount', 0] } },
                     highRisk: {
-                        $sum: { $cond: [{ $eq: ['$protection.riskLevel', 'high'] }, 1, 0] }
+                        $sum: { $cond: [{ $in: [{ $ifNull: ['$protection.riskLevel', 'medium'] }, ['high', 'critical']] }, 1, 0] }
                     },
                     byPaymentMethod: {
                         $push: {
-                            method: '$paymentMethod',
-                            amount: '$amount',
-                            status: '$status'
+                            method: { $ifNull: ['$paymentMethod', 'unknown'] },
+                            amount: { $ifNull: ['$amount', 0] },
+                            status: { $ifNull: ['$status', 'unknown'] }
                         }
                     }
                 }
