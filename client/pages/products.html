@@ -525,7 +525,8 @@
                     <!-- Sort Dropdown (Desktop) -->
                     <div id="desktop-sort-container" class="hidden">
                         <select id="sort-select" class="px-4 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold">
-                            <option value="relevance">Sort by: Relevance</option>
+                            <option value="random">Sort by: Random (Fairness)</option>
+                            <option value="relevance">Relevance</option>
                             <option value="price-asc">Price: Low to High</option>
                             <option value="price-desc">Price: High to Low</option>
                             <option value="newest">Newest First</option>
@@ -554,6 +555,15 @@
                 <div id="loading-state" class="text-center py-12">
                     <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gold"></div>
                     <p class="text-gray-600 mt-4">Loading products...</p>
+                </div>
+
+                <!-- Pagination / Load More -->
+                <div id="pagination-container" class="mt-12 mb-8 hidden flex-col items-center">
+                    <button id="load-more-btn" class="px-8 py-3 bg-navy text-white rounded-xl font-bold hover:bg-opacity-90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Explore More Products
+                    </button>
+                    <!-- Crawlable links for SEO -->
+                    <div id="seo-pagination" class="mt-6 flex gap-4 text-xs text-gray-400"></div>
                 </div>
             </section>
         </div>
@@ -678,16 +688,29 @@
 
 
             let allProducts = [];
+            let categoryBuckets = []; // Stores grouped categorical data
             let filteredProducts = [];
             let currentCategory = null;
+            let totalItems = 0;
 
-            // Filter state
+            // Seeded randomness for fairness
+            let userSeed = sessionStorage.getItem('products_seed');
+            if (!userSeed) {
+                userSeed = Math.floor(Math.random() * 10000);
+                sessionStorage.setItem('products_seed', userSeed);
+            }
+
+            // Filter and Pagination state
             const filters = {
                 searchQuery: '',
                 priceBracket: 'all',
                 conditions: new Set(),
                 campusVerifiedOnly: false,
-                sortBy: 'relevance'
+                sortBy: 'random',
+                page: 1,
+                limit: 30,
+                seed: userSeed,
+                hasNextPage: false
             };
 
             // Mobile Drawer Control
@@ -706,9 +729,14 @@
 
             function updateMobileResultsCount() {
                 if (mobileResultsCountTag) {
-                    mobileResultsCountTag.textContent = filteredProducts.length;
+                    mobileResultsCountTag.textContent = allProducts.length;
                 }
             }
+
+            // Pagination Elements
+            const paginationContainer = document.getElementById('pagination-container');
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            const seoPagination = document.getElementById('seo-pagination');
 
 
             // Create debounced fetch function for search
@@ -717,11 +745,18 @@
             }, 300);
 
             // Fetch products from API with caching and optimization
-            async function fetchProducts() {
+            async function fetchProducts(append = false) {
                 const urlParams = new URLSearchParams(window.location.search);
                 const categoryFromUrl = urlParams.get('category');
                 const searchFromUrl = urlParams.get('q');
+                const pageFromUrl = parseInt(urlParams.get('page')) || 1;
                 
+                // If not appending, reset to first page or URL page
+                if (!append) {
+                    filters.page = pageFromUrl;
+                    if (filters.page === 1) allProducts = [];
+                }
+
                 // Extract category from clean URL path (e.g., /products/Electronics)
                 let categoryFromPath = null;
                 const pathParts = window.location.pathname.split('/');
@@ -732,84 +767,143 @@
                 // Use category from query string first (for backward compatibility), then path
                 currentCategory = categoryFromUrl || categoryFromPath || null;
 
-                if (searchFromUrl && globalSearchInput) {
+                if (searchFromUrl && globalSearchInput && !append) {
                     globalSearchInput.value = searchFromUrl;
                     filters.searchQuery = searchFromUrl;
                 }
 
-                console.log('Fetching products with category:', currentCategory);
-
-                // Generate cache key based on current filters
-                const cacheKey = `products_${currentCategory || 'all'}_${filters.searchQuery || ''}_${filters.sortBy}`;
+                // Generate cache key based on current filters and page
+                const cacheKey = `products_${currentCategory || 'all'}_${filters.searchQuery || ''}_${filters.sortBy}_p${filters.page}_s${filters.seed}`;
                 
                 // Try cache first
-                if (window.cacheManager) {
+                if (window.cacheManager && !append) {
                     const cachedProducts = window.cacheManager.getCachedApiResponse(cacheKey);
                     if (cachedProducts) {
                         console.log('📦 Cache hit for products:', cacheKey);
                         allProducts = cachedProducts.products || [];
-                        filteredProducts = [...allProducts];
+                        filters.hasNextPage = cachedProducts.pagination?.hasNextPage || false;
+                        totalItems = cachedProducts.pagination?.total || allProducts.length;
                         
                         if (allProducts.length === 0) {
                             showEmptyState();
                         } else {
                             applyFiltersAndRender();
                         }
+                        updatePaginationUI();
                         return;
                     }
                 }
 
-                const url = currentCategory 
-                    ? `${API_BASE}/products?category=${encodeURIComponent(currentCategory)}` 
-                    : `${API_BASE}/products`;
+                // Construct API URL
+                const isFiltered = filters.searchQuery || currentCategory || 
+                                 filters.priceBracket !== 'all' || filters.conditions.size > 0 || 
+                                 filters.campusVerifiedOnly;
+
+                const queryParams = new URLSearchParams({
+                    page: filters.page,
+                    limit: filters.limit,
+                    sort: filters.sortBy,
+                    seed: filters.seed
+                });
+
+                if (currentCategory) queryParams.set('category', currentCategory);
+                if (filters.searchQuery) queryParams.set('search', filters.searchQuery);
+                if (filters.priceBracket !== 'all') queryParams.set('priceBracket', filters.priceBracket);
+                
+                // Add representative flag if not filtered
+                if (!isFiltered) queryParams.set('representative', 'true');
+
+                const url = `${API_BASE}/products?${queryParams.toString()}`;
 
                 try {
-                    loadingState.style.display = 'block';
-                    if (productGrid) productGrid.style.display = 'none';
-
-                    // Use API batcher if available, otherwise use regular fetch
-                    let response;
-                    if (window.apiBatcher && window.cacheManager) {
-                        response = await window.apiBatcher.batchRequest(url, {
-                            method: 'GET',
-                            headers: { 'Content-Type': 'application/json' },
-                            cache: true,
-                            cacheKey: cacheKey
-                        });
+                    if (!append) {
+                        loadingState.style.display = 'block';
+                        if (productGrid) productGrid.style.display = 'none';
                     } else {
-                        response = await fetch(url, {
-                            method: 'GET',
-                            headers: { 'Content-Type': 'application/json' }
-                        });
+                        loadMoreBtn.disabled = true;
+                        loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Loading more...';
                     }
+
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
 
                     if (response.ok) {
                         const data = await response.json();
-                        allProducts = data.products || [];
-                        filteredProducts = [...allProducts];
-
-                        // Cache the results
-                        if (window.cacheManager) {
-                            window.cacheManager.cacheApiResponse(cacheKey, data);
+                        if (data.isRepresentative) {
+                            categoryBuckets = data.categories || [];
+                            // For representative mode, we don't have a flat allProducts list yet
+                            allProducts = categoryBuckets.flatMap(c => c.products);
+                        } else {
+                            const newProducts = data.products || [];
+                            if (append) {
+                                allProducts = [...allProducts, ...newProducts];
+                            } else {
+                                allProducts = newProducts;
+                            }
+                            categoryBuckets = []; // Reset buckets when filtered
                         }
 
-                        if (allProducts.length === 0) {
+                        filters.hasNextPage = data.pagination?.hasNextPage || false;
+                        totalItems = data.pagination?.total || allProducts.length;
+
+                        if (allProducts.length === 0 && !append) {
                             showEmptyState();
-                            return;
+                        } else {
+                            applyFiltersAndRender();
                         }
-
-                        applyFiltersAndRender();
                     } else {
                         console.error('Failed to fetch products:', await response.json());
-                        showErrorState();
+                        if (!append) showErrorState();
                     }
                 } catch (error) {
                     console.error('Error fetching products:', error);
-                    showErrorState();
+                    if (!append) showErrorState();
                 } finally {
                     loadingState.style.display = 'none';
                     if (productGrid) productGrid.style.display = 'grid';
+                    updatePaginationUI();
                 }
+            }
+
+            function updatePaginationUI() {
+                if (!paginationContainer) return;
+
+                const isFiltered = filters.searchQuery || currentCategory || 
+                                 filters.priceBracket !== 'all' || filters.conditions.size > 0 || 
+                                 filters.campusVerifiedOnly;
+
+                if (isFiltered && filters.hasNextPage) {
+                    paginationContainer.classList.remove('hidden');
+                    paginationContainer.classList.add('flex');
+                    loadMoreBtn.disabled = false;
+                    loadMoreBtn.innerHTML = 'Explore More Products';
+                } else {
+                    paginationContainer.classList.add('hidden');
+                    paginationContainer.classList.remove('flex');
+                }
+
+                if (filters.hasNextPage && seoPagination) {
+                    const nextPage = filters.page + 1;
+                    const nextUrl = new URL(window.location.href);
+                    nextUrl.searchParams.set('page', nextPage);
+                    seoPagination.innerHTML = `<a href="${nextUrl.toString()}" rel="next" class="hover:underline">Next Page &rarr;</a>`;
+                } else if (seoPagination) {
+                    seoPagination.innerHTML = '';
+                }
+            }
+
+            async function loadMore() {
+                filters.page++;
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('page', filters.page);
+                window.history.pushState({ page: filters.page }, '', newUrl.toString());
+                await fetchProducts(true);
+            }
+
+            if (loadMoreBtn) {
+                loadMoreBtn.addEventListener('click', loadMore);
             }
 
             function showEmptyState() {
@@ -1034,24 +1128,33 @@
             }
 
             function renderGridProducts() {
-                if (filteredProducts.length === 0) {
+                if (allProducts.length === 0) {
                     productGrid.innerHTML = '<p class="text-center text-gray-600 col-span-full py-10">No items match your criteria. Try adjusting your filters.</p>';
                     return;
                 }
-                productGrid.innerHTML = filteredProducts.map(p => generateProductCard(p)).join('');
+                productGrid.innerHTML = allProducts.map(p => generateProductCard(p)).join('');
             }
 
             function renderCategoricalProducts() {
-                // Group products by category
-                const groups = {};
-                allProducts.forEach(product => {
-                    const cat = product.category || 'Other';
-                    if (!groups[cat]) groups[cat] = [];
-                    groups[cat].push(product);
-                });
+                let categories = [];
+                let groups = {};
 
-                // Get categories and sort them
-                const categories = Object.keys(groups).sort();
+                // Use pre-grouped data if available (from backend representative mode)
+                if (categoryBuckets.length > 0) {
+                    categoryBuckets.forEach(bucket => {
+                        const cat = bucket.category;
+                        categories.push(cat);
+                        groups[cat] = bucket.products;
+                    });
+                } else {
+                    // Fallback: Group products by category client-side
+                    allProducts.forEach(product => {
+                        const cat = product.category || 'Other';
+                        if (!groups[cat]) groups[cat] = [];
+                        groups[cat].push(product);
+                    });
+                    categories = Object.keys(groups).sort();
+                }
                 
                 if (categories.length === 0) {
                     productGrid.innerHTML = '<p class="text-center text-gray-600 py-10">No products available yet.</p>';
@@ -1059,11 +1162,11 @@
                 }
 
                 productGrid.innerHTML = categories.map((cat, catIdx) => {
-                    // Pick 10 random products for this category
+                    // Pick 15 random products for this category for better variety
                     const productsInCat = [...groups[cat]];
                     const randomProducts = productsInCat
                         .sort(() => Math.random() - 0.5)
-                        .slice(0, 10);
+                        .slice(0, 15);
 
                     const sectionId = `cat-section-${catIdx}`;
 
@@ -1114,12 +1217,12 @@
 
             function updateResultsSummary() {
                 if (!resultsCount) return;
-                const total = allProducts.length;
-                const shown = filteredProducts.length;
+                const total = totalItems || allProducts.length;
+                const shown = allProducts.length;
                 const label = currentCategory && currentCategory !== 'Other'
                     ? ` in ${currentCategory}`
                     : '';
-                resultsCount.textContent = `${shown} of ${total} items found${label}`;
+                resultsCount.textContent = `Showing ${shown} of ${total} items found${label}`;
             }
 
             function updateFilterBadges() {
@@ -1185,8 +1288,9 @@
             }
 
             function applyFiltersAndRender() {
-                filteredProducts = sortProducts(allProducts.filter(productMatchesFilters));
-                renderProducts();
+                // When filters change, we reset to page 1 and fetch from backend
+                filters.page = 1;
+                fetchProducts(false);
                 updateMobileResultsCount();
             }
 
@@ -1225,6 +1329,11 @@
             if (sortSelect) {
                 sortSelect.addEventListener('change', (e) => {
                     filters.sortBy = e.target.value;
+                    // If switching to random, we can optionally refresh the seed
+                    if (filters.sortBy === 'random') {
+                        filters.seed = Math.floor(Math.random() * 10000);
+                        sessionStorage.setItem('products_seed', filters.seed);
+                    }
                     applyFiltersAndRender();
                 });
             }

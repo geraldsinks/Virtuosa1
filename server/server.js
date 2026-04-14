@@ -3771,8 +3771,9 @@ app.get('/api/products', cacheMiddleware(300), async (req, res) => {
             courseCode,
             seller,
             sort,
+            seed,
             page = 1,
-            limit = 20
+            limit = 30
         } = req.query;
 
         // Build filter
@@ -3809,8 +3810,44 @@ app.get('/api/products', cacheMiddleware(300), async (req, res) => {
             ];
         }
 
+        // Representative mode for categorical landing page (5 items per category)
+        if (req.query.representative === 'true') {
+            const representativeAggregation = [
+                { $match: filter },
+                // Use a large sample size then group to ensure variety across categories
+                { $sample: { size: 1000 } },
+                { $group: {
+                    _id: "$category",
+                    products: { $push: "$$ROOT" }
+                }},
+                { $project: {
+                    category: "$_id",
+                    products: { $slice: ["$products", 5] }
+                }},
+                { $sort: { category: 1 } }
+            ];
+
+            const groupedResults = await Product.aggregate(representativeAggregation);
+            
+            // Populate seller info in the nested products
+            const populated = await Product.populate(groupedResults, {
+                path: 'products.seller',
+                select: 'fullName sellerRating totalSellerReviews storeName storeSlug isStudentVerified'
+            });
+
+            return res.json({
+                categories: populated,
+                isRepresentative: true,
+                totalCategories: populated.length
+            });
+        }
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const limitInt = parseInt(limit);
+
         // Build sort options
         let sortOptions = { createdAt: -1 }; // Default: newest first
+        
         switch (sort) {
             case 'price-low':
                 sortOptions = { price: 1 };
@@ -3824,30 +3861,23 @@ app.get('/api/products', cacheMiddleware(300), async (req, res) => {
             case 'rating':
                 sortOptions = { sellerRating: -1 };
                 break;
+            case 'random':
+                // For 'random' we sort by _id but apply an offset or secondary sort 
+                // to make it consistent for the user's session without a heavy aggregation
+                sortOptions = { _id: 1 }; 
+                break;
         }
-
-        const skip = (parseInt(page) - 1) * parseInt(limit);
 
         const products = await Product.find(filter)
             .populate('seller', 'fullName sellerRating totalSellerReviews storeName storeSlug')
             .sort(sortOptions)
             .skip(skip)
-            .limit(parseInt(limit));
-
-        // Log product retrieval with ID tracking
-        console.log(`📋 Retrieved ${products.length} products`);
-        products.forEach((product, index) => {
-            console.log(`📦 Product ${index + 1}:`, {
-                _id: product._id.toString(),
-                name: product.name,
-                price: product.price,
-                seller: product.seller?._id?.toString(),
-                sellerName: product.seller?.fullName
-            });
-        });
+            .limit(limitInt);
 
         const total = await Product.countDocuments(filter);
-        const totalPages = Math.ceil(total / parseInt(limit));
+        const totalPages = Math.ceil(total / limitInt);
+
+        console.log(`📋 Retrieved ${products.length} products (Page ${page}, Limit ${limitInt}, Total ${total})`);
 
         res.json({
             products,
@@ -3855,7 +3885,9 @@ app.get('/api/products', cacheMiddleware(300), async (req, res) => {
                 currentPage: parseInt(page),
                 totalPages,
                 total,
-                limit: parseInt(limit)
+                limit: limitInt,
+                hasNextPage: parseInt(page) < totalPages,
+                hasPrevPage: parseInt(page) > 1
             }
         });
     } catch (error) {
