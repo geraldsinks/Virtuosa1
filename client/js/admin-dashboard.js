@@ -196,15 +196,20 @@ function configureDashboardUI(role) {
     const dangerousActionsSection = document.getElementById('dangerous-actions-section');
     const managementSection = document.getElementById('management-section');
 
-    if (role === 'virtuosa_management') {
+    // Define roles that get full "Super Admin" visibility (no hiding)
+    const superAdminRoles = ['admin', 'CEO'];
+    const isSuperAdmin = superAdminRoles.includes(role);
+
+    if (!isSuperAdmin) {
+        // Hide sensitive management sections for specialized lead roles
         if (adminActionsSection) adminActionsSection.style.display = 'none';
         if (dangerousActionsSection) dangerousActionsSection.style.display = 'none';
         if (managementSection) managementSection.style.display = 'none';
-        console.log('🛡️ Dashboard UI restricted for Virtuosa Management role');
+        console.log(`🛡️ Dashboard UI restricted for ${role} role (non-super-admin)`);
     } else {
-        // Ensure visible for other roles (unless specialized roles also need hiding)
+        // Ensure visible for super admins
         if (adminActionsSection) adminActionsSection.style.display = 'block';
-        if (dangerousActionsSection) dangerousActionsSection.style.display = (role === 'admin' || !role) ? 'block' : 'none';
+        if (dangerousActionsSection) dangerousActionsSection.style.display = 'block';
         if (managementSection) managementSection.style.display = 'block';
     }
 }
