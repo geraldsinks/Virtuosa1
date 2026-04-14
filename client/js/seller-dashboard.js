@@ -227,7 +227,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (verificationCard) verificationCard.classList.add('hidden');
         } else {
             if (sellerVerified) sellerVerified.classList.add('hidden');
-            if (verificationCard) verificationCard.classList.remove('hidden');
+            // Temporarily hide verification banner as per user request
+            // if (verificationCard) verificationCard.classList.remove('hidden');
+            if (verificationCard) verificationCard.classList.add('hidden');
         }
 
         const sellerPro = document.getElementById('seller-pro');
