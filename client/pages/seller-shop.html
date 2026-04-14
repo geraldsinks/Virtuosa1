@@ -234,7 +234,6 @@
                 const container = document.getElementById('seller-products');
                 if (products.length > 0) {
                     container.innerHTML = products.map(product => `
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all hover:-translate-y-1 group cursor-pointer" onclick="window.location.href='/product?id=${product._id}'">
                             <div class="aspect-square overflow-hidden relative">
                                 <img src="${window.optimizeImageUrl ? window.optimizeImageUrl(fixServerUrl(product.images?.[0]), 800, 800) : fixServerUrl(product.images?.[0]) || 'https://placehold.co/800x800?text=No+Image'}" 
                                      alt="${product.name} - ${product.category} on ${seller.storeName || seller.fullName}'s Virtuosa Shop" 

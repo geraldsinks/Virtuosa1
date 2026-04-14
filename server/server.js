@@ -211,6 +211,18 @@ app.get('/order/:id', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/pages/order-details.html'));
 });
 
+app.get('/seller-shop', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/seller-shop.html'));
+});
+
+app.get('/seller/:shop', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/seller-shop.html'));
+});
+
+app.get('/wishlist', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/wishlist.html'));
+});
+
 app.get('/about', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/pages/about.html'));
 });

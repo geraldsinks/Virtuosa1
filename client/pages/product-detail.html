@@ -558,9 +558,6 @@
             const initial = (product.seller?.storeName || product.seller?.name || 'V')[0].toUpperCase();
             document.getElementById('seller-avatar').textContent = initial;
             
-            const shopLink = document.getElementById('visit-shop-link');
-            const sellerId = product.seller?._id || product.seller;
-            shopLink.href = `seller-shop.html?${product.seller?.storeSlug ? `shop=${product.seller.storeSlug}` : `sellerId=${sellerId}`}`;
 
             // Quantity Control
             let qty = 1;
