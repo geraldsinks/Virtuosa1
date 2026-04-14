@@ -197,27 +197,30 @@ function configureDashboardUI(role) {
     const managementSection = document.getElementById('management-section');
 
     if (!role) {
-        console.warn('⚠️ configureDashboardUI called without a role, skipping update');
+        console.warn('⚠️ configureDashboardUI called without a role');
         return;
     }
 
-    // Define roles that get full "Super Admin" visibility (no hiding)
-    const superAdminRoles = ['admin', 'CEO'];
-    const isSuperAdmin = superAdminRoles.includes(role);
+    // Normalize role for comparison
+    const normalizedRole = role.toLowerCase().trim();
+    
+    // Define super admin roles (normalized)
+    const superAdminRoles = ['admin', 'ceo'];
+    const isSuperAdmin = superAdminRoles.includes(normalizedRole);
 
-    console.log(`🔧 Configuring UI for role: ${role} (isSuperAdmin: ${isSuperAdmin})`);
+    console.log(`🔧 Configuring UI for role: "${role}" (isSuperAdmin: ${isSuperAdmin})`);
 
     if (!isSuperAdmin) {
-        // Hide sensitive management sections for specialized lead roles using hidden class
-        if (adminActionsSection) adminActionsSection.classList.add('hidden');
-        if (dangerousActionsSection) dangerousActionsSection.classList.add('hidden');
-        if (managementSection) managementSection.classList.add('hidden');
-        console.log(`🛡️ Dashboard UI restricted for ${role} role`);
+        // Hide sensitive management sections for specialized lead roles using inline styles (most reliable)
+        if (adminActionsSection) adminActionsSection.style.setProperty('display', 'none', 'important');
+        if (dangerousActionsSection) dangerousActionsSection.style.setProperty('display', 'none', 'important');
+        if (managementSection) managementSection.style.setProperty('display', 'none', 'important');
+        console.log(`🛡️ Dashboard UI restricted for specialized role: ${role}`);
     } else {
-        // Show sections for super admins by removing hidden class
-        if (adminActionsSection) adminActionsSection.classList.remove('hidden');
-        if (dangerousActionsSection) dangerousActionsSection.classList.remove('hidden');
-        if (managementSection) managementSection.classList.remove('hidden');
+        // Show sections for super admins
+        if (adminActionsSection) adminActionsSection.style.display = 'block';
+        if (dangerousActionsSection) dangerousActionsSection.style.display = 'block';
+        if (managementSection) managementSection.style.display = 'block';
         console.log('👑 Full Admin dashboard view enabled');
     }
 }
@@ -259,8 +262,13 @@ function checkAdminAccess() {
                 alert('Access denied. Admin privileges required.');
                 window.location.href = '/pages/buyer-dashboard.html';
             } else {
-                // Set role for navigation loading, prioritizing the specific specialized role
-                userRole = adminRoles.includes(user.role) ? user.role : 'admin';
+                // Normalize and set role for navigation loading
+                const currentRole = (user.role || '').toLowerCase().trim();
+                const adminRoles = ['admin', 'ceo', 'virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+                
+                userRole = adminRoles.includes(currentRole) ? currentRole : 'admin';
+                
+                console.log(`✅ Access granted via fallback check. Decided role: ${userRole}`);
                 
                 // CRITICAL: Configure UI visibility for partitioning
                 configureDashboardUI(userRole);
