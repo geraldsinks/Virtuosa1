@@ -118,6 +118,9 @@
     <link rel="prefetch" href="/pages/products.html">
     <link rel="prefetch" href="/pages/cart.html">
     <link rel="prefetch" href="/pages/login.html">
+    
+    <!-- LCP Preloads -->
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.rel='stylesheet'">
@@ -1356,6 +1359,15 @@
                     // Generate WebP version using optimized function
                     const webpUrl = generateWebpUrl(imageUrl, 1600, 800); // Ultra-high res for large modern slider
                     
+                    const isFirst = index === 0;
+                    if (isFirst) {
+                        const link = document.createElement('link');
+                        link.rel = 'preload';
+                        link.as = 'image';
+                        link.href = webpUrl;
+                        document.head.appendChild(link);
+                    }
+
                     return `
                 <div class="ad-card flex-none w-full h-full"
                      onclick="window.location.href='${sanitizeUrl(ad.link)}'"
@@ -1365,7 +1377,8 @@
                      <img src="${webpUrl}" 
                           onerror="this.onerror=null; this.src='${imageUrl}';" 
                           class="absolute inset-0 w-full h-full object-cover z-0" 
-                          alt="${encodeHtml(ad.title)}" />
+                          alt="${encodeHtml(ad.title)}"
+                          ${isFirst ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"'} />
                      
                      <div class="ad-card-overlay">
                          <div class="ad-card-content">
@@ -1421,7 +1434,8 @@
                             <img src="${imageUrl}" 
                                  class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                  alt="${encodeHtml(card.title || card.name)}" 
-                                 loading="${index < 4 ? 'eager' : 'lazy'}">
+                                 loading="${index < 4 ? 'eager' : 'lazy'}"
+                                 ${index < 4 ? 'fetchpriority="high"' : ''}>
                         </picture>
                         
                         <!-- Mobile Overlay Layout (Hidden on Large screens and up) -->

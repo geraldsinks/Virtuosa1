@@ -179,7 +179,7 @@
             position: relative;
             width: 100%;
             max-width: 100%;
-            overflow-x: hidden;
+            overflow: visible; /* Changed from hidden to show buttons */
         }
 
         .category-header {
@@ -196,6 +196,44 @@
             color: #0A1128;
             position: relative;
             padding-left: 1rem;
+        }
+
+        .category-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0A1128;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 20;
+            opacity: 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+
+        .category-nav-btn:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+            color: #C19A6B;
+        }
+
+        .category-section:hover .category-nav-btn {
+            opacity: 1;
+        }
+
+        .category-nav-btn.prev { left: -20px; }
+        .category-nav-btn.next { right: -20px; }
+
+        @media (max-width: 1024px) {
+            .category-nav-btn { display: none !important; }
         }
 
         .category-title::before {
@@ -856,8 +894,7 @@
                         return items;
                 }
             }
-
-            function generateProductCard(product, extraClasses = '') {
+            function generateProductCard(product, extraClasses = '', options = {}) {
                 const imageUrl = product.images && product.images[0]
                     ? window.optimizeImageUrl ? window.optimizeImageUrl(fixServerUrl(product.images[0]), 800, 800) : fixServerUrl(product.images[0])
                     : 'https://placehold.co/400x300?text=No+Image';
@@ -866,6 +903,8 @@
                 const isHotDeal = product.originalPrice && product.originalPrice > product.price;
                 const isOutOfStock = product.status === 'Out of Stock' || product.status === 'Sold';
                 const isMobile = window.innerWidth < 640;
+                const loadingType = options.loading || 'lazy';
+                const fetchPriority = options.priority ? 'high' : 'auto';
 
                 return `
                     <div class="product-card group ${isOutOfStock ? 'opacity-75' : ''} cursor-pointer ${extraClasses}" 
@@ -876,7 +915,8 @@
                                  class="product-image"
                                  width="400"
                                  height="400"
-                                 loading="lazy" />
+                                 loading="${loadingType}"
+                                 ${fetchPriority === 'high' ? 'fetchpriority="high"' : ''} />
                             <div class="absolute top-1.5 left-1.5 flex flex-col gap-1">
                                 ${isVerified ? `
                                     <span class="bg-emerald-500 text-white px-1.5 py-0.5 rounded shadow-sm text-[8px] font-bold uppercase tracking-tighter flex items-center gap-0.5">
@@ -1005,15 +1045,17 @@
                     return;
                 }
 
-                productGrid.innerHTML = categories.map(cat => {
+                productGrid.innerHTML = categories.map((cat, catIdx) => {
                     // Pick 10 random products for this category
                     const productsInCat = [...groups[cat]];
                     const randomProducts = productsInCat
                         .sort(() => Math.random() - 0.5)
                         .slice(0, 10);
 
+                    const sectionId = `cat-section-${catIdx}`;
+
                     return `
-                        <div class="category-section">
+                        <div class="category-section" id="${sectionId}-parent">
                             <div class="category-header">
                                 <h2 class="category-title">${cat}</h2>
                                 <a href="/products?category=${encodeURIComponent(cat)}" 
@@ -1022,13 +1064,40 @@
                                    View All <i class="fas fa-chevron-right ml-1 text-[10px]"></i>
                                 </a>
                             </div>
-                            <div class="category-row hide-scrollbar">
-                                ${randomProducts.map(p => generateProductCard(p, 'product-card-horizontal')).join('')}
+                            
+                            <button class="category-nav-btn prev" onclick="scrollCategory('${sectionId}', -1)">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="category-nav-btn next" onclick="scrollCategory('${sectionId}', 1)">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+
+                            <div class="category-row hide-scrollbar" id="${sectionId}">
+                                ${randomProducts.map((p, idx) => {
+                                    // SEO optimization: Eager load first 3 products of the first category
+                                    const isPriority = catIdx === 0 && idx < 3;
+                                    return generateProductCard(p, 'product-card-horizontal', { 
+                                        loading: isPriority ? 'eager' : 'lazy',
+                                        priority: isPriority
+                                    });
+                                }).join('')}
                             </div>
                         </div>
                     `;
                 }).join('');
             }
+
+            // Universal scroll handler for categories
+            window.scrollCategory = (elementId, direction) => {
+                const element = document.getElementById(elementId);
+                if (!element) return;
+                
+                const scrollAmount = element.clientWidth * 0.8;
+                element.scrollBy({
+                    left: direction * scrollAmount,
+                    behavior: 'smooth'
+                });
+            };
 
             function updateResultsSummary() {
                 if (!resultsCount) return;

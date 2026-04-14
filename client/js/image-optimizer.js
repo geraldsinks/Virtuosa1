@@ -157,6 +157,7 @@ function createOptimizedImage(imageUrl, alt, options = {}) {
         height = 280,
         className = '',
         loading = 'lazy',
+        priority = false, // If true, sets fetchpriority="high"
         sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
         srcset = true
     } = options;
@@ -173,6 +174,7 @@ function createOptimizedImage(imageUrl, alt, options = {}) {
         width="${width}" 
         height="${height}"
         loading="${loading}"
+        ${priority ? 'fetchpriority="high"' : ''}
         onerror="this.src='https://placehold.co/${width}x${height}?text=Error+Loading+Image'"
     >`;
 }
