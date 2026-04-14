@@ -179,7 +179,7 @@
             position: relative;
             width: 100%;
             max-width: 100%;
-            overflow: visible; /* Changed from hidden to show buttons */
+            overflow: hidden; /* Changed back from visible to prevent page expansion */
         }
 
         .category-header {
@@ -187,7 +187,9 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 1.25rem;
-            padding-right: 0.5rem;
+            padding-right: 1.25rem;
+            position: relative;
+            z-index: 10;
         }
 
         .category-title {
@@ -212,7 +214,7 @@
             justify-content: center;
             color: #0A1128;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            z-index: 20;
+            z-index: 50;
             opacity: 0;
             transition: all 0.3s ease;
             cursor: pointer;
@@ -229,10 +231,10 @@
             opacity: 1;
         }
 
-        .category-nav-btn.prev { left: -20px; }
-        .category-nav-btn.next { right: -20px; }
+        .category-nav-btn.prev { left: 8px; }
+        .category-nav-btn.next { right: 8px; }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 768px) {
             .category-nav-btn { display: none !important; }
         }
 
@@ -260,16 +262,27 @@
             text-decoration: underline;
         }
 
+        .view-all-link {
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
         .category-row {
             display: flex;
             overflow-x: auto;
             width: 100%;
             max-width: 100%;
             gap: 1.25rem;
-            padding: 0.5rem 0.25rem 1.5rem;
+            padding: 0.5rem 1rem 1.5rem; /* Added horizontal padding */
             scroll-snap-type: x mandatory;
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
+        }
+
+        /* Added spacer to ensure last item is fully visible on mobile scroll */
+        .category-row::after {
+            content: '';
+            flex: 0 0 1rem;
         }
 
         .product-card-horizontal {
