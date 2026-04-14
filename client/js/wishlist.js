@@ -52,8 +52,8 @@ window.onPageReady(async () => {
         
         wishlistGrid.innerHTML = products.map(product => {
             const imageUrl = product.images && product.images.length > 0 
-                ? fixServerUrl(product.images[0]) 
-                : 'https://placehold.co/300x300?text=No+Image';
+                ? (window.optimizeImageUrl ? window.optimizeImageUrl(fixServerUrl(product.images[0]), 600, 600) : fixServerUrl(product.images[0])) 
+                : 'https://placehold.co/600x600?text=No+Image';
             
             return `
                 <div class="product-card group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all relative cursor-pointer" 

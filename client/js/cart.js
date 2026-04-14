@@ -855,7 +855,7 @@ function renderItem(item) {
         <div class="glass-card p-4 md:p-6 cart-item" style="animation-delay: ${Math.random() * 0.3}s">
             <div class="flex flex-col md:flex-row md:items-start md:space-x-4 space-y-4 md:space-y-0">
                 <div class="flex-shrink-0 mx-auto md:mx-0">
-                    <img src="${fixServerUrl(imageUrl) || 'https://placehold.co/100x100?text=Product'}" alt="${product.name || 'Product'}" class="w-24 h-24 md:w-16 md:h-16 object-cover rounded-lg">
+                    <img src="${window.optimizeImageUrl ? window.optimizeImageUrl(fixServerUrl(imageUrl), 300, 300) : fixServerUrl(imageUrl) || 'https://placehold.co/100x100?text=Product'}" alt="${product.name || 'Product'}" class="w-24 h-24 md:w-16 md:h-16 object-cover rounded-lg">
                 </div>
                 <div class="flex-grow min-w-0 text-center md:text-left">
                     <h3 class="text-white font-medium text-base md:text-lg mb-1 serif-heading">${product.name || 'Product'}</h3>

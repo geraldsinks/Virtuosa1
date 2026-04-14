@@ -859,7 +859,7 @@
 
             function generateProductCard(product, extraClasses = '') {
                 const imageUrl = product.images && product.images[0]
-                    ? window.optimizeImageUrl ? window.optimizeImageUrl(fixServerUrl(product.images[0]), 400, 300) : fixServerUrl(product.images[0])
+                    ? window.optimizeImageUrl ? window.optimizeImageUrl(fixServerUrl(product.images[0]), 800, 800) : fixServerUrl(product.images[0])
                     : 'https://placehold.co/400x300?text=No+Image';
 
                 const isVerified = product.seller?.isStudentVerified || product.sellerVerified;
@@ -874,8 +874,8 @@
                             <img src="${imageUrl}" 
                                  alt="${product.name}" 
                                  class="product-image"
-                                 width="300"
-                                 height="300"
+                                 width="400"
+                                 height="400"
                                  loading="lazy" />
                             <div class="absolute top-1.5 left-1.5 flex flex-col gap-1">
                                 ${isVerified ? `

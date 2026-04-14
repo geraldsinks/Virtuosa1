@@ -333,8 +333,8 @@
             
             similarContainer.innerHTML = products.map(product => {
                 const imageUrl = product.images && product.images.length > 0 
-                    ? optimizeImageUrl(fixServerUrl(product.images[0]), 300, 300)
-                    : 'https://placehold.co/300x300?text=No+Image';
+                    ? optimizeImageUrl(fixServerUrl(product.images[0]), 600, 600)
+                    : 'https://placehold.co/600x600?text=No+Image';
                 
                 const price = parseFloat(product.price);
                 const originalPrice = product.originalPrice && parseFloat(product.originalPrice) > price 
@@ -507,15 +507,15 @@
             const productAlt = `${product.name} - ${product.category || 'Product'} on Virtuosa`;
             mainImage.alt = productAlt;
             if (images.length > 0) {
-                mainImage.src = optimizeImageUrl(fixServerUrl(images[0]), 600, 600);
+                mainImage.src = optimizeImageUrl(fixServerUrl(images[0]), 1200, 1200);
                 
                 const thumbnailContainer = document.getElementById('thumbnail-container');
                 images.forEach((img, idx) => {
                     const thumb = document.createElement('div');
                     thumb.className = `cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${idx === 0 ? 'border-gold' : 'border-transparent hover:border-gray-300'}`;
-                    thumb.innerHTML = `<img src="${optimizeImageUrl(fixServerUrl(img), 150, 150)}" alt="${product.name} - image ${idx + 1}" class="w-full h-full object-cover" width="150" height="150" loading="lazy">`;
+                    thumb.innerHTML = `<img src="${optimizeImageUrl(fixServerUrl(img), 300, 300)}" alt="${product.name} - image ${idx + 1}" class="w-full h-full object-cover" width="150" height="150" loading="lazy">`;
                     thumb.onclick = () => {
-                        mainImage.src = optimizeImageUrl(fixServerUrl(img), 600, 600);
+                        mainImage.src = optimizeImageUrl(fixServerUrl(img), 1200, 1200);
                         document.querySelectorAll('#thumbnail-container div').forEach(d => d.classList.remove('border-gold'));
                         thumb.classList.add('border-gold');
                     };

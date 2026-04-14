@@ -19,9 +19,9 @@ function generateOptimizedCloudinaryUrl(imageUrl, width, height, preserveExistin
         return imageUrl;
     }
 
-    // Validate dimensions
-    width = Math.max(1, Math.min(3000, parseInt(width) || 400));
-    height = Math.max(1, Math.min(3000, parseInt(height) || 280));
+    // Validate dimensions - Default to 800 for better quality on modern screens
+    width = Math.max(1, Math.min(3000, parseInt(width) || 800));
+    height = Math.max(1, Math.min(3000, parseInt(height) || 800));
 
     try {
         const uploadIndex = imageUrl.indexOf('/upload/');
@@ -34,7 +34,8 @@ function generateOptimizedCloudinaryUrl(imageUrl, width, height, preserveExistin
         const remainingPath = imageUrl.substring(uploadIndex + 8);
 
         let optimizedUrl;
-        const newTransforms = `q_auto,f_auto,w_${width},h_${height},c_fill`;
+        // Use q_auto:good and dpr_auto for better quality/performance balance
+        const newTransforms = `q_auto:good,f_auto,w_${width},h_${height},c_fill,dpr_auto`;
 
         if (preserveExistingTransforms && remainingPath.includes('/')) {
             // Preserve existing transformations and add ours
@@ -60,14 +61,14 @@ function generateOptimizedCloudinaryUrl(imageUrl, width, height, preserveExistin
 }
 
 // Enhanced image URL optimizer that handles multiple image sources
-function optimizeImageUrl(imageUrl, width = 400, height = 280, options = {}) {
+function optimizeImageUrl(imageUrl, width = 800, height = 800, options = {}) {
     if (!imageUrl) {
-        return 'https://placehold.co/400x280?text=No+Image';
+        return 'https://placehold.co/800x800?text=No+Image';
     }
 
     const {
         format = 'auto', // auto, webp, avif
-        quality = 'auto',
+        quality = 'auto:good',
         crop = 'fill',
         preserveTransforms = false
     } = options;
@@ -137,7 +138,7 @@ function generateWebPUrl(imageUrl, width = 400, height = 280) {
 }
 
 // Responsive image srcset generator
-function generateResponsiveSrcSet(imageUrl, baseWidth = 400, baseHeight = 280, breakpoints = [320, 480, 768, 1024, 1200]) {
+function generateResponsiveSrcSet(imageUrl, baseWidth = 800, baseHeight = 800, breakpoints = [320, 640, 800, 1024, 1280, 1600]) {
     if (!imageUrl) return '';
 
     const srcset = breakpoints.map(width => {

@@ -45,6 +45,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
+    <script src="/js/image-optimizer.js"></script>
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
@@ -317,7 +318,8 @@
                     const statusColor = getStatusColor(order.status);
                     const statusIcon = getStatusIcon(order.status);
                     const orderDate = new Date(order.createdAt).toLocaleDateString();
-                    const productImage = order.product?.images?.[0] || 'https://placehold.co/100x100';
+                    const productImage = order.product?.images?.[0] || 'https://placehold.co/300x300';
+                    const optimizedProductImage = window.optimizeImageUrl ? window.optimizeImageUrl(fixServerUrl(productImage), 300, 300) : fixServerUrl(productImage);
                     
                     // Different display for sellers vs buyers
                     const isSeller = window.currentUserRole === 'seller';
@@ -328,7 +330,7 @@
                         <div class="bg-white rounded-lg shadow-md p-6 mb-4 hover:shadow-lg transition-shadow">
                             <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                                 <div class="flex items-center space-x-3 mb-2 md:mb-0">
-                                    <img src="${productImage}" alt="${order.product?.name}" class="w-16 h-16 object-cover rounded-lg" loading="lazy">
+                                    <img src="${optimizedProductImage}" alt="${order.product?.name}" class="w-16 h-16 object-cover rounded-lg" loading="lazy">
                                     <div>
                                         <h3 class="font-semibold text-navy text-lg">${order.product?.name || 'Unknown Product'}</h3>
                                         <p class="text-gray-600 text-sm">Order #${order._id.slice(-8)}</p>

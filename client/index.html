@@ -1179,9 +1179,9 @@
                     return imageUrl;
                 }
 
-                // Validate dimensions
-                width = Math.max(1, Math.min(3000, parseInt(width) || 400));
-                height = Math.max(1, Math.min(3000, parseInt(height) || 280));
+                // Validate dimensions - Default to 800 for better quality
+                width = Math.max(1, Math.min(3000, parseInt(width) || 800));
+                height = Math.max(1, Math.min(3000, parseInt(height) || 800));
 
                 try {
                     const uploadIndex = imageUrl.indexOf('/upload/');
@@ -1223,7 +1223,7 @@
                         cleanImagePath = '';
                     }
 
-                    const newTransforms = `q_auto,f_auto,w_${width},h_${height},c_fill`;
+                    const newTransforms = `q_auto:good,f_auto,w_${width},h_${height},c_fill,dpr_auto`;
 
                     // Assemble the optimized URL
                     let finalTransforms = newTransforms;
@@ -1244,7 +1244,7 @@
                 }
             }
 
-            function generateWebpUrl(imageUrl, width = 768, height = 280) {
+            function generateWebpUrl(imageUrl, width = 800, height = 800) {
                 if (!imageUrl || typeof imageUrl !== 'string') return imageUrl;
                 
                 // Create cache key based on URL and dimensions
@@ -1354,7 +1354,7 @@
                         `https://api.virtuosazm.com${sanitizedUrl}`;
                     
                     // Generate WebP version using optimized function
-                    const webpUrl = generateWebpUrl(imageUrl, 1200, 500); // Higher res for large modern slider
+                    const webpUrl = generateWebpUrl(imageUrl, 1600, 800); // Ultra-high res for large modern slider
                     
                     return `
                 <div class="ad-card flex-none w-full h-full"
@@ -1415,8 +1415,8 @@
                 <div class="${cardClass} group flex flex-col transition-all duration-300">
                     <div class="${isRectangle ? 'aspect-[2/1] md:aspect-square' : 'aspect-square'} relative rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-200 bg-white">
                         <picture>
-                            <source srcset="${generateOptimizedCloudinaryUrl(imageUrl, 400, isRectangle ? 200 : 400)} 400w,
-                                    ${generateOptimizedCloudinaryUrl(imageUrl, 768, isRectangle ? 384 : 768)} 768w" 
+                            <source srcset="${generateOptimizedCloudinaryUrl(imageUrl, 800, isRectangle ? 400 : 800)} 800w,
+                                    ${generateOptimizedCloudinaryUrl(imageUrl, 1200, isRectangle ? 600 : 1200)} 1200w" 
                                     type="image/webp">
                             <img src="${imageUrl}" 
                                  class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
