@@ -1348,7 +1348,7 @@
             function renderAdSliders(adSliders) {
                 const activeAdSliders = adSliders.filter(ad => ad.active).sort((a, b) => a.displayOrder - b.displayOrder);
 
-                adCardsWrapper.innerHTML = activeAdSliders.map(ad => {
+                adCardsWrapper.innerHTML = activeAdSliders.map((ad, index) => {
                     // Sanitize and handle both absolute and relative URLs
                     const fallbackUrl = 'https://placehold.co/1200x500?text=Ad+Image';
                     const sanitizedUrl = sanitizeImageUrl(ad.backgroundImage, fallbackUrl);
