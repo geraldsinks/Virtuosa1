@@ -239,7 +239,9 @@ async function updateProduct(event) {
     formData.append('subcategory', document.getElementById('subcategory').value);
     formData.append('condition', document.getElementById('condition').value);
     formData.append('price', document.getElementById('price').value);
-    formData.append('originalPrice', document.getElementById('originalPrice').value);
+    const op = document.getElementById('originalPrice').value;
+    // Append even if empty so the server knows to clear it if it was set before
+    formData.append('originalPrice', op);
     formData.append('description', document.getElementById('description').value);
     
     const listingType = document.querySelector('input[name="listingType"]:checked').value;

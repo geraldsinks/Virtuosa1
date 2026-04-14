@@ -245,7 +245,10 @@ async function createProduct(event) {
         formData.append('name', document.getElementById('productName').value.trim());
         formData.append('description', document.getElementById('description').value.trim());
         formData.append('price', parseFloat(document.getElementById('price').value));
-        formData.append('originalPrice', parseFloat(document.getElementById('originalPrice').value) || null);
+        const op = document.getElementById('originalPrice').value;
+        if (op && !isNaN(parseFloat(op))) {
+            formData.append('originalPrice', parseFloat(op));
+        }
         formData.append('category', document.getElementById('category').value);
         formData.append('subcategory', document.getElementById('subcategory').value);
         formData.append('condition', document.getElementById('condition').value);

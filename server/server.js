@@ -502,7 +502,10 @@ app.post('/api/products', authenticateToken, upload.array('images', 5), async (r
         };
 
         // Add optional fields
-        if (originalPrice) productData.originalPrice = parseFloat(originalPrice);
+        const parsedOriginalPrice = parseFloat(originalPrice);
+        if (!isNaN(parsedOriginalPrice)) {
+            productData.originalPrice = parsedOriginalPrice;
+        }
         if (courseCode) productData.courseCode = courseCode.trim();
         if (courseName) productData.courseName = courseName.trim();
         if (author) productData.author = author.trim();
@@ -3606,7 +3609,16 @@ app.put('/api/products/:id', authenticateToken, upload.array('images', 5), async
         if (name) product.name = name.trim();
         if (description) product.description = description.trim();
         if (price) product.price = parseFloat(price);
-        if (originalPrice !== undefined) product.originalPrice = originalPrice ? parseFloat(originalPrice) : null;
+        
+        // Robust numeric parsing for originalPrice
+        if (originalPrice !== undefined) {
+            const parsedOriginalPrice = parseFloat(originalPrice);
+            if (!isNaN(parsedOriginalPrice)) {
+                product.originalPrice = parsedOriginalPrice;
+            } else if (originalPrice === '' || originalPrice === null || originalPrice === 'null') {
+                product.originalPrice = null;
+            }
+        }
         if (category) product.category = category;
         if (subcategory !== undefined) product.subcategory = subcategory || '';
         if (condition) product.condition = condition;
