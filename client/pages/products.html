@@ -829,12 +829,20 @@
                         headers: { 'Content-Type': 'application/json' }
                     });
 
+                    let data;
+                    try {
+                        data = await response.json();
+                    } catch (e) {
+                        throw new Error('Invalid JSON response from server');
+                    }
+
                     if (response.ok) {
-                        const data = await response.json();
                         if (data.isRepresentative) {
                             categoryBuckets = data.categories || [];
-                            // For representative mode, we don't have a flat allProducts list yet
-                            allProducts = categoryBuckets.flatMap(c => c.products);
+                            // For representative mode, extract all products for the sort/find logic
+                            allProducts = Array.isArray(categoryBuckets) 
+                                ? categoryBuckets.reduce((acc, c) => acc.concat(c.products || []), [])
+                                : [];
                         } else {
                             const newProducts = data.products || [];
                             if (append) {
@@ -854,7 +862,7 @@
                             applyFiltersAndRender();
                         }
                     } else {
-                        console.error('Failed to fetch products:', await response.json());
+                        console.error('Failed to fetch products:', data);
                         if (!append) showErrorState();
                     }
                 } catch (error) {

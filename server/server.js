@@ -3766,6 +3766,7 @@ app.get('/api/products', cacheMiddleware(300), async (req, res) => {
             search,
             minPrice,
             maxPrice,
+            priceBracket,
             condition,
             campusLocation,
             courseCode,
@@ -3776,8 +3777,8 @@ app.get('/api/products', cacheMiddleware(300), async (req, res) => {
             limit = 30
         } = req.query;
 
-        // Build filter
-        const filter = { 
+        // Base visibility filter
+        const visibilityFilter = { 
             $or: [
                 { status: 'Active' },
                 { 
@@ -3788,26 +3789,42 @@ app.get('/api/products', cacheMiddleware(300), async (req, res) => {
             ]
         };
 
-        if (category) filter.category = category;
-        if (subcategory) filter.subcategory = subcategory;
-        if (condition) filter.condition = condition;
-        if (campusLocation) filter.campusLocation = new RegExp(campusLocation, 'i');
-        if (courseCode) filter.courseCode = new RegExp(courseCode, 'i');
-        if (seller) filter.seller = seller;
+        const filter = { $and: [visibilityFilter] };
 
-        if (minPrice || maxPrice) {
-            filter.price = {};
-            if (minPrice) filter.price.$gte = parseFloat(minPrice);
-            if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
+        if (category) filter.$and.push({ category });
+        if (subcategory) filter.$and.push({ subcategory });
+        if (condition) {
+            const conditions = condition.split(',');
+            filter.$and.push({ condition: { $in: conditions } });
+        }
+        if (campusLocation) filter.$and.push({ campusLocation: new RegExp(campusLocation, 'i') });
+        if (courseCode) filter.$and.push({ courseCode: new RegExp(courseCode, 'i') });
+        if (seller) filter.$and.push({ seller });
+
+        // Handle price filtering (min/max or priceBracket)
+        let priceFilter = {};
+        if (priceBracket && priceBracket !== 'all') {
+            const [min, max] = priceBracket.split('-').map(num => num === '+' ? Infinity : parseFloat(num));
+            if (!isNaN(min)) priceFilter.$gte = min;
+            if (!isNaN(max) && max !== Infinity) priceFilter.$lte = max;
+        } else {
+            if (minPrice) priceFilter.$gte = parseFloat(minPrice);
+            if (maxPrice) priceFilter.$lte = parseFloat(maxPrice);
+        }
+        
+        if (Object.keys(priceFilter).length > 0) {
+            filter.$and.push({ price: priceFilter });
         }
 
         if (search) {
-            filter.$or = [
-                { name: new RegExp(search, 'i') },
-                { description: new RegExp(search, 'i') },
-                { category: new RegExp(search, 'i') },
-                { subject: new RegExp(search, 'i') }
-            ];
+            filter.$and.push({
+                $or: [
+                    { name: new RegExp(search, 'i') },
+                    { description: new RegExp(search, 'i') },
+                    { category: new RegExp(search, 'i') },
+                    { subject: new RegExp(search, 'i') }
+                ]
+            });
         }
 
         // Representative mode for categorical landing page (5 items per category)
@@ -5353,6 +5370,83 @@ app.post('/api/admin/disputes/:id/resolve', authenticateToken, checkRoleAccess('
         });
     } catch (error) {
         console.error('Resolve dispute error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// ==================== WISHLIST APIS ====================
+
+// Get user wishlist
+app.get('/api/wishlist', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId).populate({
+            path: 'wishlist',
+            populate: { path: 'seller', select: 'fullName profilePicture storeName storeSlug isStudentVerified' }
+        });
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        res.json({ wishlist: user.wishlist || [] });
+    } catch (error) {
+        console.error('Get wishlist error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Add to wishlist
+app.post('/api/wishlist/add/:productId', authenticateToken, async (req, res) => {
+    try {
+        const productId = req.params.productId;
+        
+        // Find user
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        // Check if product exists
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+        
+        // Add if not already in wishlist
+        if (!user.wishlist.includes(productId)) {
+            user.wishlist.push(productId);
+            await user.save();
+        }
+        
+        res.json({ 
+            message: 'Product added to wishlist', 
+            wishlist: user.wishlist 
+        });
+    } catch (error) {
+        console.error('Add to wishlist error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Remove from wishlist
+app.delete('/api/wishlist/remove/:productId', authenticateToken, async (req, res) => {
+    try {
+        const productId = req.params.productId;
+        const user = await User.findById(req.user.userId);
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        user.wishlist = user.wishlist.filter(id => id.toString() !== productId);
+        await user.save();
+        
+        res.json({ 
+            message: 'Product removed from wishlist', 
+            wishlist: user.wishlist 
+        });
+    } catch (error) {
+        console.error('Remove from wishlist error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
