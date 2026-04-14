@@ -2671,8 +2671,8 @@ app.get('/api/auth/verify-email/:token', async (req, res) => {
         user.emailVerificationExpires = undefined;
         await user.save();
 
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '24h' });
-        res.redirect(`/pages/verify-email.html?verified=email&token=${token}`);
+        const loginToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '24h' });
+        res.redirect(`/pages/verify-email.html?verified=email&token=${loginToken}`);
     } catch (error) {
         console.error('Email verification error:', error);
         res.redirect('/pages/verify-email.html?verification=error');
@@ -2698,8 +2698,8 @@ app.get('/api/auth/verify-student/:token', async (req, res) => {
         user.studentVerificationExpires = undefined;
         await user.save();
 
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '24h' });
-        res.redirect(`/pages/verify-email.html?verified=true&token=${token}`);
+        const loginToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '24h' });
+        res.redirect(`/pages/verify-email.html?verified=true&token=${loginToken}`);
     } catch (error) {
         console.error('Student verification error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
