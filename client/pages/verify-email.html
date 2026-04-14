@@ -196,34 +196,34 @@
         }
 
         async function init() {
+            console.log('Verification Page Init:', { token, verified, error, status });
+            
             if (token && (verified === 'email' || verified === 'true')) {
-                // Auto-login with the provided token
+                console.log('Success state detected, starting auto-login...');
                 await handleAutoLogin(token);
             } else if (status === 'waiting') {
+                console.log('Waiting state for email:', email);
                 document.getElementById('display-email').textContent = email || 'your email';
                 showState('waiting');
             } else if (error === 'error') {
+                console.log('Error parameter detected in URL');
                 showState('error');
             } else {
-                // If it's a direct token verification link (legacy or other)
-                const pathToken = window.location.search.split('token=')[1]?.split('&')[0];
-                if (pathToken && !verified) {
-                    verifyEmail(pathToken);
+                // Check if there's a token in the URL without the 'verified' flag (legacy links)
+                const legacyToken = urlParams.get('token');
+                if (legacyToken && !verified) {
+                    console.log('Legacy verification link detected, redirecting to API...');
+                    verifyEmailLegacy(legacyToken);
                 } else {
+                    console.log('No valid parameters found, showing error state');
                     showState('error');
                 }
             }
         }
 
-        async function verifyEmail(token) {
-            try {
-                const response = await fetch(`${API_BASE}/auth/verify-email/${token}`);
-                // The server will redirect back here with verified=email&token=...
-                // So this part might not even be needed if the redirect works, but handled for safety.
-                if (!response.ok) showState('error');
-            } catch (e) {
-                showState('error');
-            }
+        function verifyEmailLegacy(token) {
+            // Instead of fetch, navigate directly to the API to allow the browser to handle the 302 redirect
+            window.location.href = `${API_BASE}/auth/verify-email/${token}`;
         }
 
         async function handleAutoLogin(loginToken) {
