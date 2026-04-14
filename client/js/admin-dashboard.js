@@ -196,21 +196,29 @@ function configureDashboardUI(role) {
     const dangerousActionsSection = document.getElementById('dangerous-actions-section');
     const managementSection = document.getElementById('management-section');
 
+    if (!role) {
+        console.warn('⚠️ configureDashboardUI called without a role, skipping update');
+        return;
+    }
+
     // Define roles that get full "Super Admin" visibility (no hiding)
     const superAdminRoles = ['admin', 'CEO'];
     const isSuperAdmin = superAdminRoles.includes(role);
 
+    console.log(`🔧 Configuring UI for role: ${role} (isSuperAdmin: ${isSuperAdmin})`);
+
     if (!isSuperAdmin) {
-        // Hide sensitive management sections for specialized lead roles
-        if (adminActionsSection) adminActionsSection.style.display = 'none';
-        if (dangerousActionsSection) dangerousActionsSection.style.display = 'none';
-        if (managementSection) managementSection.style.display = 'none';
-        console.log(`🛡️ Dashboard UI restricted for ${role} role (non-super-admin)`);
+        // Hide sensitive management sections for specialized lead roles using hidden class
+        if (adminActionsSection) adminActionsSection.classList.add('hidden');
+        if (dangerousActionsSection) dangerousActionsSection.classList.add('hidden');
+        if (managementSection) managementSection.classList.add('hidden');
+        console.log(`🛡️ Dashboard UI restricted for ${role} role`);
     } else {
-        // Ensure visible for super admins
-        if (adminActionsSection) adminActionsSection.style.display = 'block';
-        if (dangerousActionsSection) dangerousActionsSection.style.display = 'block';
-        if (managementSection) managementSection.style.display = 'block';
+        // Show sections for super admins by removing hidden class
+        if (adminActionsSection) adminActionsSection.classList.remove('hidden');
+        if (dangerousActionsSection) dangerousActionsSection.classList.remove('hidden');
+        if (managementSection) managementSection.classList.remove('hidden');
+        console.log('👑 Full Admin dashboard view enabled');
     }
 }
 
@@ -253,6 +261,10 @@ function checkAdminAccess() {
             } else {
                 // Set role for navigation loading, prioritizing the specific specialized role
                 userRole = adminRoles.includes(user.role) ? user.role : 'admin';
+                
+                // CRITICAL: Configure UI visibility for partitioning
+                configureDashboardUI(userRole);
+                
                 loadRoleBasedNavigation();
                 loadDashboardData();
             }
