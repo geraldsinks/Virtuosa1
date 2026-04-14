@@ -177,6 +177,9 @@
         .category-section {
             margin-bottom: 3rem;
             position: relative;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
         }
 
         .category-header {
@@ -222,10 +225,13 @@
         .category-row {
             display: flex;
             overflow-x: auto;
+            width: 100%;
+            max-width: 100%;
             gap: 1.25rem;
             padding: 0.5rem 0.25rem 1.5rem;
             scroll-snap-type: x mandatory;
             scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
         }
 
         .product-card-horizontal {
@@ -966,7 +972,7 @@
                     if (activeFiltersContainer) activeFiltersContainer.style.display = 'none';
                     
                     productGrid.classList.remove('grid', 'grid-cols-2', 'sm:grid-cols-2', 'lg:grid-cols-3', 'gap-3', 'sm:gap-6');
-                    productGrid.classList.add('flex', 'flex-col', 'gap-10');
+                    productGrid.classList.add('flex', 'flex-col', 'gap-10', 'w-full', 'overflow-hidden');
                     renderCategoricalProducts();
                 }
                 
