@@ -787,7 +787,7 @@
                         if (allProducts.length === 0) {
                             showEmptyState();
                         } else {
-                            applyFiltersAndRender();
+                            renderProducts();
                         }
                         updatePaginationUI();
                         return;
@@ -859,7 +859,7 @@
                         if (allProducts.length === 0 && !append) {
                             showEmptyState();
                         } else {
-                            applyFiltersAndRender();
+                            renderProducts();
                         }
                     } else {
                         console.error('Failed to fetch products:', data);
@@ -1231,6 +1231,7 @@
                     ? ` in ${currentCategory}`
                     : '';
                 resultsCount.textContent = `Showing ${shown} of ${total} items found${label}`;
+                if (typeof updateMobileResultsCount === 'function') updateMobileResultsCount();
             }
 
             function updateFilterBadges() {
