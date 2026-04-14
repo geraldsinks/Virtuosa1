@@ -98,8 +98,8 @@ const getEffectiveRole = (user) => {
     }
     
     // Check for admin first (highest priority)
-    if (user.isAdmin === true || user.isAdmin === 'true' || 
-        user.role === 'admin' || user.role === 'CEO' || user.role === 'virtuosa_management') {
+    const adminRoles = ['admin', 'CEO', 'virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+    if (user.isAdmin === true || user.isAdmin === 'true' || adminRoles.includes(user.role)) {
         return 'admin';
     }
     
@@ -333,6 +333,7 @@ const getUserRoleInfo = async (userId) => {
         }
 
         return {
+            role: user.role,
             effectiveRole,
             permissions: allPermissions,
             title,

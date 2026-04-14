@@ -238,13 +238,16 @@ function checkAdminAccess() {
             return response.json();
         })
         .then(user => {
-            // Check if user role is admin or isAdmin is true
-            if (user.role !== 'admin' && user.isAdmin !== 'true' && user.isAdmin !== true) {
+            // Define all roles that qualify for admin dashboard access
+            const adminRoles = ['admin', 'CEO', 'virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+            
+            // Check if user role is in the admin category or isAdmin is true
+            if (!adminRoles.includes(user.role) && user.isAdmin !== 'true' && user.isAdmin !== true) {
                 alert('Access denied. Admin privileges required.');
                 window.location.href = '/pages/buyer-dashboard.html';
             } else {
-                // Set role as admin for backward compatibility
-                userRole = 'admin';
+                // Set role for navigation loading, prioritizing the specific specialized role
+                userRole = adminRoles.includes(user.role) ? user.role : 'admin';
                 loadRoleBasedNavigation();
                 loadDashboardData();
             }

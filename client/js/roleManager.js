@@ -213,9 +213,12 @@ class RoleManager {
     detectRole(userData) {
         console.log('🔍 DETECT ROLE - Input userData:', userData);
         
+        // Define all roles that qualify as admin in the role hierarchy
+        const adminRoles = ['admin', 'CEO', 'virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+        
         // Use same logic as server getEffectiveRole function
         if (userData.isAdmin === true || userData.isAdmin === 'true' || 
-            userData.role === 'admin' || userData.role === 'CEO') {
+            adminRoles.includes(userData.role)) {
             console.log('✅ Detected: ADMIN role');
             return 'admin';
         }
