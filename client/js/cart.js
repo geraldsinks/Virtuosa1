@@ -2,10 +2,10 @@
 // API_BASE is provided by config.js
 
 // Cart operation lock to prevent race conditions
-let cartOperationLock = false;
+var cartOperationLock = cartOperationLock || false;
 
 // Cache DOM elements for performance
-let cartItemsContainer, subtotalElement, totalElement;
+var cartItemsContainer, subtotalElement, totalElement;
 
 // Initialize cart with proper priority: Backend > LocalStorage
 async function getCart() {
