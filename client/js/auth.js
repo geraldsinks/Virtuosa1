@@ -419,7 +419,6 @@ async function handleLogin(event) {
             if (result.user.effectiveRole) {
                 console.log('🔍 Using effectiveRole from login response:', result.user.effectiveRole);
                 
-                // Consolidate role data storage
                 const roleData = {
                     effectiveRole: result.user.effectiveRole,
                     roleInfo: {
@@ -437,6 +436,12 @@ async function handleLogin(event) {
                 
                 localStorage.setItem('userRoleData', JSON.stringify(roleData));
                 
+                // Also store basic user data for generic components
+                localStorage.setItem('userEmail', result.user.email);
+                localStorage.setItem('userFullName', result.user.fullName);
+                localStorage.setItem('userId', result.user._id || result.user.id);
+                localStorage.setItem('user', JSON.stringify(result.user));
+
                 // Clear legacy keys to prevent staleness
                 localStorage.removeItem('isAdmin');
                 localStorage.removeItem('isSeller');
@@ -582,11 +587,7 @@ async function handleLogin(event) {
         } else {
             // Handle specific error for email verification
             if (result.requiresEmailVerification) {
-                showMessage(result.message, true);
-                // Automatically resend verification email
-                setTimeout(() => {
-                    resendVerificationEmail(email);
-                }, 2000);
+                renderVerificationRequiredPanel(email);
             } else {
                 showMessage(result.message || 'Login failed', true);
             }
@@ -602,7 +603,14 @@ async function handleLogin(event) {
     }
 }
 
-async function resendVerificationEmail(email) {
+async function resendVerificationEmail(email, button = null) {
+    let originalText = '';
+    if (button) {
+        originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Sending...';
+        button.disabled = true;
+    }
+
     try {
         const response = await fetch(`${BASE_API_URL}/resend-verification`, {
             method: 'POST',
@@ -611,17 +619,78 @@ async function resendVerificationEmail(email) {
         });
 
         const result = await response.json();
-        console.log('Resend verification response:', result);
-
+        
         if (response.ok) {
-            showMessage('Verification email sent! Please check your inbox (including spam folder).');
+            showMessage('Verification email sent! Please check your inbox.');
+            if (button) {
+                button.innerHTML = '<i class="fas fa-check mr-2"></i> Sent!';
+                button.classList.replace('bg-gold', 'bg-green-500');
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.replace('bg-green-500', 'bg-gold');
+                    button.disabled = false;
+                }, 3000);
+            }
         } else {
             showMessage(result.message || 'Failed to send verification email', true);
+            if (button) {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
         }
     } catch (error) {
         console.error('Resend verification error:', error);
         showMessage('Failed to send verification email. Please try again.', true);
+        if (button) {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
     }
+}
+
+function renderVerificationRequiredPanel(email) {
+    const container = document.getElementById('auth-container');
+    if (!container) return;
+
+    // Use a premium, centered design
+    container.innerHTML = `
+        <div class="animate-fadeIn">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-yellow-200">
+                    <i class="fas fa-envelope-open-text text-yellow-600 text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Verification Required</h2>
+                <p class="text-gray-600 text-sm">To ensure your security, please verify your email before logging in.</p>
+            </div>
+            
+            <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6">
+                <p class="text-blue-800 text-sm font-medium mb-1">We sent a link to:</p>
+                <p class="text-blue-900 font-bold break-all">${email}</p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <a href="https://mail.google.com" target="_blank" class="flex items-center justify-center gap-2 p-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all font-semibold text-gray-700 text-sm shadow-sm">
+                        <img src="https://www.google.com/favicon.ico" class="w-4 h-4" alt="Gmail">
+                        Gmail
+                    </a>
+                    <a href="https://outlook.live.com" target="_blank" class="flex items-center justify-center gap-2 p-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all font-semibold text-gray-700 text-sm shadow-sm">
+                        <img src="https://outlook.live.com/favicon.ico" class="w-4 h-4" alt="Outlook">
+                        Outlook
+                    </a>
+                </div>
+
+                <button onclick="resendVerificationEmail('${email}', this)" class="w-full py-3 bg-gold hover:bg-yellow-500 text-navy font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2 uppercase tracking-wide text-sm">
+                    <i class="fas fa-paper-plane"></i>
+                    Resend Verification Link
+                </button>
+
+                <button onclick="location.reload()" class="w-full py-2 text-gray-500 hover:text-navy text-sm font-medium transition-colors">
+                    Back to Login
+                </button>
+            </div>
+        </div>
+    `;
 }
 
 async function handleSignup(event) {
@@ -684,13 +753,13 @@ async function handleSignup(event) {
             if (result.emailVerificationFailed) {
                 showMessage('Account created but email verification failed. Please contact support at virtuosa@gmail.com or try logging in and requesting a new verification email.', true);
                 setTimeout(() => {
-                    window.location.href = '/login';
+                    window.location.href = `/pages/verify-email.html?email=${encodeURIComponent(email)}&status=waiting`;
                 }, 3000);
             } else {
-                showMessage('Account created successfully! Please check your student email for verification.');
+                showMessage('Account created successfully! Redirecting to verification status...');
                 setTimeout(() => {
-                    window.location.href = '/login';
-                }, 2000);
+                    window.location.href = `/pages/verify-email.html?email=${encodeURIComponent(email)}&status=waiting`;
+                }, 1500);
             }
         } else {
             // Handle specific error cases

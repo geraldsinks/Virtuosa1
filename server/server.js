@@ -2607,7 +2607,7 @@ app.post('/api/auth/signup', async (req, res) => {
             const studentVerificationLink = `${process.env.FRONTEND_URL || 'https://virtuosazm.com'}/api/auth/verify-student/${verificationToken}`;
             
             try {
-                const studentEmailResult = await transporter.sendMail({
+                const studentEmailResult = await productionTransporter.sendMail({
                     from: 'noreply@virtuosazm.com',
                     to: normalizedStudentEmail,
                     subject: 'Virtuosa Student Verification',
@@ -2671,10 +2671,11 @@ app.get('/api/auth/verify-email/:token', async (req, res) => {
         user.emailVerificationExpires = undefined;
         await user.save();
 
-        res.redirect('/pages/login.html?verified=email');
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '24h' });
+        res.redirect(`/pages/verify-email.html?verified=email&token=${token}`);
     } catch (error) {
         console.error('Email verification error:', error);
-        res.redirect('/pages/login.html?verification=error');
+        res.redirect('/pages/verify-email.html?verification=error');
     }
 });
 
@@ -2697,7 +2698,8 @@ app.get('/api/auth/verify-student/:token', async (req, res) => {
         user.studentVerificationExpires = undefined;
         await user.save();
 
-        res.redirect('/pages/login.html?verified=true');
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '24h' });
+        res.redirect(`/pages/verify-email.html?verified=true&token=${token}`);
     } catch (error) {
         console.error('Student verification error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
