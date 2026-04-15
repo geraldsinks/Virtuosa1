@@ -231,9 +231,9 @@ function updateRoleBasedUI(userData, roleInfo) {
     const mobileSellerIcon = document.getElementById('mobile-seller-icon');
     const mobileSellerText = document.getElementById('mobile-seller-text');
     
-    // Check if user is seller (from roleInfo or fallback to userData)
-    const isSeller = roleInfo ? roleInfo.isSeller : (userData.isSeller === true || userData.isSeller === 'true');
-    const isAdmin = userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin';
+    // Check if user is seller/admin using roleManager as source of truth
+    const isSeller = window.roleManager ? window.roleManager.isSeller() : (roleInfo ? roleInfo.isSeller : (userData.isSeller === true || userData.isSeller === 'true'));
+    const isAdmin = window.roleManager ? window.roleManager.isAdmin() : (roleInfo ? roleInfo.isAdmin : (userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin'));
     
     if (isAdmin) {
         console.log('🔧 User is admin, showing admin sections');

@@ -26,21 +26,16 @@ async function checkSellerAccess(token) {
 
         const user = await response.json();
         
-        // Check if user is seller or admin
-        if (!user.isSeller && !user.isAdmin) {
-            showMessage('Access denied. Seller or admin privileges required.', true);
-            setTimeout(() => {
-                if (window.router) {
-                    window.router.navigate('/dashboard');
-                } else {
-                    window.location.href = '/dashboard';
-                }
-            }, 2000);
-            return;
-        }
+        // Check if user is seller or admin (including specialized lead roles)
+        const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+        const isSellerUser = user.isSeller === true || user.isSeller === 'true';
+        const isAdminUser = user.isAdmin === true || user.isAdmin === 'true' || user.role === 'admin' || specializedAdminRoles.includes(user.role);
 
+        if (!isSellerUser && !isAdminUser) {
+            showMessage('Access denied. Seller or admin privileges required.', true);
+...
         // Check admin role and update UI
-        const isAdmin = user.isAdmin === true || user.isAdmin === 'true' || user.role === 'admin';
+        const isAdmin = window.roleManager ? window.roleManager.isAdmin() : isAdminUser;
         if (isAdmin) {
             const dropdownAdminLink = document.getElementById('admin-link');
             const desktopAdminLink = document.getElementById('desktop-admin-link');
