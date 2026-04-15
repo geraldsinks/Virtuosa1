@@ -377,6 +377,44 @@
                         </div>
                     </div>
 
+                    <!-- Micro Loan Specific Fields (Hidden by default) -->
+                    <div id="microLoanFields" class="md:col-span-2 hidden space-y-6 bg-gold bg-opacity-5 p-6 rounded-2xl border border-gold border-opacity-20 mt-4">
+                        <div class="flex items-center justify-between border-b border-gold border-opacity-10 pb-3 mb-4">
+                            <div class="flex items-center">
+                                <i data-lucide="banknote" class="w-5 h-5 text-gold mr-2"></i>
+                                <h4 class="text-sm font-bold text-navy">Micro Loan Details</h4>
+                            </div>
+                            <span class="text-[10px] font-bold text-gold bg-gold bg-opacity-10 px-2 py-0.5 rounded-full uppercase">Financial Service</span>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Loan Plans <span class="text-red-500">*</span></label>
+                                <div id="loanPlansContainer">
+                                    <!-- Loan plans will be added here dynamically -->
+                                </div>
+                                <button type="button" onclick="addLoanPlan()" class="flex items-center gap-2 text-gold hover:text-navy text-xs font-bold transition-all px-2 py-1">
+                                    <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Another Plan
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Eligibility Criteria</label>
+                                    <textarea id="loanEligibility" rows="3"
+                                        class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm resize-none transition-all"
+                                        placeholder="e.g. Current students with valid ID, GPA above 2.5"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Collateral / Requirements</label>
+                                    <textarea id="collateralRequired" rows="3"
+                                        class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm resize-none transition-all"
+                                        placeholder="e.g. NRC Copy, Student ID, Guarantor letter"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="md:col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-3">Delivery Options</label>
                         <div class="flex flex-wrap gap-3">

@@ -69,6 +69,15 @@ const productSchema = new mongoose.Schema({
     author: String,
     isbn: String,
 
+    // Micro Loan specific
+    loanPlans: [{
+        interestRate: { type: Number, required: true },
+        repaymentPeriod: { type: String, required: true },
+        description: String
+    }],
+    loanEligibility: String,
+    collateralRequired: String,
+
     // Timestamps
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },

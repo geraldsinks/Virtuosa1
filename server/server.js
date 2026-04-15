@@ -436,7 +436,11 @@ app.post('/api/products', authenticateToken, upload.array('images', 5), async (r
             listingType,
             inventory,
             inventoryTracking,
-            lowStockThreshold
+            inventoryTracking,
+            lowStockThreshold,
+            loanPlans,
+            loanEligibility,
+            collateralRequired
         } = req.body;
 
         // Validate required fields
@@ -478,6 +482,25 @@ app.post('/api/products', authenticateToken, upload.array('images', 5), async (r
         if (courseName) productData.courseName = courseName.trim();
         if (author) productData.author = author.trim();
         if (isbn) productData.isbn = isbn.trim();
+
+        // Add micro loan fields
+        if (loanPlans) {
+            try {
+                // If it's a string (from FormData), parse it
+                const parsedPlans = typeof loanPlans === 'string' ? JSON.parse(loanPlans) : loanPlans;
+                if (Array.isArray(parsedPlans)) {
+                    productData.loanPlans = parsedPlans.map(plan => ({
+                        interestRate: parseFloat(plan.interestRate),
+                        repaymentPeriod: plan.repaymentPeriod.trim(),
+                        description: (plan.description || '').trim()
+                    })).filter(plan => !isNaN(plan.interestRate) && plan.repaymentPeriod);
+                }
+            } catch (e) {
+                console.error('Error parsing loanPlans:', e);
+            }
+        }
+        if (loanEligibility) productData.loanEligibility = loanEligibility.trim();
+        if (collateralRequired) productData.collateralRequired = collateralRequired.trim();
 
         // Add inventory for persistent listings
         if (listingType === 'persistent') {

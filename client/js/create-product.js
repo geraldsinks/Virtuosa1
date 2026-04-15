@@ -25,7 +25,7 @@ const subcategories = {
     'Food & Beverages': ['Snacks', 'Drinks', 'Meals', 'Other'],
     'Sports & Outdoors': ['Equipment', 'Apparel', 'Accessories', 'Other'],
     'Home & Living': ['Furniture', 'Decor', 'Storage & Organization', 'Kitchen & Dining', 'Other'],
-    'Services': ['Tutoring', 'Writing', 'Design', 'Technical', 'Other'],
+    'Services': ['Tutoring', 'Writing', 'Design', 'Technical', 'Micro Loans', 'Other'],
     'Other': ['General']
 };
 
@@ -59,7 +59,89 @@ function updateSubcategories() {
             subcategorySelect.appendChild(option);
         });
     }
+
+    // Toggle Micro Loan fields
+    const subcategory = subcategorySelect.value;
+    toggleLoanFields(category, subcategory);
 }
+
+// Function to toggle loan specific fields
+function toggleLoanFields(category, subcategory) {
+    const loanFields = document.getElementById('microLoanFields');
+    if (!loanFields) return;
+
+    if (category === 'Services' && subcategory === 'Micro Loans') {
+        loanFields.classList.remove('hidden');
+        // Add one empty plan if none exist
+        const planContainer = document.getElementById('loanPlansContainer');
+        if (planContainer && planContainer.children.length === 0) {
+            addLoanPlan();
+        }
+    } else {
+        loanFields.classList.add('hidden');
+    }
+}
+
+// Function to add a loan plan row
+function addLoanPlan() {
+    const container = document.getElementById('loanPlansContainer');
+    if (!container) return;
+
+    const planId = Date.now();
+    const planDiv = document.createElement('div');
+    planDiv.className = 'bg-gray-50 p-4 rounded-xl border border-gray-200 mb-4 relative plan-row';
+    planDiv.dataset.planId = planId;
+    
+    planDiv.innerHTML = `
+        <button type="button" onclick="removeLoanPlan(${planId})" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Interest Rate (%)</label>
+                <input type="number" step="0.01" class="plan-interest w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. 5.5">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Repayment Period</label>
+                <input type="text" class="plan-period w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. 6 Months">
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Description (Optional)</label>
+                <input type="text" class="plan-desc w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. For final year students only">
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(planDiv);
+}
+
+// Function to remove a loan plan row
+function removeLoanPlan(planId) {
+    const planRows = document.querySelectorAll('.plan-row');
+    if (planRows.length <= 1) {
+        showError('At least one loan plan is required');
+        return;
+    }
+    
+    const row = document.querySelector(`[data-plan-id="${planId}"]`);
+    if (row) row.remove();
+}
+
+// Make functions globally available
+window.updateSubcategories = updateSubcategories;
+window.addLoanPlan = addLoanPlan;
+window.removeLoanPlan = removeLoanPlan;
+
+// Add event listener for subcategory change
+document.addEventListener('DOMContentLoaded', () => {
+    const subcategorySelect = document.getElementById('subcategory');
+    if (subcategorySelect) {
+        subcategorySelect.addEventListener('change', () => {
+            const category = document.getElementById('category').value;
+            toggleLoanFields(category, subcategorySelect.value);
+        });
+    }
+});
 
 // Handle image upload
 function handleImageUpload() {
@@ -263,6 +345,34 @@ async function createProduct(event) {
         formData.append('pickupAvailable', document.getElementById('pickupAvailable').checked);
         formData.append('deliveryAvailable', document.getElementById('deliveryAvailable').checked);
         
+        // Add Micro Loan fields if applicable
+        const category = document.getElementById('category').value;
+        const subcategory = document.getElementById('subcategory').value;
+        if (category === 'Services' && subcategory === 'Micro Loans') {
+            const loanPlans = [];
+            document.querySelectorAll('.plan-row').forEach(row => {
+                const interest = row.querySelector('.plan-interest').value;
+                const period = row.querySelector('.plan-period').value;
+                const desc = row.querySelector('.plan-desc').value;
+                
+                if (interest && period) {
+                    loanPlans.push({
+                        interestRate: interest,
+                        repaymentPeriod: period,
+                        description: desc
+                    });
+                }
+            });
+            
+            if (loanPlans.length === 0) {
+                throw new Error('Please add at least one complete loan plan');
+            }
+            
+            formData.append('loanPlans', JSON.stringify(loanPlans));
+            formData.append('loanEligibility', document.getElementById('loanEligibility').value.trim());
+            formData.append('collateralRequired', document.getElementById('collateralRequired').value.trim());
+        }
+
         // Add listing type and inventory fields
         const listingType = document.querySelector('input[name="listingType"]:checked').value;
         formData.append('listingType', listingType);
