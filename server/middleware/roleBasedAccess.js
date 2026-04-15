@@ -97,9 +97,14 @@ const getEffectiveRole = (user) => {
         console.warn('⚠️ Unexpected role value detected:', user.role, 'for user:', user._id);
     }
     
-    // Check for admin first (highest priority)
-    const adminRoles = ['admin', 'CEO', 'virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
-    if (user.isAdmin === true || user.isAdmin === 'true' || adminRoles.includes(user.role)) {
+    // Check for specialized admin roles first (preserve identity)
+    const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+    if (specializedAdminRoles.includes(user.role)) {
+        return user.role;
+    }
+
+    // Check for super admin (admin/CEO) or isAdmin flag
+    if (user.isAdmin === true || user.isAdmin === 'true' || user.role === 'admin' || user.role === 'CEO') {
         return 'admin';
     }
     
@@ -115,6 +120,11 @@ const getEffectiveRole = (user) => {
 
 // Get all permissions for a user including inherited ones (recursive)
 const getAllPermissions = (role) => {
+    // Check for specialized admin roles first
+    if (ROLE_PERMISSIONS[role]) {
+        return ROLE_PERMISSIONS[role].permissions || [];
+    }
+
     const roleInfo = ROLE_HIERARCHY[role];
     if (!roleInfo) return [];
     
@@ -150,14 +160,20 @@ const getAllPermissions = (role) => {
 // Check if user has specific permission
 const hasPermission = (user, permission) => {
     const effectiveRole = getEffectiveRole(user);
+    const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
     
-    // For admin specialized roles, use the ROLE_PERMISSIONS mapping
-    if (effectiveRole === 'admin' && user.role && ROLE_PERMISSIONS[user.role]) {
-        const rolePermissions = ROLE_PERMISSIONS[user.role].permissions;
+    // For specialized admin lead roles
+    if (specializedAdminRoles.includes(effectiveRole)) {
+        const rolePermissions = ROLE_PERMISSIONS[effectiveRole]?.permissions || [];
         return rolePermissions.includes('*') || rolePermissions.includes(permission);
     }
     
-    // For hierarchy roles, use the new system
+    // For Super Admins, they have all permissions
+    if (effectiveRole === 'admin') {
+        return true;
+    }
+    
+    // For hierarchy roles (buyer, seller)
     const allPermissions = getAllPermissions(effectiveRole);
     return allPermissions.includes('*') || allPermissions.includes(permission);
 };
@@ -165,19 +181,20 @@ const hasPermission = (user, permission) => {
 // Check if user can access dashboard based on role hierarchy
 const canAccessDashboard = (user, dashboardType) => {
     const effectiveRole = getEffectiveRole(user);
+    const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
     
     switch (dashboardType) {
         case 'buyer':
-            // All roles can access buyer dashboard (inheritance)
-            return ['buyer', 'seller', 'admin'].includes(effectiveRole);
+            // All roles can access buyer dashboard
+            return true;
             
         case 'seller':
-            // Only sellers and admins can access seller dashboard
-            return ['seller', 'admin'].includes(effectiveRole);
+            // Sellers and any Admin role can access seller dashboard
+            return ['seller', 'admin'].includes(effectiveRole) || specializedAdminRoles.includes(effectiveRole);
             
         case 'admin':
-            // Only admins can access admin dashboard
-            return effectiveRole === 'admin';
+            // Only Super Admins and specialized Lead roles can access admin dashboard
+            return effectiveRole === 'admin' || specializedAdminRoles.includes(effectiveRole);
             
         default:
             console.warn(`⚠️ Invalid dashboard type requested: ${dashboardType}`);
@@ -318,30 +335,41 @@ const getUserRoleInfo = async (userId) => {
         if (!user) {
             return null;
         }
-
+    
         const effectiveRole = getEffectiveRole(user);
-        const allPermissions = getAllPermissions(effectiveRole);
+        const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+        
+        let allPermissions = [];
+        if (specializedAdminRoles.includes(effectiveRole)) {
+            allPermissions = ROLE_PERMISSIONS[effectiveRole]?.permissions || [];
+        } else if (effectiveRole === 'admin') {
+            allPermissions = ['*'];
+        } else {
+            allPermissions = getAllPermissions(effectiveRole);
+        }
         
         // Get display title
         let title = 'User';
         if (effectiveRole === 'admin') {
             title = user.role === 'CEO' ? 'CEO' : 'Admin';
+        } else if (specializedAdminRoles.includes(effectiveRole)) {
+            title = ROLE_PERMISSIONS[effectiveRole]?.description || 'Team Lead';
         } else if (effectiveRole === 'seller') {
             title = 'Seller';
         } else {
             title = 'Buyer';
         }
-
+    
         return {
             role: user.role,
             effectiveRole,
             permissions: allPermissions,
             title,
-            level: ROLE_HIERARCHY[effectiveRole]?.level || 1,
+            level: specializedAdminRoles.includes(effectiveRole) ? 2.5 : (ROLE_HIERARCHY[effectiveRole]?.level || 1),
             // Legacy fields for backward compatibility
-            isBuyer: true, // All users are buyers at minimum
-            isSeller: effectiveRole === 'seller' || effectiveRole === 'admin',
-            isAdmin: effectiveRole === 'admin'
+            isBuyer: true,
+            isSeller: effectiveRole === 'seller' || effectiveRole === 'admin' || specializedAdminRoles.includes(effectiveRole),
+            isAdmin: effectiveRole === 'admin' || specializedAdminRoles.includes(effectiveRole)
         };
     } catch (error) {
         console.error('Error getting user role info:', error);
@@ -354,10 +382,12 @@ const isAdmin = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.userId);
         if (!user) return res.status(403).json({ message: 'User not found' });
-
+    
         const effectiveRole = getEffectiveRole(user);
+        // Specialized leads are considered "admin-like" but this middleware might be too permissive
+        // Let's keep it strict for Super Admins unless its a generic dashboard route
         if (effectiveRole !== 'admin') {
-            return res.status(403).json({ message: 'Admin access required' });
+            return res.status(403).json({ message: 'Super Admin access required' });
         }
         next();
     } catch (error) {

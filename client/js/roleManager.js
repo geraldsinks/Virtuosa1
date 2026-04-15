@@ -213,13 +213,22 @@ class RoleManager {
     detectRole(userData) {
         console.log('🔍 DETECT ROLE - Input userData:', userData);
         
-        // Define all roles that qualify as admin in the role hierarchy
-        const adminRoles = ['admin', 'CEO', 'virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+        // Define specialized admin roles
+        const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+        
+        // If current role is specialized, preserve it
+        if (specializedAdminRoles.includes(userData.role)) {
+            console.log(`✅ Detected specialization: ${userData.role}`);
+            return userData.role;
+        }
+
+        // Define super admin roles
+        const superAdminRoles = ['admin', 'CEO'];
         
         // Use same logic as server getEffectiveRole function
         if (userData.isAdmin === true || userData.isAdmin === 'true' || 
-            adminRoles.includes(userData.role)) {
-            console.log('✅ Detected: ADMIN role');
+            superAdminRoles.includes(userData.role)) {
+            console.log('✅ Detected: SUPER ADMIN role');
             return 'admin';
         }
         

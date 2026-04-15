@@ -115,32 +115,32 @@ function loadRoleBasedNavigation() {
 }
 
 // Get user role information
-function getUserRoleInfo() {
+async function getUserRoleInfo() {
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = '/login';
-        return;
+        return null;
     }
 
-    fetch(`${API_BASE}/admin/role-info`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    .then(response => {
+    try {
+        const response = await fetch(`${API_BASE}/admin/role-info`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
         if (!response.ok) {
             if (response.status === 401 || response.status === 403) {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 alert('Your session has expired. Please log in again.');
                 window.location.href = '/login';
-                return;
+                return null;
             }
             throw new Error('Failed to get role information');
         }
-        return response.json();
-    })
-    .then(roleInfo => {
+
+        const roleInfo = await response.json();
         userRole = roleInfo.role;
         userPermissions = roleInfo.permissions;
         
@@ -150,8 +150,8 @@ function getUserRoleInfo() {
         // Configure UI sections based on role
         configureDashboardUI(roleInfo.role);
         
-        // Load dashboard data
-        loadDashboardData();
+        // Load navigation based on role
+        loadRoleBasedNavigation();
 
         // Check for tab parameter in URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -159,12 +159,13 @@ function getUserRoleInfo() {
         if (tab) {
             setTimeout(() => showTab(tab), 100);
         }
-    })
-    .catch(error => {
+
+        return roleInfo;
+    } catch (error) {
         console.error('Failed to get role info:', error);
-        // Fall back to checking admin status
-        checkAdminAccess();
-    });
+        // Fall back to checking admin status (legacy)
+        return await checkAdminAccess();
+    }
 }
 
 // Update dashboard header with role information
@@ -226,66 +227,65 @@ function configureDashboardUI(role) {
 }
 
 // Check if user is admin (legacy function)
-function checkAdminAccess() {
+async function checkAdminAccess() {
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = '/login';
-        return;
+        return null;
     }
 
-    // Verify admin status
-    fetch(`${API_BASE}/user/profile`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-        .then(response => {
-            if (!response.ok) {
-                if (response.status === 401 || response.status === 403) {
-                    // Token expired or invalid - clear and redirect
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    alert('Your session has expired. Please log in again.');
-                    window.location.href = '/login';
-                    return;
-                }
-                throw new Error('Not authorized');
+    try {
+        // Verify admin status
+        const response = await fetch(`${API_BASE}/user/profile`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-            return response.json();
-        })
-        .then(user => {
-            // Define all roles that qualify for admin dashboard access
-            const adminRoles = ['admin', 'CEO', 'virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
-            
-            // Check if user role is in the admin category or isAdmin is true
-            if (!adminRoles.includes(user.role) && user.isAdmin !== 'true' && user.isAdmin !== true) {
-                alert('Access denied. Admin privileges required.');
-                window.location.href = '/pages/buyer-dashboard.html';
-            } else {
-                // Normalize and set role for navigation loading
-                const currentRole = (user.role || '').toLowerCase().trim();
-                const adminRoles = ['admin', 'ceo', 'virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
-                
-                userRole = adminRoles.includes(currentRole) ? currentRole : 'admin';
-                
-                console.log(`✅ Access granted via fallback check. Decided role: ${userRole}`);
-                
-                // CRITICAL: Configure UI visibility for partitioning
-                configureDashboardUI(userRole);
-                
-                loadRoleBasedNavigation();
-                loadDashboardData();
-            }
-        })
-        .catch(error => {
-            console.error('Admin check failed:', error);
-            // Don't redirect immediately on network errors, only on auth errors
-            if (error.message.includes('Failed to fetch') || error.message.includes('Not authorized')) {
+        });
+
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 window.location.href = '/login';
+                return null;
             }
-        });
+            throw new Error('Not authorized');
+        }
+
+        const user = await response.json();
+        // Define all roles that qualify for admin dashboard access
+        const adminRoles = ['admin', 'CEO', 'virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+        
+        // Check if user role is in the admin category or isAdmin is true
+        if (!adminRoles.includes(user.role) && user.isAdmin !== 'true' && user.isAdmin !== true) {
+            alert('Access denied. Admin privileges required.');
+            window.location.href = '/pages/buyer-dashboard.html';
+            return null;
+        }
+
+        // Normalize and set role
+        const currentRole = (user.role || '').toLowerCase().trim();
+        const specializedRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+        
+        const detectedRole = specializedRoles.includes(currentRole) ? currentRole : (currentRole === 'ceo' ? 'admin' : 'admin');
+        userRole = detectedRole;
+        
+        console.log(`✅ Access granted via fallback check. Decided role: ${userRole}`);
+        
+        // Configure UI
+        configureDashboardUI(userRole);
+        loadRoleBasedNavigation();
+        
+        return { role: userRole };
+    } catch (error) {
+        console.error('Admin check failed:', error);
+        if (error.message.includes('Not authorized')) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+        return null;
+    }
 }
 
 // Load dashboard data
@@ -1163,14 +1163,20 @@ async function loadRetentionConfig() {
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', async function () {
-    // Check admin access first
-    const hasAccess = await checkAdminAccess();
-    if (!hasAccess) {
+    console.log('🚀 Dashboard initialization started...');
+    
+    // Get user role information (this now handles everything sequentially)
+    const roleInfo = await getUserRoleInfo();
+    
+    if (!roleInfo) {
+        console.warn('⚠️ No role info returned, initialization aborted.');
         return;
     }
     
-    // Don't initialize userRole as fallback - let getUserRoleInfo set it properly
-    await getUserRoleInfo(); // This will set userRole correctly
+    console.log('✅ Dashboard initialized for role:', roleInfo.role);
+
+    // Load initial data explicitly after UI is configured
+    await loadDashboardData();
     
     // Add event listeners for filters
     document.getElementById('userSearch')?.addEventListener('input', () => loadUsers());
