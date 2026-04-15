@@ -244,13 +244,18 @@ class RoleManager {
 
     // Check if user can access specific dashboard
     canAccessDashboard(dashboardType) {
+        const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+        const isAdminRole = this.currentRole === 'admin' || specializedAdminRoles.includes(this.currentRole);
+        const isSellerRole = this.currentRole === 'seller' || isAdminRole;
+        const isBuyerRole = true; // All roles have buyer access
+
         switch (dashboardType) {
             case 'buyer':
-                return ['buyer', 'seller', 'admin'].includes(this.currentRole);
+                return isBuyerRole;
             case 'seller':
-                return ['seller', 'admin'].includes(this.currentRole);
+                return isSellerRole;
             case 'admin':
-                return this.currentRole === 'admin';
+                return isAdminRole;
             default:
                 return false;
         }
@@ -306,16 +311,19 @@ class RoleManager {
         
         // Check access based on role
         return (() => {
-            switch (this.currentRole) {
-                case 'admin':
-                    return adminRoutes.includes(cleanRoute);
-                case 'seller':
-                    return sellerRoutes.includes(cleanRoute);
-                case 'buyer':
-                    return buyerRoutes.includes(cleanRoute);
-                default:
-                    // Not logged in, only public routes accessible
-                    return publicRoutes.includes(cleanRoute);
+            const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+            const isAdminRole = this.currentRole === 'admin' || specializedAdminRoles.includes(this.currentRole);
+            const isSellerRole = this.currentRole === 'seller' || isAdminRole;
+
+            if (isAdminRole) {
+                return adminRoutes.includes(cleanRoute);
+            } else if (isSellerRole) {
+                return sellerRoutes.includes(cleanRoute);
+            } else if (this.currentRole === 'buyer' || this.currentRole === 'user') {
+                return buyerRoutes.includes(cleanRoute);
+            } else {
+                // Not logged in or unknown role, only public routes accessible
+                return publicRoutes.includes(cleanRoute);
             }
         })();
     }
@@ -332,12 +340,13 @@ class RoleManager {
 
     // Check if user is admin
     isAdmin() {
-        return this.currentRole === 'admin';
+        const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+        return this.currentRole === 'admin' || specializedAdminRoles.includes(this.currentRole);
     }
 
     // Check if user is seller (or admin)
     isSeller() {
-        return ['seller', 'admin'].includes(this.currentRole);
+        return this.currentRole === 'seller' || this.isAdmin();
     }
 
     // Check if user is buyer (all roles)
