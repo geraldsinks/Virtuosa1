@@ -90,6 +90,10 @@ const ROLE_PERMISSIONS = {
     }
 };
 
+// Specialized admin roles that have restricted access to the admin dashboard
+const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+
+
 // Get user's effective role based on all role fields
 const getEffectiveRole = (user) => {
     // Log unexpected role values for debugging
@@ -98,7 +102,6 @@ const getEffectiveRole = (user) => {
     }
     
     // Check for specialized admin roles first (preserve identity)
-    const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
     if (specializedAdminRoles.includes(user.role)) {
         return user.role;
     }
@@ -384,10 +387,13 @@ const isAdmin = async (req, res, next) => {
         if (!user) return res.status(403).json({ message: 'User not found' });
     
         const effectiveRole = getEffectiveRole(user);
-        // Specialized leads are considered "admin-like" but this middleware might be too permissive
-        // Let's keep it strict for Super Admins unless its a generic dashboard route
-        if (effectiveRole !== 'admin') {
-            return res.status(403).json({ message: 'Super Admin access required' });
+        
+        // Check if user is a Super Admin or a specialized lead
+        const isSuperAdmin = effectiveRole === 'admin';
+        const isSpecializedLead = specializedAdminRoles.includes(effectiveRole);
+
+        if (!isSuperAdmin && !isSpecializedLead) {
+            return res.status(403).json({ message: 'Super Admin or Lead access required' });
         }
         next();
     } catch (error) {
@@ -406,5 +412,6 @@ module.exports = {
     getEffectiveRole,
     canAccessDashboard,
     getAllPermissions,
-    isAdmin
+    isAdmin,
+    specializedAdminRoles
 };

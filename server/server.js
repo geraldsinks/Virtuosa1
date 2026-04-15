@@ -63,7 +63,7 @@ const cloudinary = require('./config/cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const NotificationService = require('./services/notificationService');
 const webpush = require('web-push');
-const { checkRoleAccess, checkAnyRoleAccess, getUserRoleInfo, isAdmin, checkDashboardAccess } = require('./middleware/roleBasedAccess');
+const { checkRoleAccess, checkAnyRoleAccess, getUserRoleInfo, isAdmin, checkDashboardAccess, getEffectiveRole, specializedAdminRoles } = require('./middleware/roleBasedAccess');
 const User = require('./models/User');
 const Product = require('./models/Product');
 const Notification = require('./models/Notification');
@@ -4764,12 +4764,15 @@ function authenticateAdmin(req, res, next) {
 
         try {
             const userDoc = await User.findById(user.userId);
-            if (!userDoc || (
-                userDoc.role !== 'admin' &&
-                userDoc.role !== 'CEO' &&
-                userDoc.isAdmin !== true &&
-                userDoc.isAdmin !== 'true'
-            )) {
+            if (!userDoc) {
+                return res.status(401).json({ message: 'User not found' });
+            }
+
+            const effectiveRole = getEffectiveRole(userDoc);
+            const isSuperAdmin = effectiveRole === 'admin';
+            const isSpecializedLead = specializedAdminRoles.includes(effectiveRole);
+
+            if (!isSuperAdmin && !isSpecializedLead) {
                 return res.status(403).json({ message: 'Admin access required' });
             }
 
