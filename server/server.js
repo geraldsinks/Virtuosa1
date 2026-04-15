@@ -436,7 +436,6 @@ app.post('/api/products', authenticateToken, upload.array('images', 5), async (r
             listingType,
             inventory,
             inventoryTracking,
-            inventoryTracking,
             lowStockThreshold,
             loanPlans,
             loanEligibility,
