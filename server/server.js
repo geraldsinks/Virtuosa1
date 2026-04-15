@@ -371,39 +371,7 @@ app.get('/api/analytics/test', (req, res) => {
     });
 });
 
-// User role info endpoint
-app.get('/api/user/role-info', authenticateToken, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.userId);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
 
-        // Return comprehensive role information matching client expectations
-        const effectiveRole = user.isAdmin === true || user.isAdmin === 'true' || 
-                            user.role === 'admin' || user.role === 'CEO' ? 'admin' : 
-                            user.isSeller === true || user.isSeller === 'true' || user.role === 'seller' ? 'seller' : 'buyer';
-
-        const roleInfo = {
-            effectiveRole: effectiveRole,
-            title: effectiveRole === 'admin' ? 'Admin' : effectiveRole === 'seller' ? 'Seller' : 'Buyer',
-            level: effectiveRole === 'admin' ? 3 : effectiveRole === 'seller' ? 2 : 1,
-            isBuyer: true, // All users are buyers at minimum
-            isSeller: effectiveRole === 'seller' || effectiveRole === 'admin',
-            isAdmin: effectiveRole === 'admin',
-            permissions: effectiveRole === 'admin' ? ['*'] : 
-                       effectiveRole === 'seller' ? ['buy_products', 'view_orders', 'write_reviews', 'manage_cart', 'view_profile', 
-                                                 'sell_products', 'manage_products', 'view_sales_analytics', 'manage_orders', 
-                                                 'view_seller_dashboard', 'seller_verification'] : 
-                       ['buy_products', 'view_orders', 'write_reviews', 'manage_cart', 'view_profile']
-        };
-
-        res.json(roleInfo);
-    } catch (error) {
-        console.error('Role info error:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
 
 // Configure Multer for product image uploads using Cloudinary
 const productStorage = new CloudinaryStorage({
