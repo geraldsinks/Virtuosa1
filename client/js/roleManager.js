@@ -316,6 +316,14 @@ class RoleManager {
             const isSellerRole = this.currentRole === 'seller' || isAdminRole;
 
             if (isAdminRole) {
+                // Admins/Leads can access all admin and marketing routes automatically
+                if (cleanRoute.startsWith('admin-') || 
+                    cleanRoute.startsWith('marketing-') || 
+                    cleanRoute === 'admin' || 
+                    cleanRoute === 'marketing' ||
+                    cleanRoute === 'marketing-dashboard') {
+                    return true;
+                }
                 return adminRoutes.includes(cleanRoute);
             } else if (isSellerRole) {
                 return sellerRoutes.includes(cleanRoute);

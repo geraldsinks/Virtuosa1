@@ -7,7 +7,8 @@ const checkMaintenance = async (req, res, next) => {
         // Skip maintenance check for admin users if admin access is allowed
         if (req.user && req.user.userId) {
             const user = await User.findById(req.user.userId);
-            if (user && (user.isAdmin || user.role === 'admin' || user.role === 'CEO' || user.email === 'admin@virtuosa.com')) {
+            const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+            if (user && (user.isAdmin || user.role === 'admin' || user.role === 'CEO' || specializedAdminRoles.includes(user.role) || user.email === 'admin@virtuosa.com')) {
                 // Admin user - check if admin access is allowed
                 const activeMaintenance = await Maintenance.getActive();
                 if (activeMaintenance && activeMaintenance.allowAdminAccess) {
@@ -85,7 +86,8 @@ const checkMaintenanceForWeb = async (req, res, next) => {
         if (req.path.startsWith('/admin') || req.path.includes('admin')) {
             if (req.user && req.user.userId) {
                 const user = await User.findById(req.user.userId);
-                if (user && (user.isAdmin || user.role === 'admin' || user.role === 'CEO' || user.email === 'admin@virtuosa.com')) {
+                const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+                if (user && (user.isAdmin || user.role === 'admin' || user.role === 'CEO' || specializedAdminRoles.includes(user.role) || user.email === 'admin@virtuosa.com')) {
                     const activeMaintenance = await Maintenance.getActive();
                     if (activeMaintenance && activeMaintenance.allowAdminAccess) {
                         req.maintenanceInfo = {
@@ -175,7 +177,8 @@ const requireMaintenanceAccess = async (req, res, next) => {
         }
 
         const user = await User.findById(req.user.userId);
-        if (!user || (user.email !== 'admin@virtuosa.com' && user.role !== 'admin' && user.role !== 'CEO' && user.isAdmin !== true)) {
+        const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+        if (!user || (user.email !== 'admin@virtuosa.com' && user.role !== 'admin' && user.role !== 'CEO' && user.isAdmin !== true && !specializedAdminRoles.includes(user.role))) {
             return res.status(403).json({ error: 'Admin access required for maintenance management' });
         }
 

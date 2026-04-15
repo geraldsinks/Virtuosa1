@@ -62,8 +62,13 @@ async function checkAdminAccess() {
     const roleInfo = await response.json();
     console.log('Admin access check - role info:', roleInfo);
     
-    // Check admin capability using normalized role and title as fallback
-    const isAdmin = roleInfo.role === 'admin' || roleInfo.title === 'CEO' || roleInfo.permissions.includes('*');
+    // Check admin capability using normalized role, title, or specialized lead roles
+    const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+    const isAdmin = roleInfo.role === 'admin' || 
+                    roleInfo.title === 'CEO' || 
+                    roleInfo.permissions.includes('*') ||
+                    specializedAdminRoles.includes(roleInfo.role);
+
     if (!isAdmin) {
         alert('Access denied. Admin privileges required.');
         window.location.href = '/pages/buyer-dashboard.html';

@@ -35,11 +35,15 @@ const checkRoleAccess = (requiredRole) => {
                     return res.status(401).json({ message: 'User not found' });
                 }
 
-                // Check if user has required role or is admin
-                const hasAccess = user.isAdmin === true || 
+                // Check if user has required role or is admin/lead
+                const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+                const isAdminRole = user.isAdmin === true || 
                                 user.isAdmin === 'true' || 
                                 user.role === 'admin' || 
                                 user.role === 'CEO' ||
+                                specializedAdminRoles.includes(user.role);
+
+                const hasAccess = isAdminRole ||
                                 (requiredRole === 'seller' && user.isSeller) ||
                                 (requiredRole === 'buyer' && !user.isSeller);
 
