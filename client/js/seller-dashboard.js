@@ -33,7 +33,16 @@ async function checkSellerAccess(token) {
 
         if (!isSellerUser && !isAdminUser) {
             showMessage('Access denied. Seller or admin privileges required.', true);
-...
+            setTimeout(() => {
+                if (window.router) {
+                    window.router.navigate('/dashboard');
+                } else {
+                    window.location.href = '/dashboard';
+                }
+            }, 2000);
+            return;
+        }
+
         // Check admin role and update UI
         const isAdmin = window.roleManager ? window.roleManager.isAdmin() : isAdminUser;
         if (isAdmin) {
