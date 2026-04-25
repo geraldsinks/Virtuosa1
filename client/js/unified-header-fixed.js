@@ -299,6 +299,11 @@ class UnifiedHeader {
                     <!-- Dropdown structure populated by auth state -->
                 </div>
 
+                <a href="/admin" id="header-admin-link" class="hidden relative text-white hover:text-gold transition-colors group flex flex-col items-center">
+                    <i class="fas fa-shield-alt text-xl md:text-2xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[10px] font-bold uppercase tracking-tighter mt-0.5">Admin</span>
+                </a>
+
                 <a href="/notifications" class="relative text-white hover:text-gold transition-colors group">
                     <i class="far fa-bell text-xl md:text-2xl group-hover:scale-110 transition-transform"></i>
                     <span id="notification-badge" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center hidden px-1 shadow-lg border border-red-400">0</span>
@@ -620,6 +625,12 @@ class UnifiedHeader {
             if (headerGreeting) headerGreeting.textContent = `Hello, ${firstName}`;
         }
 
+        // Show/Hide Top Admin Link
+        const headerAdminLink = document.getElementById('header-admin-link');
+        if (headerAdminLink) {
+            isAdmin ? headerAdminLink.classList.remove('hidden') : headerAdminLink.classList.add('hidden');
+        }
+
         // Side Menu Greeting
         const sideMenuGreeting = document.getElementById('side-menu-greeting');
         if (sideMenuGreeting) {
@@ -661,6 +672,10 @@ class UnifiedHeader {
         // Sign Out Button Inside Side Menu
         const sideMenuSignOut = document.getElementById('side-menu-sign-out');
         if (sideMenuSignOut) sideMenuSignOut.classList.add('hidden');
+
+        // Hide Top Admin Link
+        const headerAdminLink = document.getElementById('header-admin-link');
+        if (headerAdminLink) headerAdminLink.classList.add('hidden');
 
         // Hide special sections
         ['side-menu-account-section', 'side-menu-seller-section', 'side-menu-admin-section'].forEach(id => {

@@ -349,6 +349,8 @@ const getUserRoleInfo = async (userId) => {
         const effectiveRole = getEffectiveRole(user);
         const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'];
         
+        console.log(`[AUTH DEBUG] User ${userId} (${user.email}) requested role-info. DB Role: ${user.role}, Effective: ${effectiveRole}`);
+        
         let allPermissions = [];
         if (specializedAdminRoles.includes(effectiveRole)) {
             allPermissions = ROLE_PERMISSIONS[effectiveRole]?.permissions || [];
