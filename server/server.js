@@ -5754,7 +5754,7 @@ app.get('/api/admin/dashboard', authenticateAdmin, async (req, res) => {
 // Get all users (admin)
 app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
     try {
-        const { page = 1, limit = 20, search, role, verified } = req.query;
+        const { page = 1, limit = 20, search, role, verified, signupDate } = req.query;
 
         let filter = {};
 
@@ -5777,6 +5777,14 @@ app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
             filter.isStudentVerified = true;
         } else if (verified === 'false') {
             filter.isStudentVerified = false;
+        }
+
+        if (signupDate) {
+            const start = new Date(signupDate);
+            start.setHours(0, 0, 0, 0);
+            const end = new Date(signupDate);
+            end.setHours(23, 59, 59, 999);
+            filter.createdAt = { $gte: start, $lte: end };
         }
 
         const skip = (parseInt(page) - 1) * parseInt(limit);

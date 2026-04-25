@@ -195,12 +195,14 @@ async function loadUsers(page = 1) {
         const search = document.getElementById('userSearch')?.value || '';
         const role = document.getElementById('userRoleFilter')?.value || '';
         const verified = document.getElementById('userVerifiedFilter')?.value || '';
+        const signupDate = document.getElementById('userDateFilter')?.value || '';
 
         const params = new URLSearchParams({
             page,
             search,
             role,
-            verified
+            verified,
+            signupDate
         });
 
         const response = await adminFetch(`${API_BASE}/admin/users?${params}`);
