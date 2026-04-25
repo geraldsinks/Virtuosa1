@@ -63,11 +63,12 @@ async function checkAdminAccess() {
     console.log('Admin access check - role info:', roleInfo);
     
     // Check admin capability using normalized role, title, or specialized lead roles
-    const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+    const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'];
     const isAdmin = roleInfo.role === 'admin' || 
                     roleInfo.title === 'CEO' || 
                     roleInfo.permissions.includes('*') ||
-                    specializedAdminRoles.includes(roleInfo.role);
+                    specializedAdminRoles.includes(roleInfo.role) ||
+                    specializedAdminRoles.includes(roleInfo.effectiveRole);
 
     if (!isAdmin) {
         alert('Access denied. Admin privileges required.');

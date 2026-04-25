@@ -375,6 +375,7 @@ const getUserRoleInfo = async (userId) => {
             effectiveRole,
             permissions: allPermissions,
             title,
+            description: ROLE_PERMISSIONS[effectiveRole]?.description || title,
             level: specializedAdminRoles.includes(effectiveRole) ? 2.5 : (ROLE_HIERARCHY[effectiveRole]?.level || 1),
             // Legacy fields for backward compatibility
             isBuyer: true,
