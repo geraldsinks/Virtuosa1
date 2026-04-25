@@ -75,6 +75,8 @@
                 'admin-mass-messaging':     '/pages/admin-mass-messaging.html',
                 'marketing-dashboard':      '/pages/marketing-dashboard.html',
                 'marketing':                '/pages/marketing.html',
+                'admin-products':           '/pages/admin-products.html',
+                'admin-sellers':            '/pages/admin-sellers.html',
                 'seller-analytics':         '/pages/seller-analytics.html',
                 'seller-orders':            '/pages/seller-orders.html',
                 'wishlist':                 '/pages/wishlist.html'
@@ -201,7 +203,8 @@
                 'cart', 'checkout', 'create-product', 'edit-product', 'my-products',
                 'seller-analytics', 'seller-orders', 'wishlist', 'cash-on-delivery',
                 'payment-options', 'live-chat', 'admin-users', 'admin-seller-applications',
-                'admin-mass-messaging', 'marketing-dashboard', 'marketing', 'seller-verification'
+                'admin-mass-messaging', 'marketing-dashboard', 'marketing', 'seller-verification',
+                'admin-products', 'admin-sellers'
             ];
         }
 
