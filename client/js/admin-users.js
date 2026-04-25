@@ -192,7 +192,10 @@ function updateAnalyticsCharts(data) {
 // Load users with filters
 async function loadUsers(page = 1) {
     try {
-        const university = document.getElementById('userVerifiedFilter')?.value || '';
+        const search = document.getElementById('userSearch')?.value || '';
+        const role = document.getElementById('userRoleFilter')?.value || '';
+        const verified = document.getElementById('userVerifiedFilter')?.value || '';
+
         const params = new URLSearchParams({
             page,
             search,
