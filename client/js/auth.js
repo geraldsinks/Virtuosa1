@@ -419,17 +419,23 @@ async function handleLogin(event) {
             if (result.user.effectiveRole) {
                 console.log('🔍 Using effectiveRole from login response:', result.user.effectiveRole);
                 
+                const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'];
+                const isSpecializedAdmin = specializedAdminRoles.includes(result.user.effectiveRole);
+                
                 const roleData = {
                     effectiveRole: result.user.effectiveRole,
                     roleInfo: {
                         effectiveRole: result.user.effectiveRole,
                         title: result.user.effectiveRole === 'admin' ? 'Admin' : 
+                               result.user.effectiveRole === 'CEO' ? 'CEO' :
+                               isSpecializedAdmin ? 'Admin Lead' :
                                result.user.effectiveRole === 'seller' ? 'Seller' : 'Buyer',
-                        level: result.user.effectiveRole === 'admin' ? 3 : 
+                        level: (result.user.effectiveRole === 'admin' || result.user.effectiveRole === 'CEO') ? 3 : 
+                               isSpecializedAdmin ? 2.5 :
                                result.user.effectiveRole === 'seller' ? 2 : 1,
                         isBuyer: true,
-                        isSeller: result.user.effectiveRole === 'seller' || result.user.effectiveRole === 'admin',
-                        isAdmin: result.user.effectiveRole === 'admin'
+                        isSeller: result.user.effectiveRole === 'seller' || result.user.effectiveRole === 'admin' || result.user.effectiveRole === 'CEO' || isSpecializedAdmin,
+                        isAdmin: result.user.effectiveRole === 'admin' || result.user.effectiveRole === 'CEO' || isSpecializedAdmin
                     },
                     timestamp: Date.now()
                 };
@@ -575,7 +581,10 @@ async function handleLogin(event) {
                     finalIsSeller
                 });
                 
-                if (effectiveRole === 'admin' || finalIsAdmin) {
+                const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'];
+                const isSpecializedAdmin = specializedAdminRoles.includes(effectiveRole);
+                
+                if (effectiveRole === 'admin' || effectiveRole === 'CEO' || isSpecializedAdmin || finalIsAdmin) {
                     window.location.href = '/admin';
                 } else if (effectiveRole === 'seller' || finalIsSeller) {
                     window.location.href = '/seller-dashboard';

@@ -76,8 +76,11 @@ class AuthManager {
 
     // Update localStorage with fresh user data
     updateLocalStorage(userData) {
-        const isAdmin = userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin';
-        const isSeller = userData.isSeller === true || userData.isSeller === 'true';
+        const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'];
+        const isSpecializedAdmin = specializedAdminRoles.includes(userData.role);
+        
+        const isAdmin = userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin' || userData.role === 'CEO' || isSpecializedAdmin;
+        const isSeller = userData.isSeller === true || userData.isSeller === 'true' || isAdmin;
         
         localStorage.setItem('isAdmin', isAdmin.toString());
         localStorage.setItem('isSeller', isSeller.toString());
@@ -91,7 +94,10 @@ class AuthManager {
         const userData = await this.getUserData();
         if (!userData) return false;
         
-        return userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin';
+        const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'];
+        const isSpecializedAdmin = specializedAdminRoles.includes(userData.role);
+        
+        return userData.isAdmin === true || userData.isAdmin === 'true' || userData.role === 'admin' || userData.role === 'CEO' || isSpecializedAdmin;
     }
 
     // Check if user is seller
@@ -99,7 +105,8 @@ class AuthManager {
         const userData = await this.getUserData();
         if (!userData) return false;
         
-        return userData.isSeller === true || userData.isSeller === 'true';
+        const isAdmin = await this.isAdmin();
+        return userData.isSeller === true || userData.isSeller === 'true' || isAdmin;
     }
 
     // Check if user is authenticated
