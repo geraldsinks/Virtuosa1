@@ -162,6 +162,10 @@
                             class="tab-button py-4 px-1 border-b-2 font-medium text-sm border-transparent hover:text-gold hover:border-gold transition-colors">
                             <i class="fas fa-layer-group mr-2"></i>Fallback Categories
                         </button>
+                        <button onclick="switchTab('product-grids', this)"
+                            class="tab-button py-4 px-1 border-b-2 font-medium text-sm border-transparent hover:text-gold hover:border-gold transition-colors">
+                            <i class="fas fa-grip-horizontal mr-2"></i>Product Grids
+                        </button>
                     </nav>
                 </div>
             </div>
@@ -371,6 +375,27 @@
                         <div class="text-center py-12 text-gray-500">
                             <i class="fas fa-layer-group text-4xl mb-4"></i>
                             <p>Click "Load Categories" to view and edit the fallback categories.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Grids Tab -->
+            <div id="product-grids" class="tab-content">
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-navy">Product Grids for Homepage</h2>
+                        <button onclick="createProductGrid()"
+                            class="bg-button-gold text-white px-4 py-2 rounded-lg hover-bg-button-gold transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Create New Grid
+                        </button>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-6">Create curated product collections that appear as horizontally scrollable rows on the homepage. Each grid shows a title and compact product cards with price and wishlist functionality.</p>
+
+                    <div id="product-grids-list" class="space-y-6">
+                        <div class="text-center py-12 text-gray-500">
+                            <i class="fas fa-grip-horizontal text-4xl mb-4"></i>
+                            <p>Loading product grids...</p>
                         </div>
                     </div>
                 </div>

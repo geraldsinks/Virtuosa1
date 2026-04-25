@@ -77,6 +77,9 @@ async function loadTabData(tabName) {
         case 'asset-library':
             await loadAssetLibrary();
             break;
+        case 'product-grids':
+            await loadProductGrids();
+            break;
     }
 }
 
@@ -2465,4 +2468,275 @@ function renderBanners(banners) {
             </div>
         </div>
     `).join('');
+}
+
+// ============================================================
+// PRODUCT GRIDS MANAGEMENT
+// ============================================================
+
+async function loadProductGrids() {
+    const container = document.getElementById('product-grids-list');
+    if (!container) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/admin/products/grids`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        if (!res.ok) throw new Error('Failed to load grids');
+        const grids = await res.json();
+        renderProductGrids(grids);
+    } catch (error) {
+        console.error('Error loading product grids:', error);
+        container.innerHTML = '<div class="text-center py-12 text-red-600"><p>Failed to load product grids.</p></div>';
+    }
+}
+
+function renderProductGrids(grids) {
+    const container = document.getElementById('product-grids-list');
+    if (!grids || grids.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-12 text-gray-500">
+                <i class="fas fa-grip-horizontal text-4xl mb-4"></i>
+                <p>No product grids yet. Create your first grid to showcase products on the homepage!</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = grids.map(grid => {
+        const productsHtml = (grid.products || []).map(p => {
+            const img = p.images && p.images[0] ? p.images[0] : 'https://placehold.co/48x48?text=N/A';
+            return `
+                <div class="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg">
+                    <img src="${img}" class="w-8 h-8 rounded object-cover" alt="">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-medium truncate">${p.name}</p>
+                        <p class="text-xs text-gray-400">K${(p.price || 0).toLocaleString()}</p>
+                    </div>
+                    <button onclick="removeProductFromGrid('${grid._id}', '${p._id}')" class="text-red-400 hover:text-red-600 text-xs" title="Remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>`;
+        }).join('');
+
+        return `
+            <div class="border border-gray-200 rounded-xl p-5" data-grid-id="${grid._id}">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center gap-3">
+                        <input type="text" value="${grid.title}" class="text-lg font-bold text-navy border-b border-transparent focus:border-gold outline-none" id="grid-title-${grid._id}">
+                        <span class="px-2 py-1 text-xs rounded-full ${grid.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                            ${grid.active ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleGridActive('${grid._id}', ${!grid.active})" class="text-sm px-3 py-1 rounded-lg border ${grid.active ? 'border-gray-300 text-gray-600 hover:bg-gray-50' : 'border-green-300 text-green-600 hover:bg-green-50'}">
+                            <i class="fas fa-${grid.active ? 'eye-slash' : 'eye'} mr-1"></i>${grid.active ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button onclick="saveProductGrid('${grid._id}')" class="bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 text-sm">
+                            <i class="fas fa-save mr-1"></i>Save
+                        </button>
+                        <button onclick="deleteProductGrid('${grid._id}')" class="bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700 text-sm">
+                            <i class="fas fa-trash mr-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Products in this grid (${(grid.products || []).length})</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-3">
+                        ${productsHtml || '<p class="text-gray-400 text-sm col-span-3">No products added yet</p>'}
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <input type="text" placeholder="Search product by name to add..." class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm" id="grid-search-${grid._id}" oninput="searchProductsForGrid('${grid._id}')">
+                </div>
+                <div id="grid-search-results-${grid._id}" class="mt-2 max-h-40 overflow-y-auto hidden border border-gray-200 rounded-lg bg-white"></div>
+
+                <p class="text-xs text-gray-400 mt-3">Position: ${grid.position} · Created by: ${grid.createdBy?.fullName || 'Admin'} · ${new Date(grid.createdAt).toLocaleDateString()}</p>
+            </div>`;
+    }).join('');
+}
+
+async function createProductGrid() {
+    const title = prompt('Enter a title for the new product grid:');
+    if (!title || !title.trim()) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/admin/products/grids`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ title: title.trim() })
+        });
+        if (!res.ok) throw new Error('Failed to create grid');
+        showToast('Product grid created!', 'success');
+        await loadProductGrids();
+    } catch (error) {
+        console.error('Error creating grid:', error);
+        showToast('Failed to create grid', 'error');
+    }
+}
+
+async function saveProductGrid(gridId) {
+    const titleInput = document.getElementById(`grid-title-${gridId}`);
+    if (!titleInput) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/admin/products/grids/${gridId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ title: titleInput.value.trim() })
+        });
+        if (!res.ok) throw new Error('Failed to save grid');
+        showToast('Grid saved!', 'success');
+    } catch (error) {
+        console.error('Error saving grid:', error);
+        showToast('Failed to save grid', 'error');
+    }
+}
+
+async function deleteProductGrid(gridId) {
+    if (!confirm('Are you sure you want to delete this product grid?')) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/admin/products/grids/${gridId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        if (!res.ok) throw new Error('Failed to delete grid');
+        showToast('Grid deleted', 'success');
+        await loadProductGrids();
+    } catch (error) {
+        console.error('Error deleting grid:', error);
+        showToast('Failed to delete grid', 'error');
+    }
+}
+
+async function toggleGridActive(gridId, newActive) {
+    try {
+        const res = await fetch(`${API_BASE}/admin/products/grids/${gridId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ active: newActive })
+        });
+        if (!res.ok) throw new Error('Failed to toggle grid');
+        showToast(`Grid ${newActive ? 'activated' : 'deactivated'}`, 'success');
+        await loadProductGrids();
+    } catch (error) {
+        console.error('Error toggling grid:', error);
+        showToast('Failed to toggle grid', 'error');
+    }
+}
+
+let gridSearchTimeout = null;
+async function searchProductsForGrid(gridId) {
+    clearTimeout(gridSearchTimeout);
+    const query = document.getElementById(`grid-search-${gridId}`)?.value?.trim();
+    const resultsDiv = document.getElementById(`grid-search-results-${gridId}`);
+    if (!query || query.length < 2) { resultsDiv?.classList.add('hidden'); return; }
+
+    gridSearchTimeout = setTimeout(async () => {
+        try {
+            const res = await fetch(`${API_BASE}/admin/products?search=${encodeURIComponent(query)}&limit=10&status=Active`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            if (!res.ok) throw new Error('Search failed');
+            const data = await res.json();
+            const products = data.products || [];
+
+            if (products.length === 0) {
+                resultsDiv.innerHTML = '<p class="p-3 text-sm text-gray-400">No active products found</p>';
+            } else {
+                resultsDiv.innerHTML = products.map(p => {
+                    const img = p.images && p.images[0] ? p.images[0] : 'https://placehold.co/32x32?text=N/A';
+                    return `
+                        <button type="button" onclick="addProductToGrid('${gridId}', '${p._id}')" 
+                            class="w-full text-left px-3 py-2 hover:bg-amber-50 transition-colors text-sm border-b border-gray-100 last:border-0 flex items-center gap-2">
+                            <img src="${img}" class="w-6 h-6 rounded object-cover">
+                            <span class="font-medium text-gray-900 truncate">${p.name}</span>
+                            <span class="text-gray-400 ml-auto">K${(p.price || 0).toLocaleString()}</span>
+                        </button>`;
+                }).join('');
+            }
+            resultsDiv.classList.remove('hidden');
+        } catch (error) {
+            console.error('Product search error:', error);
+        }
+    }, 300);
+}
+
+async function addProductToGrid(gridId, productId) {
+    try {
+        // First get the current grid to access its products
+        const getRes = await fetch(`${API_BASE}/admin/products/grids`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        if (!getRes.ok) throw new Error('Failed to fetch grids');
+        const grids = await getRes.json();
+        const grid = grids.find(g => g._id === gridId);
+        if (!grid) throw new Error('Grid not found');
+
+        const existingIds = (grid.products || []).map(p => p._id || p);
+        if (existingIds.includes(productId)) {
+            showToast('Product already in this grid', 'info');
+            return;
+        }
+
+        const updatedProducts = [...existingIds, productId];
+        const res = await fetch(`${API_BASE}/admin/products/grids/${gridId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ products: updatedProducts })
+        });
+        if (!res.ok) throw new Error('Failed to add product');
+        showToast('Product added to grid', 'success');
+
+        // Clear search and reload
+        const searchInput = document.getElementById(`grid-search-${gridId}`);
+        if (searchInput) searchInput.value = '';
+        document.getElementById(`grid-search-results-${gridId}`)?.classList.add('hidden');
+        await loadProductGrids();
+    } catch (error) {
+        console.error('Error adding product to grid:', error);
+        showToast('Failed to add product', 'error');
+    }
+}
+
+async function removeProductFromGrid(gridId, productId) {
+    try {
+        const getRes = await fetch(`${API_BASE}/admin/products/grids`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        if (!getRes.ok) throw new Error('Failed to fetch grids');
+        const grids = await getRes.json();
+        const grid = grids.find(g => g._id === gridId);
+        if (!grid) throw new Error('Grid not found');
+
+        const updatedProducts = (grid.products || []).map(p => p._id || p).filter(id => id !== productId);
+        const res = await fetch(`${API_BASE}/admin/products/grids/${gridId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ products: updatedProducts })
+        });
+        if (!res.ok) throw new Error('Failed to remove product');
+        showToast('Product removed from grid', 'success');
+        await loadProductGrids();
+    } catch (error) {
+        console.error('Error removing product from grid:', error);
+        showToast('Failed to remove product', 'error');
+    }
 }

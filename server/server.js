@@ -159,6 +159,10 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/pages/admin-dashboard.html'));
 });
 
+app.get('/admin-products', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/admin-products.html'));
+});
+
 app.get('/cart', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/pages/cart.html'));
 });
@@ -541,6 +545,447 @@ app.post('/api/products', authenticateToken, upload.array('images', 5), async (r
             message: 'Failed to create product',
             error: error.message 
         });
+    }
+});
+
+// ============================================================
+// ADMIN PRODUCT MANAGEMENT ENDPOINTS
+// ============================================================
+const ProductGrid = require('./models/ProductGrid');
+
+// GET /api/admin/products — List all products with pagination, filters, search
+app.get('/api/admin/products', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const { page = 1, limit = 20, category, status, seller, search, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+        const query = {};
+
+        if (category) query.category = category;
+        if (status) query.status = status;
+        if (seller) query.seller = seller;
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } },
+                { sellerName: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+
+        const [products, total] = await Promise.all([
+            Product.find(query)
+                .populate('seller', 'fullName email')
+                .sort(sort)
+                .skip(skip)
+                .limit(parseInt(limit))
+                .lean(),
+            Product.countDocuments(query)
+        ]);
+
+        res.json({
+            products,
+            pagination: {
+                total,
+                page: parseInt(page),
+                limit: parseInt(limit),
+                pages: Math.ceil(total / parseInt(limit))
+            }
+        });
+    } catch (error) {
+        console.error('Error loading admin products:', error);
+        res.status(500).json({ message: 'Failed to load products', error: error.message });
+    }
+});
+
+// GET /api/admin/products/analytics — Product KPIs, chart data, category distribution
+app.get('/api/admin/products/analytics', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const [
+            totalProducts,
+            activeProducts,
+            soldProducts,
+            removedProducts,
+            outOfStockProducts,
+            totalViews,
+            totalFavorites,
+            categoryDistribution,
+            topByViews,
+            topBySales,
+            recentProducts
+        ] = await Promise.all([
+            Product.countDocuments(),
+            Product.countDocuments({ status: 'Active' }),
+            Product.countDocuments({ status: 'Sold' }),
+            Product.countDocuments({ status: 'Removed' }),
+            Product.countDocuments({ status: 'Out of Stock' }),
+            Product.aggregate([{ $group: { _id: null, total: { $sum: '$viewCount' } } }]),
+            Product.aggregate([{ $group: { _id: null, total: { $sum: '$favoriteCount' } } }]),
+            Product.aggregate([
+                { $group: { _id: '$category', count: { $sum: 1 } } },
+                { $sort: { count: -1 } }
+            ]),
+            Product.find({ status: 'Active' }).sort({ viewCount: -1 }).limit(10)
+                .select('name price viewCount favoriteCount totalSold category sellerName images').lean(),
+            Product.find().sort({ totalSold: -1 }).limit(10)
+                .select('name price viewCount favoriteCount totalSold category sellerName images').lean(),
+            Product.find().sort({ createdAt: -1 }).limit(10)
+                .select('name price status category sellerName createdAt images').lean()
+        ]);
+
+        // Monthly product creation trend (last 6 months)
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const monthlyTrend = await Product.aggregate([
+            { $match: { createdAt: { $gte: sixMonthsAgo } } },
+            { $group: {
+                _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } },
+                count: { $sum: 1 },
+                totalViews: { $sum: '$viewCount' },
+                totalSales: { $sum: '$totalSold' }
+            }},
+            { $sort: { _id: 1 } }
+        ]);
+
+        res.json({
+            kpis: {
+                totalProducts,
+                activeProducts,
+                soldProducts,
+                removedProducts,
+                outOfStockProducts,
+                totalViews: totalViews[0]?.total || 0,
+                totalFavorites: totalFavorites[0]?.total || 0
+            },
+            categoryDistribution,
+            topByViews,
+            topBySales,
+            recentProducts,
+            monthlyTrend
+        });
+    } catch (error) {
+        console.error('Error loading product analytics:', error);
+        res.status(500).json({ message: 'Failed to load product analytics', error: error.message });
+    }
+});
+
+// GET /api/admin/products/:id — Get single product details for admin
+app.get('/api/admin/products/:id', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id).populate('seller', 'fullName email phone phoneNumber').lean();
+        if (!product) return res.status(404).json({ message: 'Product not found' });
+        res.json(product);
+    } catch (error) {
+        console.error('Error loading product:', error);
+        res.status(500).json({ message: 'Failed to load product', error: error.message });
+    }
+});
+
+// DELETE /api/admin/products/:id — Admin delete product with reason + notification to seller
+app.delete('/api/admin/products/:id', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const { reason } = req.body;
+        const product = await Product.findById(req.params.id);
+        if (!product) return res.status(404).json({ message: 'Product not found' });
+
+        const sellerId = product.seller;
+        const productName = product.name;
+
+        // Remove the product
+        product.status = 'Removed';
+        await product.save();
+
+        // Send notification to seller
+        const notification = new Notification({
+            recipient: sellerId,
+            sender: req.user.userId,
+            type: 'product_removed',
+            title: 'Product Removed by Admin',
+            message: `Your product "${productName}" has been removed. Reason: ${reason || 'Policy violation'}`,
+            priority: 'high',
+            data: {
+                productId: product._id,
+                actionUrl: '/pages/seller-dashboard.html',
+                actionText: 'View Dashboard',
+                metadata: { reason: reason || 'Policy violation' }
+            }
+        });
+        await notification.save();
+
+        // Also send a direct message via the messaging system if notificationService exists
+        if (notificationService) {
+            notificationService.sendToUser(sellerId.toString(), {
+                type: 'product_removed',
+                title: 'Product Removed by Admin',
+                message: `Your product "${productName}" has been removed. Reason: ${reason || 'Policy violation'}`,
+                productId: product._id
+            });
+        }
+
+        console.log(`🗑️ Admin ${req.user.userId} removed product ${product._id} (${productName}). Reason: ${reason}`);
+        res.json({ message: 'Product removed and seller notified', productId: product._id });
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        res.status(500).json({ message: 'Failed to delete product', error: error.message });
+    }
+});
+
+// PUT /api/admin/products/:id/feature — Toggle featured status
+app.put('/api/admin/products/:id/feature', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id);
+        if (!product) return res.status(404).json({ message: 'Product not found' });
+
+        product.isFeatured = !product.isFeatured;
+        await product.save();
+        res.json({ message: `Product ${product.isFeatured ? 'featured' : 'unfeatured'}`, isFeatured: product.isFeatured });
+    } catch (error) {
+        console.error('Error toggling feature:', error);
+        res.status(500).json({ message: 'Failed to toggle feature', error: error.message });
+    }
+});
+
+// POST /api/admin/products/caution — Send caution notification to seller
+app.post('/api/admin/products/caution', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const { productId, message: cautionMessage } = req.body;
+        if (!productId || !cautionMessage) {
+            return res.status(400).json({ message: 'Product ID and message are required' });
+        }
+
+        const product = await Product.findById(productId);
+        if (!product) return res.status(404).json({ message: 'Product not found' });
+
+        const notification = new Notification({
+            recipient: product.seller,
+            sender: req.user.userId,
+            type: 'product_caution',
+            title: 'Caution: Product Listing Review',
+            message: `Your product "${product.name}" has received a caution: ${cautionMessage}`,
+            priority: 'high',
+            data: {
+                productId: product._id,
+                actionUrl: `/pages/edit-product.html?id=${product._id}`,
+                actionText: 'Review Product',
+                metadata: { cautionMessage }
+            }
+        });
+        await notification.save();
+
+        if (notificationService) {
+            notificationService.sendToUser(product.seller.toString(), {
+                type: 'product_caution',
+                title: 'Caution: Product Listing Review',
+                message: `Your product "${product.name}" has received a caution: ${cautionMessage}`,
+                productId: product._id
+            });
+        }
+
+        console.log(`⚠️ Admin ${req.user.userId} sent caution for product ${product._id}`);
+        res.json({ message: 'Caution sent to seller' });
+    } catch (error) {
+        console.error('Error sending caution:', error);
+        res.status(500).json({ message: 'Failed to send caution', error: error.message });
+    }
+});
+
+// POST /api/admin/products/assisted — Create product on behalf of seller (assisted listing)
+app.post('/api/admin/products/assisted', authenticateToken, isAdmin, upload.array('images', 5), async (req, res) => {
+    try {
+        const { sellerId, name, description, price, originalPrice, category, subcategory, condition, campusLocation, listingType, inventory, inventoryTracking, lowStockThreshold } = req.body;
+
+        if (!sellerId) return res.status(400).json({ message: 'Seller ID is required for assisted listing' });
+
+        const seller = await User.findById(sellerId);
+        if (!seller) return res.status(404).json({ message: 'Seller not found' });
+        if (!seller.isSeller) return res.status(400).json({ message: 'Selected user is not a seller' });
+
+        const productData = {
+            name: (name || '').trim(),
+            description: (description || '').trim(),
+            price: parseFloat(price),
+            seller: seller._id,
+            sellerName: seller.fullName || 'Seller',
+            sellerEmail: seller.email,
+            sellerPhone: seller.phone || seller.phoneNumber || 'Not provided',
+            category,
+            subcategory: subcategory || '',
+            condition: condition || 'New',
+            campusLocation: campusLocation || 'Not specified',
+            listingType: listingType === 'persistent' ? 'persistent' : 'one_time',
+            status: 'Active',
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+
+        const parsedOP = parseFloat(originalPrice);
+        if (!isNaN(parsedOP)) productData.originalPrice = parsedOP;
+
+        if (listingType === 'persistent') {
+            productData.inventory = Math.max(parseInt(inventory) || 1, 1);
+            productData.inventoryTracking = inventoryTracking === 'true' || inventoryTracking === true;
+            productData.lowStockThreshold = Math.max(parseInt(lowStockThreshold) || 1, 1);
+        }
+
+        if (req.files && req.files.length > 0) {
+            productData.images = req.files.map(file => file.secure_url || file.path);
+        }
+
+        const product = new Product(productData);
+        await product.save();
+
+        // Notify seller that a product was listed on their behalf
+        const notification = new Notification({
+            recipient: seller._id,
+            sender: req.user.userId,
+            type: 'product_approved',
+            title: 'Product Listed on Your Behalf',
+            message: `The admin team has listed "${name}" on your behalf. It is now active on the marketplace.`,
+            priority: 'normal',
+            data: {
+                productId: product._id,
+                actionUrl: `/product/${product._id}`,
+                actionText: 'View Product'
+            }
+        });
+        await notification.save();
+
+        console.log(`📦 Admin ${req.user.userId} created assisted listing ${product._id} for seller ${seller._id}`);
+        res.status(201).json({ message: 'Product created on behalf of seller', product });
+    } catch (error) {
+        console.error('Error creating assisted listing:', error);
+        res.status(500).json({ message: 'Failed to create assisted listing', error: error.message });
+    }
+});
+
+// GET /api/admin/sellers — List sellers for assisted listing dropdown
+app.get('/api/admin/sellers', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const { search } = req.query;
+        const query = { isSeller: true };
+        if (search) {
+            query.$or = [
+                { fullName: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ];
+        }
+        const sellers = await User.find(query)
+            .select('fullName email phone phoneNumber campusLocation')
+            .sort({ fullName: 1 })
+            .limit(50)
+            .lean();
+        res.json(sellers);
+    } catch (error) {
+        console.error('Error loading sellers:', error);
+        res.status(500).json({ message: 'Failed to load sellers', error: error.message });
+    }
+});
+
+// ============================================================
+// PRODUCT GRIDS ENDPOINTS (Admin CRUD + Public)
+// ============================================================
+
+// GET /api/product-grids — Public endpoint for homepage (no auth)
+app.get('/api/product-grids', cacheMiddleware(120), async (req, res) => {
+    try {
+        const grids = await ProductGrid.find({ active: true })
+            .populate({
+                path: 'products',
+                select: 'name price originalPrice images status category viewCount favoriteCount',
+                match: { status: 'Active' }
+            })
+            .sort({ position: 1 })
+            .lean();
+
+        // Filter out grids with no active products
+        const filteredGrids = grids.filter(g => g.products && g.products.length > 0);
+        res.json(filteredGrids);
+    } catch (error) {
+        console.error('Error loading product grids:', error);
+        res.status(500).json({ message: 'Failed to load product grids', error: error.message });
+    }
+});
+
+// GET /api/admin/products/grids — Admin: get all grids
+app.get('/api/admin/products/grids', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const grids = await ProductGrid.find()
+            .populate({
+                path: 'products',
+                select: 'name price images status category sellerName'
+            })
+            .populate('createdBy', 'fullName')
+            .sort({ position: 1 })
+            .lean();
+        res.json(grids);
+    } catch (error) {
+        console.error('Error loading admin grids:', error);
+        res.status(500).json({ message: 'Failed to load grids', error: error.message });
+    }
+});
+
+// POST /api/admin/products/grids — Create a new product grid
+app.post('/api/admin/products/grids', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const { title, products, position, active } = req.body;
+        if (!title) return res.status(400).json({ message: 'Title is required' });
+
+        const maxPos = await ProductGrid.findOne().sort({ position: -1 }).select('position').lean();
+        const grid = new ProductGrid({
+            title,
+            products: products || [],
+            position: position ?? ((maxPos?.position || 0) + 1),
+            active: active !== false,
+            createdBy: req.user.userId
+        });
+        await grid.save();
+
+        const populated = await ProductGrid.findById(grid._id)
+            .populate({ path: 'products', select: 'name price images status category sellerName' })
+            .populate('createdBy', 'fullName')
+            .lean();
+
+        res.status(201).json(populated);
+    } catch (error) {
+        console.error('Error creating grid:', error);
+        res.status(500).json({ message: 'Failed to create grid', error: error.message });
+    }
+});
+
+// PUT /api/admin/products/grids/:id — Update a product grid
+app.put('/api/admin/products/grids/:id', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const { title, products, position, active } = req.body;
+        const grid = await ProductGrid.findById(req.params.id);
+        if (!grid) return res.status(404).json({ message: 'Grid not found' });
+
+        if (title !== undefined) grid.title = title;
+        if (products !== undefined) grid.products = products;
+        if (position !== undefined) grid.position = position;
+        if (active !== undefined) grid.active = active;
+        await grid.save();
+
+        const populated = await ProductGrid.findById(grid._id)
+            .populate({ path: 'products', select: 'name price images status category sellerName' })
+            .populate('createdBy', 'fullName')
+            .lean();
+
+        res.json(populated);
+    } catch (error) {
+        console.error('Error updating grid:', error);
+        res.status(500).json({ message: 'Failed to update grid', error: error.message });
+    }
+});
+
+// DELETE /api/admin/products/grids/:id — Delete a product grid
+app.delete('/api/admin/products/grids/:id', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const grid = await ProductGrid.findByIdAndDelete(req.params.id);
+        if (!grid) return res.status(404).json({ message: 'Grid not found' });
+        res.json({ message: 'Grid deleted' });
+    } catch (error) {
+        console.error('Error deleting grid:', error);
+        res.status(500).json({ message: 'Failed to delete grid', error: error.message });
     }
 });
 

@@ -34,7 +34,9 @@ const notificationSchema = new mongoose.Schema({
             'dispute_message',     // New message in dispute
             'dispute_resolved',    // Dispute resolved (both parties)
             'dispute_withdrawn',   // Dispute withdrawn (seller)
-            'dispute_escalated'    // High priority dispute (admin)
+            'dispute_escalated',   // High priority dispute (admin)
+            'product_caution',     // Warning sent to seller about their product
+            'product_removed'      // Product deleted by admin with reason
         ],
         required: true
     },
