@@ -68,7 +68,6 @@ const User = require('./models/User');
 const Product = require('./models/Product');
 const Notification = require('./models/Notification');
 const SellerApplication = require('./models/SellerApplication');
-const ProductGrid = require('./models/ProductGrid');
 require('dotenv').config({ path: path.join(__dirname, 'config/.env') });
 
 // Environment and path configuration
