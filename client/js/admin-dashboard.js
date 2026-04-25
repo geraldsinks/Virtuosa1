@@ -11,80 +11,80 @@ const ROLE_NAVIGATION = {
     'admin': {
         // Admin - has access to everything
         cards: [
-            { href: 'admin-asset-library.html', title: 'Asset Library', desc: 'Manage marketing assets and banners', icon: 'fas fa-images', color: 'blue' },
-            { href: 'marketing.html', title: 'Marketing Dashboard', desc: 'Manage promotional content', icon: 'fas fa-bullhorn', color: 'green' },
-            { href: 'admin-cookie-data.html', title: 'Cookie Analytics', desc: 'View cookie and tracking data', icon: 'fas fa-cookie-bite', color: 'orange' },
-            { href: 'admin-users.html', title: 'User Analytics', desc: 'View detailed user insights and analytics', icon: 'fas fa-users', color: 'blue' },
-            { href: 'admin-seller-applications.html', title: 'Seller Requests', desc: 'Review and approve applications', icon: 'fas fa-user-check', color: 'teal' },
-            { href: 'admin-mass-messaging.html', title: 'Mass Messaging', desc: 'Send announcements to users', icon: 'fas fa-bullhorn', color: 'purple' },
-            { href: 'admin-retention.html', title: 'Message Retention', desc: 'Manage message data and policies', icon: 'fas fa-archive', color: 'orange' },
-            { href: 'admin-account-deletions.html', title: 'Account Deletions', desc: 'Review and manage deletion requests', icon: 'fas fa-user-times', color: 'red' },
-            { href: 'admin-maintenance.html', title: 'Maintenance', desc: 'Manage system maintenance', icon: 'fas fa-tools', color: 'yellow' },
-            { href: 'admin-transactions.html', title: 'Transactions', desc: 'Manage transactions and escrow', icon: 'fas fa-exchange-alt', color: 'indigo' },
-            { href: 'admin-disputes.html', title: 'Disputes', desc: 'Handle user disputes', icon: 'fas fa-gavel', color: 'pink' },
-            { href: 'admin-support.html', title: 'Support Tickets', desc: 'Manage customer support tickets', icon: 'fas fa-headset', color: 'cyan' },
-            { href: 'admin-live-chat.html', title: 'Live Chat', desc: 'Monitor live customer chat', icon: 'fas fa-comments', color: 'blue' },
-            { href: 'strategic-analytics.html', title: 'Strategic Analytics', desc: 'View strategic insights', icon: 'fas fa-chart-line', color: 'gold' },
-            { href: 'admin-products.html', title: 'Product Management', desc: 'Manage products, analytics & listings', icon: 'fas fa-package', color: 'amber' },
-            { href: 'admin-sellers.html', title: 'Seller Management', desc: 'Manage seller safety, productivity & platform rules', icon: 'fas fa-store', color: 'indigo' }
+            { href: '/admin-asset-library', title: 'Asset Library', desc: 'Manage marketing assets and banners', icon: 'fas fa-images', color: 'blue' },
+            { href: '/marketing', title: 'Marketing Dashboard', desc: 'Manage promotional content', icon: 'fas fa-bullhorn', color: 'green' },
+            { href: '/admin-cookie-data', title: 'Cookie Analytics', desc: 'View cookie and tracking data', icon: 'fas fa-cookie-bite', color: 'orange' },
+            { href: '/admin-users', title: 'User Analytics', desc: 'View detailed user insights and analytics', icon: 'fas fa-users', color: 'blue' },
+            { href: '/admin-seller-applications', title: 'Seller Requests', desc: 'Review and approve applications', icon: 'fas fa-user-check', color: 'teal' },
+            { href: '/admin-mass-messaging', title: 'Mass Messaging', desc: 'Send announcements to users', icon: 'fas fa-bullhorn', color: 'purple' },
+            { href: '/admin-retention', title: 'Message Retention', desc: 'Manage message data and policies', icon: 'fas fa-archive', color: 'orange' },
+            { href: '/admin-account-deletions', title: 'Account Deletions', desc: 'Review and manage deletion requests', icon: 'fas fa-user-times', color: 'red' },
+            { href: '/admin-maintenance', title: 'Maintenance', desc: 'Manage system maintenance', icon: 'fas fa-tools', color: 'yellow' },
+            { href: '/admin-transactions', title: 'Transactions', desc: 'Manage transactions and escrow', icon: 'fas fa-exchange-alt', color: 'indigo' },
+            { href: '/admin-disputes', title: 'Disputes', desc: 'Handle user disputes', icon: 'fas fa-gavel', color: 'pink' },
+            { href: '/admin-support', title: 'Support Tickets', desc: 'Manage customer support tickets', icon: 'fas fa-headset', color: 'cyan' },
+            { href: '/admin-live-chat', title: 'Live Chat', desc: 'Monitor live customer chat', icon: 'fas fa-comments', color: 'blue' },
+            { href: '/strategic-analytics', title: 'Strategic Analytics', desc: 'View strategic insights', icon: 'fas fa-chart-line', color: 'gold' },
+            { href: '/admin-products', title: 'Product Management', desc: 'Manage products, analytics & listings', icon: 'fas fa-package', color: 'amber' },
+            { href: '/admin-sellers', title: 'Seller Management', desc: 'Manage seller safety, productivity & platform rules', icon: 'fas fa-store', color: 'indigo' }
         ]
     },
     'marketing_lead': {
         cards: [
-            { href: 'admin-mass-messaging.html', title: 'Mass Messaging', desc: 'Send announcements to users', icon: 'fas fa-bullhorn', color: 'purple' },
-            { href: 'admin-asset-library.html', title: 'Asset Library', desc: 'Manage marketing assets and banners', icon: 'fas fa-images', color: 'blue' },
-            { href: 'admin-seller-applications.html', title: 'Marketing Management', desc: 'Manage promotional content', icon: 'fas fa-bullhorn', color: 'green' },
-            { href: 'admin-about.html', title: 'About Page Editor', desc: 'Edit about page content', icon: 'fas fa-edit', color: 'orange' }
+            { href: '/admin-mass-messaging', title: 'Mass Messaging', desc: 'Send announcements to users', icon: 'fas fa-bullhorn', color: 'purple' },
+            { href: '/admin-asset-library', title: 'Asset Library', desc: 'Manage marketing assets and banners', icon: 'fas fa-images', color: 'blue' },
+            { href: '/admin-seller-applications', title: 'Marketing Management', desc: 'Manage promotional content', icon: 'fas fa-bullhorn', color: 'green' },
+            { href: '/admin-about', title: 'About Page Editor', desc: 'Edit about page content', icon: 'fas fa-edit', color: 'orange' }
         ]
     },
     'support_lead': {
         cards: [
-            { href: 'admin-account-deletions.html', title: 'Account Deletions', desc: 'Review and manage deletion requests', icon: 'fas fa-user-times', color: 'red' },
-            { href: 'admin-disputes.html', title: 'Disputes', desc: 'Handle user disputes', icon: 'fas fa-gavel', color: 'pink' },
-            { href: 'admin-support.html', title: 'Contact Support', desc: 'Manage support tickets', icon: 'fas fa-headset', color: 'blue' },
-            { href: 'admin-live-chat.html', title: 'Live Chat', desc: 'Monitor live chat', icon: 'fas fa-comments', color: 'green' }
+            { href: '/admin-account-deletions', title: 'Account Deletions', desc: 'Review and manage deletion requests', icon: 'fas fa-user-times', color: 'red' },
+            { href: '/admin-disputes', title: 'Disputes', desc: 'Handle user disputes', icon: 'fas fa-gavel', color: 'pink' },
+            { href: '/admin-support', title: 'Contact Support', desc: 'Manage support tickets', icon: 'fas fa-headset', color: 'blue' },
+            { href: '/admin-live-chat', title: 'Live Chat', desc: 'Monitor live chat', icon: 'fas fa-comments', color: 'green' }
         ]
     },
     'products_lead': {
         cards: [
-            { href: 'admin-maintenance.html', title: 'Maintenance Mode', desc: 'Control system maintenance', icon: 'fas fa-tools', color: 'yellow' },
-            { href: 'admin-mass-messaging.html', title: 'Mass Messaging', desc: 'Send maintenance updates', icon: 'fas fa-bullhorn', color: 'purple' },
-            { href: 'admin-maintenance-reports.html', title: 'Maintenance Reports', desc: 'View maintenance analytics', icon: 'fas fa-chart-bar', color: 'blue' },
-            { href: 'admin-ui-queries.html', title: 'UI/UX Queries', desc: 'Manage user interface feedback', icon: 'fas fa-palette', color: 'orange' },
-            { href: 'admin-products.html', title: 'Product Management', desc: 'Manage products, analytics & listings', icon: 'fas fa-package', color: 'amber' },
-            { href: 'admin-sellers.html', title: 'Seller Management', desc: 'Manage seller safety, productivity & platform rules', icon: 'fas fa-store', color: 'indigo' }
+            { href: '/admin-maintenance', title: 'Maintenance Mode', desc: 'Control system maintenance', icon: 'fas fa-tools', color: 'yellow' },
+            { href: '/admin-mass-messaging', title: 'Mass Messaging', desc: 'Send maintenance updates', icon: 'fas fa-bullhorn', color: 'purple' },
+            { href: '/admin-maintenance-reports', title: 'Maintenance Reports', desc: 'View maintenance analytics', icon: 'fas fa-chart-bar', color: 'blue' },
+            { href: '/admin-ui-queries', title: 'UI/UX Queries', desc: 'Manage user interface feedback', icon: 'fas fa-palette', color: 'orange' },
+            { href: '/admin-products', title: 'Product Management', desc: 'Manage products, analytics & listings', icon: 'fas fa-package', color: 'amber' },
+            { href: '/admin-sellers', title: 'Seller Management', desc: 'Manage seller safety, productivity & platform rules', icon: 'fas fa-store', color: 'indigo' }
         ]
     },
     'transaction_safety_lead': {
         cards: [
-            { href: 'admin-transactions.html', title: 'Transaction System', desc: 'Manage transactions and escrow', icon: 'fas fa-exchange-alt', color: 'indigo' },
-            { href: 'admin-disputes.html', title: 'Disputes', desc: 'Handle user disputes', icon: 'fas fa-gavel', color: 'pink' },
-            { href: 'admin-transaction-reports.html', title: 'Transaction Reports', desc: 'View transaction analytics', icon: 'fas fa-chart-line', color: 'blue' },
-            { href: 'admin-risk-management.html', title: 'Risk Management', desc: 'Monitor high-risk activities', icon: 'fas fa-shield-alt', color: 'red' }
+            { href: '/admin-transactions', title: 'Transaction System', desc: 'Manage transactions and escrow', icon: 'fas fa-exchange-alt', color: 'indigo' },
+            { href: '/admin-disputes', title: 'Disputes', desc: 'Handle user disputes', icon: 'fas fa-gavel', color: 'pink' },
+            { href: '/admin-transaction-reports', title: 'Transaction Reports', desc: 'View transaction analytics', icon: 'fas fa-chart-line', color: 'blue' },
+            { href: '/admin-risk-management', title: 'Risk Management', desc: 'Monitor high-risk activities', icon: 'fas fa-shield-alt', color: 'red' }
         ]
     },
     'strategy_growth_lead': {
         cards: [
-            { href: 'strategic-analytics.html', title: 'User Analytics', desc: 'View user behavior analytics', icon: 'fas fa-users', color: 'blue' },
-            { href: 'strategic-analytics.html', title: 'Strategic Analytics', desc: 'View strategic insights', icon: 'fas fa-chart-line', color: 'gold' },
-            { href: 'admin-analytics-reports.html', title: 'Analytics Reports', desc: 'Generate analytical reports', icon: 'fas fa-file-chart', color: 'green' },
-            { href: 'admin-growth-metrics.html', title: 'Growth Metrics', desc: 'Monitor growth indicators', icon: 'fas fa-rocket', color: 'purple' }
+            { href: '/strategic-analytics', title: 'User Analytics', desc: 'View user behavior analytics', icon: 'fas fa-users', color: 'blue' },
+            { href: '/strategic-analytics', title: 'Strategic Analytics', desc: 'View strategic insights', icon: 'fas fa-chart-line', color: 'gold' },
+            { href: '/admin-analytics-reports', title: 'Analytics Reports', desc: 'Generate analytical reports', icon: 'fas fa-file-chart', color: 'green' },
+            { href: '/admin-growth-metrics', title: 'Growth Metrics', desc: 'Monitor growth indicators', icon: 'fas fa-rocket', color: 'purple' }
         ]
     },
     'virtuosa_management': {
         cards: [
-            { href: 'admin-seller-applications.html', title: 'Seller Requests', desc: 'Review and approve applications', icon: 'fas fa-user-check', color: 'teal' },
-            { href: 'admin-cookie-data.html', title: 'Cookie Analytics', desc: 'View cookie and tracking data', icon: 'fas fa-cookie-bite', color: 'orange' },
-            { href: 'admin-users.html', title: 'User Analytics', desc: 'View user insights and analytics', icon: 'fas fa-users', color: 'blue' },
-            { href: 'admin-transactions.html', title: 'Transactions', desc: 'Manage transactions and escrow', icon: 'fas fa-exchange-alt', color: 'indigo' },
-            { href: 'strategic-analytics.html', title: 'Strategic Analytics', desc: 'View strategic insights', icon: 'fas fa-chart-line', color: 'gold' },
-            { href: 'admin-products.html', title: 'Product Management', desc: 'Manage products, analytics & listings', icon: 'fas fa-package', color: 'amber' },
-            { href: 'admin-sellers.html', title: 'Seller Management', desc: 'Manage seller safety, productivity & platform rules', icon: 'fas fa-store', color: 'indigo' }
+            { href: '/admin-seller-applications', title: 'Seller Requests', desc: 'Review and approve applications', icon: 'fas fa-user-check', color: 'teal' },
+            { href: '/admin-cookie-data', title: 'Cookie Analytics', desc: 'View cookie and tracking data', icon: 'fas fa-cookie-bite', color: 'orange' },
+            { href: '/admin-users', title: 'User Analytics', desc: 'View user insights and analytics', icon: 'fas fa-users', color: 'blue' },
+            { href: '/admin-transactions', title: 'Transactions', desc: 'Manage transactions and escrow', icon: 'fas fa-exchange-alt', color: 'indigo' },
+            { href: '/strategic-analytics', title: 'Strategic Analytics', desc: 'View strategic insights', icon: 'fas fa-chart-line', color: 'gold' },
+            { href: '/admin-products', title: 'Product Management', desc: 'Manage products, analytics & listings', icon: 'fas fa-package', color: 'amber' },
+            { href: '/admin-sellers', title: 'Seller Management', desc: 'Manage seller safety, productivity & platform rules', icon: 'fas fa-store', color: 'indigo' }
         ]
     },
     'entry_level': {
         cards: [
-            { href: 'admin-users.html', title: 'User Analytics', desc: 'View user insights and analytics', icon: 'fas fa-users', color: 'blue' }
+            { href: '/admin-users', title: 'User Analytics', desc: 'View user insights and analytics', icon: 'fas fa-users', color: 'blue' }
         ]
     }
 };

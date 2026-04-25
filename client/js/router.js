@@ -96,6 +96,8 @@
         'order-details':            '/pages/order-details.html',
         'about':                    '/pages/about.html',
         'privacy':                  '/pages/privacy.html',
+        'admin-products':           '/pages/admin-products.html',
+        'admin-sellers':            '/pages/admin-sellers.html',
         'wishlist':                 '/pages/wishlist.html'
     };
 
@@ -117,7 +119,8 @@
         'dashboard', 'seller-dashboard', 'admin', 'profile', 'settings',
         'orders', 'order', 'messages', 'notifications', 'transactions',
         'cart', 'checkout', 'create-product', 'edit-product', 'my-products',
-        'seller-analytics', 'seller-orders', 'order-details'
+        'seller-analytics', 'seller-orders', 'order-details',
+        'admin-products', 'admin-sellers', 'admin-users', 'admin-seller-applications'
     ]);
 
     // =========================================================================
