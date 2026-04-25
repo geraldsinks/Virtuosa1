@@ -87,17 +87,24 @@ const ROLE_PERMISSIONS = {
             'strategic_analytics'
         ],
         description: 'Virtuosa Management - High level business oversight'
+    },
+    'entry_level': {
+        permissions: [
+            'view_analytics',
+            'user_analytics'
+        ],
+        description: 'Entry Level Admin'
     }
 };
 
 // Specialized admin roles that have restricted access to the admin dashboard
-const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'];
 
 
 // Get user's effective role based on all role fields
 const getEffectiveRole = (user) => {
     // Log unexpected role values for debugging
-    if (user.role && !['user', 'buyer', 'seller', 'admin', 'CEO', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'virtuosa_management'].includes(user.role)) {
+    if (user.role && !['user', 'buyer', 'seller', 'admin', 'CEO', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'virtuosa_management', 'entry_level'].includes(user.role)) {
         console.warn('⚠️ Unexpected role value detected:', user.role, 'for user:', user._id);
     }
     
@@ -163,7 +170,7 @@ const getAllPermissions = (role) => {
 // Check if user has specific permission
 const hasPermission = (user, permission) => {
     const effectiveRole = getEffectiveRole(user);
-    const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+    const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'];
     
     // For specialized admin lead roles
     if (specializedAdminRoles.includes(effectiveRole)) {
@@ -184,7 +191,7 @@ const hasPermission = (user, permission) => {
 // Check if user can access dashboard based on role hierarchy
 const canAccessDashboard = (user, dashboardType) => {
     const effectiveRole = getEffectiveRole(user);
-    const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+    const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'];
     
     switch (dashboardType) {
         case 'buyer':
@@ -340,7 +347,7 @@ const getUserRoleInfo = async (userId) => {
         }
     
         const effectiveRole = getEffectiveRole(user);
-        const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+        const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'];
         
         let allPermissions = [];
         if (specializedAdminRoles.includes(effectiveRole)) {

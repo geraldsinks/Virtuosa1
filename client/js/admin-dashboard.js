@@ -81,6 +81,11 @@ const ROLE_NAVIGATION = {
             { href: 'admin-products.html', title: 'Product Management', desc: 'Manage products, analytics & listings', icon: 'fas fa-package', color: 'amber' },
             { href: 'admin-sellers.html', title: 'Seller Management', desc: 'Manage seller safety, productivity & platform rules', icon: 'fas fa-store', color: 'indigo' }
         ]
+    },
+    'entry_level': {
+        cards: [
+            { href: 'admin-users.html', title: 'User Analytics', desc: 'View user insights and analytics', icon: 'fas fa-users', color: 'blue' }
+        ]
     }
 };
 
@@ -261,7 +266,7 @@ async function checkAdminAccess() {
 
         const user = await response.json();
         // Define all roles that qualify for admin dashboard access
-        const adminRoles = ['admin', 'CEO', 'virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+        const adminRoles = ['admin', 'CEO', 'virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'];
         
         // Check if user role is in the admin category or isAdmin is true
         if (!adminRoles.includes(user.role) && user.isAdmin !== 'true' && user.isAdmin !== true) {
@@ -272,7 +277,7 @@ async function checkAdminAccess() {
 
         // Normalize and set role
         const currentRole = (user.role || '').toLowerCase().trim();
-        const specializedRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'];
+        const specializedRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'];
         
         const detectedRole = specializedRoles.includes(currentRole) ? currentRole : (currentRole === 'ceo' ? 'admin' : 'admin');
         userRole = detectedRole;

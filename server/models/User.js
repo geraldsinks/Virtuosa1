@@ -121,7 +121,7 @@ const userSchema = new mongoose.Schema({
     // Roles and Permissions
     role: {
         type: String,
-        enum: ['user', 'buyer', 'seller', 'admin', 'CEO', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead'],
+        enum: ['user', 'buyer', 'seller', 'admin', 'CEO', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'],
         default: 'user'
     },
     isAdmin: {
