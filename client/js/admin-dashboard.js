@@ -24,7 +24,9 @@ const ROLE_NAVIGATION = {
             { href: 'admin-disputes.html', title: 'Disputes', desc: 'Handle user disputes', icon: 'fas fa-gavel', color: 'pink' },
             { href: 'admin-support.html', title: 'Support Tickets', desc: 'Manage customer support tickets', icon: 'fas fa-headset', color: 'cyan' },
             { href: 'admin-live-chat.html', title: 'Live Chat', desc: 'Monitor live customer chat', icon: 'fas fa-comments', color: 'blue' },
-            { href: 'strategic-analytics.html', title: 'Strategic Analytics', desc: 'View strategic insights', icon: 'fas fa-chart-line', color: 'gold' }
+            { href: 'strategic-analytics.html', title: 'Strategic Analytics', desc: 'View strategic insights', icon: 'fas fa-chart-line', color: 'gold' },
+            { href: 'admin-products.html', title: 'Product Management', desc: 'Manage products, analytics & listings', icon: 'fas fa-package', color: 'amber' },
+            { href: 'admin-sellers.html', title: 'Seller Management', desc: 'Manage seller safety, productivity & platform rules', icon: 'fas fa-store', color: 'indigo' }
         ]
     },
     'marketing_lead': {
@@ -48,7 +50,9 @@ const ROLE_NAVIGATION = {
             { href: 'admin-maintenance.html', title: 'Maintenance Mode', desc: 'Control system maintenance', icon: 'fas fa-tools', color: 'yellow' },
             { href: 'admin-mass-messaging.html', title: 'Mass Messaging', desc: 'Send maintenance updates', icon: 'fas fa-bullhorn', color: 'purple' },
             { href: 'admin-maintenance-reports.html', title: 'Maintenance Reports', desc: 'View maintenance analytics', icon: 'fas fa-chart-bar', color: 'blue' },
-            { href: 'admin-ui-queries.html', title: 'UI/UX Queries', desc: 'Manage user interface feedback', icon: 'fas fa-palette', color: 'orange' }
+            { href: 'admin-ui-queries.html', title: 'UI/UX Queries', desc: 'Manage user interface feedback', icon: 'fas fa-palette', color: 'orange' },
+            { href: 'admin-products.html', title: 'Product Management', desc: 'Manage products, analytics & listings', icon: 'fas fa-package', color: 'amber' },
+            { href: 'admin-sellers.html', title: 'Seller Management', desc: 'Manage seller safety, productivity & platform rules', icon: 'fas fa-store', color: 'indigo' }
         ]
     },
     'transaction_safety_lead': {
@@ -73,7 +77,9 @@ const ROLE_NAVIGATION = {
             { href: 'admin-cookie-data.html', title: 'Cookie Analytics', desc: 'View cookie and tracking data', icon: 'fas fa-cookie-bite', color: 'orange' },
             { href: 'admin-users.html', title: 'User Analytics', desc: 'View user insights and analytics', icon: 'fas fa-users', color: 'blue' },
             { href: 'admin-transactions.html', title: 'Transactions', desc: 'Manage transactions and escrow', icon: 'fas fa-exchange-alt', color: 'indigo' },
-            { href: 'strategic-analytics.html', title: 'Strategic Analytics', desc: 'View strategic insights', icon: 'fas fa-chart-line', color: 'gold' }
+            { href: 'strategic-analytics.html', title: 'Strategic Analytics', desc: 'View strategic insights', icon: 'fas fa-chart-line', color: 'gold' },
+            { href: 'admin-products.html', title: 'Product Management', desc: 'Manage products, analytics & listings', icon: 'fas fa-package', color: 'amber' },
+            { href: 'admin-sellers.html', title: 'Seller Management', desc: 'Manage seller safety, productivity & platform rules', icon: 'fas fa-store', color: 'indigo' }
         ]
     }
 };
