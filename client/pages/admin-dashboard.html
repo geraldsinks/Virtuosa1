@@ -89,7 +89,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6">
+            <div id="revenue-kpi-card" class="bg-white rounded-lg shadow p-6">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm">Total Revenue</p>
@@ -131,7 +131,7 @@
 
         <!-- NEW: Secondary KPI Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow p-6">
+            <div id="aov-kpi-card" class="bg-white rounded-lg shadow p-6">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-500 text-sm">Avg. Order Value</p>
@@ -334,7 +334,7 @@
 
     <!-- Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow p-6">
+        <div id="revenue-chart-container" class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Revenue Trend</h3>
             <canvas id="revenueChart"></canvas>
         </div>
@@ -346,13 +346,13 @@
 
     <!-- Top Sellers & Recent Transactions -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow p-6">
+        <div id="top-sellers-section" class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Sellers</h3>
             <div id="topSellers" class="space-y-3">
                 <!-- Top sellers will be populated here -->
             </div>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
+        <div id="recent-transactions-section" class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Transactions</h3>
             <div id="recentTransactions" class="space-y-3">
                 <!-- Recent transactions will be populated here -->

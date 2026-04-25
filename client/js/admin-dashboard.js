@@ -229,6 +229,23 @@ function configureDashboardUI(role) {
         if (dangerousActionsSection) dangerousActionsSection.style.setProperty('display', 'none', 'important');
         if (managementSection) managementSection.style.setProperty('display', 'none', 'important');
         console.log(`🛡️ Dashboard UI restricted for specialized role: ${role}`);
+        
+        // Hide revenue stream for entry_level
+        if (normalizedRole === 'entry_level') {
+            const revenueKPI = document.getElementById('revenue-kpi-card');
+            const aovKPI = document.getElementById('aov-kpi-card');
+            const revenueChart = document.getElementById('revenue-chart-container');
+            const topSellers = document.getElementById('top-sellers-section');
+            const recentTransactions = document.getElementById('recent-transactions-section');
+            
+            if (revenueKPI) revenueKPI.style.display = 'none';
+            if (aovKPI) aovKPI.style.display = 'none';
+            if (revenueChart) revenueChart.style.display = 'none';
+            if (topSellers) topSellers.style.display = 'none';
+            if (recentTransactions) recentTransactions.style.display = 'none';
+            
+            console.log('🔇 Revenue stream and transactions hidden for entry_level');
+        }
     } else {
         // Show sections for super admins
         if (adminActionsSection) adminActionsSection.style.display = 'block';
