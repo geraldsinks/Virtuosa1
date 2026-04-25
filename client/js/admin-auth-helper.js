@@ -60,7 +60,8 @@ async function checkAdminAccess() {
     if (!response) return null;
     
     const roleInfo = await response.json();
-    console.log('Admin access check - role info:', roleInfo);
+    console.log('Admin access check - role info received:', roleInfo);
+    console.log('Role:', roleInfo.role, 'isAdmin:', roleInfo.isAdmin, 'effectiveRole:', roleInfo.effectiveRole);
     
     // Check admin capability using the server-confirmed isAdmin flag OR role matching
     const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'];
