@@ -6,12 +6,31 @@ let universityChart = null;
 // Load user analytics data
 async function loadUserAnalytics() {
     try {
-        const period = document.getElementById('periodSelector').value;
-        const response = await adminFetch(`${API_BASE}/admin/user-analytics?period=${period}`);
+        const periodSelector = document.getElementById('periodSelector');
+        const period = periodSelector.value;
+        const dateContainer = document.getElementById('dateSelectorContainer');
+        const customDate = document.getElementById('customDateSelector')?.value || '';
+
+        // Show/hide date selector based on period
+        if (period === 'custom_day') {
+            dateContainer?.classList.remove('hidden');
+        } else {
+            dateContainer?.classList.add('hidden');
+        }
+
+        const params = new URLSearchParams({ period });
+        if (period === 'custom_day' && customDate) {
+            params.set('date', customDate);
+        }
+
+        const response = await adminFetch(`${API_BASE}/admin/user-analytics?${params}`);
         if (!response) return;
         const data = await response.json();
         updateAnalyticsCards(data);
         updateAnalyticsCharts(data);
+        
+        // Link top period to the user list below
+        loadUsers(1);
     } catch (error) {
         console.error('Error loading user analytics:', error);
         // Only redirect on authentication errors, not network errors
@@ -27,11 +46,26 @@ async function loadUserAnalytics() {
 
 // Update analytics cards
 function updateAnalyticsCards(data) {
-    // Main KPIs
+    const period = document.getElementById('periodSelector').value;
+    const customDate = document.getElementById('customDateSelector')?.value;
+    const isDaily = period === 'custom_day' && customDate;
+
     document.getElementById('totalUsers').textContent = data.totalUsers?.toLocaleString() || '0';
     document.getElementById('activeUsers').textContent = data.activeUsers?.toLocaleString() || '0';
     document.getElementById('newUsers').textContent = data.newUsers30Days?.toLocaleString() || '0';
     document.getElementById('siteVisits').textContent = data.siteVisits?.toLocaleString() || '0';
+
+    // Update labels if daily
+    const activeLabel = document.querySelector('[id="activeUsers"]').previousElementSibling;
+    const newUsersLabel = document.querySelector('[id="newUsers"]').previousElementSibling;
+    
+    if (isDaily) {
+        if (activeLabel) activeLabel.textContent = 'Active (Selected Day)';
+        if (newUsersLabel) newUsersLabel.textContent = 'Joined (Selected Day)';
+    } else {
+        if (activeLabel) activeLabel.textContent = 'Active Users';
+        if (newUsersLabel) newUsersLabel.textContent = `New Users (${period === 'all' ? 'Total' : period + 'd'})`;
+    }
 
     // Growth indicators
     const userGrowthEl = document.getElementById('userGrowth');
@@ -202,7 +236,8 @@ async function loadUsers(page = 1) {
             search,
             role,
             verified,
-            signupDate
+            signupDate,
+            period: (period === 'custom_day' ? '' : period) // Top period overrides if present
         });
 
         const response = await adminFetch(`${API_BASE}/admin/users?${params}`);
@@ -277,7 +312,10 @@ function displayUsers(users) {
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 ${new Date(user.createdAt).toLocaleDateString()}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2 flex items-center">
+                <button onclick="viewUserDetails('${user._id}')" class="text-indigo-600 hover:text-indigo-900 flex items-center gap-1">
+                    <i class="fas fa-eye"></i> Details
+                </button>
                 <button onclick="window.location.href='messages.html?recipientId=${user._id}'" class="text-blue-600 hover:text-blue-900 flex items-center gap-1">
                     <i class="fas fa-envelope"></i> Message
                 </button>
@@ -439,3 +477,93 @@ document.addEventListener('DOMContentLoaded', async function() {
         loadUsers();
     });
 });
+
+// User Details Modal Logic
+async function viewUserDetails(userId) {
+    try {
+        // Fetch specific user details 
+        const response = await adminFetch(`${API_BASE}/admin/users?search=${userId}`);
+        if (!response) return;
+        
+        const data = await response.json();
+        const user = data.users.find(u => u._id === userId);
+        
+        if (!user) {
+            alert('User profile details not found.');
+            return;
+        }
+
+        const modal = document.getElementById('userDetailsModal');
+        const content = document.getElementById('modalContent');
+
+        content.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Identity</h4>
+                        <p class="text-lg font-bold text-gray-900">${user.fullName}</p>
+                        <p class="text-indigo-600 font-medium">${user.email}</p>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Contact Info</h4>
+                        <p class="text-gray-700"><i class="fas fa-phone mr-2 text-gray-400"></i>${user.phoneNumber || 'N/A'}</p>
+                        <p class="text-gray-700 capitalize"><i class="fas fa-venus-mars mr-2 text-gray-400"></i>${user.gender || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Account Status</h4>
+                        <div class="mt-1 flex flex-wrap gap-2">
+                             <span class="px-2 py-1 rounded-md text-xs font-bold ${user.isStudentVerified ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                                ${user.isStudentVerified ? 'Verified Student' : 'Unverified'}
+                             </span>
+                             <span class="px-2 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-700 capitalize">
+                                ${user.role}
+                             </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Academic Info</h4>
+                        <p class="font-bold text-gray-900 mt-1">${user.university || 'N/A'}</p>
+                        <p class="text-gray-600">${user.faculty || 'N/A'}</p>
+                        <p class="text-sm text-gray-500">ID: ${user.studentId || 'N/A'} (Year: ${user.yearOfStudy || 'N/A'})</p>
+                    </div>
+                    ${user.isSeller ? `
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Marketplace Presence</h4>
+                        <p class="font-bold text-gray-900">${user.storeName || 'Unnamed Store'}</p>
+                        <p class="text-xs text-gray-500 line-clamp-2 mt-1">${user.storeDescription || 'No store bio provided'}</p>
+                        <div class="mt-3 flex items-center justify-between">
+                            <span class="text-sm font-bold text-yellow-600"><i class="fas fa-star mr-1"></i>${user.sellerRating || '0.0'}</span>
+                            <span class="text-xs text-gray-400">Joined: ${new Date(user.createdAt).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                    ` : `
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 italic text-sm text-blue-700">
+                        Regular buyer account. No active seller profile detected.
+                    </div>
+                    `}
+                </div>
+
+                ${user.bio ? `
+                <div class="col-span-1 md:col-span-2">
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">User Bio</h4>
+                    <p class="text-gray-600 text-sm italic border-l-4 border-gray-200 pl-4 py-1 bg-gray-50 rounded-r-lg">"${user.bio}"</p>
+                </div>
+                ` : ''}
+            </div>
+        `;
+
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    } catch (error) {
+        console.error('Error showing user details:', error);
+        alert('Failed to load user details. Please check the console.');
+    }
+}
+
+function closeUserDetailsModal() {
+    document.getElementById('userDetailsModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}

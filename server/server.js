@@ -5754,7 +5754,7 @@ app.get('/api/admin/dashboard', authenticateAdmin, async (req, res) => {
 // Get all users (admin)
 app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
     try {
-        const { page = 1, limit = 20, search, role, verified, signupDate } = req.query;
+        const { page = 1, limit = 20, search, role, verified, signupDate, period } = req.query;
 
         let filter = {};
 
@@ -5785,6 +5785,10 @@ app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
             const end = new Date(signupDate);
             end.setHours(23, 59, 59, 999);
             filter.createdAt = { $gte: start, $lte: end };
+        } else if (period && period !== 'all') {
+            const daysAgo = new Date();
+            daysAgo.setDate(daysAgo.getDate() - parseInt(period));
+            filter.createdAt = { $gte: daysAgo };
         }
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -5815,11 +5819,19 @@ app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
 // Get user analytics (admin)
 app.get('/api/admin/user-analytics', authenticateToken, checkRoleAccess('user_analytics'), async (req, res) => {
     try {
-        const { period = '30' } = req.query;
-        const daysAgo = new Date();
+        const { period = '30', date } = req.query;
+        let queryRange = null;
         
-        if (period !== 'all') {
+        if (period === 'custom_day' && date) {
+            const start = new Date(date);
+            start.setHours(0, 0, 0, 0);
+            const end = new Date(date);
+            end.setHours(23, 59, 59, 999);
+            queryRange = { $gte: start, $lte: end };
+        } else if (period !== 'all') {
+            const daysAgo = new Date();
             daysAgo.setDate(daysAgo.getDate() - parseInt(period));
+            queryRange = { $gte: daysAgo };
         }
 
         // Basic user counts
@@ -5829,31 +5841,34 @@ app.get('/api/admin/user-analytics', authenticateToken, checkRoleAccess('user_an
         const proSellers = await User.countDocuments({ isProSeller: true });
         const totalBuyers = totalUsers - totalSellers;
 
-        // Active users (logged in within last 30 days)
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        const activeUsers = await User.countDocuments({
-            lastLogin: { $gte: thirtyDaysAgo }
-        });
 
-        // New users in the last 30 days
-        const newUsers30Days = await User.countDocuments({
-            createdAt: { $gte: thirtyDaysAgo }
-        });
+        // Metrics based on period/date
+        const activeUsersFilter = queryRange ? { lastLogin: queryRange } : { lastLogin: { $gte: thirtyDaysAgo } };
+        const activeUsers = await User.countDocuments(activeUsersFilter);
+
+        const newUsersFilter = queryRange ? { createdAt: queryRange } : { createdAt: { $gte: thirtyDaysAgo } };
+        const newUsers30Days = await User.countDocuments(newUsersFilter);
 
         // Previous period for growth calculations
-        const previousPeriodStart = new Date(thirtyDaysAgo);
-        previousPeriodStart.setDate(previousPeriodStart.getDate() - 30);
-        const previousPeriodEnd = new Date(thirtyDaysAgo);
+        let userGrowthRate = 0;
+        if (period !== 'custom_day' && period !== 'all') {
+            const numericPeriod = parseInt(period);
+            const growthLookback = isNaN(numericPeriod) ? 30 : numericPeriod;
+            
+            const previousPeriodStart = new Date(thirtyDaysAgo);
+            previousPeriodStart.setDate(previousPeriodStart.getDate() - growthLookback);
+            const previousPeriodEnd = new Date(thirtyDaysAgo);
 
-        const previousPeriodUsers = await User.countDocuments({
-            createdAt: { $gte: previousPeriodStart, $lt: previousPeriodEnd }
-        });
+            const previousPeriodUsers = await User.countDocuments({
+                createdAt: { $gte: previousPeriodStart, $lt: previousPeriodEnd }
+            });
 
-        // Calculate growth rates
-        const userGrowthRate = previousPeriodUsers > 0 
-            ? ((newUsers30Days - previousPeriodUsers) / previousPeriodUsers * 100).toFixed(1)
-            : 0;
+            userGrowthRate = previousPeriodUsers > 0 
+                ? ((newUsers30Days - previousPeriodUsers) / previousPeriodUsers * 100).toFixed(1)
+                : 0;
+        }
 
         // Simulated site visits (in a real app, this would come from analytics tracking)
         const siteVisits = totalUsers * 12.5; // Estimate: 12.5 visits per user
@@ -5861,7 +5876,9 @@ app.get('/api/admin/user-analytics', authenticateToken, checkRoleAccess('user_an
 
         // User growth over time (daily)
         let userGrowthData = [];
-        const daysToShow = period === 'all' ? 30 : parseInt(period);
+        const numericPeriod = parseInt(period);
+        const daysToShow = isNaN(numericPeriod) ? (period === 'custom_day' ? 1 : 30) : numericPeriod;
+        
         
         for (let i = daysToShow - 1; i >= 0; i--) {
             const date = new Date();
