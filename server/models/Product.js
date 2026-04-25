@@ -47,7 +47,7 @@ const productSchema = new mongoose.Schema({
     }],
 
     // Product status
-    status: { type: String, enum: ['Active', 'Sold', 'Reserved', 'Removed', 'Out of Stock'], default: 'Active' },
+    status: { type: String, enum: ['Active', 'Sold', 'Reserved', 'Removed', 'Out of Stock', 'Suspended'], default: 'Active' },
     isFeatured: { type: Boolean, default: false },
     viewCount: { type: Number, default: 0 },
     favoriteCount: { type: Number, default: 0 },

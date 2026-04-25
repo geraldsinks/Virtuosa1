@@ -163,6 +163,10 @@ app.get('/admin-products', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/pages/admin-products.html'));
 });
 
+app.get('/admin-sellers', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/pages/admin-sellers.html'));
+});
+
 app.get('/cart', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/pages/cart.html'));
 });
@@ -986,6 +990,312 @@ app.delete('/api/admin/products/grids/:id', authenticateToken, isAdmin, async (r
     } catch (error) {
         console.error('Error deleting grid:', error);
         res.status(500).json({ message: 'Failed to delete grid', error: error.message });
+    }
+});
+
+// ============================================================
+// ADMIN SELLER MANAGEMENT ENDPOINTS
+// ============================================================
+
+// GET /api/admin/sellers/analytics — Fetch high-level seller KPIs
+app.get('/api/admin/sellers/analytics', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const [
+            totalSellers,
+            proSellers,
+            pendingApps,
+            allSellersList
+        ] = await Promise.all([
+            User.countDocuments({ isSeller: true }),
+            User.countDocuments({ isSeller: true, isProSeller: true }),
+            User.countDocuments({ sellerApplicationStatus: 'Pending' }),
+            User.find({ isSeller: true }).select('totalSales sellerRating successfulTransactions tokenBalance createdAt').lean()
+        ]);
+
+        let totalMarketRevenue = 0;
+        let totalTransactions = 0;
+        let totalTokens = 0;
+        let sumRating = 0;
+        let ratedSellers = 0;
+
+        allSellersList.forEach(s => {
+            totalMarketRevenue += (s.totalSales || 0);
+            totalTransactions += (s.successfulTransactions || 0);
+            totalTokens += (s.tokenBalance || 0);
+            if (s.sellerRating) {
+                sumRating += s.sellerRating;
+                ratedSellers++;
+            }
+        });
+
+        const avgRating = ratedSellers > 0 ? (sumRating / ratedSellers).toFixed(1) : parseFloat('0').toFixed(1);
+
+        // Calculate seller acquisition over last 6 months
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const acquisitionTrend = await User.aggregate([
+            { $match: { isSeller: true, createdAt: { $gte: sixMonthsAgo } } },
+            { $group: {
+                _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } },
+                count: { $sum: 1 }
+            }},
+            { $sort: { _id: 1 } }
+        ]);
+
+        // Top 10 by successful transactions
+        const topSellersList = await User.find({ isSeller: true })
+            .select('fullName email storeName successfulTransactions totalSales sellerRating isProSeller')
+            .sort({ successfulTransactions: -1, totalSales: -1 })
+            .limit(10)
+            .lean();
+
+        res.json({
+            kpis: {
+                totalSellers,
+                proSellers,
+                pendingApps,
+                totalMarketRevenue,
+                totalTransactions,
+                totalTokens,
+                avgRating
+            },
+            acquisitionTrend,
+            topSellers: topSellersList
+        });
+    } catch (error) {
+        console.error('Error loading seller analytics:', error);
+        res.status(500).json({ message: 'Failed to load seller analytics', error: error.message });
+    }
+});
+
+// GET /api/admin/sellers/list — Fetch paginated/filtered list of sellers
+app.get('/api/admin/sellers/list', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const { page = 1, limit = 20, search, status, verified, pro } = req.query;
+        // Base query - only return those who are or were sellers (could be suspended)
+        const query = { $or: [{ isSeller: true }, { sellerApplicationStatus: 'Suspended' }, { sellerApplicationStatus: 'Approved' }] };
+
+        if (search) {
+            query.$or = [
+                { fullName: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } },
+                { storeName: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        if (status) { // 'Active' or 'Suspended'
+            if (status === 'Active') query.isSeller = true;
+            if (status === 'Suspended') query.sellerApplicationStatus = 'Suspended';
+        }
+
+        if (verified === 'true') {
+            query.sellerVerified = true;
+        } else if (verified === 'false') {
+            query.sellerVerified = false;
+        }
+
+        if (pro === 'true') {
+            query.isProSeller = true;
+        } else if (pro === 'false') {
+            query.isProSeller = false;
+        }
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const [sellers, total] = await Promise.all([
+            User.find(query)
+                .select('fullName email phoneNumber storeName isSeller isProSeller sellerApplicationStatus sellerVerified sellerRating successfulTransactions createdAt')
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(parseInt(limit))
+                .lean(),
+            User.countDocuments(query)
+        ]);
+
+        res.json({
+            sellers,
+            pagination: {
+                total,
+                page: parseInt(page),
+                limit: parseInt(limit),
+                pages: Math.ceil(total / parseInt(limit))
+            }
+        });
+    } catch (error) {
+        console.error('Error loading sellers list:', error);
+        res.status(500).json({ message: 'Failed to load sellers', error: error.message });
+    }
+});
+
+// PUT /api/admin/sellers/:id/suspend — Suspend seller & optionally hide products
+app.put('/api/admin/sellers/:id/suspend', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const sellerId = req.params.id;
+        const { reason, hideProducts } = req.body;
+        
+        const seller = await User.findById(sellerId);
+        if (!seller) return res.status(404).json({ message: 'Seller not found' });
+
+        seller.isSeller = false;
+        seller.sellerApplicationStatus = 'Suspended';
+        await seller.save();
+
+        if (hideProducts) {
+            // Update all their active products to suspended
+            await Product.updateMany({ seller: sellerId, status: 'Active' }, { status: 'Suspended' });
+        }
+
+        const notification = new Notification({
+            recipient: sellerId,
+            sender: req.user.userId,
+            type: 'system_alert',
+            title: 'Seller Account Suspended',
+            message: `Your seller privileges have been suspended. Reason: ${reason || 'Policy violation'}. Please contact support.`,
+            priority: 'high',
+            data: { reason }
+        });
+        await notification.save();
+
+        if (notificationService) {
+            notificationService.sendToUser(sellerId.toString(), {
+                type: 'system_alert',
+                title: 'Seller Account Suspended',
+                message: `Your seller privileges have been suspended. Reason: ${reason || 'Policy violation'}.`
+            });
+        }
+
+        res.json({ message: 'Seller suspended successfully' });
+    } catch (error) {
+        console.error('Error suspending seller:', error);
+        res.status(500).json({ message: 'Failed to suspend seller', error: error.message });
+    }
+});
+
+// POST /api/admin/sellers/:id/warn — Send platform warning notification
+app.post('/api/admin/sellers/:id/warn', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const sellerId = req.params.id;
+        const { message } = req.body;
+        
+        if (!message) return res.status(400).json({ message: 'Warning message is required' });
+
+        const seller = await User.findById(sellerId);
+        if (!seller) return res.status(404).json({ message: 'Seller not found' });
+
+        const notification = new Notification({
+            recipient: sellerId,
+            sender: req.user.userId,
+            type: 'system_alert',
+            title: 'Official Platform Warning',
+            message: `You have received an official warning from administration: ${message}`,
+            priority: 'high'
+        });
+        await notification.save();
+
+        if (notificationService) {
+            notificationService.sendToUser(sellerId.toString(), {
+                type: 'system_alert',
+                title: 'Official Platform Warning',
+                message: `You have received an official warning from administration: ${message}`
+            });
+        }
+
+        res.json({ message: 'Warning sent successfully' });
+    } catch (error) {
+        console.error('Error warning seller:', error);
+        res.status(500).json({ message: 'Failed to send warning', error: error.message });
+    }
+});
+
+// PUT /api/admin/sellers/:id/verify — Manually override verification status
+app.put('/api/admin/sellers/:id/verify', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const sellerId = req.params.id;
+        const { isStudentVerified, isEmailVerified, sellerVerified } = req.body;
+        
+        const seller = await User.findById(sellerId);
+        if (!seller) return res.status(404).json({ message: 'Seller not found' });
+
+        if (isStudentVerified !== undefined) seller.isStudentVerified = isStudentVerified;
+        if (isEmailVerified !== undefined) seller.isEmailVerified = isEmailVerified;
+        if (sellerVerified !== undefined) seller.sellerVerified = sellerVerified;
+        
+        await seller.save();
+        res.json({ message: 'Seller verification updated successfully', seller: {
+            isStudentVerified: seller.isStudentVerified,
+            isEmailVerified: seller.isEmailVerified,
+            sellerVerified: seller.sellerVerified
+        }});
+    } catch (error) {
+        console.error('Error updating verification:', error);
+        res.status(500).json({ message: 'Failed to update verification', error: error.message });
+    }
+});
+
+// PUT /api/admin/sellers/:id/pro — Toggle Pro Seller status
+app.put('/api/admin/sellers/:id/pro', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const sellerId = req.params.id;
+        const seller = await User.findById(sellerId);
+        if (!seller) return res.status(404).json({ message: 'Seller not found' });
+
+        seller.isProSeller = !seller.isProSeller;
+        
+        if (seller.isProSeller) {
+            seller.proSubscriptionStart = new Date();
+            // Default 1 month
+            const end = new Date();
+            end.setMonth(end.getMonth() + 1);
+            seller.proSubscriptionEnd = end;
+            
+            // Notification
+            const notification = new Notification({
+                recipient: sellerId,
+                sender: req.user.userId,
+                type: 'system_alert',
+                title: 'Welcome to Virtuosa Pro - Manually Upgraded',
+                message: `Your account has been upgraded to Virtuosa Pro by an administrator! Enjoy the new features.`,
+                priority: 'normal'
+            });
+            await notification.save();
+        }
+
+        await seller.save();
+        res.json({ message: `Pro status ${seller.isProSeller ? 'granted' : 'revoked'}`, isProSeller: seller.isProSeller });
+    } catch (error) {
+        console.error('Error toggling Pro status:', error);
+        res.status(500).json({ message: 'Failed to toggle Pro status', error: error.message });
+    }
+});
+
+// POST /api/admin/sellers/:id/reset-password — Send reset token manually or trigger email via admin
+app.post('/api/admin/sellers/:id/reset-password', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const crypto = require('crypto');
+        const sellerId = req.params.id;
+        const seller = await User.findById(sellerId);
+        if (!seller) return res.status(404).json({ message: 'Seller not found' });
+
+        const resetToken = crypto.randomBytes(20).toString('hex');
+        seller.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+        seller.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+        await seller.save();
+
+        const resetUrl = `${req.protocol}://${req.get('host')}/reset-password?token=${resetToken}`;
+
+        // Instead of sending email immediately here, we generate a link the admin can copy
+        // Or if you have sendEmail configured properly:
+        /*
+        const message = `You are receiving this email because an admin requested a password reset for your account.\n\n
+        Please click on the following link, or paste this into your browser to complete the process:\n\n
+        ${resetUrl}\n\n
+        If you did not request this, please contact support.`;
+        await sendEmail({ email: seller.email, subject: 'Password Reset', message });
+        */
+
+        res.json({ message: 'Password reset link generated', resetUrl });
+    } catch (error) {
+        console.error('Error generating reset link:', error);
+        res.status(500).json({ message: 'Failed to generate reset link', error: error.message });
     }
 });
 
