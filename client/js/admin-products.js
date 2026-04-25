@@ -403,9 +403,12 @@ function showToast(message, type = 'info') {
 // ============================================================
 // INIT
 // ============================================================
-document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('token');
-    if (!token) { window.location.href = '/login'; return; }
+// INIT
+document.addEventListener('DOMContentLoaded', async () => {
+    // Check admin access first
+    const hasAccess = await checkAdminAccess();
+    if (!hasAccess) return;
+
     loadAnalytics();
 
     // Bind enter key on search

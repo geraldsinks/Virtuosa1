@@ -2,20 +2,13 @@
 
 // Check auth on load
 document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = '/login.html';
-            return;
-        }
-        
-        // Wait for auth config/check (from admin-auth-helper if available)
-        // Load initial data
-        await loadSellerAnalytics();
-        await loadSellers();
-    } catch (err) {
-        console.error('Initialization error:', err);
-    }
+    // Check admin access first
+    const hasAccess = await checkAdminAccess();
+    if (!hasAccess) return;
+    
+    // Load initial data
+    await loadSellerAnalytics();
+    await loadSellers();
 });
 
 // UI: Tab Switching

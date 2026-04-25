@@ -201,6 +201,14 @@
       "destination": "/pages/marketing-dashboard.html"
     },
     {
+      "source": "/admin-products",
+      "destination": "/pages/admin-products.html"
+    },
+    {
+      "source": "/admin-sellers",
+      "destination": "/pages/admin-sellers.html"
+    },
+    {
       "source": "/marketing",
       "destination": "/pages/marketing.html"
     },
