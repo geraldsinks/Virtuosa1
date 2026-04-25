@@ -24,7 +24,11 @@ async function loadUserAnalytics() {
         }
 
         const response = await adminFetch(`${API_BASE}/admin/user-analytics?${params}`);
-        if (!response) return;
+        if (!response) {
+            // Still try to load users if fetch starts but doesn't return response
+            loadUsers(1);
+            return;
+        }
         const data = await response.json();
         updateAnalyticsCards(data);
         updateAnalyticsCharts(data);
@@ -41,12 +45,15 @@ async function loadUserAnalytics() {
         showError('Failed to load user analytics');
         // Load fallback data
         loadFallbackAnalytics();
+        // Still try to load users even if analytics fails
+        loadUsers(1);
     }
 }
 
 // Update analytics cards
 function updateAnalyticsCards(data) {
-    const period = document.getElementById('periodSelector').value;
+    const periodSelector = document.getElementById('periodSelector');
+    const period = periodSelector ? periodSelector.value : '30';
     const customDate = document.getElementById('customDateSelector')?.value;
     const isDaily = period === 'custom_day' && customDate;
 
@@ -230,6 +237,8 @@ async function loadUsers(page = 1) {
         const role = document.getElementById('userRoleFilter')?.value || '';
         const verified = document.getElementById('userVerifiedFilter')?.value || '';
         const signupDate = document.getElementById('userDateFilter')?.value || '';
+        const periodSelector = document.getElementById('periodSelector');
+        const period = periodSelector ? periodSelector.value : '';
 
         const params = new URLSearchParams({
             page,
@@ -460,7 +469,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     loadUserAnalytics();
-    loadUsers();
 
     // Add event listeners for filters
     document.getElementById('userSearch')?.addEventListener('keypress', function(e) {
@@ -513,10 +521,10 @@ async function viewUserDetails(userId) {
                         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Account Status</h4>
                         <div class="mt-1 flex flex-wrap gap-2">
                              <span class="px-2 py-1 rounded-md text-xs font-bold ${user.isStudentVerified ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
-                                ${user.isStudentVerified ? 'Verified Student' : 'Unverified'}
+                                 ${user.isStudentVerified ? 'Verified Student' : 'Unverified'}
                              </span>
                              <span class="px-2 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-700 capitalize">
-                                ${user.role}
+                                 ${user.role}
                              </span>
                         </div>
                     </div>
