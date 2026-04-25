@@ -608,8 +608,15 @@ class UnifiedHeader {
         // Desktop Top Auth Link
         const headerLoginLink = document.getElementById('header-login-link');
         const headerGreeting = document.getElementById('header-greeting');
+        
+        // Check for any admin role
+        const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'];
+        const isAdmin = this.userData?.role === 'admin' || 
+                        this.userData?.isAdmin === true || 
+                        specializedAdminRoles.includes(this.userData?.role);
+
         if (headerLoginLink) {
-            headerLoginLink.href = '/dashboard';
+            headerLoginLink.href = isAdmin ? '/admin' : '/dashboard';
             if (headerGreeting) headerGreeting.textContent = `Hello, ${firstName}`;
         }
 
@@ -617,7 +624,7 @@ class UnifiedHeader {
         const sideMenuGreeting = document.getElementById('side-menu-greeting');
         if (sideMenuGreeting) {
             sideMenuGreeting.textContent = `Hello, ${firstName}`;
-            sideMenuGreeting.href = '/dashboard';
+            sideMenuGreeting.href = isAdmin ? '/admin' : '/dashboard';
         }
 
         // Sign Out Button Inside Side Menu
@@ -663,8 +670,13 @@ class UnifiedHeader {
     }
 
     updateConditionalSections(userData) {
+        const specializedAdminRoles = ['virtuosa_management', 'marketing_lead', 'support_lead', 'products_lead', 'transaction_safety_lead', 'strategy_growth_lead', 'entry_level'];
+        
         const isSeller = userData.isSeller || userData.role === 'seller';
-        const isAdmin = userData.role === 'admin' || userData.isAdmin === 'true' || userData.isAdmin === true;
+        const isAdmin = userData.role === 'admin' || 
+                        userData.isAdmin === 'true' || 
+                        userData.isAdmin === true || 
+                        specializedAdminRoles.includes(userData.role);
 
         const sellerSection = document.getElementById('side-menu-seller-section');
         const adminSection = document.getElementById('side-menu-admin-section');
