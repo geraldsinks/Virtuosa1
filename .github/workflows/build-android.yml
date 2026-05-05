@@ -1,0 +1,102 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - app-work
+    paths:
+      - 'mobile/**'
+      - 'client/**'
+      - '.github/workflows/build-android.yml'
+  # Allow manual trigger from GitHub Actions tab
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type (debug or release)'
+        required: true
+        default: 'debug'
+        type: choice
+        options:
+          - debug
+          - release
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── 2. Node.js setup ─────────────────────────────────────────────────────
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+
+      # ── 3. Java 17 (required by Android Gradle) ───────────────────────────────
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      # ── 4. Android SDK ───────────────────────────────────────────────────────
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      # ── 5. Install Capacitor dependencies ────────────────────────────────────
+      - name: Install Node dependencies
+        working-directory: mobile
+        run: npm ci
+
+      # ── 6. Sync web assets to Android project ────────────────────────────────
+      - name: Capacitor sync (Android)
+        working-directory: mobile
+        run: npx cap sync android
+
+      # ── 7. Make gradlew executable ───────────────────────────────────────────
+      - name: Make gradlew executable
+        working-directory: mobile/android
+        run: chmod +x gradlew
+
+      # ── 8a. Build Debug APK (default / push trigger) ─────────────────────────
+      - name: Build Debug APK
+        if: ${{ github.event.inputs.build_type != 'release' }}
+        working-directory: mobile/android
+        run: ./gradlew assembleDebug --no-daemon
+
+      # ── 8b. Build Release APK (manual trigger with release option) ─────────────
+      - name: Build Release APK
+        if: ${{ github.event.inputs.build_type == 'release' }}
+        working-directory: mobile/android
+        run: ./gradlew assembleRelease --no-daemon
+        env:
+          # Set these secrets in GitHub → Settings → Secrets → Actions
+          KEYSTORE_FILE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+
+      # ── 9. Upload Debug APK artifact ─────────────────────────────────────────
+      - name: Upload Debug APK
+        if: ${{ github.event.inputs.build_type != 'release' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: virtuosa-android-debug-${{ github.run_number }}
+          path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+
+      # ── 10. Upload Release APK artifact ──────────────────────────────────────
+      - name: Upload Release APK
+        if: ${{ github.event.inputs.build_type == 'release' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: virtuosa-android-release-${{ github.run_number }}
+          path: mobile/android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 90
