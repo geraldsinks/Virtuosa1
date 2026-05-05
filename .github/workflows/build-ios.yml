@@ -1,0 +1,81 @@
+name: Build iOS App
+
+on:
+  push:
+    branches:
+      - app-work
+    paths:
+      - 'mobile/**'
+      - 'client/**'
+      - '.github/workflows/build-ios.yml'
+  # Allow manual trigger from GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    name: Build iOS App (Simulator)
+    runs-on: macos-latest
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── 2. Node.js setup ─────────────────────────────────────────────────────
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ── 3. Install CocoaPods (for Capacitor iOS plugins) ─────────────────────
+      - name: Install CocoaPods
+        run: sudo gem install cocoapods
+
+      # ── 4. Install Capacitor dependencies ────────────────────────────────────
+      - name: Install Node dependencies
+        working-directory: mobile
+        run: npm ci
+
+      # ── 5. Add iOS platform (generated fresh in CI since macOS is required) ───
+      - name: Add iOS platform
+        working-directory: mobile
+        run: npx cap add ios
+
+      # ── 6. Sync web assets to iOS project ────────────────────────────────────
+      - name: Capacitor sync (iOS)
+        working-directory: mobile
+        run: npx cap sync ios
+
+      # ── 7. Install CocoaPods dependencies for the iOS project ─────────────────
+      - name: Pod install
+        working-directory: mobile/ios/App
+        run: pod install
+
+      # ── 8. Select Xcode version ───────────────────────────────────────────────
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      # ── 9. Build for iOS Simulator (no code signing needed) ──────────────────
+      - name: Build iOS Simulator
+        working-directory: mobile/ios/App
+        run: |
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -configuration Debug \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM="" \
+            clean build \
+            | xcpretty --simple --no-utf || true
+
+      # ── 10. Archive build output ──────────────────────────────────────────────
+      - name: Archive iOS build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-log-${{ github.run_number }}
+          path: ~/Library/Logs/xcodebuild/
+          retention-days: 7

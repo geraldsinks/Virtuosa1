@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Virtuosa</string>
+    <string name="title_activity_main">Virtuosa</string>
+    <string name="package_name">com.virtuosa.app</string>
+    <string name="custom_url_scheme">com.virtuosa.app</string>
+</resources>

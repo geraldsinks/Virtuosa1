@@ -1,0 +1,27 @@
+node_modules/
+dist/
+.gradle/
+build/
+
+# Android
+android/app/build/
+android/.gradle/
+android/local.properties
+android/key.properties
+*.keystore
+*.jks
+
+# iOS
+ios/App/Pods/
+ios/.xcode.env.local
+ios/App/App.xcworkspace/xcuserdata/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.*.local

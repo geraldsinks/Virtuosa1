@@ -1,0 +1,53 @@
+{
+  "appId": "com.virtuosa.app",
+  "appName": "Virtuosa",
+  "webDir": "www",
+  "server": {
+    "url": "https://virtuosazm.com",
+    "cleartext": false,
+    "androidScheme": "https",
+    "allowNavigation": [
+      "*.virtuosazm.com",
+      "api.virtuosazm.com",
+      "res.cloudinary.com",
+      "fonts.googleapis.com",
+      "fonts.gstatic.com"
+    ]
+  },
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false,
+    "appendUserAgent": "VirtuosaApp/1.0 Android",
+    "backgroundColor": "#0A1128",
+    "loggingBehavior": "none"
+  },
+  "ios": {
+    "scheme": "Virtuosa",
+    "contentInset": "automatic",
+    "backgroundColor": "#0A1128",
+    "appendUserAgent": "VirtuosaApp/1.0 iOS",
+    "preferredContentMode": "mobile",
+    "limitsNavigationsToAppBoundDomains": false,
+    "allowsLinkPreview": false,
+    "scrollEnabled": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2500,
+      "launchAutoHide": true,
+      "backgroundColor": "#0A1128",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "iosSpinnerStyle": "large",
+      "spinnerColor": "#D4A853"
+    },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    },
+    "StatusBar": {
+      "style": "Dark",
+      "backgroundColor": "#0A1128"
+    }
+  }
+}
